@@ -1,0 +1,6 @@
+{
+  "name": "Be Lyft'd",
+  "description": "Mobile-first youth mentorship and character development app featuring 10 foundational leadership courses, daily messages, audio uplifting tracks, mentor matching, and clean minimalist UI.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,1776 @@
+<!-- Screen Reader Live Region Announcement -->
+<div class="sr-only" aria-live="polite" aria-atomic="true">
+  {{ themeService.screenReaderMessage() }}
+</div>
+
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+  
+  <!-- Top App Header / Navigation Bar -->
+  <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-safe px-4 sm:px-6 py-3.5 shadow-sm">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <button
+        id="brand-home-btn"
+        type="button"
+        (click)="activeTab.set('daily-lyft')"
+        class="flex items-center gap-3 text-left cursor-pointer focus-accessible rounded-xl group"
+        aria-label="Be Lyft'd Home"
+      >
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-sm transition group-hover:bg-indigo-700">
+          <span class="font-display">L</span>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
+            Be Lyft'd
+          </h1>
+          <span class="block text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 tracking-wide uppercase">
+            Youth Mentorship
+          </span>
+        </div>
+      </button>
+
+      <!-- Desktop Nav Links (Hidden on small mobile, visible on tablet/desktop) -->
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <button
+          type="button"
+          (click)="activeTab.set('daily-lyft')"
+          [class]="activeTab() === 'daily-lyft' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
+          class="cursor-pointer"
+        >
+          Home
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('courses')"
+          [class]="activeTab() === 'courses' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
+          class="cursor-pointer flex items-center gap-1.5"
+        >
+          <span>Courses</span>
+          <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold">10</span>
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('mentors')"
+          [class]="activeTab() === 'mentors' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
+          class="cursor-pointer"
+        >
+          Mentors
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('quests')"
+          [class]="activeTab() === 'quests' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
+          class="cursor-pointer"
+        >
+          Growth Quests
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('coach-spark')"
+          [class]="activeTab() === 'coach-spark' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
+          class="cursor-pointer"
+        >
+          Coach Spark
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('community')"
+          [class]="activeTab() === 'community' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
+          class="cursor-pointer"
+        >
+          Hype Wall
+        </button>
+      </nav>
+
+      <!-- Right Action Items -->
+      <div class="flex items-center gap-2">
+        <!-- Firebase Status & Register Button -->
+        <button
+          id="open-register-btn"
+          type="button"
+          (click)="showRegisterModal.set(true)"
+          class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition focus-accessible"
+          [class]="firebaseService.isConnected() 
+            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100' 
+            : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-100'"
+          title="Firebase Web SDK v10+ & Account Setup"
+        >
+          <span class="w-2 h-2 rounded-full" [class]="firebaseService.isConnected() ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+          <span>{{ firebaseService.currentUser() ? 'Account Synced' : 'Register / Sync' }}</span>
+        </button>
+
+        <!-- Push Notification Simulator Trigger -->
+        <button
+          id="simulate-daily-notification-btn"
+          type="button"
+          (click)="triggerSimulatedNotification('changing-habits', 'Changing Habits')"
+          class="px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 text-xs font-semibold flex items-center gap-1.5 cursor-pointer focus-accessible"
+          title="Simulate incoming Daily Message notification with deep-link URL (app.com?courseId=changing-habits)"
+        >
+          <mat-icon class="text-base text-indigo-600 dark:text-indigo-400">notifications_active</mat-icon>
+          <span class="hidden md:inline">Simulate Push</span>
+        </button>
+
+        <!-- Streak Button -->
+        <button
+          id="streak-indicator-btn"
+          type="button"
+          (click)="showStreakModal.set(true)"
+          class="px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 text-orange-600 dark:text-orange-400 text-xs font-bold flex items-center gap-1.5 hover:bg-orange-100 transition cursor-pointer focus-accessible shadow-xs"
+          aria-label="View active streak"
+        >
+          <span class="text-sm">🔥</span>
+          <span>{{ firebaseService.userProfile()?.streakDays || 4 }}d</span>
+        </button>
+
+        <!-- Theme Toggle Button -->
+        <button
+          id="theme-quick-toggle-btn"
+          type="button"
+          (click)="themeService.toggleTheme()"
+          class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white flex items-center justify-center cursor-pointer transition focus-accessible"
+          [attr.aria-label]="themeService.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+          title="Toggle Dark/Light Mode"
+        >
+          <mat-icon class="text-base">
+            {{ themeService.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}
+          </mat-icon>
+        </button>
+
+        <!-- User Profile Avatar Button -->
+        <button
+          id="open-profile-dialog-btn"
+          type="button"
+          (click)="showProfileModal.set(true)"
+          class="w-10 h-10 rounded-full bg-slate-200 border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden cursor-pointer focus-accessible shrink-0 hover:ring-2 hover:ring-indigo-500/50 transition"
+          aria-label="Open User Profile and Settings"
+        >
+          <img
+            [src]="dataService.userProfile().avatar"
+            [alt]="dataService.userProfile().name"
+            class="w-full h-full object-cover"
+            referrerpolicy="no-referrer"
+          />
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Simulated Web Notification / Daily Message Deep-Link Toast -->
+  @if (simulatedNotificationToast()) {
+    <div id="simulated-notification-toast" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-white px-4 py-3 shadow-lg z-40 animate-in slide-in-from-top duration-300">
+      <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+            <mat-icon class="text-white text-xl">notifications_active</mat-icon>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-md">
+                Simulated Push
+              </span>
+              <strong class="text-sm font-semibold">{{ simulatedNotificationToast()?.title }}</strong>
+            </div>
+            <p class="text-xs text-white/90 mt-0.5">
+              {{ simulatedNotificationToast()?.body }} 
+              <span class="font-mono text-[11px] opacity-75 hidden md:inline">({{ simulatedNotificationToast()?.link }})</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 self-end sm:self-auto">
+          <button
+            id="open-notification-deep-link-btn"
+            type="button"
+            (click)="openFromNotificationToast()"
+            class="px-3.5 py-1.5 rounded-xl bg-white text-indigo-900 hover:bg-slate-100 text-xs font-bold transition shadow-sm cursor-pointer flex items-center gap-1.5"
+          >
+            <mat-icon class="text-base text-indigo-600">play_circle</mat-icon>
+            <span>Open Lesson Player</span>
+          </button>
+          <button
+            id="dismiss-notification-toast-btn"
+            type="button"
+            (click)="dismissSimulatedNotification()"
+            class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition"
+            aria-label="Dismiss notification alert"
+          >
+            <mat-icon class="text-sm">close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- PWA Install & Offline Quick Notification Banner -->
+  @if (showPwaInstallBanner()) {
+    <div
+      id="pwa-install-banner"
+      (click)="handleInstallBannerClick()"
+      (keydown.enter)="handleInstallBannerClick()"
+      (keydown.space)="handleInstallBannerClick()"
+      tabindex="0"
+      class="bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 border-b border-indigo-500/30 px-4 py-2.5 text-xs text-indigo-100 shadow-md cursor-pointer hover:bg-indigo-900/90 transition group select-none focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      role="banner"
+      aria-label="Install Be Lyft'd App banner. Click to install."
+    >
+      <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+          <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition shadow-xs">
+            <mat-icon class="text-sm">install_mobile</mat-icon>
+          </div>
+          <div class="min-w-0">
+            <span class="font-semibold text-white">Install Be Lyft'd</span>
+            <span class="hidden sm:inline text-indigo-200 ml-1.5">— Add to home screen for offline audio coaching & faster loading</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            id="pwa-install-action-btn"
+            type="button"
+            (click)="handleInstallBannerClick()"
+            class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-xs transition flex items-center gap-1 cursor-pointer"
+          >
+            <mat-icon class="text-xs">download</mat-icon>
+            <span>Install</span>
+          </button>
+          <button
+            id="pwa-dismiss-btn"
+            type="button"
+            (click)="dismissPwaBanner($event)"
+            class="px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white font-medium text-xs border border-slate-700 transition cursor-pointer"
+            aria-label="Dismiss install prompt"
+          >
+            Got it
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Manual PWA Install Guidance Toast (for iOS Safari / browsers without prompt) -->
+  @if (pwaManualGuideMessage()) {
+    <div
+      id="pwa-manual-guide-toast"
+      class="bg-indigo-600 text-white px-4 py-3 text-xs shadow-lg border-b border-indigo-400 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-200"
+    >
+      <div class="max-w-4xl mx-auto flex items-center gap-2 w-full">
+        <mat-icon class="text-amber-300 text-base shrink-0">info</mat-icon>
+        <span class="flex-1 font-medium">{{ pwaManualGuideMessage() }}</span>
+        <button
+          type="button"
+          (click)="pwaManualGuideMessage.set(null)"
+          class="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center cursor-pointer transition"
+          aria-label="Dismiss guide"
+        >
+          <mat-icon class="text-xs">close</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Main Scrollable Content Container -->
+  <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-6 pb-28">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: DAILY LYFT (HOME / DAILY MESSAGE)   -->
+    <!-- ========================================== -->
+    @if (activeTab() === 'daily-lyft') {
+      <div id="tab-daily-lyft-content" class="space-y-6 animate-in fade-in duration-150">
+        
+        <!-- Welcome Header / Hopeful Sunrise Hero -->
+        <div class="relative overflow-hidden rounded-[2rem] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
+          <div class="absolute -top-12 right-8 h-32 w-32 rounded-full bg-amber-300/40 blur-2xl"></div>
+          <div class="absolute bottom-4 left-8 h-24 w-24 rounded-full bg-indigo-400/20 blur-2xl"></div>
+
+          <div class="relative z-10 flex items-start justify-between gap-4">
+            <div class="max-w-2xl">
+              <div class="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-700 dark:bg-slate-900/40 dark:text-amber-300">
+                <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/60"></span>
+                Safe space + fresh start
+              </div>
+
+              <h2 class="mt-4 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
+                A new day full of potential, {{ userFirstName() }}.
+              </h2>
+              <p class="mt-3 max-w-xl text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                Whatever yesterday looked like, today is a fresh step forward. We’re right here with you.
+              </p>
+
+              <div class="mt-5 flex flex-wrap items-center gap-3">
+                <div class="flex -space-x-2">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-amber-200 to-orange-300 text-[10px] font-bold text-slate-700 shadow-sm">MJ</div>
+                  <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-rose-200 to-pink-300 text-[10px] font-bold text-slate-700 shadow-sm">AK</div>
+                  <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-emerald-200 to-teal-300 text-[10px] font-bold text-slate-700 shadow-sm">LM</div>
+                  <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-indigo-200 to-violet-300 text-[10px] font-bold text-slate-700 shadow-sm">TP</div>
+                </div>
+                <div class="inline-flex items-center gap-2 rounded-full bg-white/80 dark:bg-slate-900/60 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
+                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                  12 Mentors Online & Ready to Listen
+                </div>
+              </div>
+            </div>
+
+            <button
+              id="quick-record-voice-btn"
+              type="button"
+              (click)="showVoiceRecorder.set(true)"
+              class="shrink-0 rounded-2xl border border-slate-200 bg-white/85 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-indigo-500 hover:text-indigo-600 focus-accessible dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 sm:px-4 sm:py-2.5"
+            >
+              <span class="flex items-center gap-2">
+                <mat-icon class="text-base text-rose-500">mic</mat-icon>
+                <span class="hidden sm:inline">Voice Journal</span>
+                <span class="sm:hidden">Record</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 'Daily Message' Card with 'Start Today's Lesson' Direct CTA -->
+        <div id="daily-message-card" class="relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          <div class="absolute inset-0 bg-gradient-to-r from-amber-100/80 via-rose-50/80 to-indigo-50/80 dark:from-amber-950/20 dark:via-rose-950/10 dark:to-indigo-950/20"></div>
+          <div class="relative z-10 space-y-4">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-indigo-700 shadow-sm ring-1 ring-indigo-100 dark:bg-slate-900/70 dark:text-indigo-300 dark:ring-indigo-900">
+                ✨ 30-Sec Mindset Reset
+              </span>
+              <span class="flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <mat-icon class="text-sm">schedule</mat-icon>
+                {{ todaysLesson().estimatedTime }} lesson
+              </span>
+            </div>
+
+            <div>
+              <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
+                {{ todaysLesson().title }}
+              </h3>
+              <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:text-base">
+                {{ todaysLesson().description }}
+              </p>
+            </div>
+
+            <div class="pt-1 flex flex-wrap items-center gap-3">
+              <button
+                id="start-todays-lesson-btn"
+                type="button"
+                (click)="startTodaysLesson()"
+                class="flex items-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-500/25 transition hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/25 focus-accessible"
+              >
+                <mat-icon class="text-lg">play_arrow</mat-icon>
+                <span>Start Today's Lesson</span>
+              </button>
+
+              <button
+                id="open-custom-pep-modal-btn"
+                type="button"
+                (click)="showCustomPepTalk.set(true)"
+                class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus-accessible dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-850"
+              >
+                <mat-icon class="text-base text-amber-500">auto_awesome</mat-icon>
+                <span>AI Pep Talk</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Subtle Decorative Shape -->
+          <div class="pointer-events-none absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-indigo-50 opacity-60 dark:bg-indigo-950/20"></div>
+        </div>
+
+        <!-- Quick Progress Bar Showing Completed Courses -->
+        <div id="quick-courses-progress-box" class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                <mat-icon class="text-xl">auto_stories</mat-icon>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Foundational Courses Progress</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">10 Core Youth Leadership & Mindset Modules</p>
+              </div>
+            </div>
+
+            <button
+              id="view-all-courses-btn"
+              type="button"
+              (click)="activeTab.set('courses')"
+              class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer flex items-center gap-1"
+            >
+              <span>View All (10)</span>
+              <mat-icon class="text-sm">chevron_right</mat-icon>
+            </button>
+          </div>
+
+          <div class="space-y-1.5 pt-1">
+            <div class="flex justify-between items-baseline text-xs">
+              <span class="font-bold text-slate-900 dark:text-slate-100">
+                {{ completedCoursesCount() }} of {{ totalCoursesCount() }} Courses Completed
+              </span>
+              <span class="font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                {{ coursesProgressPercent() }}%
+              </span>
+            </div>
+            <div class="w-full h-3.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div
+                class="h-full bg-indigo-600 rounded-full transition-all duration-500 ease-out"
+                [style.width.%]="coursesProgressPercent()"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clean Bento 2-Column Progress & Upcoming Session -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <!-- Bento Box 1: Upcoming Mentorship & Action Step -->
+          <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-slate-900 dark:text-slate-100 font-bold text-base">Upcoming Session</h4>
+                <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 rounded-full">Active</span>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                  <mat-icon class="text-2xl">event_available</mat-icon>
+                </div>
+                <div>
+                  <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Career Pathing & Interview Prep</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-2.5">With Marcus Vance • Tech Lead</p>
+                  <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg inline-block">
+                    Tomorrow, 4:00 PM
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-slate-500 dark:text-slate-400">Daily Step: Complete portfolio check</span>
+              <button (click)="activeTab.set('quests')" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer">
+                View Quest →
+              </button>
+            </div>
+          </div>
+
+          <!-- Bento Box 2: Weekly Progress -->
+          <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-slate-900 dark:text-slate-100 font-bold text-base">Weekly Growth Progress</h4>
+                <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 rounded-full">Level 3</span>
+              </div>
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-end">
+                  <span class="text-3xl font-bold text-slate-900 dark:text-slate-100 font-display">
+                    {{ growthProgressPercent() }}%
+                  </span>
+                  <span class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">
+                    {{ completedStepsCount() }}/{{ totalStepsCount() }} Milestones
+                  </span>
+                </div>
+                <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-1">
+                  <div
+                    class="h-full bg-indigo-600 rounded-full transition-all duration-300"
+                    [style.width.%]="growthProgressPercent()"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+              🔥 7-day streak active. 2 days left to complete your weekly reflection.
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Mood Check-in Carousel -->
+        <section class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <mat-icon class="text-lg">sentiment_satisfied_alt</mat-icon>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">How Are You Feeling Right Now?</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Select a mood to calibrate your guidance</p>
+              </div>
+            </div>
+            <span class="text-xs text-slate-400 font-medium">Quick Check-in</span>
+          </div>
+
+          <!-- Mood Pills -->
+          <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            @for (item of moodCheckins; track item.mood) {
+              <button
+                type="button"
+                (click)="setMoodCheckin(item)"
+                [class]="activeMoodPrompt()?.mood === item.mood
+                  ? 'bg-indigo-600 text-white font-semibold border-indigo-600 shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'"
+                class="px-4 py-2.5 rounded-2xl border text-xs whitespace-nowrap flex items-center gap-2 cursor-pointer transition focus-accessible shrink-0"
+              >
+                <span>{{ item.emoji }}</span>
+                <span>{{ item.mood.split(' ')[1] || item.mood }}</span>
+              </button>
+            }
+          </div>
+
+          <!-- Mood Response Banner if clicked -->
+          @if (activeMoodPrompt()) {
+            <div class="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 animate-in slide-in-from-top-2 duration-150">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-1">
+                    {{ activeMoodPrompt()?.mood }} Mentorship Guidance:
+                  </p>
+                  <p class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
+                    {{ activeMoodPrompt()?.advice }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  (click)="playMoodTrack(activeMoodPrompt()!.trackId)"
+                  class="px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center gap-1 hover:bg-indigo-700 cursor-pointer shrink-0 transition shadow-xs"
+                >
+                  <mat-icon class="text-sm">play_arrow</mat-icon>
+                  <span>Listen</span>
+                </button>
+              </div>
+            </div>
+          }
+        </section>
+
+        <!-- Audio Inspiration Library & Featured Tracks -->
+        <section class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <mat-icon class="text-lg">headphones</mat-icon>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Featured Spoken Pep Talks</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ filteredTracks().length }} Audio lessons available</p>
+              </div>
+            </div>
+            
+            <button (click)="activeTab.set('mentors')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
+              Explore All →
+            </button>
+          </div>
+
+          <!-- Category Filter Chips -->
+          <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+            @for (cat of ['All', 'Mindset', 'Confidence', 'Career & Goals', 'Overcoming Anxiety', 'Leadership']; track cat) {
+              <button
+                type="button"
+                (click)="audioCategoryFilter.set(cat)"
+                [class]="audioCategoryFilter() === cat
+                  ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'"
+                class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
+              >
+                {{ cat }}
+              </button>
+            }
+          </div>
+
+          <!-- Tracks List -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            @for (track of filteredTracks(); track track.id) {
+              <div
+                class="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750 hover:border-slate-300 dark:hover:border-slate-700 transition flex items-center justify-between gap-3 group"
+              >
+                <button
+                  type="button"
+                  (click)="audioPlayer.playTrack(track)"
+                  class="flex items-center gap-3.5 min-w-0 text-left cursor-pointer flex-1 focus-accessible rounded-xl"
+                  aria-label="Play track {{ track.title }}"
+                >
+                  <div class="relative w-12 h-12 rounded-2xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700 shadow-xs">
+                    <img
+                      [src]="track.speakerAvatar"
+                      [alt]="track.speaker"
+                      class="w-full h-full object-cover"
+                      referrerpolicy="no-referrer"
+                    />
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 flex items-center justify-center transition">
+                      <mat-icon class="text-white text-base">play_arrow</mat-icon>
+                    </div>
+                  </div>
+
+                  <div class="min-w-0">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                      {{ track.category }}
+                    </span>
+                    <h5 class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                      {{ track.title }}
+                    </h5>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                      {{ track.speaker }} • {{ track.duration }}
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="audioPlayer.playTrack(track)"
+                  class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white border border-slate-200 dark:border-slate-700 flex items-center justify-center cursor-pointer transition shadow-xs shrink-0 focus-accessible"
+                  title="Play Audio Track"
+                >
+                  <mat-icon class="text-base">play_arrow</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- Voice Reflections Section -->
+        <section class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                <mat-icon class="text-lg">mic</mat-icon>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">My Voice Reflections</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Audio journal entries and personal breakthroughs</p>
+              </div>
+            </div>
+            <button
+              id="new-voice-note-link"
+              type="button"
+              (click)="showVoiceRecorder.set(true)"
+              class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+            >
+              + Record Note
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            @for (journal of dataService.voiceJournals(); track journal.id) {
+              <div class="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between gap-1 text-[11px] text-slate-400 mb-1.5">
+                    <span>{{ journal.date }}</span>
+                    <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ journal.mood }}</span>
+                  </div>
+                  <h5 class="text-xs font-bold text-slate-900 dark:text-slate-100 line-clamp-1">
+                    {{ journal.title }}
+                  </h5>
+                  <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed">
+                    "{{ journal.prompt }}"
+                  </p>
+                </div>
+
+                <div class="mt-3 pt-2.5 border-t border-slate-200/70 dark:border-slate-700 flex items-center justify-between">
+                  <span class="text-[11px] text-slate-400 font-mono">0:{{ journal.durationSec }}</span>
+                  <button
+                    type="button"
+                    (click)="playRecordedJournal(journal)"
+                    class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1 cursor-pointer transition shadow-xs"
+                  >
+                    <mat-icon class="text-xs">play_arrow</mat-icon>
+                    <span>Listen</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+
+      </div>
+    }
+
+    <!-- ================================================= -->
+    <!-- TAB: FOUNDATIONAL COURSES GRID (10 LEADERSHIP M.) -->
+    <!-- ================================================= -->
+    @if (activeTab() === 'courses') {
+      <div id="tab-courses-content" class="space-y-6 animate-in fade-in duration-150">
+        
+        <!-- Header & Progress Overview -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/40 uppercase tracking-wider">
+                Leadership Curriculum
+              </span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">10 Modules</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display mt-1">
+              Foundational Courses
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Essential masterclasses to build character, resilience, habits, and unstoppable momentum.
+            </p>
+          </div>
+
+          <!-- Overall Progress Badge -->
+          <div class="bg-white dark:bg-slate-900 px-4 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs flex items-center gap-3 shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs font-mono">
+              {{ coursesProgressPercent() }}%
+            </div>
+            <div>
+              <p class="text-xs font-bold text-slate-900 dark:text-slate-100">
+                {{ completedCoursesCount() }} / {{ totalCoursesCount() }} Finished
+              </p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                +{{ completedCoursesCount() * 100 }} XP earned
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+          <button
+            type="button"
+            (click)="courseFilter.set('all')"
+            [class]="courseFilter() === 'all'
+              ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+              : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
+            class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
+          >
+            All Courses (10)
+          </button>
+          <button
+            type="button"
+            (click)="courseFilter.set('in-progress')"
+            [class]="courseFilter() === 'in-progress'
+              ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+              : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
+            class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
+          >
+            In Progress ({{ totalCoursesCount() - completedCoursesCount() }})
+          </button>
+          <button
+            type="button"
+            (click)="courseFilter.set('completed')"
+            [class]="courseFilter() === 'completed'
+              ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+              : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
+            class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
+          >
+            Completed ({{ completedCoursesCount() }})
+          </button>
+        </div>
+
+        <!-- Foundational Courses Responsive Grid (1 col on mobile, 2 cols on tablet/desktop) -->
+        <div id="foundational-courses-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          @for (course of filteredCourses(); track course.id) {
+            <div
+              id="course-card-{{ course.id }}"
+              class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition flex flex-col justify-between space-y-4 group"
+            >
+              <div class="space-y-2.5">
+                <!-- Top Row: Time & Status Badge -->
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <mat-icon class="text-sm">schedule</mat-icon>
+                    {{ course.estimatedTime }}
+                  </span>
+
+                  <!-- Status Badge -->
+                  @if (course.isCompleted) {
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50">
+                      <mat-icon class="text-xs">check_circle</mat-icon>
+                      Completed
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      <mat-icon class="text-xs">play_circle_outline</mat-icon>
+                      Up Next
+                    </span>
+                  }
+                </div>
+
+                <!-- Course Title -->
+                <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 font-display tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  {{ course.title }}
+                </h3>
+
+                <!-- 2-3 Sentences Description -->
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
+                  {{ course.description }}
+                </p>
+              </div>
+
+              <!-- Actions Bottom Bar -->
+              <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                <button
+                  id="open-course-btn-{{ course.id }}"
+                  type="button"
+                  (click)="openCourse(course)"
+                  class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
+                >
+                  <mat-icon class="text-sm">menu_book</mat-icon>
+                  <span>Read & Listen</span>
+                </button>
+
+                <button
+                  id="toggle-course-complete-btn-{{ course.id }}"
+                  type="button"
+                  (click)="dataService.toggleCourseCompletion(course.id)"
+                  class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium cursor-pointer transition focus-accessible flex items-center gap-1"
+                  [attr.title]="course.isCompleted ? 'Mark as Incomplete' : 'Mark as Completed'"
+                >
+                  <mat-icon class="text-base" [class.text-emerald-600]="course.isCompleted">
+                    {{ course.isCompleted ? 'check_box' : 'check_box_outline_blank' }}
+                  </mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MENTORS DIRECTORY & 1-ON-1 SESSIONS -->
+    <!-- ========================================== -->
+    @if (activeTab() === 'mentors') {
+      <div id="tab-mentors-content" class="space-y-6 animate-in fade-in duration-150">
+        
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
+              Find Your Mentor
+            </h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Connect with verified leaders in STEM, College Prep, Life Skills, and Creative Arts.
+            </p>
+          </div>
+        </div>
+
+        <!-- Specialty Filter Pills -->
+        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+          @for (spec of ['All', 'Coding', 'College', 'Leadership', 'Financial', 'Creative']; track spec) {
+            <button
+              type="button"
+              (click)="mentorSpecialtyFilter.set(spec)"
+              [class]="mentorSpecialtyFilter() === spec
+                ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
+              class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
+            >
+              {{ spec === 'All' ? 'All Mentors' : spec }}
+            </button>
+          }
+        </div>
+
+        <!-- Mentors Deck -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          @for (mentor of filteredMentors(); track mentor.id) {
+            <div
+              class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between"
+            >
+              <!-- Card Top Header with Gradient Accent -->
+              <div>
+                <div class="p-5 bg-gradient-to-r {{ mentor.bannerGradient }} text-white flex items-center justify-between">
+                  <div class="flex items-center gap-3.5">
+                    <div class="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/40 shadow-sm shrink-0">
+                      <img
+                        [src]="mentor.avatar"
+                        [alt]="mentor.name"
+                        class="w-full h-full object-cover"
+                        referrerpolicy="no-referrer"
+                      />
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5">
+                        <h3 class="text-base font-bold font-display text-white">{{ mentor.name }}</h3>
+                        @if (mentor.verified) {
+                          <span class="w-4 h-4 rounded-full bg-white text-indigo-700 text-[10px] flex items-center justify-center font-bold">✓</span>
+                        }
+                      </div>
+                      <p class="text-xs text-white/90 font-medium">{{ mentor.title }}</p>
+                      <p class="text-[11px] text-white/70">{{ mentor.organization }}</p>
+                    </div>
+                  </div>
+
+                  <!-- Rating -->
+                  <div class="flex flex-col items-end">
+                    <div class="flex items-center gap-1 bg-black/20 backdrop-blur-xs px-2.5 py-1 rounded-xl text-amber-300 text-xs font-bold">
+                      <mat-icon class="text-xs">star</mat-icon>
+                      <span>{{ mentor.rating }}</span>
+                    </div>
+                    <span class="text-[10px] text-white/80 mt-1">{{ mentor.menteesCount }} mentored</span>
+                  </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="p-5 space-y-3.5">
+                  <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {{ mentor.bio }}
+                  </p>
+
+                  <!-- Mentor Quote -->
+                  <div class="p-3 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 text-xs font-medium text-indigo-700 dark:text-indigo-300 italic">
+                    "{{ mentor.quote }}"
+                  </div>
+
+                  <!-- Specialty Tags -->
+                  <div class="flex flex-wrap gap-1.5">
+                    @for (tag of mentor.specialties; track tag) {
+                      <span class="px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                        {{ tag }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Availability & CTA Actions Footer -->
+              <div class="px-5 pb-5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <mat-icon class="text-sm">schedule</mat-icon>
+                  <span>{{ mentor.availableNext }}</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <!-- Listen to Intro -->
+                  <button
+                    type="button"
+                    (click)="audioPlayer.speakCustomScript('Mentor Intro with ' + mentor.name, mentor.voiceIntroPrompt, mentor.name, 'Confidence')"
+                    class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition focus-accessible"
+                    title="Listen to Voice Intro"
+                  >
+                    <mat-icon class="text-sm text-indigo-600 dark:text-indigo-400">volume_up</mat-icon>
+                    <span>Intro</span>
+                  </button>
+
+                  <!-- Open Chat / Booking -->
+                  <button
+                    type="button"
+                    (click)="openMentorChat(mentor)"
+                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
+                  >
+                    <mat-icon class="text-sm">chat</mat-icon>
+                    <span>Connect</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ========================================== -->
+    <!-- TAB 3: QUESTS & GOAL MILESTONES           -->
+    <!-- ========================================== -->
+    @if (activeTab() === 'quests') {
+      <div id="tab-quests-content" class="space-y-6 animate-in fade-in duration-150">
+        
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
+              Youth Growth Quests
+            </h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Turn big dreams into real-world milestones with structured guidance.
+            </p>
+          </div>
+
+          <button
+            id="add-quest-header-btn"
+            type="button"
+            (click)="showNewQuestModal.set(true)"
+            class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm cursor-pointer transition focus-accessible shrink-0"
+          >
+            <mat-icon class="text-base">add</mat-icon>
+            <span>New Quest</span>
+          </button>
+        </div>
+
+        <!-- Progress XP Card -->
+        <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base">
+                ⚡
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100 font-display">
+                  Level 3 Pathfinder
+                </h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ totalQuestXp() }} XP Total Earned</p>
+              </div>
+            </div>
+
+            <span class="text-xs font-bold font-mono text-indigo-600 dark:text-indigo-400">
+              {{ completedStepsCount() }}/{{ totalStepsCount() }} Milestones Done
+            </span>
+          </div>
+
+          <!-- XP Bar -->
+          <div class="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">
+            <div
+              class="bg-indigo-600 h-full rounded-full transition-all duration-300"
+              [style.width.%]="totalStepsCount() ? (completedStepsCount() / totalStepsCount()) * 100 : 0"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Quest Cards -->
+        <div class="space-y-4">
+          @for (quest of dataService.goalQuests(); track quest.id) {
+            <div
+              class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 space-y-4 shadow-sm"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300">
+                      {{ quest.category }}
+                    </span>
+                    <span class="text-xs text-slate-400">{{ quest.deadline }}</span>
+                  </div>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-display">
+                    {{ quest.title }}
+                  </h3>
+                </div>
+
+                @if (quest.status === 'completed') {
+                  <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1">
+                    <mat-icon class="text-sm">verified</mat-icon> Completed
+                  </span>
+                }
+              </div>
+
+              @if (quest.notes) {
+                <p class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-750 leading-relaxed">
+                  💡 <strong class="text-slate-900 dark:text-slate-100">Mentor Tip:</strong> {{ quest.notes }}
+                </p>
+              }
+
+              <!-- Steps Checkbox List -->
+              <div class="space-y-2 pt-1">
+                @for (step of quest.steps; track step.id) {
+                  <button
+                    type="button"
+                    (click)="dataService.toggleGoalStep(quest.id, step.id)"
+                    [class]="step.completed
+                      ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50 text-slate-400 line-through'
+                      : 'bg-slate-50 dark:bg-slate-800/60 border-slate-100 dark:border-slate-750 text-slate-800 dark:text-slate-200 hover:border-indigo-300'"
+                    class="w-full p-3 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition text-left focus-accessible"
+                    [attr.aria-label]="(step.completed ? 'Mark incomplete: ' : 'Mark complete: ') + step.title"
+                  >
+                    <div class="flex items-center gap-3 min-w-0">
+                      <div
+                        [class]="step.completed ? 'bg-emerald-600 text-white border-emerald-600' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900'"
+                        class="w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition shadow-xs"
+                      >
+                        @if (step.completed) {
+                          <mat-icon class="text-xs font-bold">check</mat-icon>
+                        }
+                      </div>
+                      <span class="text-xs font-medium truncate">{{ step.title }}</span>
+                    </div>
+
+                    <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-700 text-amber-600 dark:text-amber-300 shrink-0">
+                      +{{ step.xp }} XP
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- ========================================== -->
+    <!-- TAB 4: COACH SPARK (24/7 YOUTH AI COMPANION)-->
+    <!-- ========================================== -->
+    @if (activeTab() === 'coach-spark') {
+      <div id="tab-coach-spark-content" class="space-y-6 animate-in fade-in duration-150">
+        
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+              <mat-icon class="text-2xl">bolt</mat-icon>
+            </div>
+            <div>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 font-display">
+                Coach Spark (AI Mentor)
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                24/7 Youth Uplift, Resume Prep & Life Guidance
+              </p>
+            </div>
+          </div>
+
+          <!-- Instant Pep Talk CTA -->
+          <button
+            type="button"
+            (click)="showCustomPepTalk.set(true)"
+            class="px-4 py-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50 text-xs font-semibold flex items-center gap-1.5 cursor-pointer hover:bg-amber-100 transition shrink-0"
+          >
+            <mat-icon class="text-sm">auto_awesome</mat-icon>
+            <span>Instant Pep Talk</span>
+          </button>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+          @for (chip of [
+            'How to overcome test anxiety?',
+            'Tips for high school resume',
+            'Staying focused when unmotivated',
+            'Dealing with peer pressure'
+          ]; track chip) {
+            <button
+              type="button"
+              (click)="askCoachQuickQuestion(chip)"
+              class="px-4 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-500 text-xs whitespace-nowrap cursor-pointer transition focus-accessible shrink-0 shadow-xs"
+            >
+              {{ chip }}
+            </button>
+          }
+        </div>
+
+        <!-- Chat Conversation Area -->
+        <div class="space-y-4 min-h-[380px] p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+          @for (msg of aiService.coachMessages(); track msg.id) {
+            <div
+              [class]="msg.sender === 'user' ? 'flex justify-end' : 'flex justify-start'"
+            >
+              <div
+                [class]="msg.sender === 'user'
+                  ? 'bg-indigo-600 text-white rounded-3xl rounded-tr-xs'
+                  : 'bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-3xl rounded-tl-xs'"
+                class="max-w-[85%] p-4 text-sm shadow-xs space-y-2"
+              >
+                <div class="flex items-center justify-between gap-3 text-[11px] opacity-75">
+                  <span class="font-bold">{{ msg.senderName }}</span>
+                  <span>{{ msg.timestamp }}</span>
+                </div>
+
+                <p class="leading-relaxed text-xs sm:text-sm">{{ msg.text }}</p>
+
+                <!-- Voice Playback Button for AI answers -->
+                @if (msg.sender === 'coach-spark') {
+                  <div class="pt-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      (click)="speakAiResponse(msg.text)"
+                      class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs"
+                      title="Speak AI Coach Advice"
+                    >
+                      <mat-icon class="text-xs">volume_up</mat-icon>
+                      <span>Listen to Audio Voice</span>
+                    </button>
+                    @if (msg.actionPrompt) {
+                      <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                        ⚡ Next Step
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (aiService.isGenerating()) {
+            <div class="flex items-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 p-2">
+              <mat-icon class="animate-spin text-sm">autorenew</mat-icon>
+              <span>Coach Spark is crafting uplifting guidance...</span>
+            </div>
+          }
+        </div>
+
+        <!-- Chat Input Form -->
+        <form [formGroup]="coachChatForm" (ngSubmit)="sendCoachSparkMessage()" class="flex items-center gap-3">
+          <input
+            id="coach-spark-input"
+            type="text"
+            formControlName="prompt"
+            placeholder="Ask Coach Spark anything (e.g. advice on interview, math stress, goals)..."
+            class="flex-1 px-5 py-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-slate-100 shadow-xs focus-accessible"
+          />
+          <button
+            id="send-coach-msg-btn"
+            type="submit"
+            [disabled]="!coachChatForm.valid || aiService.isGenerating()"
+            class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white flex items-center justify-center shadow-sm cursor-pointer transition focus-accessible shrink-0"
+            aria-label="Send message to Coach Spark"
+          >
+            <mat-icon>send</mat-icon>
+          </button>
+        </form>
+
+      </div>
+    }
+
+    <!-- ========================================== -->
+    <!-- TAB 5: COMMUNITY HYPE WALL                 -->
+    <!-- ========================================== -->
+    @if (activeTab() === 'community') {
+      <div id="tab-community-content" class="space-y-6 animate-in fade-in duration-150">
+        
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
+              The Hype Wall
+            </h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Safe, peer-to-peer encouragement, wins of the week, and gratitude shouts.
+            </p>
+          </div>
+        </div>
+
+        <!-- Post Creator Box -->
+        <form [formGroup]="newPostForm" (ngSubmit)="submitCommunityPost()" class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 space-y-4 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider font-display">
+              ✨ Share a Win or Drop Some Hype
+            </span>
+            <select
+              formControlName="type"
+              class="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 font-semibold focus-accessible"
+            >
+              <option value="win">🏆 Big Win</option>
+              <option value="shoutout">📣 Shoutout</option>
+              <option value="advice">💡 Youth Advice</option>
+              <option value="gratitude">🙏 Gratitude</option>
+            </select>
+          </div>
+
+          <textarea
+            formControlName="content"
+            rows="2"
+            placeholder="What's a win you had this week, or someone you want to encourage?"
+            class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 focus-accessible resize-none"
+          ></textarea>
+
+          <div class="flex items-center justify-between gap-3">
+            <input
+              type="text"
+              formControlName="tagInput"
+              placeholder="#Tags (e.g. #STEMWins #StudyTip)"
+              class="w-1/2 px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200"
+            />
+
+            <button
+              id="publish-post-btn"
+              type="submit"
+              [disabled]="!newPostForm.valid"
+              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 cursor-pointer transition focus-accessible"
+            >
+              <mat-icon class="text-sm">send</mat-icon>
+              <span>Post to Wall</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Category Filters -->
+        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+          @for (f of ['All', 'win', 'shoutout', 'advice', 'gratitude']; track f) {
+            <button
+              type="button"
+              (click)="communityPostFilter.set(f)"
+              [class]="communityPostFilter() === f
+                ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'"
+              class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0 capitalize"
+            >
+              {{ f === 'All' ? 'All Posts' : f }}
+            </button>
+          }
+        </div>
+
+        <!-- Community Posts Feed -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          @for (post of filteredCommunityPosts(); track post.id) {
+            <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 space-y-3.5 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <img
+                      [src]="post.authorAvatar"
+                      [alt]="post.authorName"
+                      class="w-10 h-10 rounded-2xl object-cover border border-slate-200 dark:border-slate-700"
+                      referrerpolicy="no-referrer"
+                    />
+                    <div>
+                      <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 font-display">
+                        {{ post.authorName }}
+                      </h3>
+                      <p class="text-[11px] text-slate-400">{{ post.authorGrade }} • {{ post.timestamp }}</p>
+                    </div>
+                  </div>
+
+                  <span class="px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300">
+                    {{ post.type }}
+                  </span>
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed mt-3">
+                  {{ post.content }}
+                </p>
+
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-1.5 mt-3">
+                  @for (tag of post.tags; track tag) {
+                    <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                      {{ tag }}
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <!-- Lyft Button & Interactions -->
+              <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <button
+                  type="button"
+                  (click)="dataService.toggleLyftPost(post.id)"
+                  [class]="post.isLyfted ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'"
+                  class="px-3.5 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition hover:scale-105 active:scale-95 focus-accessible shadow-xs"
+                  aria-label="Send a Lyft to this post"
+                >
+                  <span>🔥</span>
+                  <span>Lyft'd ({{ post.lyftsCount }})</span>
+                </button>
+
+                <span class="text-[11px] text-slate-400">
+                  Safe & Positive
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- PERSISTENT FLOATING AUDIO PLAYER           -->
+  <!-- ========================================== -->
+  <app-audio-player />
+
+  @if (firebaseService.isConnected() && firebaseService.currentUser()) {
+    <a
+      href="https://wa.me/15551234567?text=Hi%20Be%20Lyft'd%2C%20I%20need%20help"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Open WhatsApp support"
+      class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg shadow-green-500/30 ring-4 ring-white/60 transition hover:scale-105 hover:bg-green-600 focus-accessible"
+      title="WhatsApp Support"
+    >
+      <mat-icon class="text-2xl">chat</mat-icon>
+    </a>
+  }
+
+  <!-- ========================================== -->
+  <!-- MOBILE BOTTOM DOCK NAVIGATION              -->
+  <!-- ========================================== -->
+  <nav
+    id="mobile-bottom-dock"
+    class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-safe shadow-md"
+    aria-label="Bottom Navigation"
+  >
+    <div class="max-w-xl mx-auto flex items-center justify-around py-2 px-1">
+      
+      <!-- Tab 1: Home (Daily Message / Focus) -->
+      <button
+        id="nav-daily-lyft-btn"
+        type="button"
+        (click)="activeTab.set('daily-lyft')"
+        [class]="activeTab() === 'daily-lyft' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
+        class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
+        aria-label="Home Tab"
+      >
+        <mat-icon class="text-xl">home</mat-icon>
+        <span class="text-[10px] tracking-tight font-medium">Home</span>
+      </button>
+
+      <!-- Tab 2: Courses (Foundational 10 Modules) -->
+      <button
+        id="nav-courses-btn"
+        type="button"
+        (click)="activeTab.set('courses')"
+        [class]="activeTab() === 'courses' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
+        class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
+        aria-label="Foundational Courses Tab"
+      >
+        <mat-icon class="text-xl">auto_stories</mat-icon>
+        <span class="text-[10px] tracking-tight font-medium">Courses</span>
+      </button>
+
+      <!-- Tab 3: Mentors -->
+      <button
+        id="nav-mentors-btn"
+        type="button"
+        (click)="activeTab.set('mentors')"
+        [class]="activeTab() === 'mentors' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
+        class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
+        aria-label="Mentors Tab"
+      >
+        <mat-icon class="text-xl">people</mat-icon>
+        <span class="text-[10px] tracking-tight font-medium">Mentors</span>
+      </button>
+
+      <!-- Tab 4: Quests -->
+      <button
+        id="nav-quests-btn"
+        type="button"
+        (click)="activeTab.set('quests')"
+        [class]="activeTab() === 'quests' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
+        class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
+        aria-label="Quests Tab"
+      >
+        <mat-icon class="text-xl">flag</mat-icon>
+        <span class="text-[10px] tracking-tight font-medium">Quests</span>
+      </button>
+
+      <!-- Tab 5: Profile -->
+      <button
+        id="nav-profile-dock-btn"
+        type="button"
+        (click)="showProfileModal.set(true)"
+        [class]="showProfileModal() ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
+        class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
+        aria-label="Profile Tab"
+      >
+        <mat-icon class="text-xl">person</mat-icon>
+        <span class="text-[10px] tracking-tight font-medium">Profile</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- MODALS & OVERLAYS                          -->
+  <!-- ========================================== -->
+
+  <!-- Foundational Course Modal (Lesson details, text, audio & completion) -->
+  @if (dataService.activeSelectedCourse()) {
+    <app-course-modal
+      [course]="dataService.activeSelectedCourse()"
+      (closeModal)="closeCourseModal()"
+    />
+  }
+
+  <!-- Voice Journal Recorder Modal -->
+  @if (showVoiceRecorder()) {
+    <app-voice-recorder (closeModal)="showVoiceRecorder.set(false)" />
+  }
+
+  <!-- Direct Mentor Chat Dialog -->
+  @if (activeChatMentor()) {
+    <app-mentor-chat-dialog
+      [mentor]="activeChatMentor()!"
+      (closeDialog)="closeMentorChat()"
+    />
+  }
+
+  <!-- Custom AI Audio Pep Talk Generator Modal -->
+  @if (showCustomPepTalk()) {
+    <app-custom-pep-talk-modal (closeModal)="showCustomPepTalk.set(false)" />
+  }
+
+  <!-- Profile & Settings Modal -->
+  @if (showProfileModal()) {
+    <app-profile-modal (closeModal)="showProfileModal.set(false)" />
+  }
+
+  <!-- Streak Celebration Modal -->
+  @if (showStreakModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+      <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-sm rounded-3xl border border-slate-100 dark:border-slate-800 p-8 shadow-2xl text-center space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 mx-auto flex items-center justify-center text-3xl">
+          🔥
+        </div>
+        <h3 class="text-xl font-bold font-display">7-Day Consistency Streak!</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          You have checked in and listened to Daily Focus tracks 7 days in a row. Small daily habits create unstoppable momentum!
+        </p>
+        <div class="p-3.5 bg-slate-50 dark:bg-slate-800 rounded-2xl text-xs font-mono text-amber-600 dark:text-amber-400 font-bold">
+          Unlocked Badge: 🔥 7-Day Flame (+150 XP)
+        </div>
+        <button
+          type="button"
+          (click)="showStreakModal.set(false)"
+          class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition focus-accessible shadow-sm"
+        >
+          Keep It Going!
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- New Quest Modal -->
+  @if (showNewQuestModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+      <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-md rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold font-display">Create Youth Goal Quest</h3>
+          <button
+            type="button"
+            (click)="showNewQuestModal.set(false)"
+            class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 flex items-center justify-center cursor-pointer"
+          >
+            <mat-icon class="text-base">close</mat-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="newQuestForm" (ngSubmit)="submitNewQuest()" class="space-y-3.5">
+          <div>
+            <label for="new-quest-title-input" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Quest Title</label>
+            <input
+              id="new-quest-title-input"
+              type="text"
+              formControlName="title"
+              placeholder="e.g. Master React Basics or Apply to 3 Colleges"
+              class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 focus-accessible"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="new-quest-category-select" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Category</label>
+              <select
+                id="new-quest-category-select"
+                formControlName="category"
+                class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 font-medium"
+              >
+                <option value="Career">Career & Tech</option>
+                <option value="Academic">Academic</option>
+                <option value="Wellness">Wellness & Mindset</option>
+                <option value="Life Skills">Life Skills & Finance</option>
+                <option value="Creative">Creative Arts</option>
+              </select>
+            </div>
+            <div>
+              <label for="new-quest-deadline-input" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Target Deadline</label>
+              <input
+                id="new-quest-deadline-input"
+                type="text"
+                formControlName="deadline"
+                placeholder="In 2 weeks"
+                class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="new-quest-step1-input" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Step 1 (Required)</label>
+            <input
+              id="new-quest-step1-input"
+              type="text"
+              formControlName="step1"
+              placeholder="First actionable 10-minute task"
+              class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 focus-accessible"
+            />
+          </div>
+
+          <div>
+            <label for="new-quest-step2-input" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Step 2 (Optional)</label>
+            <input
+              id="new-quest-step2-input"
+              type="text"
+              formControlName="step2"
+              placeholder="Second milestone"
+              class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 focus-accessible"
+            />
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              (click)="showNewQuestModal.set(false)"
+              class="px-4 py-2.5 rounded-2xl text-xs font-semibold text-slate-500 hover:text-slate-800 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="!newQuestForm.valid"
+              class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer shadow-sm"
+            >
+              Start Quest
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Registration & Profile Modal -->
+  @if (showRegisterModal()) {
+    <app-register-modal (closeModal)="showRegisterModal.set(false)"></app-register-modal>
+  }
+
+  <!-- ========================================== -->
+  <!-- STREAK UPDATE NOTIFICATION TOAST           -->
+  <!-- ========================================== -->
+  @if (streakNotificationToast(); as toast) {
+    <div
+      id="streak-update-toast-banner"
+      class="fixed top-20 right-4 z-50 max-w-sm w-full bg-amber-500 dark:bg-amber-600 text-slate-950 p-4 rounded-2xl shadow-2xl border-2 border-amber-300 flex items-center justify-between gap-3 animate-in slide-in-from-top-4 duration-300"
+    >
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🔥</span>
+        <div>
+          <h4 class="text-xs font-black uppercase tracking-wider">
+            {{ toast.isNewDay ? 'Streak Extended!' : 'Streak Confirmed Today!' }}
+          </h4>
+          <p class="text-xs font-semibold">
+            {{ toast.streak }}-Day Consistency Streak Active
+          </p>
+          <span class="text-[10px] opacity-85 font-mono">Timestamp: {{ toast.timestamp | slice:0:19 }}</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="streakNotificationToast.set(null)"
+        class="w-7 h-7 rounded-full bg-slate-950/20 hover:bg-slate-950/40 flex items-center justify-center cursor-pointer transition"
+        aria-label="Dismiss streak toast"
+      >
+        <mat-icon class="text-sm">close</mat-icon>
+      </button>
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- DEVELOPER TESTING WIDGET (BOTTOM OF SCREEN)-->
+  <!-- ========================================== -->
+  @if (isDevWidgetVisible()) {
+    <aside
+      id="dev-testing-widget-container"
+      class="fixed bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-auto sm:max-w-md z-40 bg-slate-900/95 dark:bg-slate-950/95 text-slate-100 border border-indigo-500/40 rounded-2xl shadow-2xl backdrop-blur-md overflow-hidden transition-all duration-250 font-sans"
+      aria-label="Developer Testing Widget for Daily Messaging & Deep Linking"
+    >
+      <!-- Dev Widget Header -->
+      <div class="px-4 py-2.5 bg-indigo-950/80 border-b border-indigo-800/60 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-xs font-bold text-indigo-200 tracking-wide font-display">
+            🛠️ Dev Simulator: Daily SMS / Push Link
+          </span>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <button
+            id="dev-widget-collapse-btn"
+            type="button"
+            (click)="toggleDevWidgetCollapse()"
+            class="w-6 h-6 rounded-md hover:bg-indigo-800/60 text-indigo-300 flex items-center justify-center cursor-pointer transition text-xs"
+            [title]="isDevWidgetCollapsed() ? 'Expand Widget' : 'Minimize Widget'"
+          >
+            <mat-icon class="text-sm">{{ isDevWidgetCollapsed() ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+          <button
+            id="dev-widget-hide-btn"
+            type="button"
+            (click)="hideDevWidget()"
+            class="w-6 h-6 rounded-md hover:bg-rose-900/50 text-slate-400 hover:text-rose-300 flex items-center justify-center cursor-pointer transition text-xs"
+            title="Hide Dev Widget (Simulate in production)"
+          >
+            <mat-icon class="text-sm">close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dev Widget Body (Collapsible) -->
+      @if (!isDevWidgetCollapsed()) {
+        <div class="p-3.5 space-y-3 text-xs">
+          <!-- Course Selection Dropdown -->
+          <div class="space-y-1">
+            <label for="dev-course-select" class="block font-semibold text-slate-300 text-[11px]">
+              Select from 10 Core Courses:
+            </label>
+            <select
+              id="dev-course-select"
+              [ngModel]="selectedDevCourseId()"
+              (ngModelChange)="selectedDevCourseId.set($event)"
+              class="w-full px-2.5 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+            >
+              @for (course of dataService.courses(); track course.id) {
+                <option [value]="course.id">
+                  {{ course.id }} — {{ course.title }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <!-- Parameter Toggle Options -->
+          <div class="flex items-center justify-between gap-2 pt-0.5">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-[11px] text-slate-300">
+              <input
+                id="dev-include-dailymsg-toggle"
+                type="checkbox"
+                [checked]="devIncludeDailyMsg()"
+                (change)="devIncludeDailyMsg.set($any($event.target).checked)"
+                class="rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span>Include <code class="text-indigo-300 font-mono">?dailyMsg=true</code></span>
+            </label>
+
+            <span class="text-[10px] font-mono text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-800/50">
+              🔥 Streak: {{ dataService.userProfile().streakDays }}d
+            </span>
+          </div>
+
+          <!-- Primary Simulation Buttons -->
+          <div class="flex items-center gap-2 pt-1">
+            <button
+              id="btn-simulate-daily-sms-link"
+              type="button"
+              (click)="simulateDailySmsLink()"
+              class="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-98 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 focus-accessible"
+            >
+              <mat-icon class="text-base">sms</mat-icon>
+              <span>Simulate Daily SMS Link</span>
+            </button>
+          </div>
+
+          <!-- Quick Deep Link Shortcut Chips -->
+          <div class="pt-1 border-t border-slate-800 flex items-center gap-1.5 flex-wrap">
+            <span class="text-[10px] text-slate-400">Quick Test:</span>
+            <button
+              type="button"
+              (click)="simulateDailySmsLink('changing-habits', true)"
+              class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 text-[10px] font-mono transition cursor-pointer"
+            >
+              ?dailyMsg=true
+            </button>
+            <button
+              type="button"
+              (click)="simulateDailySmsLink('goal-setting', false)"
+              class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 text-[10px] font-mono transition cursor-pointer"
+            >
+              ?courseId=goal-setting
+            </button>
+            <button
+              type="button"
+              (click)="pwaService.resetDismissal()"
+              class="px-2 py-0.5 rounded-lg bg-indigo-950 hover:bg-indigo-900 border border-indigo-700/50 text-indigo-200 text-[10px] transition cursor-pointer"
+              title="Reset PWA Banner state to test banner"
+            >
+              📱 Show PWA Banner
+            </button>
+          </div>
+        </div>
+      }
+    </aside>
+  }
+
+  <!-- Restore Dev Widget Button if hidden -->
+  @if (!isDevWidgetVisible()) {
+    <button
+      id="dev-widget-restore-btn"
+      type="button"
+      (click)="showDevWidget()"
+      class="fixed bottom-3 left-3 z-40 px-2.5 py-1.5 rounded-xl bg-slate-900/90 text-indigo-300 border border-indigo-500/40 text-[11px] font-bold shadow-lg hover:bg-indigo-950 transition cursor-pointer flex items-center gap-1"
+      title="Show Developer Testing Widget"
+    >
+      <mat-icon class="text-sm">build</mat-icon>
+      <span>Dev Simulator</span>
+    </button>
+  }
+
+</div>

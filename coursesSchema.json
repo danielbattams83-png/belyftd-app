@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://belyftd.app/schemas/course.schema.json",
+  "title": "BeLyftdCourseSchema",
+  "description": "JSON Schema for Be Lyft'd youth leadership and personal development courses in the mobile app MVP.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "title",
+      "description",
+      "audioUrl",
+      "textContent",
+      "estimatedTime",
+      "isCompleted"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "Unique identifier / slug for the course (e.g. 'behavioral-accountability').",
+        "pattern": "^[a-z0-9-]+$"
+      },
+      "title": {
+        "type": "string",
+        "description": "Official course module title.",
+        "minLength": 3,
+        "maxLength": 100
+      },
+      "description": {
+        "type": "string",
+        "description": "2-3 sentence overview highlighting the core purpose, youth context, and outcome of the course.",
+        "minLength": 40,
+        "maxLength": 500
+      },
+      "audioUrl": {
+        "type": "string",
+        "description": "Direct URI to the spoken audio lesson track (MP3 or audio stream).",
+        "format": "uri"
+      },
+      "textContent": {
+        "type": "string",
+        "description": "Comprehensive lesson text structured with Markdown headings, core concepts, reflection questions, and actionable takeaways.",
+        "minLength": 50
+      },
+      "estimatedTime": {
+        "type": "string",
+        "description": "Estimated completion duration for the module (e.g., '5 mins', '7 mins').",
+        "pattern": "^[0-9]+\\s*(mins|min|minutes)$"
+      },
+      "isCompleted": {
+        "type": "boolean",
+        "description": "User progress status flag indicating whether the course module has been completed."
+      }
+    },
+    "additionalProperties": false
+  }
+}

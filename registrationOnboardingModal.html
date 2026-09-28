@@ -1,0 +1,220 @@
+<!--
+  =============================================================================
+  Be Lyft'd — User Registration & Onboarding Modal Component (HTML + Tailwind CSS)
+  =============================================================================
+  Features:
+  - Fields: Full Name, Email Address, Mobile Number with Country Code Dropdown, Country Selection, and Passcode.
+  - Validation: Real-time format checks for email syntax and mobile phone numbers before enabling submission.
+  - Integrated with JavaScript controller (registrationOnboardingController.js).
+  - Auto-displays on launch if no user data exists in localStorage or Firebase.
+  - Dynamically updates the dashboard greeting upon completion.
+-->
+
+<div
+  id="onboarding-modal-overlay"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 hidden transition-opacity duration-250 opacity-0"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="onboarding-modal-title"
+>
+  <div
+    id="onboarding-modal-container"
+    class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto transform scale-95 transition-transform duration-250"
+  >
+    <!-- Modal Header -->
+    <div class="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+        </div>
+        <div>
+          <h2 id="onboarding-modal-title" class="text-xl font-bold font-display tracking-tight text-slate-900 dark:text-slate-100">
+            Youth Leader Onboarding
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Register to sync foundational course progress across devices
+          </p>
+        </div>
+      </div>
+
+      <button
+        id="onboarding-close-btn"
+        type="button"
+        class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 flex items-center justify-center cursor-pointer transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        aria-label="Close Registration Modal"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Sync & Status Banner -->
+    <div id="onboarding-status-badge" class="p-3 rounded-2xl flex items-center justify-between text-xs border bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="onboarding-connection-text" class="font-semibold">Firebase Web SDK v10+ & LocalStorage Ready</span>
+      </div>
+      <span class="text-[11px] opacity-80 font-mono">Real-Time Sync</span>
+    </div>
+
+    <!-- Registration Form -->
+    <form id="onboarding-registration-form" class="space-y-4" novalidate>
+      
+      <!-- Field 1: Full Name -->
+      <div class="space-y-1">
+        <div class="flex items-center justify-between">
+          <label for="onboarding-fullname" class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+            Full Name / Leader Moniker <span class="text-rose-500">*</span>
+          </label>
+          <span id="error-fullname" class="text-[11px] text-rose-500 font-medium hidden">Minimum 2 characters required</span>
+        </div>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </span>
+          <input
+            id="onboarding-fullname"
+            name="fullname"
+            type="text"
+            required
+            placeholder="e.g. Jordan Rivers"
+            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500 transition outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- Field 2: Email Address -->
+      <div class="space-y-1">
+        <div class="flex items-center justify-between">
+          <label for="onboarding-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+            Email Address <span class="text-rose-500">*</span>
+          </label>
+          <span id="error-email" class="text-[11px] text-rose-500 font-medium hidden">Please enter a valid email format</span>
+        </div>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </span>
+          <input
+            id="onboarding-email"
+            name="email"
+            type="email"
+            required
+            placeholder="youth.leader@example.com"
+            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500 transition outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- Field 3: Country Selection -->
+      <div class="space-y-1">
+        <label for="onboarding-country-select" class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+          Country Selection <span class="text-rose-500">*</span>
+        </label>
+        <div class="relative">
+          <select
+            id="onboarding-country-select"
+            name="country"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 cursor-pointer focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500 transition outline-none"
+          >
+            <option value="US" data-dial="+1" selected>🇺🇸 United States (+1)</option>
+            <option value="AU" data-dial="+61">🇦🇺 Australia (+61)</option>
+            <option value="GB" data-dial="+44">🇬🇧 United Kingdom (+44)</option>
+            <option value="CA" data-dial="+1">🇨🇦 Canada (+1)</option>
+            <option value="GH" data-dial="+233">🇬🇭 Ghana (+233)</option>
+            <option value="KE" data-dial="+254">🇰🇪 Kenya (+254)</option>
+            <option value="NG" data-dial="+234">🇳🇬 Nigeria (+234)</option>
+            <option value="ZA" data-dial="+27">🇿🇦 South Africa (+27)</option>
+            <option value="NZ" data-dial="+64">🇳🇿 New Zealand (+64)</option>
+            <option value="IN" data-dial="+91">🇮🇳 India (+91)</option>
+            <option value="DE" data-dial="+49">🇩🇪 Germany (+49)</option>
+            <option value="JM" data-dial="+1-876">🇯🇲 Jamaica (+1-876)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Field 4: Mobile Number (with Country Code Dropdown) -->
+      <div class="space-y-1">
+        <div class="flex items-center justify-between">
+          <label for="onboarding-phone" class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+            Mobile Number (for Daily Lyft SMS / WhatsApp) <span class="text-rose-500">*</span>
+          </label>
+          <span id="error-phone" class="text-[11px] text-rose-500 font-medium hidden">Valid phone number (min 7 digits)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- Country Dial Code Prefix Badge -->
+          <span id="country-dial-badge" class="px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 shrink-0">
+            +1
+          </span>
+          <div class="relative flex-1">
+            <input
+              id="onboarding-phone"
+              name="phoneNumber"
+              type="tel"
+              required
+              placeholder="(555) 019-2834"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500 transition outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Field 5: Security Password / PIN -->
+      <div class="space-y-1">
+        <div class="flex items-center justify-between">
+          <label for="onboarding-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+            Security Passcode / Password <span class="text-rose-500">*</span>
+          </label>
+          <span id="error-password" class="text-[11px] text-rose-500 font-medium hidden">Minimum 6 characters required</span>
+        </div>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </span>
+          <input
+            id="onboarding-password"
+            name="password"
+            type="password"
+            required
+            placeholder="••••••••"
+            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500 transition outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- Live Feedback Alert Message -->
+      <div id="onboarding-feedback" class="p-3.5 rounded-xl text-xs font-medium hidden border"></div>
+
+      <!-- Actions -->
+      <div class="pt-2 flex items-center gap-3">
+        <button
+          id="onboarding-demo-fill-btn"
+          type="button"
+          class="px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400 transition cursor-pointer"
+        >
+          Demo Fill
+        </button>
+
+        <button
+          id="onboarding-submit-btn"
+          type="submit"
+          disabled
+          class="flex-1 py-3 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold transition cursor-pointer shadow-md flex items-center justify-center gap-2"
+        >
+          <span id="onboarding-btn-spinner" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin hidden"></span>
+          <span id="onboarding-btn-text">Complete Registration & Enter</span>
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BeLyft\'d</string>
+    <string name="title_activity_main">BeLyft\'d</string>
+    <string name="package_name">com.belyftd.app</string>
+    <string name="custom_url_scheme">com.belyftd.app</string>
+</resources>

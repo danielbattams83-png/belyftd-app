@@ -1,0 +1,37 @@
+{
+  "name": "Be Lyft'd",
+  "short_name": "Be Lyft'd",
+  "description": "Youth Mentorship, Daily Audio Inspiration, and Personal Growth",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#0F172A",
+  "orientation": "portrait-primary",
+  "categories": ["education", "lifestyle", "social"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Content Screen - Be Lyft'd</title>
+  <!-- Google Fonts & Material Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-canvas: #f8fafc;
+      --bg-surface: #ffffff;
+      --border-subtle: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --success: #10b981;
+      --success-dark: #059669;
+      --success-light: #ecfdf5;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-canvas: #090d16;
+        --bg-surface: #111827;
+        --border-subtle: #1f2937;
+        --text-main: #f3f4f6;
+        --text-muted: #9ca3af;
+        --primary: #6366f1;
+        --primary-hover: #4f46e5;
+        --primary-light: rgba(99, 102, 241, 0.15);
+        --success: #10b981;
+        --success-light: rgba(16, 185, 129, 0.15);
+        --shadow-card: 0 4px 24px -2px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px 16px 80px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 760px;
+      position: relative;
+    }
+
+    /* Top Navigation Bar */
+    .top-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      text-decoration: none;
+    }
+
+    .btn-back:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateX(-2px);
+    }
+
+    .module-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Course Header Card */
+    .course-header-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 32px 28px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 24px;
+    }
+
+    .course-title {
+      font-family: var(--font-heading);
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .course-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-item .material-icons-outlined {
+      font-size: 18px;
+      color: var(--primary);
+    }
+
+    .course-description {
+      margin-top: 18px;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      border-left: 3px solid var(--primary);
+      padding-left: 14px;
+    }
+
+    /* HTML5 Audio Player Widget */
+    .audio-player-widget {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .player-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .track-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .track-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .track-details {
+      min-width: 0;
+    }
+
+    .track-title {
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-main);
+    }
+
+    .track-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .btn-play-pause {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      flex-shrink: 0;
+    }
+
+    .btn-play-pause:hover {
+      background: var(--primary-hover);
+      transform: scale(1.06);
+    }
+
+    .btn-play-pause:active {
+      transform: scale(0.95);
+    }
+
+    /* Timeline and Scrubber */
+    .timeline-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .time-display {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      min-width: 40px;
+    }
+
+    .time-display.current {
+      text-align: right;
+    }
+
+    .timeline-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 9999px;
+      background: var(--border-subtle);
+      outline: none;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .timeline-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: transform 0.1s ease;
+    }
+
+    .timeline-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+
+    /* Text Reader Area */
+    .text-reader-area {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 36px 32px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 32px;
+    }
+
+    .reader-content {
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text-main);
+    }
+
+    .reader-content h1,
+    .reader-content h2,
+    .reader-content h3 {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      color: var(--text-main);
+      margin-top: 28px;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .reader-content h1 { font-size: 26px; }
+    .reader-content h2 { font-size: 21px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; }
+    .reader-content h3 { font-size: 18px; }
+
+    .reader-content p {
+      margin-bottom: 18px;
+      color: var(--text-main);
+    }
+
+    .reader-content blockquote {
+      margin: 24px 0;
+      padding: 16px 20px;
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-style: italic;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .reader-content ul,
+    .reader-content ol {
+      margin: 16px 0 24px 24px;
+      padding-left: 8px;
+    }
+
+    .reader-content li {
+      margin-bottom: 10px;
+    }
+
+    .reader-content pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      overflow-x: auto;
+      margin: 20px 0;
+      line-height: 1.5;
+    }
+
+    .reader-content hr {
+      border: 0;
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 32px 0;
+    }
+
+    /* Bottom Action Area */
+    .bottom-action-bar {
+      position: sticky;
+      bottom: 20px;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn-complete {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 420px;
+      padding: 18px 28px;
+      background: var(--success);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-xl);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-complete:hover {
+      background: var(--success-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px -5px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-complete:active {
+      transform: translateY(1px);
+    }
+
+    .btn-complete.completed-state {
+      background: var(--bg-surface);
+      color: var(--success);
+      border: 2px solid var(--success);
+      box-shadow: none;
+    }
+
+    /* Success Overlay Confirmation Toast */
+    .success-toast-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      padding: 20px;
+    }
+
+    .success-toast-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .success-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-xl);
+      padding: 36px 28px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .success-toast-overlay.active .success-card {
+      transform: scale(1);
+    }
+
+    .success-icon-badge {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--success-light);
+      color: var(--success);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .success-icon-badge .material-icons-outlined {
+      font-size: 40px;
+    }
+
+    .success-title {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .success-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container" id="course-screen-root">
+    
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+      <button type="button" class="btn-back" id="btn-back-to-catalog" aria-label="Return to course list">
+        <span class="material-icons-outlined">arrow_back</span>
+        <span>Course Catalog</span>
+      </button>
+
+      <span class="module-badge">
+        <span class="material-icons-outlined" style="font-size:14px;">school</span>
+        <span>Foundational Course</span>
+      </span>
+    </header>
+
+    <!-- Course Header Card -->
+    <section class="course-header-card">
+      <h1 class="course-title" id="course-title-text">Course Title</h1>
+      
+      <div class="course-meta">
+        <span class="meta-item">
+          <span class="material-icons-outlined">schedule</span>
+          <span id="course-duration-text">6 mins</span>
+        </span>
+        <span class="meta-item">
+          <span class="material-icons-outlined">verified_user</span>
+          <span>Character & Mindset</span>
+        </span>
+        <span class="meta-item" id="course-status-badge">
+          <span class="material-icons-outlined">radio_button_unchecked</span>
+          <span>In Progress</span>
+        </span>
+      </div>
+
+      <p class="course-description" id="course-description-text">
+        Course overview and practical objectives.
+      </p>
+    </section>
+
+    <!-- HTML5 Audio Player Widget -->
+    <section class="audio-player-widget" id="audio-widget-container">
+      <div class="player-top-row">
+        <div class="track-info">
+          <div class="track-icon">
+            <span class="material-icons-outlined">headphones</span>
+          </div>
+          <div class="track-details">
+            <div class="track-title" id="player-track-title">Audio Masterclass</div>
+            <div class="track-subtitle" id="player-track-subtitle">Be Lyft'd Youth Mentor</div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-play-pause" id="btn-audio-toggle" aria-label="Play lesson audio">
+          <span class="material-icons-outlined" id="play-pause-icon">play_arrow</span>
+        </button>
+      </div>
+
+      <!-- Timeline Scrubber & Counter -->
+      <div class="timeline-container">
+        <span class="time-display current" id="audio-current-time">0:00</span>
+        <input 
+          type="range" 
+          class="timeline-slider" 
+          id="audio-timeline-slider" 
+          min="0" 
+          max="100" 
+          value="0" 
+          step="0.1" 
+          aria-label="Audio timeline scrubber"
+        >
+        <span class="time-display duration" id="audio-total-duration">0:00</span>
+      </div>
+
+      <!-- Hidden HTML5 Audio Tag -->
+      <audio id="course-html5-audio" preload="metadata"></audio>
+    </section>
+
+    <!-- Clean Text Reader Area -->
+    <article class="text-reader-area">
+      <div class="reader-content" id="course-text-reader-content">
+        <!-- Rendered markdown text inserted by CourseContentController -->
+      </div>
+    </article>
+
+    <!-- Bottom Sticky Action Bar -->
+    <div class="bottom-action-bar">
+      <button type="button" class="btn-complete" id="btn-mark-complete">
+        <span class="material-icons-outlined">check_circle</span>
+        <span id="btn-complete-text">Mark as Complete</span>
+      </button>
+    </div>
+
+    <!-- Visual Success Confirmation Modal -->
+    <div class="success-toast-overlay" id="success-confirmation-overlay">
+      <div class="success-card">
+        <div class="success-icon-badge">
+          <span class="material-icons-outlined">emoji_events</span>
+        </div>
+        <h2 class="success-title">Lesson Completed!</h2>
+        <p class="success-desc">
+          Outstanding work. You've earned <strong>+100 XP</strong> toward your Be Lyft'd leadership rank.
+        </p>
+        <button type="button" class="btn-complete" id="btn-redirect-dashboard" style="max-width: 100%;">
+          <span>Return to Dashboard</span>
+          <span class="material-icons-outlined">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Load Standalone Controller as ES6 Module -->
+  <script type="module">
+    import { CourseContentController } from './courseContentController.js';
+    import { coursesData } from './coursesData.js';
+
+    // Auto-mount controller with the first course
+    document.addEventListener('DOMContentLoaded', () => {
+      const activeCourse = coursesData[0] || {
+        id: 'behavioral-accountability',
+        title: 'Behavioral Accountability',
+        description: 'True power begins the moment you stop blaming circumstances and start owning your choices.',
+        audioUrl: 'https://assets.belyftd.org/audio/courses/behavioral-accountability.mp3',
+        textContent: '# Behavioral Accountability: Owning Your Path\n\n> "Accountability is the bridge between intention and real transformation."\n\n## Why Accountability Matters\nWhen things don\'t go according to plan, human instinct often looks outward for someone or something to blame. However, when you give away credit for your mistakes, you also give away your power to fix them.',
+        estimatedTime: '6 mins',
+        isCompleted: false
+      };
+
+      const controller = new CourseContentController({
+        course: activeCourse,
+        onComplete: (courseId) => {
+          console.log(`Course ${courseId} successfully marked complete!`);
+        },
+        onNavigateBack: () => {
+          console.log('Navigating back to course catalog/dashboard');
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            alert('Returning to Course Catalog...');
+          }
+        }
+      });
+
+      controller.mount();
+    });
+  </script>
+</body>
+</html>

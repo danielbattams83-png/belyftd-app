@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-display: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Mobile safe area padding utilities for notch & home bar */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Hide scrollbar for clean horizontal story / pill scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Clean accessible focus ring style */
+.focus-accessible:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* Pulse animation for audio waveform visualization */
+@keyframes audio-bar {
+  0%, 100% { height: 20%; }
+  50% { height: 100%; }
+}
+
+.animate-audio-bar-1 { animation: audio-bar 0.8s ease-in-out infinite; }
+.animate-audio-bar-2 { animation: audio-bar 1.1s ease-in-out infinite 0.2s; }
+.animate-audio-bar-3 { animation: audio-bar 0.9s ease-in-out infinite 0.4s; }
+.animate-audio-bar-4 { animation: audio-bar 1.3s ease-in-out infinite 0.1s; }
+.animate-audio-bar-5 { animation: audio-bar 0.7s ease-in-out infinite 0.3s; }
+

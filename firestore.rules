@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to verify user authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to verify user owns the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profile access rules
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      // Nested user progress subcollection
+      match /progress/{courseId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+  }
+}
