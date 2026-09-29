@@ -41,6 +41,9 @@ export interface UserRegistrationData {
   country: string;
   countryCode: string;
   ageBracket?: string;
+  preferredLanguage?: string;
+  focusAreas?: string[];
+  selectedMentorIds?: string[];
   streak?: number;
   createdDate?: Date | string;
 }
@@ -56,6 +59,9 @@ export interface UserProfileDocument {
   country: string;
   countryCode: string;
   ageBracket?: string;
+  preferredLanguage?: string;
+  focusAreas?: string[];
+  selectedMentorIds?: string[];
   streak?: number;
   totalXp: number;
   streakDays: number;
@@ -64,6 +70,15 @@ export interface UserProfileDocument {
   createdAt: string | unknown;
   createdDate?: Date | string | unknown;
   updatedAt: string | unknown;
+}
+
+export interface UserOnboardingData {
+  ageBracket: string;
+  country: string;
+  preferredLanguage: string;
+  avatarUrl: string;
+  focusAreas: string[];
+  selectedMentorIds: string[];
 }
 
 export const COUNTRY_OPTIONS = [
@@ -182,6 +197,55 @@ export class FirebaseService {
       localStorage.setItem(LOCAL_STORAGE_KEY_UID, userData.id);
     }
     this.userProfile.set(cachedProfile);
+  }
+
+  async completeUserOnboarding(onboardingData: UserOnboardingData): Promise<void> {
+    const user = this.currentUser();
+    if (!user || !this.db) {
+      throw new Error('Sign in is required to save onboarding details.');
+    }
+
+    const currentProfile = this.userProfile();
+    const fullName = currentProfile?.fullName || currentProfile?.displayName || user.displayName || '';
+    const now = new Date().toISOString();
+    const updatedProfile: UserProfileDocument = {
+      ...(currentProfile ?? {
+        id: user.uid,
+        displayName: fullName || user.email || 'Be Lyft\'d member',
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || '',
+        country: onboardingData.country,
+        countryCode: '',
+        totalXp: 350,
+        streakDays: 1,
+        completedCourses: this._getLocalStorageCompletedCourses(),
+        role: 'student' as const,
+        createdAt: now,
+        updatedAt: now
+      }),
+      ...onboardingData,
+      id: user.uid,
+      uid: user.uid,
+      displayName: fullName || user.email || 'Be Lyft\'d member',
+      fullName,
+      updatedAt: now
+    };
+
+    const {createdAt, createdDate, updatedAt, ...profileFields} = updatedProfile;
+    await setDoc(doc(this.db, 'users', user.uid), {
+      ...profileFields,
+      createdAt: createdAt || serverTimestamp(),
+      createdDate: createdDate || serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, {merge: true});
+
+    this._saveLocalStorageUserProfile(updatedProfile);
+    this.userProfile.set(updatedProfile);
+    this.hasRegisteredUser.set(true);
+    if (typeof window !== 'undefined') {
+      await this._persistActiveSession(user);
+      localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
+    }
   }
 
   async loadUserProfileForSession(): Promise<UserProfileDocument | null> {

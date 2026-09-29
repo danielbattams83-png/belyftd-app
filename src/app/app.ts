@@ -18,6 +18,7 @@ import {ProfileModalComponent} from './components/profile-modal.component';
 import {CourseModalComponent} from './components/course-modal.component';
 import {RegisterModalComponent} from './components/register-modal.component';
 import {PartnerWithUsComponent} from './components/partner-page.component';
+import {PostAuthOnboardingWizardComponent} from './components/post-auth-onboarding-wizard.component';
 import {Course} from './models/app.models';
 
 export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-spark' | 'community' | 'partners' | 'profile';
@@ -38,6 +39,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     CourseModalComponent,
     RegisterModalComponent,
     PartnerWithUsComponent,
+    PostAuthOnboardingWizardComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -60,6 +62,7 @@ export class App {
   readonly showCustomPepTalk = signal<boolean>(false);
   readonly showProfileModal = signal<boolean>(false);
   readonly showRegisterModal = signal<boolean>(false);
+  readonly showPostAuthOnboarding = signal<boolean>(false);
   private readonly hasResolvedInitialAuth = signal<boolean>(false);
   readonly showStreakModal = signal<boolean>(false);
   readonly showNewQuestModal = signal<boolean>(false);
@@ -95,6 +98,27 @@ export class App {
       this.showRegisterModal.set(!this.firebaseService.hasActiveSession());
     });
 
+    effect(() => {
+      const authLoading = this.firebaseService.authLoading();
+      const currentUser = this.firebaseService.currentUser();
+      const profile = this.firebaseService.userProfile();
+      const registerModalOpen = this.showRegisterModal();
+      if (typeof window === 'undefined' || authLoading || !this.hasResolvedInitialAuth()) return;
+      if (!currentUser) {
+        this.showPostAuthOnboarding.set(false);
+        return;
+      }
+      if (registerModalOpen) return;
+
+      const needsOnboarding = !profile?.ageBracket ||
+        !profile.country ||
+        !profile.preferredLanguage ||
+        !profile.avatarUrl ||
+        !profile.focusAreas?.length ||
+        !profile.selectedMentorIds?.length;
+      this.showPostAuthOnboarding.set(needsOnboarding);
+    });
+
     // Watch for deep links (e.g. from URL ?courseId=... or simulated push notifications)
     effect(() => {
       const targetId = this.firebaseService.targetCourseIdFromNotification();
@@ -127,7 +151,13 @@ export class App {
 
   handleProfileLogout(): void {
     this.showProfileModal.set(false);
+    this.showPostAuthOnboarding.set(false);
     this.showRegisterModal.set(true);
+  }
+
+  editProfileOnboarding(): void {
+    this.showProfileModal.set(false);
+    this.showPostAuthOnboarding.set(true);
   }
 
   // Filter States

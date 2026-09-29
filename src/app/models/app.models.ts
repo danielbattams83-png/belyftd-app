@@ -4,6 +4,9 @@ export interface UserProfile {
   email?: string;
   phone?: string;
   country?: string;
+  ageBracket?: string;
+  preferredLanguage?: string;
+  selectedMentorIds?: string[];
   pronouns: string;
   gradeOrAge: string;
   avatar: string;

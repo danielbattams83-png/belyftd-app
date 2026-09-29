@@ -31,8 +31,8 @@ import {FirebaseService} from '../services/firebase.service';
         <!-- User Identity Card -->
         <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800">
           <img
-            [src]="dataService.userProfile().avatar"
-            [alt]="dataService.userProfile().name"
+            [src]="activeProfile().avatarUrl || dataService.userProfile().avatar"
+            [alt]="activeProfile().fullName"
             class="w-16 h-16 rounded-2xl object-cover border border-slate-200 dark:border-slate-700"
             referrerpolicy="no-referrer"
           />
@@ -83,10 +83,14 @@ import {FirebaseService} from '../services/firebase.service';
             My Focus Areas
           </h4>
           <div class="flex flex-wrap gap-1.5">
-            @for (area of dataService.userProfile().focusAreas; track area) {
-              <span class="px-3 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300">
+            @for (area of activeProfile().focusAreas; track area) {
+              <button type="button" (click)="editOnboarding.emit()" [attr.aria-label]="'Edit onboarding focus area: ' + area" class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-indigo-400 hover:text-indigo-700 focus-accessible dark:bg-slate-800 dark:text-slate-300 dark:hover:text-indigo-300">
                 {{ area }}
-              </span>
+                <mat-icon class="text-xs">edit</mat-icon>
+              </button>
+            }
+            @if (!activeProfile().focusAreas.length) {
+              <button type="button" (click)="editOnboarding.emit()" class="rounded-full border border-dashed border-slate-300 px-3 py-1.5 text-xs text-slate-500 hover:border-indigo-400 hover:text-indigo-600 focus-accessible dark:border-slate-700 dark:text-slate-400 dark:hover:text-indigo-300">Add focus areas</button>
             }
           </div>
         </div>
@@ -112,13 +116,6 @@ import {FirebaseService} from '../services/firebase.service';
               </div>
             </div>
             <div class="p-3 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3 shadow-xs">
-              <span class="text-2xl">🤝</span>
-              <div>
-                <div class="text-xs font-bold text-slate-900 dark:text-slate-100">Connected</div>
-                <div class="text-[10px] text-slate-400">Matched with 2 mentors</div>
-              </div>
-            </div>
-            <div class="p-3 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3 shadow-xs">
               <span class="text-2xl">⚡</span>
               <div>
                 <div class="text-xs font-bold text-slate-900 dark:text-slate-100">Goal Crusher</div>
@@ -127,6 +124,28 @@ import {FirebaseService} from '../services/firebase.service';
             </div>
           </div>
         </div>
+
+        <section class="space-y-3" aria-labelledby="connected-mentors-title">
+          <div class="flex items-center justify-between gap-3">
+            <h4 id="connected-mentors-title" class="text-xs font-bold uppercase tracking-wider text-slate-400">Connected Mentors</h4>
+            <button type="button" (click)="editOnboarding.emit()" class="text-[11px] font-semibold text-indigo-600 hover:underline dark:text-indigo-400">Update</button>
+          </div>
+          @if (connectedMentors().length) {
+            <div class="grid gap-2 sm:grid-cols-2">
+              @for (mentor of connectedMentors(); track mentor.id) {
+                <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-850">
+                  <img [src]="mentor.avatar" [alt]="mentor.name" class="h-11 w-11 rounded-xl object-cover" referrerpolicy="no-referrer" />
+                  <div class="min-w-0">
+                    <p class="truncate text-xs font-bold text-slate-900 dark:text-slate-100">{{ mentor.preferredNickname || mentor.name }}</p>
+                    <p class="truncate text-[10px] text-slate-500 dark:text-slate-400">{{ mentor.title }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <button type="button" (click)="editOnboarding.emit()" class="w-full border border-dashed border-slate-300 px-3 py-4 text-left text-xs text-slate-500 hover:border-indigo-400 hover:text-indigo-600 focus-accessible dark:border-slate-700 dark:text-slate-400 dark:hover:text-indigo-300">Choose mentors to follow</button>
+          }
+        </section>
 
         <!-- Accessibility & UI Preferences -->
         <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -225,6 +244,7 @@ import {FirebaseService} from '../services/firebase.service';
 export class ProfileModalComponent {
   readonly closeModal = output<void>();
   readonly logoutComplete = output<void>();
+  readonly editOnboarding = output<void>();
 
   readonly dataService = inject(MentorshipDataService);
   readonly themeService = inject(ThemeAccessibilityService);
@@ -232,6 +252,7 @@ export class ProfileModalComponent {
   readonly activeProfile = computed(() => {
     const firestoreProfile = this.firebaseService.userProfile();
     const localProfile = this.dataService.userProfile();
+    const mentorIds = firestoreProfile?.selectedMentorIds || [];
     const hasActiveSession = this.firebaseService.hasActiveSession();
     const authName = this.firebaseService.currentUser()?.displayName;
     return {
@@ -239,8 +260,15 @@ export class ProfileModalComponent {
       ageBracket: firestoreProfile?.ageBracket || (hasActiveSession ? 'Age bracket not saved' : localProfile.gradeOrAge),
       country: firestoreProfile?.country || (hasActiveSession ? 'Country not saved' : localProfile.country || 'Country not set'),
       streak: firestoreProfile?.streak ?? firestoreProfile?.streakDays ?? (hasActiveSession ? 0 : localProfile.streakDays),
+      avatarUrl: firestoreProfile?.avatarUrl || null,
+      focusAreas: firestoreProfile?.focusAreas || localProfile.focusAreas,
+      selectedMentors: mentorIds
+        .map(id => this.dataService.mentors().find(mentor => mentor.id === id))
+        .filter(mentor => mentor !== undefined),
     };
   });
+
+  readonly connectedMentors = computed(() => this.activeProfile().selectedMentors);
 
   constructor() {
     void this.firebaseService.loadUserProfileForSession();
