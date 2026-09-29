@@ -80,10 +80,13 @@ const FOCUS_AREAS = [
                 </label>
                 <label class="space-y-1.5 text-xs font-semibold">
                   <span>Country</span>
-                  <select [value]="country()" (change)="country.set(readValue($event))" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-800">
-                    <option value="">Select country</option>
-                    @for (option of countries; track option.code) { <option [value]="option.name">{{ option.flag }} {{ option.name }}</option> }
-                  </select>
+                  <span class="relative block">
+                    <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-lg" aria-hidden="true">{{ selectedCountryFlag() }}</span>
+                    <select [value]="country()" (change)="country.set(readValue($event))" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-11 pr-3 text-sm dark:border-slate-700 dark:bg-slate-800">
+                      <option value="">Select country</option>
+                      @for (option of countries; track option.code) { <option [value]="option.name">{{ option.flag }} {{ option.name }}</option> }
+                    </select>
+                  </span>
                 </label>
                 <label class="space-y-1.5 text-xs font-semibold sm:col-span-2">
                   <span>Preferred language</span>
@@ -203,6 +206,7 @@ export class PostAuthOnboardingWizardComponent {
   readonly saving = signal(false);
   readonly statusMessage = signal<string | null>(null);
   readonly socialAvatarUrl = signal<string | null>(this.firebaseService.currentUser()?.photoURL ?? null);
+  readonly selectedCountryFlag = computed(() => this.countries.find(option => option.name === this.country())?.flag || '🌐');
 
   readonly recommendedMentors = computed(() => {
     const selectedAreas = this.focusAreas();
