@@ -17,9 +17,10 @@ import {CustomPepTalkModalComponent} from './components/custom-pep-talk-modal.co
 import {ProfileModalComponent} from './components/profile-modal.component';
 import {CourseModalComponent} from './components/course-modal.component';
 import {RegisterModalComponent} from './components/register-modal.component';
+import {PartnerWithUsComponent} from './components/partner-page.component';
 import {Course} from './models/app.models';
 
-export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-spark' | 'community' | 'profile';
+export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-spark' | 'community' | 'partners' | 'profile';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +37,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     ProfileModalComponent,
     CourseModalComponent,
     RegisterModalComponent,
+    PartnerWithUsComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -126,6 +128,14 @@ export class App {
   // Filter States
   readonly audioCategoryFilter = signal<string>('All');
   readonly mentorSpecialtyFilter = signal<string>('All');
+  readonly mentorAgeBracketFilter = signal<string>('All');
+  readonly mentorAgeBrackets = [
+    {value: 'All', label: 'All ages'},
+    {value: 'Under 18', label: 'Under 18'},
+    {value: '18-24', label: '18–24'},
+    {value: '25-34', label: '25–34'},
+    {value: '35+', label: '35+'},
+  ];
   readonly communityPostFilter = signal<string>('All');
   readonly courseFilter = signal<'all' | 'completed' | 'in-progress'>('all');
 
@@ -279,10 +289,16 @@ export class App {
   });
 
   readonly filteredMentors = computed(() => {
-    const filter = this.mentorSpecialtyFilter();
+    const specialtyFilter = this.mentorSpecialtyFilter();
+    const ageBracketFilter = this.mentorAgeBracketFilter();
     const list = this.dataService.mentors();
-    if (filter === 'All') return list;
-    return list.filter(m => m.specialties.some(s => s.toLowerCase().includes(filter.toLowerCase())));
+    return list.filter(mentor => {
+      const matchesSpecialty = specialtyFilter === 'All' || mentor.specialties.some(specialty =>
+        specialty.toLowerCase().includes(specialtyFilter.toLowerCase())
+      );
+      const matchesAgeBracket = ageBracketFilter === 'All' || mentor.ageBrackets?.includes(ageBracketFilter);
+      return matchesSpecialty && matchesAgeBracket;
+    });
   });
 
   readonly filteredCommunityPosts = computed(() => {

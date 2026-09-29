@@ -38,11 +38,14 @@ export interface AudioTrack {
 export interface Mentor {
   id: string;
   name: string;
+  preferredNickname?: string;
   title: string;
   organization: string;
   avatar: string;
   bannerGradient: string;
   specialties: string[];
+  lifeExperienceTags?: string[];
+  ageBrackets?: string[];
   bio: string;
   rating: number;
   menteesCount: number;
