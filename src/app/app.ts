@@ -52,6 +52,7 @@ export class App {
   readonly firebaseService = inject(FirebaseService);
   readonly pwaService = inject(PwaInstallService);
   readonly dailyMessageScheduler = inject(DailyMessageSchedulerService);
+  readonly isLoggedIn = computed(() => this.firebaseService.isLoggedIn());
 
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');
@@ -83,11 +84,14 @@ export class App {
 
   // Greeting computed property
   readonly userFirstName = computed(() => {
+    if (!this.firebaseService.isLoggedIn()) return '';
+    const authName = this.firebaseService.currentUser()?.displayName;
+    if (authName) return authName.split(' ')[0];
     const fbName = this.firebaseService.userProfile()?.displayName;
     if (fbName) {
       return fbName.split(' ')[0];
     }
-    return this.dataService.userProfile().name.split(' ')[0] || 'Leader';
+    return 'Leader';
   });
 
   constructor() {
@@ -95,7 +99,6 @@ export class App {
       const authLoading = this.firebaseService.authLoading();
       if (typeof window === 'undefined' || authLoading || this.hasResolvedInitialAuth()) return;
       this.hasResolvedInitialAuth.set(true);
-      this.showRegisterModal.set(!this.firebaseService.hasActiveSession());
     });
 
     effect(() => {
@@ -106,6 +109,12 @@ export class App {
       if (typeof window === 'undefined' || authLoading || !this.hasResolvedInitialAuth()) return;
       if (!currentUser) {
         this.showPostAuthOnboarding.set(false);
+        this.showStreakModal.set(false);
+        this.streakNotificationToast.set(null);
+        this.showVoiceRecorder.set(false);
+        this.activeChatMentor.set(null);
+        this.activeMoodPrompt.set(null);
+        this.courseFilter.set('all');
         return;
       }
       if (registerModalOpen) return;
@@ -144,7 +153,7 @@ export class App {
   }
 
   openRegisterModal(): void {
-    if (!this.firebaseService.authLoading() && !this.firebaseService.hasActiveSession()) {
+    if (!this.firebaseService.authLoading() && !this.firebaseService.isLoggedIn()) {
       this.showRegisterModal.set(true);
     }
   }
@@ -152,7 +161,29 @@ export class App {
   handleProfileLogout(): void {
     this.showProfileModal.set(false);
     this.showPostAuthOnboarding.set(false);
+    this.showStreakModal.set(false);
+    this.streakNotificationToast.set(null);
+    this.showVoiceRecorder.set(false);
+    this.activeChatMentor.set(null);
+    this.activeMoodPrompt.set(null);
+    this.courseFilter.set('all');
     this.showRegisterModal.set(true);
+  }
+
+  requireSignIn(): boolean {
+    if (this.firebaseService.isLoggedIn()) return true;
+    this.showRegisterModal.set(true);
+    return false;
+  }
+
+  openVoiceJournal(): void {
+    if (!this.requireSignIn()) return;
+    this.showVoiceRecorder.set(true);
+  }
+
+  openProfileOrSignIn(): void {
+    if (!this.requireSignIn()) return;
+    this.showProfileModal.set(true);
   }
 
   editProfileOnboarding(): void {
@@ -206,6 +237,7 @@ export class App {
   });
 
   startTodaysLesson(): void {
+    if (!this.requireSignIn()) return;
     const lesson = this.todaysLesson();
     if (lesson) {
       this.dataService.openCourse(lesson);
@@ -421,6 +453,7 @@ export class App {
   }
 
   openMentorChat(mentor: Mentor): void {
+    if (!this.requireSignIn()) return;
     this.activeChatMentor.set(mentor);
   }
 

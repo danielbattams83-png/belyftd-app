@@ -93,34 +93,20 @@
 
       <!-- Right Action Items -->
       <div class="flex items-center gap-2">
-        <!-- Firebase Status & Register Button -->
-        <button
-          id="open-register-btn"
-          type="button"
-          (click)="openRegisterModal()"
-          class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition focus-accessible"
-          [class]="firebaseService.isConnected() 
-            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100' 
-            : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 hover:bg-amber-100'"
-          title="Firebase Web SDK v10+ & Account Setup"
-        >
-          <span class="w-2 h-2 rounded-full" [class]="firebaseService.isConnected() ? 'bg-emerald-500' : 'bg-amber-500'"></span>
-          <span>{{ firebaseService.currentUser() ? 'Account Synced' : 'Register / Sync' }}</span>
-        </button>
-
-        <!-- Push Notification Simulator Trigger -->
-        <button
-          id="simulate-daily-notification-btn"
-          type="button"
-          (click)="triggerSimulatedNotification('changing-habits', 'Changing Habits')"
-          class="px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 text-xs font-semibold flex items-center gap-1.5 cursor-pointer focus-accessible"
-          title="Simulate incoming Daily Message notification with deep-link URL (app.com?courseId=changing-habits)"
-        >
-          <mat-icon class="text-base text-indigo-600 dark:text-indigo-400">notifications_active</mat-icon>
-          <span class="hidden md:inline">Simulate Push</span>
-        </button>
+        @if (!firebaseService.authLoading() && !isLoggedIn()) {
+          <button
+            id="open-register-btn"
+            type="button"
+            (click)="openRegisterModal()"
+            class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700 focus-accessible sm:px-5"
+          >
+            <mat-icon class="text-base">login</mat-icon>
+            <span>Sign In / Register</span>
+          </button>
+        }
 
         <!-- Streak Button -->
+        @if (isLoggedIn()) {
         <button
           id="streak-indicator-btn"
           type="button"
@@ -131,6 +117,7 @@
           <span class="text-sm">🔥</span>
           <span>{{ firebaseService.userProfile()?.streakDays || 4 }}d</span>
         </button>
+        }
 
         <!-- Theme Toggle Button -->
         <button
@@ -147,6 +134,7 @@
           </mat-icon>
         </button>
 
+        @if (isLoggedIn()) {
         <button
           id="daily-message-reminder-toggle"
           type="button"
@@ -158,8 +146,10 @@
         >
           <mat-icon class="text-base">{{ dailyMessageScheduler.notificationsEnabled() ? 'notifications_active' : 'notifications_none' }}</mat-icon>
         </button>
+        }
 
         <!-- User Profile Avatar Button -->
+        @if (isLoggedIn()) {
         <button
           id="open-profile-dialog-btn"
           type="button"
@@ -167,13 +157,14 @@
           class="w-10 h-10 rounded-full bg-slate-200 border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden cursor-pointer focus-accessible shrink-0 hover:ring-2 hover:ring-indigo-500/50 transition"
           aria-label="Open User Profile and Settings"
         >
-          <img
-            [src]="dataService.userProfile().avatar"
-            [alt]="dataService.userProfile().name"
+            <img
+              [src]="firebaseService.userProfile()?.avatarUrl || dataService.userProfile().avatar"
+              [alt]="firebaseService.userProfile()?.fullName || firebaseService.userProfile()?.displayName || dataService.userProfile().name"
             class="w-full h-full object-cover"
             referrerpolicy="no-referrer"
           />
         </button>
+        }
       </div>
     </div>
   </header>
@@ -313,9 +304,15 @@
                 Safe space + fresh start
               </div>
 
-              <h2 class="mt-4 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
-                A new day full of potential, {{ userFirstName() }}.
-              </h2>
+              @if (isLoggedIn()) {
+                <h2 class="mt-4 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
+                  A new day full of potential, {{ userFirstName() }}.
+                </h2>
+              } @else {
+                <h2 class="mt-4 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
+                  A new day full of potential. Welcome to Be Lyft'd.
+                </h2>
+              }
               <p class="mt-3 max-w-xl text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
                 Whatever yesterday looked like, today is a fresh step forward. We’re right here with you.
               </p>
@@ -337,7 +334,7 @@
             <button
               id="quick-record-voice-btn"
               type="button"
-              (click)="showVoiceRecorder.set(true)"
+              (click)="openVoiceJournal()"
               class="shrink-0 rounded-2xl border border-slate-200 bg-white/85 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-indigo-500 hover:text-indigo-600 focus-accessible dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 sm:px-4 sm:py-2.5"
             >
               <span class="flex items-center gap-2">
@@ -348,6 +345,16 @@
             </button>
           </div>
         </div>
+
+        @if (!isLoggedIn()) {
+          <aside class="flex flex-col gap-3 border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900/60 dark:bg-indigo-950/30 sm:flex-row sm:items-center sm:justify-between" aria-label="Guest account benefits">
+            <p class="text-sm leading-relaxed text-indigo-950 dark:text-indigo-100">Sign in to track your 7-day streak, save course progress, and connect directly with mentors.</p>
+            <button type="button" (click)="openRegisterModal()" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700 focus-accessible">
+              Get Started
+              <mat-icon class="text-base">arrow_forward</mat-icon>
+            </button>
+          </aside>
+        }
 
         <!-- 'Daily Message' Card with 'Start Today's Lesson' Direct CTA -->
         <div id="daily-message-card" class="relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
@@ -399,6 +406,7 @@
           <div class="pointer-events-none absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-indigo-50 opacity-60 dark:bg-indigo-950/20"></div>
         </div>
 
+        @if (isLoggedIn()) {
         <!-- Quick Progress Bar Showing Completed Courses -->
         <div id="quick-courses-progress-box" class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-3">
           <div class="flex items-center justify-between gap-2">
@@ -559,6 +567,7 @@
             </div>
           }
         </section>
+        }
 
         <!-- Audio Inspiration Library & Featured Tracks -->
         <section class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
@@ -644,6 +653,7 @@
           </div>
         </section>
 
+        @if (isLoggedIn()) {
         <!-- Voice Reflections Section -->
         <section class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
           <div class="flex items-center justify-between">
@@ -697,6 +707,7 @@
             }
           </div>
         </section>
+        }
 
       </div>
     }
@@ -724,6 +735,7 @@
             </p>
           </div>
 
+          @if (isLoggedIn()) {
           <!-- Overall Progress Badge -->
           <div class="bg-white dark:bg-slate-900 px-4 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs flex items-center gap-3 shrink-0">
             <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs font-mono">
@@ -738,9 +750,11 @@
               </p>
             </div>
           </div>
+          }
         </div>
 
-        <!-- Filter Chips -->
+        @if (isLoggedIn()) {
+        <!-- Member Progress Filters -->
         <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
           <button
             type="button"
@@ -773,6 +787,7 @@
             Completed ({{ completedCoursesCount() }})
           </button>
         </div>
+        }
 
         <!-- Foundational Courses Responsive Grid (1 col on mobile, 2 cols on tablet/desktop) -->
         <div id="foundational-courses-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -790,7 +805,12 @@
                   </span>
 
                   <!-- Status Badge -->
-                  @if (course.isCompleted) {
+                  @if (!isLoggedIn()) {
+                    <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      <mat-icon class="text-xs">menu_book</mat-icon>
+                      Available
+                    </span>
+                  } @else if (course.isCompleted) {
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50">
                       <mat-icon class="text-xs">check_circle</mat-icon>
                       Completed
@@ -826,6 +846,7 @@
                   <span>Read & Listen</span>
                 </button>
 
+                @if (isLoggedIn()) {
                 <button
                   id="toggle-course-complete-btn-{{ course.id }}"
                   type="button"
@@ -837,6 +858,7 @@
                     {{ course.isCompleted ? 'check_box' : 'check_box_outline_blank' }}
                   </mat-icon>
                 </button>
+                }
               </div>
             </div>
           }
@@ -1499,7 +1521,7 @@
       <button
         id="nav-profile-dock-btn"
         type="button"
-        (click)="showProfileModal.set(true)"
+        (click)="openProfileOrSignIn()"
         [class]="showProfileModal() ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
         class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
         aria-label="Profile Tab"

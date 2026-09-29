@@ -116,7 +116,8 @@ export class FirebaseService {
   readonly currentUser = signal<User | null>(null);
   readonly userProfile = signal<UserProfileDocument | null>(null);
   readonly hasRegisteredUser = signal<boolean>(false);
-  readonly hasActiveSession = computed(() => Boolean(this.currentUser() || this.hasRegisteredUser()));
+  readonly isLoggedIn = computed(() => this.currentUser() !== null);
+  readonly hasActiveSession = computed(() => this.isLoggedIn());
   readonly isConnected = signal<boolean>(false);
   readonly isUsingLocalStorageFallback = signal<boolean>(false);
   readonly authLoading = signal<boolean>(true);
@@ -151,7 +152,9 @@ export class FirebaseService {
           void this._persistActiveSession(user);
           await this._fetchUserProfile(user.uid);
         } else {
-          this.userProfile.set(this._getLocalStorageUserProfile());
+          this.hasRegisteredUser.set(false);
+          this.userProfile.set(null);
+          this._clearActiveSession();
         }
         this.authLoading.set(false);
       });
@@ -662,14 +665,20 @@ export class FirebaseService {
       }
     }
     this.currentUser.set(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(LOCAL_STORAGE_KEY_ACTIVE_USER);
-      localStorage.removeItem(LOCAL_STORAGE_KEY_UID);
-      localStorage.removeItem(LOCAL_STORAGE_KEY_USER);
-      localStorage.removeItem(LOCAL_STORAGE_KEY_REGISTERED);
-    }
+    this._clearActiveSession();
     this.hasRegisteredUser.set(false);
     this.userProfile.set(null);
+  }
+
+  private _clearActiveSession(): void {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(LOCAL_STORAGE_KEY_ACTIVE_USER);
+    localStorage.removeItem(LOCAL_STORAGE_KEY_UID);
+    localStorage.removeItem(LOCAL_STORAGE_KEY_USER);
+    localStorage.removeItem(LOCAL_STORAGE_KEY_REGISTERED);
+    localStorage.removeItem(LOCAL_STORAGE_KEY_COMPLETED);
+    localStorage.removeItem(LOCAL_STORAGE_KEY_LAST_COMPLETION_DATE);
+    localStorage.removeItem(LOCAL_STORAGE_KEY_LAST_COMPLETION_TS);
   }
 
   private _getCachedProfileForUser(uid: string): UserProfileDocument | null {
