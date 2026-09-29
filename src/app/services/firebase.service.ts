@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import {
   getFirestore,
@@ -39,6 +39,8 @@ export interface UserRegistrationData {
   country: string;
   countryCode: string;
   ageBracket?: string;
+  streak?: number;
+  createdDate?: Date | string;
 }
 
 export interface UserProfileDocument {
@@ -50,11 +52,13 @@ export interface UserProfileDocument {
   country: string;
   countryCode: string;
   ageBracket?: string;
+  streak?: number;
   totalXp: number;
   streakDays: number;
   completedCourses: string[];
   role: 'student' | 'mentor' | 'admin';
   createdAt: string | unknown;
+  createdDate?: Date | string | unknown;
   updatedAt: string | unknown;
 }
 
@@ -74,6 +78,7 @@ export const COUNTRY_OPTIONS = [
 ];
 
 const LOCAL_STORAGE_KEY_USER = 'belyftd_user_profile';
+const LOCAL_STORAGE_KEY_ACTIVE_USER = 'belyftd_user';
 const LOCAL_STORAGE_KEY_UID = 'belyftd_user_uid';
 const LOCAL_STORAGE_KEY_REGISTERED = 'belyftd_user_registered';
 const LOCAL_STORAGE_KEY_COMPLETED = 'belyftd_completed_courses';
@@ -92,6 +97,7 @@ export class FirebaseService {
   readonly currentUser = signal<User | null>(null);
   readonly userProfile = signal<UserProfileDocument | null>(null);
   readonly hasRegisteredUser = signal<boolean>(false);
+  readonly hasActiveSession = computed(() => Boolean(this.currentUser() || this.hasRegisteredUser()));
   readonly isConnected = signal<boolean>(false);
   readonly isUsingLocalStorageFallback = signal<boolean>(false);
   readonly authLoading = signal<boolean>(true);
@@ -124,6 +130,7 @@ export class FirebaseService {
         this.currentUser.set(user);
         if (user) {
           if (typeof window !== 'undefined') {
+            localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, user.uid);
             localStorage.setItem(LOCAL_STORAGE_KEY_UID, user.uid);
           }
           await this._fetchUserProfile(user.uid);
@@ -146,6 +153,9 @@ export class FirebaseService {
     const now = new Date().toISOString();
     const firestoreProfile = {
       ...userData,
+      fullName: userData.fullName || userData.displayName,
+      streak: userData.streak ?? userData.streakDays,
+      createdDate: userData.createdDate || serverTimestamp(),
       createdAt: userData.createdAt || serverTimestamp(),
       updatedAt: serverTimestamp()
     };
@@ -155,14 +165,54 @@ export class FirebaseService {
     const cachedProfile: UserProfileDocument = {
       ...userData,
       fullName: userData.fullName || userData.displayName,
+      streak: userData.streak ?? userData.streakDays,
+      createdDate: userData.createdDate || now,
       createdAt: typeof userData.createdAt === 'string' ? userData.createdAt : now,
       updatedAt: now
     };
     this._saveLocalStorageUserProfile(cachedProfile);
     if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, userData.id || userData.email);
       localStorage.setItem(LOCAL_STORAGE_KEY_UID, userData.id);
     }
     this.userProfile.set(cachedProfile);
+  }
+
+  async loadUserProfileForSession(): Promise<UserProfileDocument | null> {
+    const authUser = this.currentUser();
+    const activeSession = typeof window !== 'undefined'
+      ? localStorage.getItem(LOCAL_STORAGE_KEY_ACTIVE_USER) || authUser?.uid || null
+      : authUser?.uid || null;
+
+    if (!activeSession) {
+      const guestProfile = this.userProfile() || this._getLocalStorageUserProfile();
+      this.userProfile.set(guestProfile);
+      return guestProfile;
+    }
+
+    const localProfile = this._getLocalStorageUserProfile();
+    if (localProfile.id === activeSession || localProfile.email === activeSession) {
+      this.userProfile.set(localProfile);
+      return localProfile;
+    }
+
+    if (!this.db) return null;
+
+    try {
+      const profileSnapshot = activeSession.includes('@')
+        ? await getDocs(query(collection(this.db, 'users'), where('email', '==', activeSession), limit(1)))
+        : null;
+      const profileDoc = profileSnapshot?.docs[0] || await getDoc(doc(this.db, 'users', activeSession));
+      if (!profileDoc.exists()) return null;
+
+      const profile = { ...profileDoc.data(), id: profileDoc.id } as UserProfileDocument;
+      this._saveLocalStorageUserProfile(profile);
+      this.userProfile.set(profile);
+      return profile;
+    } catch (err) {
+      console.warn('[FirebaseService] Session profile fetch fallback:', err);
+      return null;
+    }
   }
 
   async getCourses(): Promise<CourseDocument[]> {
@@ -253,16 +303,20 @@ export class FirebaseService {
         country: data.country,
         countryCode: data.countryCode,
         ageBracket: data.ageBracket,
+        streak: data.streak ?? 1,
         totalXp: 350,
-        streakDays: 4,
+        streakDays: data.streak ?? 1,
         completedCourses: this._getLocalStorageCompletedCourses(),
         role: 'student',
         createdAt: new Date().toISOString(),
+        createdDate: data.createdDate || new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
 
       this._saveLocalStorageUserProfile(localProfile);
       if (typeof window !== 'undefined') {
+        localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, localProfile.id);
+        localStorage.setItem(LOCAL_STORAGE_KEY_UID, localProfile.id);
         localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
       }
       this.hasRegisteredUser.set(true);
@@ -290,11 +344,13 @@ export class FirebaseService {
         country: data.country,
         countryCode: data.countryCode,
         ageBracket: data.ageBracket,
+        streak: data.streak ?? 1,
         totalXp: 350,
-        streakDays: 4,
+        streakDays: data.streak ?? 1,
         completedCourses: this._getLocalStorageCompletedCourses(),
         role: 'student',
         createdAt: serverTimestamp(),
+        createdDate: data.createdDate || new Date(),
         updatedAt: serverTimestamp()
       };
 
@@ -318,22 +374,26 @@ export class FirebaseService {
         country: data.country,
         countryCode: data.countryCode,
         ageBracket: data.ageBracket,
+        streak: data.streak ?? 1,
         totalXp: 350,
-        streakDays: 4,
+        streakDays: data.streak ?? 1,
         completedCourses: this._getLocalStorageCompletedCourses(),
         role: 'student',
         createdAt: new Date().toISOString(),
+        createdDate: data.createdDate || new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
 
       this._saveLocalStorageUserProfile(fallbackProfile);
       if (typeof window !== 'undefined') {
+        localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, fallbackProfile.id);
         localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
       }
       this.hasRegisteredUser.set(true);
       this.userProfile.set(fallbackProfile);
       this.isUsingLocalStorageFallback.set(true);
       if (this.auth?.currentUser && typeof window !== 'undefined') {
+        localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, this.auth.currentUser.uid);
         localStorage.setItem(LOCAL_STORAGE_KEY_UID, this.auth.currentUser.uid);
       }
 
@@ -373,9 +433,26 @@ export class FirebaseService {
     }
     this.currentUser.set(null);
     if (typeof window !== 'undefined') {
+      localStorage.removeItem(LOCAL_STORAGE_KEY_ACTIVE_USER);
       localStorage.removeItem(LOCAL_STORAGE_KEY_UID);
+      localStorage.removeItem(LOCAL_STORAGE_KEY_USER);
+      localStorage.removeItem(LOCAL_STORAGE_KEY_REGISTERED);
     }
-    this._loadLocalStorageFallback();
+    this.hasRegisteredUser.set(false);
+    this.userProfile.set(null);
+  }
+
+  private _getCachedProfileForUser(uid: string): UserProfileDocument | null {
+    if (typeof window === 'undefined') return null;
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY_USER);
+      if (!stored) return null;
+      const profile = JSON.parse(stored) as UserProfileDocument;
+      return profile.id === uid || profile.email === this.currentUser()?.email ? profile : null;
+    } catch (err) {
+      console.warn('[FirebaseService] Cached user profile is invalid:', err);
+      return null;
+    }
   }
 
   /**
@@ -383,7 +460,7 @@ export class FirebaseService {
    */
   private async _fetchUserProfile(uid: string): Promise<void> {
     if (!this.db) {
-      this.userProfile.set(this._getLocalStorageUserProfile());
+      this.userProfile.set(this._getCachedProfileForUser(uid));
       return;
     }
 
@@ -392,16 +469,24 @@ export class FirebaseService {
       const snapshot = await getDoc(userRef);
 
       if (snapshot.exists()) {
-        const data = snapshot.data() as UserProfileDocument;
+        const storedData = snapshot.data() as UserProfileDocument;
+        const data: UserProfileDocument = {
+          ...storedData,
+          fullName: storedData.fullName || storedData.displayName,
+          streak: storedData.streak ?? storedData.streakDays
+        };
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, uid);
+        }
         this.userProfile.set(data);
         this._saveLocalStorageUserProfile(data);
       } else {
-        const local = this._getLocalStorageUserProfile();
+        const local = this._getCachedProfileForUser(uid);
         this.userProfile.set(local);
       }
     } catch (err) {
       console.warn('[FirebaseService] Firestore fetch fallback:', err);
-      this.userProfile.set(this._getLocalStorageUserProfile());
+      this.userProfile.set(this._getCachedProfileForUser(uid));
       this.isUsingLocalStorageFallback.set(true);
     }
   }
@@ -462,6 +547,7 @@ export class FirebaseService {
 
     const updatedProfile: UserProfileDocument = {
       ...currentProfile,
+      streak: currentStreak,
       streakDays: currentStreak,
       totalXp: (currentProfile.totalXp || 350) + 100,
       completedCourses: currentCompleted,
@@ -488,6 +574,7 @@ export class FirebaseService {
         const userRef = doc(this.db, 'users', user.uid);
         await updateDoc(userRef, {
           completedCourses: arrayUnion(courseId),
+          streak: currentStreak,
           streakDays: currentStreak,
           lastCompletionTimestamp: serverTimestamp(),
           lastActiveDate: todayStr,

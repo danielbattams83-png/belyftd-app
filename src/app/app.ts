@@ -89,9 +89,9 @@ export class App {
   constructor() {
     effect(() => {
       const authLoading = this.firebaseService.authLoading();
-      const currentUser = this.firebaseService.currentUser();
+      const hasActiveSession = this.firebaseService.hasActiveSession();
       if (typeof window !== 'undefined' && !authLoading) {
-        this.showRegisterModal.set(!currentUser);
+        this.showRegisterModal.set(!hasActiveSession);
       }
     });
 
@@ -120,9 +120,14 @@ export class App {
   }
 
   openRegisterModal(): void {
-    if (!this.firebaseService.authLoading() && !this.firebaseService.currentUser()) {
+    if (!this.firebaseService.authLoading() && !this.firebaseService.hasActiveSession()) {
       this.showRegisterModal.set(true);
     }
+  }
+
+  handleProfileLogout(): void {
+    this.showProfileModal.set(false);
+    this.showRegisterModal.set(true);
   }
 
   // Filter States

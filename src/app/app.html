@@ -1543,7 +1543,10 @@
 
   <!-- Profile & Settings Modal -->
   @if (showProfileModal()) {
-    <app-profile-modal (closeModal)="showProfileModal.set(false)" />
+    <app-profile-modal
+      (closeModal)="showProfileModal.set(false)"
+      (logoutComplete)="handleProfileLogout()"
+    />
   }
 
   <!-- Streak Celebration Modal -->

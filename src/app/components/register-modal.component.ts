@@ -478,6 +478,8 @@ export class RegisterModalComponent {
       country,
       countryCode,
       ageBracket: val.ageBracket || undefined,
+      streak: 1,
+      createdDate: new Date(),
       password
     });
 

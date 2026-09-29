@@ -1,8 +1,9 @@
-import {ChangeDetectionStrategy, Component, inject, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {MentorshipDataService} from '../services/mentorship-data.service';
 import {ThemeAccessibilityService} from '../services/theme-accessibility.service';
+import {FirebaseService} from '../services/firebase.service';
 
 @Component({
   selector: 'app-profile-modal',
@@ -38,18 +39,18 @@ import {ThemeAccessibilityService} from '../services/theme-accessibility.service
           <div>
             <div class="flex items-center gap-2">
               <h4 class="text-base font-bold text-slate-900 dark:text-slate-100 font-display">
-                {{ dataService.userProfile().name }}
+                {{ activeProfile().fullName }}
               </h4>
               <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 uppercase">
                 {{ dataService.userProfile().role }}
               </span>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              {{ dataService.userProfile().gradeOrAge }} • {{ dataService.userProfile().pronouns }}
+              {{ activeProfile().ageBracket }} • {{ activeProfile().country }}
             </p>
             <div class="flex items-center gap-1.5 mt-2 text-xs font-semibold text-amber-600 dark:text-amber-400">
               <mat-icon class="text-sm">local_fire_department</mat-icon>
-              <span>{{ dataService.userProfile().streakDays }}-Day Active Streak</span>
+              <span>{{ activeProfile().streak }}-Day Active Streak</span>
             </div>
           </div>
         </div>
@@ -205,13 +206,47 @@ import {ThemeAccessibilityService} from '../services/theme-accessibility.service
           </div>
           <span class="font-mono text-[10px]">v1.0 MVP</span>
         </div>
+
+        <div class="border-t border-slate-100 pt-4 dark:border-slate-800">
+          <button
+            id="profile-logout-btn"
+            type="button"
+            (click)="logout()"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 focus-accessible dark:border-rose-900/60 dark:text-rose-300 dark:hover:bg-rose-950/40"
+          >
+            <mat-icon class="text-base">logout</mat-icon>
+            Log Out
+          </button>
+        </div>
       </div>
     </div>
   `,
 })
 export class ProfileModalComponent {
   readonly closeModal = output<void>();
+  readonly logoutComplete = output<void>();
 
   readonly dataService = inject(MentorshipDataService);
   readonly themeService = inject(ThemeAccessibilityService);
+  readonly firebaseService = inject(FirebaseService);
+  readonly activeProfile = computed(() => {
+    const firestoreProfile = this.firebaseService.userProfile();
+    const localProfile = this.dataService.userProfile();
+    return {
+      fullName: firestoreProfile?.fullName || firestoreProfile?.displayName || localProfile.name,
+      ageBracket: firestoreProfile?.ageBracket || localProfile.gradeOrAge,
+      country: firestoreProfile?.country || localProfile.country || 'Country not set',
+      streak: firestoreProfile?.streak ?? firestoreProfile?.streakDays ?? localProfile.streakDays,
+    };
+  });
+
+  constructor() {
+    void this.firebaseService.loadUserProfileForSession();
+  }
+
+  async logout(): Promise<void> {
+    await this.firebaseService.logout();
+    this.closeModal.emit();
+    this.logoutComplete.emit();
+  }
 }
