@@ -19,8 +19,10 @@ import {
 import {
   getAuth,
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   signInAnonymously,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   onAuthStateChanged,
   updateProfile,
@@ -45,8 +47,10 @@ export interface UserRegistrationData {
 
 export interface UserProfileDocument {
   id: string;
+  uid?: string;
   displayName: string;
   fullName?: string;
+  avatarUrl?: string | null;
   email: string;
   phoneNumber: string;
   country: string;
@@ -129,10 +133,7 @@ export class FirebaseService {
       onAuthStateChanged(this.auth, async (user) => {
         this.currentUser.set(user);
         if (user) {
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, user.uid);
-            localStorage.setItem(LOCAL_STORAGE_KEY_UID, user.uid);
-          }
+          void this._persistActiveSession(user);
           await this._fetchUserProfile(user.uid);
         } else {
           this.userProfile.set(this._getLocalStorageUserProfile());
@@ -172,7 +173,12 @@ export class FirebaseService {
     };
     this._saveLocalStorageUserProfile(cachedProfile);
     if (typeof window !== 'undefined') {
-      localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, userData.id || userData.email);
+      const user = this.currentUser();
+      if (user && user.uid === userData.id) {
+        await this._persistActiveSession(user);
+      } else {
+        this._storeActiveSession(userData.id || userData.email, null);
+      }
       localStorage.setItem(LOCAL_STORAGE_KEY_UID, userData.id);
     }
     this.userProfile.set(cachedProfile);
@@ -180,9 +186,7 @@ export class FirebaseService {
 
   async loadUserProfileForSession(): Promise<UserProfileDocument | null> {
     const authUser = this.currentUser();
-    const activeSession = typeof window !== 'undefined'
-      ? localStorage.getItem(LOCAL_STORAGE_KEY_ACTIVE_USER) || authUser?.uid || null
-      : authUser?.uid || null;
+    const activeSession = this._getActiveSessionUid() || authUser?.uid || null;
 
     if (!activeSession) {
       const guestProfile = this.userProfile() || this._getLocalStorageUserProfile();
@@ -268,6 +272,124 @@ export class FirebaseService {
     return this.db;
   }
 
+  async loginWithGoogle(): Promise<{success: boolean; message: string}> {
+    this.errorMessage.set(null);
+    if (!this.auth || !this.db) {
+      return {success: false, message: 'Firebase is unavailable. Check your connection and try again.'};
+    }
+
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({prompt: 'select_account'});
+      const result = await signInWithPopup(this.auth, provider);
+      const user = result.user;
+      this.currentUser.set(user);
+      await this._persistActiveSession(user);
+
+      const userRef = doc(this.db, 'users', user.uid);
+      const userSnapshot = await getDoc(userRef);
+      let profile: UserProfileDocument;
+
+      if (userSnapshot.exists()) {
+        const data = userSnapshot.data() as Partial<UserProfileDocument>;
+        profile = {
+          ...data,
+          id: user.uid,
+          uid: user.uid,
+          displayName: data.displayName || data.fullName || user.displayName || user.email || 'Be Lyft\'d member',
+          fullName: data.fullName || data.displayName || user.displayName || '',
+          email: data.email || user.email || '',
+          avatarUrl: data.avatarUrl || user.photoURL,
+          phoneNumber: data.phoneNumber || '',
+          country: data.country || '',
+          countryCode: data.countryCode || '',
+          streak: data.streak ?? data.streakDays ?? 1,
+          totalXp: data.totalXp ?? 350,
+          streakDays: data.streakDays ?? data.streak ?? 1,
+          completedCourses: data.completedCourses || this._getLocalStorageCompletedCourses(),
+          role: data.role || 'student',
+          createdAt: data.createdAt || new Date().toISOString(),
+          createdDate: data.createdDate || new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+      } else {
+        const fullName = user.displayName || user.email?.split('@')[0] || 'Be Lyft\'d member';
+        profile = {
+          id: user.uid,
+          uid: user.uid,
+          displayName: fullName,
+          fullName,
+          email: user.email || '',
+          avatarUrl: user.photoURL,
+          phoneNumber: user.phoneNumber || '',
+          country: '',
+          countryCode: '',
+          streak: 1,
+          totalXp: 350,
+          streakDays: 1,
+          completedCourses: this._getLocalStorageCompletedCourses(),
+          role: 'student',
+          createdAt: serverTimestamp(),
+          createdDate: new Date(),
+          updatedAt: serverTimestamp()
+        };
+        await setDoc(userRef, profile, {merge: true});
+      }
+
+      this._saveLocalStorageUserProfile(profile);
+      this.userProfile.set(profile);
+      this.hasRegisteredUser.set(true);
+      this.isUsingLocalStorageFallback.set(false);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
+      }
+      return {success: true, message: 'Signed in with Google.'};
+    } catch (err: unknown) {
+      console.error('[FirebaseService] Google sign-in failed:', err);
+      const code = typeof err === 'object' && err !== null && 'code' in err
+        ? String((err as {code: unknown}).code)
+        : '';
+      const message = code === 'auth/popup-closed-by-user'
+        ? 'Google sign-in was cancelled.'
+        : code === 'auth/unauthorized-domain'
+          ? 'This domain is not authorized for Google sign-in in Firebase Authentication.'
+          : code === 'permission-denied' || code === 'firestore/permission-denied'
+            ? 'Google sign-in worked, but Firestore denied access to the users profile.'
+            : 'Google sign-in could not be completed. Check your connection and try again.';
+      this.errorMessage.set(message);
+      return {success: false, message};
+    }
+  }
+
+  private async _persistActiveSession(user: User): Promise<void> {
+    if (typeof window === 'undefined') return;
+    try {
+      const sessionToken = await user.getIdToken();
+      this._storeActiveSession(user.uid, sessionToken);
+      localStorage.setItem(LOCAL_STORAGE_KEY_UID, user.uid);
+    } catch (error) {
+      console.warn('[FirebaseService] Could not persist Firebase session token:', error);
+      this._storeActiveSession(user.uid, null);
+    }
+  }
+
+  private _storeActiveSession(uid: string, sessionToken: string | null): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, JSON.stringify({uid, sessionToken}));
+  }
+
+  private _getActiveSessionUid(): string | null {
+    if (typeof window === 'undefined') return null;
+    const storedSession = localStorage.getItem(LOCAL_STORAGE_KEY_ACTIVE_USER);
+    if (!storedSession) return null;
+    try {
+      const parsed = JSON.parse(storedSession) as {uid?: string};
+      return parsed.uid || storedSession;
+    } catch {
+      return storedSession;
+    }
+  }
+
   async signInUser(email: string, password: string): Promise<{ success: boolean; message: string }> {
     this.errorMessage.set(null);
     if (!this.auth) {
@@ -275,11 +397,46 @@ export class FirebaseService {
     }
 
     try {
-      await signInWithEmailAndPassword(this.auth, email.trim(), password);
+      const credential = await signInWithEmailAndPassword(this.auth, email.trim(), password);
+      this.currentUser.set(credential.user);
+      await this._persistActiveSession(credential.user);
+      await this._fetchUserProfile(credential.user.uid);
+
+      if (!this.userProfile()) {
+        const cachedProfile = this._getCachedProfileForUser(credential.user.uid);
+        const profile: UserProfileDocument = cachedProfile ?? {
+          id: credential.user.uid,
+          displayName: credential.user.displayName || email.trim().split('@')[0],
+          fullName: credential.user.displayName || email.trim().split('@')[0],
+          email: credential.user.email || email.trim(),
+          phoneNumber: '',
+          country: '',
+          countryCode: '',
+          streak: 1,
+          totalXp: 350,
+          streakDays: 1,
+          completedCourses: this._getLocalStorageCompletedCourses(),
+          role: 'student',
+          createdAt: new Date().toISOString(),
+          createdDate: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        await this.saveUserProfile({...profile, id: credential.user.uid});
+      }
+
       return { success: true, message: 'Signed in successfully.' };
     } catch (err: unknown) {
       console.warn('[FirebaseService] Sign-in failed:', err);
-      const message = 'Unable to sign in. Check your email and password, then try again.';
+      const errorCode = typeof err === 'object' && err !== null && 'code' in err
+        ? String((err as {code: unknown}).code)
+        : '';
+      const message = errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-credential'
+        ? 'No Firebase account was found for these credentials. If registration previously saved only on this device, create the account again while online.'
+        : errorCode === 'auth/operation-not-allowed'
+          ? 'Email/password sign-in is disabled in Firebase Authentication. Enable that provider in Firebase Console.'
+          : errorCode === 'permission-denied' || errorCode === 'firestore/permission-denied'
+            ? 'You signed in, but Firestore denied profile access. Check the users/{uid} security rule.'
+            : 'Unable to sign in or sync your profile. Check your email, password, connection, and Firebase configuration.';
       this.errorMessage.set(message);
       return { success: false, message };
     }
@@ -314,20 +471,20 @@ export class FirebaseService {
       };
 
       this._saveLocalStorageUserProfile(localProfile);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, localProfile.id);
-        localStorage.setItem(LOCAL_STORAGE_KEY_UID, localProfile.id);
-        localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
-      }
-      this.hasRegisteredUser.set(true);
+      this.hasRegisteredUser.set(false);
       this.userProfile.set(localProfile);
-      return { success: true, message: 'Registered successfully (Saved via resilient local storage).' };
+      return {
+        success: false,
+        message: 'Firebase is unavailable. Your details were saved on this device only; no online account was created.'
+      };
     }
 
     try {
       const securePassword = data.password && data.password.length >= 6 ? data.password : 'BeLyftdLeader2026!';
-      const userCredential = await createUserWithEmailAndPassword(this.auth, data.email, securePassword);
-      const user = userCredential.user;
+      const activeUser = this.auth.currentUser?.email?.toLowerCase() === data.email.toLowerCase()
+        ? this.auth.currentUser
+        : null;
+      const user = activeUser || (await createUserWithEmailAndPassword(this.auth, data.email, securePassword)).user;
 
       // Update Firebase Auth Display Name
       await updateProfile(user, {
@@ -363,10 +520,15 @@ export class FirebaseService {
       return { success: true, message: 'Account registered and synced with Firebase Firestore!' };
     } catch (err: unknown) {
       console.error('[FirebaseService] Registration error:', err);
+      const errorCode = typeof err === 'object' && err !== null && 'code' in err
+        ? String((err as {code: unknown}).code)
+        : '';
+      const activeUser = this.auth?.currentUser?.email?.toLowerCase() === data.email.toLowerCase()
+        ? this.auth.currentUser
+        : null;
       
-      // If Firebase Auth throws (e.g. email in use or network timeout), gracefully fall back to local profile
       const fallbackProfile: UserProfileDocument = {
-        id: this.auth?.currentUser?.uid || 'fallback_user_' + Date.now(),
+        id: activeUser?.uid || 'fallback_user_' + Date.now(),
         displayName: fullName,
         fullName,
         email: data.email,
@@ -385,21 +547,25 @@ export class FirebaseService {
       };
 
       this._saveLocalStorageUserProfile(fallbackProfile);
-      if (typeof window !== 'undefined') {
+      if (activeUser && typeof window !== 'undefined') {
         localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, fallbackProfile.id);
+        localStorage.setItem(LOCAL_STORAGE_KEY_UID, fallbackProfile.id);
         localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
       }
-      this.hasRegisteredUser.set(true);
+      this.hasRegisteredUser.set(Boolean(activeUser));
       this.userProfile.set(fallbackProfile);
-      this.isUsingLocalStorageFallback.set(true);
-      if (this.auth?.currentUser && typeof window !== 'undefined') {
-        localStorage.setItem(LOCAL_STORAGE_KEY_ACTIVE_USER, this.auth.currentUser.uid);
-        localStorage.setItem(LOCAL_STORAGE_KEY_UID, this.auth.currentUser.uid);
-      }
+
+      const message = errorCode === 'auth/operation-not-allowed'
+        ? 'Email/password sign-up is disabled in Firebase Authentication. Enable that provider in Firebase Console.'
+        : errorCode === 'auth/email-already-in-use'
+          ? 'An account already exists for this email. Switch to Sign In.'
+          : errorCode === 'permission-denied' || errorCode === 'firestore/permission-denied'
+            ? 'Firebase created your account, but Firestore denied the profile write. Check the users/{uid} security rule and retry.'
+            : 'Firebase could not create the account or save its profile. Check your connection and Firebase configuration, then retry.';
 
       return {
-        success: true,
-        message: 'Account configured successfully with local persistence fallback.'
+        success: false,
+        message
       };
     }
   }

@@ -232,11 +232,13 @@ export class ProfileModalComponent {
   readonly activeProfile = computed(() => {
     const firestoreProfile = this.firebaseService.userProfile();
     const localProfile = this.dataService.userProfile();
+    const hasActiveSession = this.firebaseService.hasActiveSession();
+    const authName = this.firebaseService.currentUser()?.displayName;
     return {
-      fullName: firestoreProfile?.fullName || firestoreProfile?.displayName || localProfile.name,
-      ageBracket: firestoreProfile?.ageBracket || localProfile.gradeOrAge,
-      country: firestoreProfile?.country || localProfile.country || 'Country not set',
-      streak: firestoreProfile?.streak ?? firestoreProfile?.streakDays ?? localProfile.streakDays,
+      fullName: firestoreProfile?.fullName || firestoreProfile?.displayName || authName || (hasActiveSession ? 'Profile sync pending' : localProfile.name),
+      ageBracket: firestoreProfile?.ageBracket || (hasActiveSession ? 'Age bracket not saved' : localProfile.gradeOrAge),
+      country: firestoreProfile?.country || (hasActiveSession ? 'Country not saved' : localProfile.country || 'Country not set'),
+      streak: firestoreProfile?.streak ?? firestoreProfile?.streakDays ?? (hasActiveSession ? 0 : localProfile.streakDays),
     };
   });
 

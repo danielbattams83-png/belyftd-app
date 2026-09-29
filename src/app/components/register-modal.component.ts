@@ -85,6 +85,17 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
           </span>
         </div>
 
+        <button
+          id="google-auth-btn"
+          type="button"
+          (click)="handleGoogleLogin()"
+          [disabled]="isSubmitting()"
+          class="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60 focus-accessible dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+        >
+          <span class="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-base font-black text-[#4285F4] dark:border-slate-600" aria-hidden="true">G</span>
+          {{ isSubmitting() ? 'Connecting to Google…' : 'Continue with Google' }}
+        </button>
+
         @if (isLoginMode()) {
           <form [formGroup]="loginForm" (ngSubmit)="handleLogin()" class="space-y-4">
             <div class="space-y-1">
@@ -451,6 +462,18 @@ export class RegisterModalComponent {
 
     if (result.success) {
       this.closeModal.emit();
+    }
+  }
+
+  async handleGoogleLogin(): Promise<void> {
+    this.isSubmitting.set(true);
+    this.statusMessage.set('Connecting to Google...');
+    try {
+      const result = await this.firebaseService.loginWithGoogle();
+      this.statusMessage.set(result.message);
+      if (result.success) this.closeModal.emit();
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
 

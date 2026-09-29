@@ -60,6 +60,7 @@ export class App {
   readonly showCustomPepTalk = signal<boolean>(false);
   readonly showProfileModal = signal<boolean>(false);
   readonly showRegisterModal = signal<boolean>(false);
+  private readonly hasResolvedInitialAuth = signal<boolean>(false);
   readonly showStreakModal = signal<boolean>(false);
   readonly showNewQuestModal = signal<boolean>(false);
 
@@ -89,10 +90,9 @@ export class App {
   constructor() {
     effect(() => {
       const authLoading = this.firebaseService.authLoading();
-      const hasActiveSession = this.firebaseService.hasActiveSession();
-      if (typeof window !== 'undefined' && !authLoading) {
-        this.showRegisterModal.set(!hasActiveSession);
-      }
+      if (typeof window === 'undefined' || authLoading || this.hasResolvedInitialAuth()) return;
+      this.hasResolvedInitialAuth.set(true);
+      this.showRegisterModal.set(!this.firebaseService.hasActiveSession());
     });
 
     // Watch for deep links (e.g. from URL ?courseId=... or simulated push notifications)
