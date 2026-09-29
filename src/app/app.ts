@@ -64,7 +64,7 @@ export class App {
   readonly pwaManualGuideMessage = signal<string | null>(null);
 
   // Developer Testing Widget & Notification State
-  readonly isDevWidgetVisible = signal<boolean>(true);
+  readonly isDevWidgetVisible = signal<boolean>(false);
   readonly isDevWidgetCollapsed = signal<boolean>(false);
   readonly selectedDevCourseId = signal<string>('changing-habits');
   readonly devIncludeDailyMsg = signal<boolean>(true);
@@ -83,11 +83,6 @@ export class App {
   });
 
   constructor() {
-    // Auto-launch registration modal on launch if no user is registered
-    if (!this.firebaseService.hasRegisteredUser()) {
-      this.showRegisterModal.set(true);
-    }
-
     // Watch for deep links (e.g. from URL ?courseId=... or simulated push notifications)
     effect(() => {
       const targetId = this.firebaseService.targetCourseIdFromNotification();

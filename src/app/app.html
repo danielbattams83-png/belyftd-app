@@ -212,7 +212,7 @@
       (keydown.enter)="handleInstallBannerClick()"
       (keydown.space)="handleInstallBannerClick()"
       tabindex="0"
-      class="bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 border-b border-indigo-500/30 px-4 py-2.5 text-xs text-indigo-100 shadow-md cursor-pointer hover:bg-indigo-900/90 transition group select-none focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      class="bg-gradient-to-r from-indigo-50 via-white to-indigo-50 border-b border-indigo-200 px-4 py-2.5 text-xs text-indigo-900 shadow-md cursor-pointer hover:from-indigo-100 hover:to-indigo-100 transition group select-none focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:from-indigo-900 dark:via-slate-900 dark:to-indigo-950 dark:border-indigo-500/30 dark:text-indigo-100 dark:hover:from-indigo-800 dark:hover:to-indigo-900"
       role="banner"
       aria-label="Install Be Lyft'd App banner. Click to install."
     >
@@ -223,7 +223,7 @@
           </div>
           <div class="min-w-0">
             <span class="font-semibold text-white">Install Be Lyft'd</span>
-            <span class="hidden sm:inline text-indigo-200 ml-1.5">— Add to home screen for offline audio coaching & faster loading</span>
+            <span class="hidden sm:inline text-indigo-700 dark:text-indigo-200 ml-1.5">— Add to home screen for offline audio coaching & faster loading</span>
           </div>
         </div>
 
@@ -241,7 +241,7 @@
             id="pwa-dismiss-btn"
             type="button"
             (click)="dismissPwaBanner($event)"
-            class="px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white font-medium text-xs border border-slate-700 transition cursor-pointer"
+            class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-950 font-medium text-xs border border-slate-300 transition cursor-pointer dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:text-slate-300 dark:hover:text-white dark:border-slate-700"
             aria-label="Dismiss install prompt"
           >
             Got it
@@ -1758,20 +1758,6 @@
         </div>
       }
     </aside>
-  }
-
-  <!-- Restore Dev Widget Button if hidden -->
-  @if (!isDevWidgetVisible()) {
-    <button
-      id="dev-widget-restore-btn"
-      type="button"
-      (click)="showDevWidget()"
-      class="fixed bottom-3 left-3 z-40 px-2.5 py-1.5 rounded-xl bg-slate-900/90 text-indigo-300 border border-indigo-500/40 text-[11px] font-bold shadow-lg hover:bg-indigo-950 transition cursor-pointer flex items-center gap-1"
-      title="Show Developer Testing Widget"
-    >
-      <mat-icon class="text-sm">build</mat-icon>
-      <span>Dev Simulator</span>
-    </button>
   }
 
 </div>
