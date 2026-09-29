@@ -30,19 +30,25 @@ import {FirebaseService} from '../services/firebase.service';
 
         <!-- User Identity Card -->
         <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800">
-          <img
-            [src]="activeProfile().avatarUrl || dataService.userProfile().avatar"
-            [alt]="activeProfile().fullName"
-            class="w-16 h-16 rounded-2xl object-cover border border-slate-200 dark:border-slate-700"
-            referrerpolicy="no-referrer"
-          />
+          @if (activeProfile().avatarUrl || !firebaseService.hasActiveSession()) {
+            <img
+              [src]="activeProfile().avatarUrl || dataService.userProfile().avatar"
+              [alt]="activeProfile().fullName"
+              class="w-16 h-16 rounded-2xl object-cover border border-slate-200 dark:border-slate-700"
+              referrerpolicy="no-referrer"
+            />
+          } @else {
+            <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-indigo-100 text-lg font-bold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-200" aria-hidden="true">
+              {{ activeProfile().fullName.slice(0, 1).toUpperCase() }}
+            </div>
+          }
           <div>
             <div class="flex items-center gap-2">
               <h4 class="text-base font-bold text-slate-900 dark:text-slate-100 font-display">
                 {{ activeProfile().fullName }}
               </h4>
               <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 uppercase">
-                {{ dataService.userProfile().role }}
+                {{ activeProfile().role }}
               </span>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -59,21 +65,21 @@ import {FirebaseService} from '../services/firebase.service';
         <div class="grid grid-cols-3 gap-2.5 text-center">
           <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 shadow-xs">
             <div class="text-xl font-bold text-indigo-600 dark:text-indigo-400 font-display">
-              {{ dataService.userProfile().totalLyftsReceived }}
+              {{ activeProfile().lyftsReceived ?? '—' }}
             </div>
             <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Lyfts Received</div>
           </div>
           <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 shadow-xs">
             <div class="text-xl font-bold text-amber-600 dark:text-amber-400 font-display">
-              {{ dataService.userProfile().totalLyftsSent }}
+              {{ activeProfile().lyftsSent ?? '—' }}
             </div>
             <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Lyfts Sent</div>
           </div>
           <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 shadow-xs">
             <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 font-display">
-              {{ dataService.goalQuests().length }}
+              {{ activeProfile().completedCourses }}
             </div>
-            <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Active Quests</div>
+            <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Courses Completed</div>
           </div>
         </div>
 
@@ -98,31 +104,25 @@ import {FirebaseService} from '../services/firebase.service';
         <!-- Badges Unlocked -->
         <div>
           <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-            Youth Growth Badges
+            Earned Growth Badges
           </h4>
-          <div class="grid grid-cols-2 gap-2.5">
-            <div class="p-3 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3 shadow-xs">
-              <span class="text-2xl">🔥</span>
-              <div>
-                <div class="text-xs font-bold text-slate-900 dark:text-slate-100">7-Day Flame</div>
-                <div class="text-[10px] text-slate-400">Daily check-in master</div>
-              </div>
+          @if (earnedBadges().length) {
+            <div class="grid grid-cols-2 gap-2.5">
+              @for (badge of earnedBadges(); track badge.id) {
+                <div class="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-xs dark:border-slate-800 dark:bg-slate-850">
+                  <mat-icon class="text-2xl text-amber-500">{{ badge.icon }}</mat-icon>
+                  <div>
+                    <div class="text-xs font-bold text-slate-900 dark:text-slate-100">{{ badge.title }}</div>
+                    <div class="text-[10px] text-slate-400">{{ badge.detail }}</div>
+                  </div>
+                </div>
+              }
             </div>
-            <div class="p-3 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3 shadow-xs">
-              <span class="text-2xl">🎧</span>
-              <div>
-                <div class="text-xs font-bold text-slate-900 dark:text-slate-100">Audio Devotee</div>
-                <div class="text-[10px] text-slate-400">10+ Pep talks listened</div>
-              </div>
-            </div>
-            <div class="p-3 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3 shadow-xs">
-              <span class="text-2xl">⚡</span>
-              <div>
-                <div class="text-xs font-bold text-slate-900 dark:text-slate-100">Goal Crusher</div>
-                <div class="text-[10px] text-slate-400">5 Quests completed</div>
-              </div>
-            </div>
-          </div>
+          } @else {
+            <p class="border border-dashed border-slate-200 px-3 py-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+              Complete a course, follow a mentor, or build a 7-day streak to unlock your first badge.
+            </p>
+          }
         </div>
 
         <section class="space-y-3" aria-labelledby="connected-mentors-title">
@@ -261,14 +261,33 @@ export class ProfileModalComponent {
       country: firestoreProfile?.country || (hasActiveSession ? 'Country not saved' : localProfile.country || 'Country not set'),
       streak: firestoreProfile?.streak ?? firestoreProfile?.streakDays ?? (hasActiveSession ? 0 : localProfile.streakDays),
       avatarUrl: firestoreProfile?.avatarUrl || null,
-      focusAreas: firestoreProfile?.focusAreas || localProfile.focusAreas,
+      focusAreas: firestoreProfile?.focusAreas || (hasActiveSession ? [] : localProfile.focusAreas),
       selectedMentors: mentorIds
         .map(id => this.dataService.mentors().find(mentor => mentor.id === id))
         .filter(mentor => mentor !== undefined),
+      selectedMentorCount: mentorIds.length,
+      role: firestoreProfile?.role || (hasActiveSession ? 'member' : localProfile.role),
+      completedCourses: new Set(firestoreProfile?.completedCourses || []).size,
+      lyftsReceived: firestoreProfile?.totalLyftsReceived,
+      lyftsSent: firestoreProfile?.totalLyftsSent,
     };
   });
 
   readonly connectedMentors = computed(() => this.activeProfile().selectedMentors);
+  readonly earnedBadges = computed(() => {
+    const profile = this.firebaseService.userProfile();
+    if (!profile) return [];
+
+    const badges: {id: string; icon: string; title: string; detail: string}[] = [];
+    const streak = profile.streak ?? profile.streakDays ?? 0;
+    const completedCourses = new Set(profile.completedCourses || []).size;
+    const mentorCount = profile.selectedMentorIds?.length ?? 0;
+
+    if (streak >= 7) badges.push({id: 'streak', icon: 'local_fire_department', title: '7-Day Flame', detail: `${streak} consecutive days`});
+    if (completedCourses > 0) badges.push({id: 'course', icon: 'school', title: 'Course Explorer', detail: `${completedCourses} course${completedCourses === 1 ? '' : 's'} completed`});
+    if (mentorCount > 0) badges.push({id: 'mentor', icon: 'groups', title: 'Mentor Connected', detail: `${mentorCount} mentor${mentorCount === 1 ? '' : 's'} followed`});
+    return badges;
+  });
 
   constructor() {
     void this.firebaseService.loadUserProfileForSession();

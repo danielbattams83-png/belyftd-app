@@ -65,6 +65,8 @@ export interface UserProfileDocument {
   streak?: number;
   totalXp: number;
   streakDays: number;
+  totalLyftsReceived?: number;
+  totalLyftsSent?: number;
   completedCourses: string[];
   role: 'student' | 'mentor' | 'admin';
   createdAt: string | unknown;
@@ -955,16 +957,19 @@ export class FirebaseService {
   }
 
   _getLocalStorageCompletedCourses(): string[] {
-    if (typeof window === 'undefined') return ['behavioral-accountability'];
+    if (typeof window === 'undefined') return [];
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY_COMPLETED);
       if (stored) {
-        return JSON.parse(stored);
+        const completedCourses: unknown = JSON.parse(stored);
+        return Array.isArray(completedCourses)
+          ? completedCourses.filter((course): course is string => typeof course === 'string')
+          : [];
       }
     } catch (e) {
       console.warn('LocalStorage read error:', e);
     }
-    return ['behavioral-accountability'];
+    return [];
   }
 
   _saveLocalStorageCompletedCourses(courses: string[]): void {
@@ -985,8 +990,8 @@ export class FirebaseService {
       country: 'United States',
       countryCode: '+1',
       totalXp: 350,
-      streakDays: 4,
-      completedCourses: ['behavioral-accountability'],
+      streakDays: 0,
+      completedCourses: [],
       role: 'student',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
