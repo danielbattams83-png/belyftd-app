@@ -23,10 +23,10 @@ import {MentorshipDataService} from '../services/mentorship-data.service';
             </div>
             <div>
               <h2 class="text-xl font-bold font-display text-slate-900 dark:text-slate-100">
-                Youth Leader Onboarding
+                {{ isLoginMode() ? 'Welcome back' : 'Youth Leader Onboarding' }}
               </h2>
               <p class="text-xs text-slate-500 dark:text-slate-400">
-                Register profile to personalize daily mentorship & sync course progress
+                {{ isLoginMode() ? 'Sign in to sync your Be Lyft\'d profile and progress' : 'Register profile to personalize daily mentorship & sync course progress' }}
               </p>
             </div>
           </div>
@@ -59,38 +59,46 @@ import {MentorshipDataService} from '../services/mentorship-data.service';
           </span>
         </div>
 
+        @if (isLoginMode()) {
+          <form [formGroup]="loginForm" (ngSubmit)="handleLogin()" class="space-y-4">
+            <div class="space-y-1">
+              <label for="login-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300">Email Address</label>
+              <input
+                id="login-email"
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="youth.leader@example.com"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 transition focus-accessible"
+              />
+            </div>
+            <div class="space-y-1">
+              <label for="login-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300">Password</label>
+              <input
+                id="login-password"
+                type="password"
+                formControlName="password"
+                autocomplete="current-password"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 transition focus-accessible"
+              />
+            </div>
+            @if (statusMessage()) {
+              <p role="status" class="text-xs font-medium text-indigo-700 dark:text-indigo-300">{{ statusMessage() }}</p>
+            }
+            <button
+              type="submit"
+              [disabled]="loginForm.invalid || isSubmitting()"
+              class="w-full py-3 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition cursor-pointer shadow-md focus-accessible"
+            >
+              {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
+            </button>
+          </form>
+          <button type="button" (click)="setLoginMode(false)" class="w-full text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+            Need an account? Create one
+          </button>
+        } @else {
         <!-- Registration Form -->
         <form [formGroup]="regForm" (ngSubmit)="handleRegister()" class="space-y-4">
-          <div class="space-y-3">
-            <div class="grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                class="group flex items-center justify-center gap-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 focus-accessible"
-              >
-                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-black text-red-600">G</span>
-                Continue with Google
-              </button>
-
-              <button
-                type="button"
-                class="group flex items-center justify-center gap-2.5 rounded-2xl border border-blue-200 bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-accessible"
-              >
-                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-xs font-black">f</span>
-                Continue with Facebook
-              </button>
-            </div>
-
-            <div class="relative">
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
-              </div>
-              <div class="relative flex justify-center">
-                <span class="bg-white dark:bg-slate-900 px-3 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400 dark:text-slate-500">
-                  or continue manually
-                </span>
-              </div>
-            </div>
-          </div>
 
           <!-- Full Name -->
           <div class="space-y-1">
@@ -265,6 +273,10 @@ import {MentorshipDataService} from '../services/mentorship-data.service';
             </button>
           </div>
         </form>
+        <button type="button" (click)="setLoginMode(true)" class="w-full text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+          Already have an account? Sign in
+        </button>
+        }
 
       </div>
     </div>
@@ -278,8 +290,14 @@ export class RegisterModalComponent {
   readonly countries = COUNTRY_OPTIONS;
   readonly selectedCountryDialCode = signal<string>('+1');
   readonly selectedCountryName = signal<string>('United States');
+  readonly isLoginMode = signal<boolean>(true);
   readonly statusMessage = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
+
+  readonly loginForm = new FormGroup({
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required])
+  });
 
   readonly regForm = new FormGroup({
     displayName: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -318,6 +336,30 @@ export class RegisterModalComponent {
     });
     this.selectedCountryDialCode.set('+1');
     this.selectedCountryName.set('United States');
+  }
+
+  setLoginMode(loginMode: boolean): void {
+    this.isLoginMode.set(loginMode);
+    this.statusMessage.set(null);
+  }
+
+  async handleLogin(): Promise<void> {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.statusMessage.set('Signing in...');
+    const email = this.loginForm.value.email?.trim() || '';
+    const password = this.loginForm.value.password || '';
+    const result = await this.firebaseService.signInUser(email, password);
+    this.isSubmitting.set(false);
+    this.statusMessage.set(result.message);
+
+    if (result.success) {
+      this.closeModal.emit();
+    }
   }
 
   async handleRegister(): Promise<void> {
@@ -359,9 +401,9 @@ export class RegisterModalComponent {
     this.isSubmitting.set(false);
     this.statusMessage.set(result.message || 'Registration complete! Welcome to Be Lyft\'d.');
 
-    setTimeout(() => {
-      this.closeModal.emit();
-    }, 1000);
+    if (result.success) {
+      setTimeout(() => this.closeModal.emit(), 1000);
+    }
   }
 }
 

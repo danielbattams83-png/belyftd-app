@@ -20,6 +20,7 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInAnonymously,
+  signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   updateProfile,
@@ -201,6 +202,23 @@ export class FirebaseService {
       throw new Error('Firestore is unavailable because Firebase failed to initialize.');
     }
     return this.db;
+  }
+
+  async signInUser(email: string, password: string): Promise<{ success: boolean; message: string }> {
+    this.errorMessage.set(null);
+    if (!this.auth) {
+      return { success: false, message: 'Sign-in is unavailable. Please try again later.' };
+    }
+
+    try {
+      await signInWithEmailAndPassword(this.auth, email.trim(), password);
+      return { success: true, message: 'Signed in successfully.' };
+    } catch (err: unknown) {
+      console.warn('[FirebaseService] Sign-in failed:', err);
+      const message = 'Unable to sign in. Check your email and password, then try again.';
+      this.errorMessage.set(message);
+      return { success: false, message };
+    }
   }
 
   /**

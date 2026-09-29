@@ -83,6 +83,14 @@ export class App {
   });
 
   constructor() {
+    effect(() => {
+      const authLoading = this.firebaseService.authLoading();
+      const currentUser = this.firebaseService.currentUser();
+      if (typeof window !== 'undefined' && !authLoading) {
+        this.showRegisterModal.set(!currentUser);
+      }
+    });
+
     // Watch for deep links (e.g. from URL ?courseId=... or simulated push notifications)
     effect(() => {
       const targetId = this.firebaseService.targetCourseIdFromNotification();
@@ -105,6 +113,12 @@ export class App {
         }, 5000);
       }
     });
+  }
+
+  openRegisterModal(): void {
+    if (!this.firebaseService.authLoading() && !this.firebaseService.currentUser()) {
+      this.showRegisterModal.set(true);
+    }
   }
 
   // Filter States

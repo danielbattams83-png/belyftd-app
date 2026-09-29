@@ -89,7 +89,7 @@
         <button
           id="open-register-btn"
           type="button"
-          (click)="showRegisterModal.set(true)"
+          (click)="openRegisterModal()"
           class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition focus-accessible"
           [class]="firebaseService.isConnected() 
             ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100' 
