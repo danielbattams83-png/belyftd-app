@@ -33,7 +33,8 @@ import { CourseDocument, DailyAffirmationDocument, MentorDocument, PartnershipDo
 export interface UserRegistrationData {
   email: string;
   password?: string;
-  displayName: string;
+  displayName?: string;
+  fullName?: string;
   phoneNumber: string;
   country: string;
   countryCode: string;
@@ -43,6 +44,7 @@ export interface UserRegistrationData {
 export interface UserProfileDocument {
   id: string;
   displayName: string;
+  fullName?: string;
   email: string;
   phoneNumber: string;
   country: string;
@@ -72,6 +74,7 @@ export const COUNTRY_OPTIONS = [
 ];
 
 const LOCAL_STORAGE_KEY_USER = 'belyftd_user_profile';
+const LOCAL_STORAGE_KEY_UID = 'belyftd_user_uid';
 const LOCAL_STORAGE_KEY_REGISTERED = 'belyftd_user_registered';
 const LOCAL_STORAGE_KEY_COMPLETED = 'belyftd_completed_courses';
 const LOCAL_STORAGE_KEY_LAST_COMPLETION_DATE = 'belyftd_last_completion_date';
@@ -120,6 +123,9 @@ export class FirebaseService {
       onAuthStateChanged(this.auth, async (user) => {
         this.currentUser.set(user);
         if (user) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(LOCAL_STORAGE_KEY_UID, user.uid);
+          }
           await this._fetchUserProfile(user.uid);
         } else {
           this.userProfile.set(this._getLocalStorageUserProfile());
@@ -148,10 +154,14 @@ export class FirebaseService {
 
     const cachedProfile: UserProfileDocument = {
       ...userData,
+      fullName: userData.fullName || userData.displayName,
       createdAt: typeof userData.createdAt === 'string' ? userData.createdAt : now,
       updatedAt: now
     };
     this._saveLocalStorageUserProfile(cachedProfile);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_KEY_UID, userData.id);
+    }
     this.userProfile.set(cachedProfile);
   }
 
@@ -226,12 +236,14 @@ export class FirebaseService {
    */
   async registerUser(data: UserRegistrationData): Promise<{ success: boolean; message?: string }> {
     this.errorMessage.set(null);
+    const fullName = data.fullName?.trim() || data.displayName?.trim() || 'Be Lyft\'d Leader';
 
     // Fallback registration if offline or Firebase disconnected
     if (!this.auth || !this.db || this.isUsingLocalStorageFallback()) {
       const localProfile: UserProfileDocument = {
         id: 'local_user_' + Date.now(),
-        displayName: data.displayName || 'Be Lyft\'d Leader',
+        displayName: fullName,
+        fullName,
         email: data.email,
         phoneNumber: `${data.countryCode} ${data.phoneNumber}`,
         country: data.country,
@@ -261,13 +273,14 @@ export class FirebaseService {
 
       // Update Firebase Auth Display Name
       await updateProfile(user, {
-        displayName: data.displayName
+        displayName: fullName
       });
 
       // Prepare Firestore User Document
       const userDoc: UserProfileDocument = {
         id: user.uid,
-        displayName: data.displayName || 'Be Lyft\'d Leader',
+        displayName: fullName,
+        fullName,
         email: data.email,
         phoneNumber: `${data.countryCode} ${data.phoneNumber}`.trim(),
         country: data.country,
@@ -293,8 +306,9 @@ export class FirebaseService {
       
       // If Firebase Auth throws (e.g. email in use or network timeout), gracefully fall back to local profile
       const fallbackProfile: UserProfileDocument = {
-        id: 'fallback_user_' + Date.now(),
-        displayName: data.displayName,
+        id: this.auth?.currentUser?.uid || 'fallback_user_' + Date.now(),
+        displayName: fullName,
+        fullName,
         email: data.email,
         phoneNumber: `${data.countryCode} ${data.phoneNumber}`,
         country: data.country,
@@ -315,6 +329,9 @@ export class FirebaseService {
       this.hasRegisteredUser.set(true);
       this.userProfile.set(fallbackProfile);
       this.isUsingLocalStorageFallback.set(true);
+      if (this.auth?.currentUser && typeof window !== 'undefined') {
+        localStorage.setItem(LOCAL_STORAGE_KEY_UID, this.auth.currentUser.uid);
+      }
 
       return {
         success: true,
@@ -351,6 +368,9 @@ export class FirebaseService {
       }
     }
     this.currentUser.set(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(LOCAL_STORAGE_KEY_UID);
+    }
     this._loadLocalStorageFallback();
   }
 

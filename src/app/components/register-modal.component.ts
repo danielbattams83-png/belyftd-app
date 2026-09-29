@@ -372,7 +372,7 @@ export class RegisterModalComponent {
     this.statusMessage.set('Saving profile and synchronizing progress...');
 
     const val = this.regForm.value;
-    const name = val.displayName?.trim() || 'Youth Leader';
+    const fullName = val.displayName?.trim() || 'Youth Leader';
     const email = val.email?.trim() || '';
     const phone = val.phoneNumber?.trim() || '';
     const country = this.selectedCountryName();
@@ -380,7 +380,7 @@ export class RegisterModalComponent {
     const password = val.password || 'Leader2026!';
 
     const result = await this.firebaseService.registerUser({
-      displayName: name,
+      fullName,
       email,
       phoneNumber: phone,
       country,
@@ -392,7 +392,7 @@ export class RegisterModalComponent {
     // Update in-memory user profile in mentorship data service
     this.dataService.userProfile.update(p => ({
       ...p,
-      name,
+      name: fullName,
       email,
       phone: `${countryCode} ${phone}`,
       country
