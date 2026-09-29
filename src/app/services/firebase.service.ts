@@ -2,9 +2,15 @@ import { Injectable, signal } from '@angular/core';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import {
   getFirestore,
+  collection,
   doc,
   setDoc,
   getDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  limit,
   updateDoc,
   arrayUnion,
   Firestore,
@@ -20,6 +26,8 @@ import {
   Auth,
   User
 } from 'firebase/auth';
+import { environment } from '../../environments/environment';
+import { CourseDocument, DailyAffirmationDocument, MentorDocument, PartnershipDocument } from '../models/firestore.models';
 
 export interface UserRegistrationData {
   email: string;
@@ -28,6 +36,7 @@ export interface UserRegistrationData {
   phoneNumber: string;
   country: string;
   countryCode: string;
+  ageBracket?: string;
 }
 
 export interface UserProfileDocument {
@@ -37,6 +46,7 @@ export interface UserProfileDocument {
   phoneNumber: string;
   country: string;
   countryCode: string;
+  ageBracket?: string;
   totalXp: number;
   streakDays: number;
   completedCourses: string[];
@@ -98,26 +108,9 @@ export class FirebaseService {
    */
   private _initFirebase(): void {
     try {
-      // Configuration provisioned for the applet
-      const firebaseConfig = {
-        projectId: 'gen-lang-client-0044755913',
-        appId: '1:177759218474:web:94777394be20ecd7110c53',
-        apiKey: 'AIzaSyCm7VF1Lx-gg2WyycbGUoygOUtF5GPOrSU',
-        authDomain: 'gen-lang-client-0044755913.firebaseapp.com',
-        firestoreDatabaseId: 'ai-studio-belyftd-cbbf5028-4323-4b5c-b73f-d3614280646a',
-        storageBucket: 'gen-lang-client-0044755913.firebasestorage.app',
-        messagingSenderId: '177759218474'
-      };
-
-      this.app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+      this.app = getApps().length ? getApp() : initializeApp(environment.firebase);
       this.auth = getAuth(this.app);
-      
-      // Initialize firestore with custom databaseId if configured
-      if (firebaseConfig.firestoreDatabaseId) {
-        this.db = getFirestore(this.app, firebaseConfig.firestoreDatabaseId);
-      } else {
-        this.db = getFirestore(this.app);
-      }
+      this.db = getFirestore(this.app);
 
       this.isConnected.set(true);
       this.isUsingLocalStorageFallback.set(false);
@@ -141,6 +134,75 @@ export class FirebaseService {
     }
   }
 
+  async saveUserProfile(userData: UserProfileDocument): Promise<void> {
+    const db = this._requireFirestore();
+    const now = new Date().toISOString();
+    const firestoreProfile = {
+      ...userData,
+      createdAt: userData.createdAt || serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+
+    await setDoc(doc(db, 'users', userData.id), firestoreProfile, { merge: true });
+
+    const cachedProfile: UserProfileDocument = {
+      ...userData,
+      createdAt: typeof userData.createdAt === 'string' ? userData.createdAt : now,
+      updatedAt: now
+    };
+    this._saveLocalStorageUserProfile(cachedProfile);
+    this.userProfile.set(cachedProfile);
+  }
+
+  async getCourses(): Promise<CourseDocument[]> {
+    const snapshot = await getDocs(collection(this._requireFirestore(), 'courses'));
+    return snapshot.docs.map(courseDoc => ({ ...courseDoc.data(), id: courseDoc.id } as CourseDocument));
+  }
+
+  async getCourseById(id: string): Promise<CourseDocument | null> {
+    const courseDoc = await getDoc(doc(this._requireFirestore(), 'courses', id));
+    return courseDoc.exists()
+      ? { ...courseDoc.data(), id: courseDoc.id } as CourseDocument
+      : null;
+  }
+
+  async getDailyAffirmationsCache(daysCount: number): Promise<DailyAffirmationDocument[]> {
+    const count = Math.max(0, Math.floor(daysCount));
+    if (count === 0) return [];
+
+    const affirmationsQuery = query(
+      collection(this._requireFirestore(), 'dailyAffirmations'),
+      orderBy('date', 'desc'),
+      limit(count)
+    );
+    const snapshot = await getDocs(affirmationsQuery);
+    return snapshot.docs.map(affirmationDoc => ({
+      ...affirmationDoc.data(),
+      id: affirmationDoc.id
+    } as DailyAffirmationDocument));
+  }
+
+  async getMentorsByAgeBracket(bracket: string): Promise<MentorDocument[]> {
+    const mentorsQuery = query(
+      collection(this._requireFirestore(), 'mentors'),
+      where('ageBrackets', 'array-contains', bracket)
+    );
+    const snapshot = await getDocs(mentorsQuery);
+    return snapshot.docs.map(mentorDoc => ({ ...mentorDoc.data(), id: mentorDoc.id } as MentorDocument));
+  }
+
+  async getPartners(): Promise<PartnershipDocument[]> {
+    const snapshot = await getDocs(collection(this._requireFirestore(), 'partnerships'));
+    return snapshot.docs.map(partnerDoc => ({ ...partnerDoc.data(), id: partnerDoc.id } as PartnershipDocument));
+  }
+
+  private _requireFirestore(): Firestore {
+    if (!this.db) {
+      throw new Error('Firestore is unavailable because Firebase failed to initialize.');
+    }
+    return this.db;
+  }
+
   /**
    * Registers a new user with Phone, Email, Country, and display name
    */
@@ -156,6 +218,7 @@ export class FirebaseService {
         phoneNumber: `${data.countryCode} ${data.phoneNumber}`,
         country: data.country,
         countryCode: data.countryCode,
+        ageBracket: data.ageBracket,
         totalXp: 350,
         streakDays: 4,
         completedCourses: this._getLocalStorageCompletedCourses(),
@@ -191,6 +254,7 @@ export class FirebaseService {
         phoneNumber: `${data.countryCode} ${data.phoneNumber}`.trim(),
         country: data.country,
         countryCode: data.countryCode,
+        ageBracket: data.ageBracket,
         totalXp: 350,
         streakDays: 4,
         completedCourses: this._getLocalStorageCompletedCourses(),
@@ -199,17 +263,11 @@ export class FirebaseService {
         updatedAt: serverTimestamp()
       };
 
-      // Save to Firestore
-      const userRef = doc(this.db, 'users', user.uid);
-      await setDoc(userRef, userDoc, { merge: true });
-
-      // Cache locally for offline availability
-      this._saveLocalStorageUserProfile(userDoc);
+      await this.saveUserProfile(userDoc);
       if (typeof window !== 'undefined') {
         localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
       }
       this.hasRegisteredUser.set(true);
-      this.userProfile.set(userDoc);
 
       return { success: true, message: 'Account registered and synced with Firebase Firestore!' };
     } catch (err: unknown) {
@@ -223,6 +281,7 @@ export class FirebaseService {
         phoneNumber: `${data.countryCode} ${data.phoneNumber}`,
         country: data.country,
         countryCode: data.countryCode,
+        ageBracket: data.ageBracket,
         totalXp: 350,
         streakDays: 4,
         completedCourses: this._getLocalStorageCompletedCourses(),

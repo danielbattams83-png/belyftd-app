@@ -343,6 +343,7 @@ export class RegisterModalComponent {
       phoneNumber: phone,
       country,
       countryCode,
+      ageBracket: val.ageBracket || undefined,
       password
     });
 
