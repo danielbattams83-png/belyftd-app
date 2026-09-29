@@ -153,6 +153,11 @@ import {FirebaseService} from '../services/firebase.service';
             Accessibility & Display
           </h4>
 
+          <button type="button" (click)="replayTour.emit()" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 px-4 py-2.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-50 focus-accessible dark:border-indigo-900/60 dark:text-indigo-300 dark:hover:bg-indigo-950/40">
+            <mat-icon class="text-base">play_circle</mat-icon>
+            Replay App Tour
+          </button>
+
           <!-- Dark / Light Theme Toggle -->
           <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800">
             <div class="flex items-center gap-3">
@@ -245,6 +250,7 @@ export class ProfileModalComponent {
   readonly closeModal = output<void>();
   readonly logoutComplete = output<void>();
   readonly editOnboarding = output<void>();
+  readonly replayTour = output<void>();
 
   readonly dataService = inject(MentorshipDataService);
   readonly themeService = inject(ThemeAccessibilityService);

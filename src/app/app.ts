@@ -19,6 +19,7 @@ import {CourseModalComponent} from './components/course-modal.component';
 import {RegisterModalComponent} from './components/register-modal.component';
 import {PartnerWithUsComponent} from './components/partner-page.component';
 import {PostAuthOnboardingWizardComponent} from './components/post-auth-onboarding-wizard.component';
+import {FeatureWalkthroughComponent} from './components/feature-walkthrough.component';
 import {Course} from './models/app.models';
 
 export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-spark' | 'community' | 'partners' | 'profile';
@@ -40,6 +41,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     RegisterModalComponent,
     PartnerWithUsComponent,
     PostAuthOnboardingWizardComponent,
+    FeatureWalkthroughComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -64,6 +66,7 @@ export class App {
   readonly showProfileModal = signal<boolean>(false);
   readonly showRegisterModal = signal<boolean>(false);
   readonly showPostAuthOnboarding = signal<boolean>(false);
+  readonly showFeatureWalkthrough = signal<boolean>(false);
   private readonly hasResolvedInitialAuth = signal<boolean>(false);
   readonly showStreakModal = signal<boolean>(false);
   readonly showNewQuestModal = signal<boolean>(false);
@@ -109,6 +112,7 @@ export class App {
       if (typeof window === 'undefined' || authLoading || !this.hasResolvedInitialAuth()) return;
       if (!currentUser) {
         this.showPostAuthOnboarding.set(false);
+        this.showFeatureWalkthrough.set(false);
         this.showStreakModal.set(false);
         this.streakNotificationToast.set(null);
         this.showVoiceRecorder.set(false);
@@ -126,6 +130,8 @@ export class App {
         !profile.focusAreas?.length ||
         !profile.selectedMentorIds?.length;
       this.showPostAuthOnboarding.set(needsOnboarding);
+      const tourCompleted = profile?.tourCompleted === true || localStorage.getItem('tourCompleted') === 'true';
+      this.showFeatureWalkthrough.set(!needsOnboarding && !tourCompleted);
     });
 
     // Watch for deep links (e.g. from URL ?courseId=... or simulated push notifications)
@@ -161,6 +167,7 @@ export class App {
   handleProfileLogout(): void {
     this.showProfileModal.set(false);
     this.showPostAuthOnboarding.set(false);
+    this.showFeatureWalkthrough.set(false);
     this.showStreakModal.set(false);
     this.streakNotificationToast.set(null);
     this.showVoiceRecorder.set(false);
@@ -189,6 +196,22 @@ export class App {
   editProfileOnboarding(): void {
     this.showProfileModal.set(false);
     this.showPostAuthOnboarding.set(true);
+  }
+
+  handlePostAuthOnboardingCompleted(): void {
+    this.showPostAuthOnboarding.set(false);
+    const tourCompleted = this.firebaseService.userProfile()?.tourCompleted === true ||
+      localStorage.getItem('tourCompleted') === 'true';
+    this.showFeatureWalkthrough.set(!tourCompleted);
+  }
+
+  handleFeatureWalkthroughCompleted(): void {
+    this.showFeatureWalkthrough.set(false);
+  }
+
+  replayAppTour(): void {
+    this.showProfileModal.set(false);
+    this.showFeatureWalkthrough.set(true);
   }
 
   // Filter States

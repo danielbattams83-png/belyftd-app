@@ -62,6 +62,7 @@ export interface UserProfileDocument {
   preferredLanguage?: string;
   focusAreas?: string[];
   selectedMentorIds?: string[];
+  tourCompleted?: boolean;
   streak?: number;
   totalXp: number;
   streakDays: number;
@@ -229,6 +230,7 @@ export class FirebaseService {
         updatedAt: now
       }),
       ...onboardingData,
+      tourCompleted: currentProfile?.tourCompleted ?? false,
       id: user.uid,
       uid: user.uid,
       displayName: fullName || user.email || 'Be Lyft\'d member',
@@ -251,6 +253,22 @@ export class FirebaseService {
       await this._persistActiveSession(user);
       localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
     }
+  }
+
+  async markAppTourCompleted(): Promise<void> {
+    const user = this.currentUser();
+    if (!user || !this.db) {
+      throw new Error('Sign in is required to save tour progress.');
+    }
+
+    await updateDoc(doc(this.db, 'users', user.uid), {
+      tourCompleted: true,
+      updatedAt: serverTimestamp()
+    });
+
+    const profile = this.userProfile();
+    if (profile) this.userProfile.set({...profile, tourCompleted: true});
+    if (typeof window !== 'undefined') localStorage.setItem('tourCompleted', 'true');
   }
 
   async loadUserProfileForSession(): Promise<UserProfileDocument | null> {
@@ -678,6 +696,7 @@ export class FirebaseService {
     localStorage.removeItem(LOCAL_STORAGE_KEY_UID);
     localStorage.removeItem(LOCAL_STORAGE_KEY_USER);
     localStorage.removeItem(LOCAL_STORAGE_KEY_REGISTERED);
+    localStorage.removeItem('tourCompleted');
     localStorage.removeItem(LOCAL_STORAGE_KEY_COMPLETED);
     localStorage.removeItem(LOCAL_STORAGE_KEY_LAST_COMPLETION_DATE);
     localStorage.removeItem(LOCAL_STORAGE_KEY_LAST_COMPLETION_TS);
