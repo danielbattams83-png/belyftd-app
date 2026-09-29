@@ -1,9 +1,35 @@
-import {ChangeDetectionStrategy, Component, inject, output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ReactiveFormsModule, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
 import {FirebaseService, COUNTRY_OPTIONS} from '../services/firebase.service';
 import {MentorshipDataService} from '../services/mentorship-data.service';
+
+const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
+  'America/Anchorage': 'US',
+  'America/Chicago': 'US',
+  'America/Denver': 'US',
+  'America/Los_Angeles': 'US',
+  'America/New_York': 'US',
+  'America/Phoenix': 'US',
+  'America/Toronto': 'CA',
+  'America/Vancouver': 'CA',
+  'America/Edmonton': 'CA',
+  'America/Winnipeg': 'CA',
+  'America/Halifax': 'CA',
+  'America/St_Johns': 'CA',
+  'America/Jamaica': 'JM',
+  'Asia/Kolkata': 'IN',
+  'Europe/Berlin': 'DE',
+  'Europe/London': 'GB',
+  'Africa/Accra': 'GH',
+  'Africa/Nairobi': 'KE',
+  'Africa/Lagos': 'NG',
+  'Africa/Johannesburg': 'ZA',
+  'Pacific/Auckland': 'NZ',
+  'Pacific/Chatham': 'NZ',
+  'Pacific/Honolulu': 'US',
+};
 
 @Component({
   selector: 'app-register-modal',
@@ -173,18 +199,48 @@ import {MentorshipDataService} from '../services/mentorship-data.service';
               Country Selection <span class="text-rose-500">*</span>
             </label>
             <div class="relative">
-              <select
-                id="reg-country"
-                formControlName="countryCode"
-                (change)="onCountryChange($event)"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 cursor-pointer focus:bg-white dark:focus:bg-slate-900 transition focus-accessible"
-              >
-                @for (c of countries; track c.code) {
-                  <option [value]="c.dialCode">
-                    {{ c.flag }} {{ c.name }} ({{ c.dialCode }})
-                  </option>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 z-10 flex items-center pl-3.5 text-lg" aria-hidden="true">
+                  {{ selectedCountry().flag }}
+                </span>
+                <input
+                  id="reg-country"
+                  type="search"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-controls="reg-country-options"
+                  [attr.aria-expanded]="isCountryDropdownOpen()"
+                  [value]="countrySearch() || selectedCountryName()"
+                  (focus)="openCountryDropdown()"
+                  (input)="searchCountries($event)"
+                  (keydown.escape)="isCountryDropdownOpen.set(false)"
+                  placeholder="Search countries"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-12 pr-3.5 text-sm text-slate-900 transition placeholder:text-slate-400 focus:bg-white focus-accessible dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:bg-slate-900"
+                />
+                @if (isCountryDropdownOpen()) {
+                  <div
+                    id="reg-country-options"
+                    role="listbox"
+                    class="absolute inset-x-0 top-full z-30 mt-1 max-h-52 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                  >
+                    @for (country of filteredCountries(); track country.code) {
+                      <button
+                        type="button"
+                        role="option"
+                        [attr.aria-selected]="country.code === selectedCountryCode()"
+                        (click)="selectCountry(country)"
+                        class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 focus-accessible dark:text-slate-200 dark:hover:bg-slate-800"
+                      >
+                        <span aria-hidden="true">{{ country.flag }}</span>
+                        <span class="flex-1">{{ country.name }}</span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">{{ country.dialCode }}</span>
+                      </button>
+                    } @empty {
+                      <p class="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">No matching country</p>
+                    }
+                  </div>
                 }
-              </select>
+              </div>
             </div>
           </div>
 
@@ -290,6 +346,17 @@ export class RegisterModalComponent {
   readonly countries = COUNTRY_OPTIONS;
   readonly selectedCountryDialCode = signal<string>('+1');
   readonly selectedCountryName = signal<string>('United States');
+  readonly selectedCountryCode = signal<string>('US');
+  readonly countrySearch = signal<string>('');
+  readonly isCountryDropdownOpen = signal<boolean>(false);
+  readonly selectedCountry = computed(() => this.countries.find(country => country.code === this.selectedCountryCode()) ?? this.countries[0]);
+  readonly filteredCountries = computed(() => {
+    const search = this.countrySearch().trim().toLocaleLowerCase();
+    if (!search) return this.countries;
+    return this.countries.filter(country =>
+      `${country.name} ${country.code} ${country.dialCode}`.toLocaleLowerCase().includes(search)
+    );
+  });
   readonly isLoginMode = signal<boolean>(true);
   readonly statusMessage = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
@@ -315,14 +382,39 @@ export class RegisterModalComponent {
     password: new FormControl('', [Validators.required, Validators.minLength(6)])
   });
 
-  onCountryChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const dialCode = target.value;
-    this.selectedCountryDialCode.set(dialCode);
-    const countryObj = this.countries.find(c => c.dialCode === dialCode);
-    if (countryObj) {
-      this.selectedCountryName.set(countryObj.name);
+  constructor() {
+    this.detectCountryFromTimeZone();
+  }
+
+  private detectCountryFromTimeZone(): void {
+    try {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const countryCode = TIME_ZONE_COUNTRY_CODES[timeZone]
+        ?? (timeZone.startsWith('Australia/') ? 'AU' : undefined);
+      const country = this.countries.find(option => option.code === countryCode);
+      if (country) this.selectCountry(country);
+    } catch {
+      this.selectCountry(this.countries[0]);
     }
+  }
+
+  openCountryDropdown(): void {
+    this.countrySearch.set('');
+    this.isCountryDropdownOpen.set(true);
+  }
+
+  searchCountries(event: Event): void {
+    this.countrySearch.set((event.target as HTMLInputElement).value);
+    this.isCountryDropdownOpen.set(true);
+  }
+
+  selectCountry(country: typeof COUNTRY_OPTIONS[number]): void {
+    this.selectedCountryCode.set(country.code);
+    this.selectedCountryName.set(country.name);
+    this.selectedCountryDialCode.set(country.dialCode);
+    this.regForm.patchValue({countryCode: country.dialCode});
+    this.countrySearch.set('');
+    this.isCountryDropdownOpen.set(false);
   }
 
   fillDemoData(): void {
@@ -334,8 +426,8 @@ export class RegisterModalComponent {
       countryCode: '+1',
       password: 'BeLyftdLeader2026!'
     });
-    this.selectedCountryDialCode.set('+1');
-    this.selectedCountryName.set('United States');
+    const unitedStates = this.countries.find(country => country.code === 'US');
+    if (unitedStates) this.selectCountry(unitedStates);
   }
 
   setLoginMode(loginMode: boolean): void {

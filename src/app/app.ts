@@ -8,6 +8,7 @@ import {ThemeAccessibilityService} from './services/theme-accessibility.service'
 import {AiMentorService} from './services/ai-mentor.service';
 import {FirebaseService} from './services/firebase.service';
 import {PwaInstallService} from './services/pwa-install.service';
+import {DailyMessageSchedulerService} from './services/daily-message-scheduler.service';
 import {AudioTrack, Mentor, GoalQuest, CommunityPost, VoiceJournal} from './models/app.models';
 import {AudioPlayerComponent} from './components/audio-player.component';
 import {VoiceRecorderComponent} from './components/voice-recorder.component';
@@ -46,6 +47,7 @@ export class App {
   readonly aiService = inject(AiMentorService);
   readonly firebaseService = inject(FirebaseService);
   readonly pwaService = inject(PwaInstallService);
+  readonly dailyMessageScheduler = inject(DailyMessageSchedulerService);
 
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');

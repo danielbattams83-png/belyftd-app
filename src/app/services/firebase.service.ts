@@ -181,9 +181,13 @@ export class FirebaseService {
     const count = Math.max(0, Math.floor(daysCount));
     if (count === 0) return [];
 
+    const now = new Date();
+    const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+
     const affirmationsQuery = query(
       collection(this._requireFirestore(), 'dailyAffirmations'),
-      orderBy('date', 'desc'),
+      where('date', '>=', today),
+      orderBy('date', 'asc'),
       limit(count)
     );
     const snapshot = await getDocs(affirmationsQuery);

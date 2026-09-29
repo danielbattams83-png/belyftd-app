@@ -139,6 +139,18 @@
           </mat-icon>
         </button>
 
+        <button
+          id="daily-message-reminder-toggle"
+          type="button"
+          (click)="dailyMessageScheduler.toggleNotifications()"
+          [attr.aria-label]="dailyMessageScheduler.notificationsEnabled() ? 'Disable daily 8 AM message reminders' : 'Enable daily 8 AM message reminders'"
+          [attr.aria-pressed]="dailyMessageScheduler.notificationsEnabled()"
+          [title]="dailyMessageScheduler.notificationStatus() || (dailyMessageScheduler.notificationsEnabled() ? 'Daily reminders on' : 'Enable daily 8 AM reminders')"
+          class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white flex items-center justify-center cursor-pointer transition focus-accessible"
+        >
+          <mat-icon class="text-base">{{ dailyMessageScheduler.notificationsEnabled() ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+        </button>
+
         <!-- User Profile Avatar Button -->
         <button
           id="open-profile-dialog-btn"
@@ -1352,18 +1364,16 @@
   <!-- ========================================== -->
   <app-audio-player />
 
-  @if (firebaseService.isConnected() && firebaseService.currentUser()) {
-    <a
-      href="https://wa.me/15551234567?text=Hi%20Be%20Lyft'd%2C%20I%20need%20help"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Open WhatsApp support"
-      class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg shadow-green-500/30 ring-4 ring-white/60 transition hover:scale-105 hover:bg-green-600 focus-accessible"
-      title="WhatsApp Support"
-    >
-      <mat-icon class="text-2xl">chat</mat-icon>
-    </a>
-  }
+  <a
+    href="https://wa.me/15551234567?text=Hello%20Be%20Lyftd%20Support"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Contact Be Lyft'd support on WhatsApp"
+    class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg shadow-green-500/30 ring-4 ring-white/60 transition hover:scale-105 hover:bg-green-600 focus-accessible"
+    title="WhatsApp Support"
+  >
+    <mat-icon class="text-2xl">chat</mat-icon>
+  </a>
 
   <!-- ========================================== -->
   <!-- MOBILE BOTTOM DOCK NAVIGATION              -->
