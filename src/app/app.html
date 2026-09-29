@@ -131,6 +131,7 @@
           (click)="themeService.toggleTheme()"
           class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white flex items-center justify-center cursor-pointer transition focus-accessible"
           [attr.aria-label]="themeService.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+          [attr.aria-pressed]="themeService.theme() === 'dark'"
           title="Toggle Dark/Light Mode"
         >
           <mat-icon class="text-base">

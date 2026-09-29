@@ -72,6 +72,9 @@ export class ThemeAccessibilityService {
   toggleTheme(): void {
     const nextTheme = this.theme() === 'dark' ? 'light' : 'dark';
     this.theme.set(nextTheme);
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', nextTheme === 'dark');
+    }
     this.announce(`Theme changed to ${nextTheme} mode`);
   }
 
