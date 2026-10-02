@@ -10,25 +10,15 @@
     <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
       
       <!-- Brand Logo -->
-      <button
+      <a
         id="brand-home-btn"
-        type="button"
+        routerLink="/"
         (click)="activeTab.set('daily-lyft')"
         class="flex items-center gap-3 text-left cursor-pointer focus-accessible rounded-xl group"
         aria-label="Be Lyft'd Home"
       >
-        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-sm transition group-hover:bg-indigo-700">
-          <span class="font-display">L</span>
-        </div>
-        <div>
-          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
-            Be Lyft'd
-          </h1>
-          <span class="block text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 tracking-wide uppercase">
-            Youth Mentorship
-          </span>
-        </div>
-      </button>
+        <img src="/logo.png" alt="Be Lyft'd" class="h-10 sm:h-12 w-auto object-contain" />
+      </a>
 
       <!-- Desktop Nav Links (Hidden on small mobile, visible on tablet/desktop) -->
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium">

@@ -5,7 +5,7 @@
  * =============================================================================
  */
 
-const CACHE_NAME = 'belyftd-pwa-v2';
+const CACHE_NAME = 'belyftd-pwa-v3';
 const AUDIO_CACHE_NAME = 'belyftd-audio-v1';
 const DAILY_DB_NAME = 'belyftd-offline';
 const DAILY_DB_VERSION = 1;
@@ -20,9 +20,9 @@ const PRECACHE_ASSETS = [
   '/manifest.json',
   '/manifest.webmanifest',
   '/favicon.ico',
-  '/icon.svg',
-  '/icon-192.svg',
-  '/icon-512.svg',
+  '/logo.png',
+  '/icon-192.png',
+  '/icon-512.png',
   '/dailyMessagingLinkHandler.js'
 ];
 

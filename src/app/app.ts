@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, signal, effect} fr
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
+import {RouterLink} from '@angular/router';
 import {AudioPlayerService} from './services/audio-player.service';
 import {MentorshipDataService} from './services/mentorship-data.service';
 import {ThemeAccessibilityService} from './services/theme-accessibility.service';
@@ -32,6 +33,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     FormsModule,
     ReactiveFormsModule,
     MatIconModule,
+    RouterLink,
     AudioPlayerComponent,
     VoiceRecorderComponent,
     MentorChatDialogComponent,
