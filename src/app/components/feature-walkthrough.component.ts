@@ -23,11 +23,12 @@ interface WalkthroughStep {
     <div class="fixed inset-0 z-[80]" role="presentation" aria-hidden="true">
       @if (targetRect(); as target) {
         <div
-          class="pointer-events-none absolute rounded-2xl border-2 border-white ring-4 ring-indigo-400/80 shadow-[0_0_0_100vmax_rgba(15,23,42,0.65)] transition-[top,left,width,height] duration-300 motion-reduce:transition-none"
+          class="pointer-events-none absolute border border-white ring-2 ring-indigo-400/80 shadow-[0_0_0_100vmax_rgba(15,23,42,0.65)] transition-[top,left,width,height,border-radius] duration-300 motion-reduce:transition-none"
           [style.left.px]="target.left"
           [style.top.px]="target.top"
           [style.width.px]="target.width"
           [style.height.px]="target.height"
+          [style.border-radius]="target.borderRadius"
         ></div>
       } @else {
         <div class="absolute inset-0 bg-slate-950/65 backdrop-blur-[2px]"></div>
@@ -129,13 +130,13 @@ export class FeatureWalkthroughComponent implements OnInit, AfterViewInit, OnDes
     {title: 'Reflect out loud', sentence: 'Use Voice Journal to record a private reflection whenever you want to get your thoughts out.', icon: 'mic', section: 'Voice Journal', tab: 'daily-lyft', targetSelectors: ['#quick-record-voice-btn']},
     {title: 'Find support that fits', sentence: 'Browse mentors by age and specialty, then connect directly with someone who understands your goals.', icon: 'people_alt', section: 'Mentors', tab: 'mentors', targetSelectors: ['#mentors-tour-anchor']},
     {title: 'Turn goals into action', sentence: 'Create a Growth Quest, break it into manageable steps, and track your progress along the way.', icon: 'flag', section: 'Quests', tab: 'quests', targetSelectors: ['#add-quest-header-btn']},
-    {title: 'Lift up your community', sentence: 'Share a win or encourage someone on the Hype Wall. The Partners page introduces organizations investing in the youth community.', icon: 'forum', section: 'Community', tab: 'community', targetSelectors: ['#community-tour-anchor']},
+    {title: 'Lift up your community', sentence: 'Share a win or encourage someone on the Hype Wall. The Partners page introduces organizations investing in the youth community.', icon: 'forum', section: 'Community', tab: 'community', targetSelectors: ['#community-tour-anchor', '#tab-community-content h2']},
     {title: 'Build a steady rhythm', sentence: 'Your streak makes daily practice visible. You can set reminders and find offline support in the app.', icon: 'local_fire_department', section: 'Home', tab: 'daily-lyft', targetSelectors: ['#streak-indicator-btn', '#daily-message-reminder-toggle']},
     {title: 'Make it yours', sentence: 'Visit your profile to update your details, change the theme, and adjust accessibility preferences.', icon: 'tune', section: 'Profile', tab: 'daily-lyft', targetSelectors: ['#open-profile-dialog-btn', '#nav-profile-dock-btn']}
   ];
 
   readonly stepIndex = signal(0);
-  readonly targetRect = signal<{left: number; top: number; width: number; height: number} | null>(null);
+  readonly targetRect = signal<{left: number; top: number; width: number; height: number; borderRadius: string} | null>(null);
   readonly speaking = signal(false);
   readonly speechUnavailable = signal(false);
   readonly saveError = signal(false);
@@ -291,14 +292,16 @@ export class FeatureWalkthroughComponent implements OnInit, AfterViewInit, OnDes
       return;
     }
     const rect = target.getBoundingClientRect();
-    const padding = 7;
+    const padding = 3;
     const width = Math.min(rect.width + padding * 2, window.innerWidth - 16);
     const height = Math.min(rect.height + padding * 2, window.innerHeight - 16);
+    const borderRadius = window.getComputedStyle(target).borderTopLeftRadius;
     this.targetRect.set({
       left: Math.max(8, Math.min(rect.left - padding, window.innerWidth - width - 8)),
       top: Math.max(8, Math.min(rect.top - padding, window.innerHeight - height - 8)),
       width,
-      height
+      height,
+      borderRadius
     });
   };
 }
