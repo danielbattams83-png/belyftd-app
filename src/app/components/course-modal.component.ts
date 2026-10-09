@@ -128,6 +128,17 @@ import {AudioPlayerService} from '../services/audio-player.service';
               <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 whitespace-pre-line leading-loose space-y-3 font-sans shadow-xs">
                 {{ c.textContent }}
               </div>
+              @if (c.id === 'hope') {
+                <a
+                  href="https://www.loom.com/share/c742a862b5034367855116f3af8aba16"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus-accessible"
+                >
+                  <mat-icon class="text-base">play_circle</mat-icon>
+                  <span>Watch Video</span>
+                </a>
+              }
             </article>
 
             <!-- Prominent 'Mark as Complete' Button -->
