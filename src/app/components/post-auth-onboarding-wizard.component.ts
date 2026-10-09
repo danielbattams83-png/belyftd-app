@@ -53,9 +53,17 @@ const FOCUS_AREAS = [
               <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Your Be Lyft'd profile</p>
               <h1 id="onboarding-title" class="mt-1 text-xl font-bold font-display">A little about you</h1>
             </div>
-            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Step {{ step() }} of 3</span>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400" aria-live="polite" aria-atomic="true">Step {{ step() }} of 3</span>
           </div>
-          <div class="grid grid-cols-3 gap-1.5" aria-label="Onboarding progress">
+          <div
+            class="grid grid-cols-3 gap-1.5"
+            role="progressbar"
+            aria-label="Onboarding progress"
+            aria-valuemin="1"
+            aria-valuemax="3"
+            [attr.aria-valuenow]="step()"
+            [attr.aria-valuetext]="'Step ' + step() + ' of 3'"
+          >
             @for (item of [1, 2, 3]; track item) {
               <span class="h-1.5" [class]="step() >= item ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'"></span>
             }
@@ -73,7 +81,7 @@ const FOCUS_AREAS = [
               <div class="grid gap-4 sm:grid-cols-2">
                 <label class="space-y-1.5 text-xs font-semibold">
                   <span>Age bracket</span>
-                  <select [value]="ageBracket()" (change)="ageBracket.set(readValue($event))" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-800">
+                  <select [value]="ageBracket()" (change)="setAgeBracket(readValue($event))" aria-required="true" [attr.aria-invalid]="statusMessage() && !ageBracket() ? 'true' : null" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-800">
                     <option value="">Select age bracket</option>
                     @for (bracket of ageBrackets; track bracket) { <option [value]="bracket">{{ bracket }}</option> }
                   </select>
@@ -82,7 +90,7 @@ const FOCUS_AREAS = [
                   <span>Country</span>
                   <span class="relative block">
                     <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-lg" aria-hidden="true">{{ selectedCountryFlag() }}</span>
-                    <select [value]="country()" (change)="country.set(readValue($event))" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-11 pr-3 text-sm dark:border-slate-700 dark:bg-slate-800">
+                    <select [value]="country()" (change)="setCountry(readValue($event))" aria-required="true" [attr.aria-invalid]="statusMessage() && !country() ? 'true' : null" class="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-11 pr-3 text-sm dark:border-slate-700 dark:bg-slate-800">
                       <option value="">Select country</option>
                       @for (option of countries; track option.code) { <option [value]="option.name">{{ option.flag }} {{ option.name }}</option> }
                     </select>
@@ -90,7 +98,7 @@ const FOCUS_AREAS = [
                 </label>
                 <label class="space-y-1.5 text-xs font-semibold sm:col-span-2">
                   <span>Preferred language</span>
-                  <select [value]="preferredLanguage()" (change)="preferredLanguage.set(readValue($event))" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-800">
+                  <select [value]="preferredLanguage()" (change)="setPreferredLanguage(readValue($event))" aria-required="true" [attr.aria-invalid]="statusMessage() && !preferredLanguage() ? 'true' : null" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-800">
                     <option value="">Select language</option>
                     @for (language of languages; track language) { <option [value]="language">{{ language }}</option> }
                   </select>
@@ -98,7 +106,7 @@ const FOCUS_AREAS = [
               </div>
 
               <fieldset class="space-y-2">
-                <legend class="text-xs font-bold">Choose your avatar</legend>
+                <legend class="text-xs font-bold">Choose your avatar <span class="text-rose-600">(required)</span></legend>
                 <div class="grid grid-cols-4 gap-2 sm:grid-cols-7">
                   @if (socialAvatarUrl()) {
                     <button type="button" (click)="avatarUrl.set(socialAvatarUrl()!)" [attr.aria-pressed]="avatarUrl() === socialAvatarUrl()" class="flex flex-col items-center gap-1.5 rounded-xl border p-2 text-[10px] font-semibold transition focus-accessible" [class.border-indigo-500]="avatarUrl() === socialAvatarUrl()" [class.bg-indigo-50]="avatarUrl() === socialAvatarUrl()" [class.dark:bg-indigo-950]="avatarUrl() === socialAvatarUrl()">
@@ -232,8 +240,20 @@ export class PostAuthOnboardingWizardComponent {
   }
 
   nextStep(): void {
-    if (this.step() === 1 && (!this.ageBracket() || !this.country() || !this.preferredLanguage() || !this.avatarUrl())) {
-      this.statusMessage.set('Complete each item in this step before continuing.');
+    if (this.step() === 1 && !this.ageBracket()) {
+      this.statusMessage.set('Choose an age bracket to continue.');
+      return;
+    }
+    if (this.step() === 1 && !this.country()) {
+      this.statusMessage.set('Choose a country to continue.');
+      return;
+    }
+    if (this.step() === 1 && !this.preferredLanguage()) {
+      this.statusMessage.set('Choose a preferred language to continue.');
+      return;
+    }
+    if (this.step() === 1 && !this.avatarUrl()) {
+      this.statusMessage.set('Choose an avatar to continue.');
       return;
     }
     if (this.step() === 2 && this.focusAreas().length === 0) {
@@ -251,11 +271,15 @@ export class PostAuthOnboardingWizardComponent {
 
   toggleFocusArea(area: string): void {
     this.focusAreas.update(areas => areas.includes(area) ? areas.filter(item => item !== area) : [...areas, area]);
+    this.statusMessage.set(null);
   }
 
   toggleMentor(mentorId: string): void {
     this.selectedMentorIds.update(ids => {
-      if (ids.includes(mentorId)) return ids.filter(id => id !== mentorId);
+      if (ids.includes(mentorId)) {
+        this.statusMessage.set(null);
+        return ids.filter(id => id !== mentorId);
+      }
       if (ids.length >= 2) {
         this.statusMessage.set('Choose no more than two mentors.');
         return ids;
@@ -267,6 +291,21 @@ export class PostAuthOnboardingWizardComponent {
 
   readValue(event: Event): string {
     return (event.target as HTMLSelectElement).value;
+  }
+
+  setAgeBracket(value: string): void {
+    this.ageBracket.set(value);
+    this.statusMessage.set(null);
+  }
+
+  setCountry(value: string): void {
+    this.country.set(value);
+    this.statusMessage.set(null);
+  }
+
+  setPreferredLanguage(value: string): void {
+    this.preferredLanguage.set(value);
+    this.statusMessage.set(null);
   }
 
   async completeOnboarding(): Promise<void> {
