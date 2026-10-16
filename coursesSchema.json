@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://belyftd.app/schemas/course.schema.json",
-  "title": "BeLyftdCourseSchema",
-  "description": "JSON Schema for Be Lyft'd youth leadership and personal development courses in the mobile app MVP.",
+  "title": "LyftdCourseSchema",
+  "description": "JSON Schema for Lyftd youth leadership and personal development courses in the mobile app MVP.",
   "type": "array",
   "items": {
     "type": "object",

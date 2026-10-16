@@ -166,7 +166,7 @@ export class AudioPlayerService {
       id: `custom-${Date.now()}`,
       title,
       speaker: speakerName,
-      speakerRole: 'Be Lyft\'d AI Coach',
+      speakerRole: 'Lyftd AI Coach',
       speakerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       category,
       duration: '0:45',

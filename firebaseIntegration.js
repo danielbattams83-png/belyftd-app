@@ -1,5 +1,5 @@
 /**
- * @fileoverview Standalone Firebase Web SDK (v10+) Integration Script for Be Lyft'd.
+ * @fileoverview Standalone Firebase Web SDK (v10+) Integration Script for Lyftd.
  * 
  * Implements:
  * 1. User registration flow supporting Phone Number, Email, Password, and Country selection.
@@ -28,7 +28,7 @@ import {
   updateProfile 
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-// Configuration for Be Lyft'd Project
+// Configuration for Lyftd Project
 export const firebaseConfig = {
   projectId: "gen-lang-client-0044755913",
   appId: "1:177759218474:web:94777394be20ecd7110c53",
@@ -60,7 +60,7 @@ const STORAGE_KEYS = {
   COMPLETED: 'belyftd_completed_courses'
 };
 
-export class BeLyftdFirebaseManager {
+export class LyftdFirebaseManager {
   constructor(customConfig = firebaseConfig) {
     this.config = customConfig;
     this.app = null;
@@ -99,7 +99,7 @@ export class BeLyftdFirebaseManager {
         }
       });
     } catch (err) {
-      console.warn('[BeLyftdFirebase] Firebase offline or unavailable. Switched to LocalStorage fallback:', err);
+      console.warn('[LyftdFirebase] Firebase offline or unavailable. Switched to LocalStorage fallback:', err);
       this.isOnline = false;
       this.useLocalStorageFallback = true;
     }
@@ -124,7 +124,7 @@ export class BeLyftdFirebaseManager {
   async registerUser({ displayName, email, phoneNumber, country, countryCode, password }) {
     const formattedPhone = `${countryCode} ${phoneNumber}`.trim();
     const userPayload = {
-      displayName: displayName || 'Be Lyft\'d Youth Leader',
+      displayName: displayName || 'Lyftd Youth Leader',
       email: email.trim(),
       phoneNumber: formattedPhone,
       country: country || 'United States',
@@ -175,7 +175,7 @@ export class BeLyftdFirebaseManager {
         message: 'User successfully registered in Firebase Firestore!'
       };
     } catch (error) {
-      console.warn('[BeLyftdFirebase] Registration fallback applied:', error.message);
+      console.warn('[LyftdFirebase] Registration fallback applied:', error.message);
       userPayload.id = 'fallback_user_' + Date.now();
       this._saveToLocalStorage(STORAGE_KEYS.USER, userPayload);
       return {
@@ -290,7 +290,7 @@ export class BeLyftdFirebaseManager {
           completedAt: serverTimestamp()
         }, { merge: true });
       } catch (err) {
-        console.warn('[BeLyftdFirebase] Cloud update skipped, fallback kept:', err.message);
+        console.warn('[LyftdFirebase] Cloud update skipped, fallback kept:', err.message);
       }
     }
   }

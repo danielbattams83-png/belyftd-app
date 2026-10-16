@@ -103,7 +103,7 @@ import {MentorshipDataService} from '../services/mentorship-data.service';
         </form>
 
         <p class="text-center text-[11px] text-slate-400">
-          Powered by Be Lyft'd AI Voice Coach & Gemini 3.7
+          Powered by Lyftd AI Voice Coach & Gemini 3.7
         </p>
       </div>
     </div>
@@ -152,7 +152,7 @@ export class CustomPepTalkModalComponent {
     this.player.speakCustomScript(
       result.title,
       result.script,
-      'Coach Spark (Be Lyft\'d AI)',
+      'Coach Spark (Lyftd AI)',
       'Confidence'
     );
 

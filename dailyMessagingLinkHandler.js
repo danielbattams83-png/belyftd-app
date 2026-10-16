@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Be Lyft'd — Daily Messaging URL Query-Parameter Parser & Notification Handler
+ * Lyftd — Daily Messaging URL Query-Parameter Parser & Notification Handler
  * =============================================================================
  * Core Capabilities:
  * 1. Deep Link Parser: Automatically checks window.location for parameters:
@@ -259,7 +259,7 @@ export class DailyMessagingLinkHandler {
 
     // Trigger in-app toast notification with direct action button
     this.displayNotificationToast({
-      title: '💬 Be Lyft\'d Daily Push SMS',
+      title: '💬 Lyftd Daily Push SMS',
       body: `Hey Leader! Today's 6-min Daily Lyft is ready: "${course.title}". Tap to play audio now.`,
       courseId: course.id,
       link: generatedUrl,

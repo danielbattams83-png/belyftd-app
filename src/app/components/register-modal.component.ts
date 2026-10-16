@@ -52,7 +52,7 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
                 {{ isLoginMode() ? 'Welcome back' : 'Youth Leader Onboarding' }}
               </h2>
               <p class="text-xs text-slate-500 dark:text-slate-400">
-                {{ isLoginMode() ? 'Sign in to sync your Be Lyft\'d profile and progress' : 'Register profile to personalize daily mentorship & sync course progress' }}
+                {{ isLoginMode() ? 'Sign in to sync your Lyftd profile and progress' : 'Register profile to personalize daily mentorship & sync course progress' }}
               </p>
             </div>
           </div>
@@ -516,11 +516,10 @@ export class RegisterModalComponent {
     }));
 
     this.isSubmitting.set(false);
-    this.statusMessage.set(result.message || 'Registration complete! Welcome to Be Lyft\'d.');
+    this.statusMessage.set(result.message || 'Registration complete! Welcome to Lyftd.');
 
     if (result.success) {
       setTimeout(() => this.closeModal.emit(), 1000);
     }
   }
 }
-

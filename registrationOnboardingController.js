@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Be Lyft'd — User Registration & Onboarding Controller (JavaScript)
+ * Lyftd — User Registration & Onboarding Controller (JavaScript)
  * =============================================================================
  * Requirements implemented:
  * 1. Fields: Full Name, Email Address, Mobile Number (with country code dropdown), Country Selection.
@@ -335,7 +335,7 @@ export class RegistrationOnboardingController {
       // 3. Dynamically update dashboard greeting (replace 'Jordan' with registered user's first name)
       this.updateDashboardGreeting(formData.displayName);
 
-      this.showFeedback('Registration complete! Welcome to Be Lyft\'d.', false);
+      this.showFeedback('Registration complete! Welcome to Lyftd.', false);
 
       if (typeof this.options.onSuccess === 'function') {
         this.options.onSuccess(formData);

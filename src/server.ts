@@ -57,7 +57,7 @@ app.post('/api/mentor-chat', async (req, res) => {
       return;
     }
 
-    const systemPrompt = `You are Coach Spark, an encouraging, relatable, empathetic, and wise youth mentor for the 'Be Lyft'd' app.
+    const systemPrompt = `You are Coach Spark, an encouraging, relatable, empathetic, and wise youth mentor for the 'Lyftd' app.
 Your mission is to uplift young people (ages 13-24), helping them build confidence, navigate school, peer pressure, careers, life skills, and mental resilience.
 Keep your response concise, energetic, supportive, and non-judgmental (max 3-4 sentences). Always include one actionable next step.
 Mentor personality requested: ${mentorPersonality || 'Supportive & Inspiring'}.
@@ -141,7 +141,7 @@ app.get('/api/daily-inspiration', (req, res) => {
       challenge: "Take 10 minutes today to work on something you've been putting off."
     },
     {
-      quote: "Your voice matters, your story matters, your future matters. Be Lyft'd.",
+      quote: "Your voice matters, your story matters, your future matters. Lyftd.",
       author: "Coach Marcus",
       theme: "Confidence",
       challenge: "Speak up in class or a meeting today with confidence."
@@ -206,4 +206,3 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
  * Request handler used by the Angular CLI (for dev-server and during build) or Firebase Cloud Functions.
  */
 export const reqHandler = createNodeRequestHandler(app);
-

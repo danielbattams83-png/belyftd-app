@@ -66,7 +66,7 @@ export class MentorshipDataService {
       title: 'Commitment: The Power of Stickability',
       description: 'Starting a new journey is easy, but staying the course when enthusiasm fades is what separates dreamers from achievers. This module dives into the mindset of stickability and grit. You will build stamina to stay loyal to what you said you would do long after the mood of saying it has left.',
       audioUrl: 'https://assets.belyftd.org/audio/courses/stickability-commitment.mp3',
-      textContent: `# Commitment: The Power of Stickability\n\n> "Stickability is the quiet refusal to let temporary discomfort dictate permanent defeat."\n\n## What Is Stickability?\nMotivation is like weather—it changes constantly. Some days you will wake up energized, and other days you will feel completely uninspired. **Stickability** is your ability to maintain commitment regardless of your emotional state.\n\n### The 3 Enemies of Commitment\n1. **The 'Dip'**: The frustrating middle phase when initial excitement fades and results are not yet visible.\n2. **Comparison Paralysis**: Looking at someone else's highlight reel and feeling behind.\n3. **All-or-Nothing Thinking**: Giving up entirely because you missed one session or milestone.\n\n### Building Your Stickability Muscle\n- **Lower the Bar, Don't Stop**: On low-energy days, do the minimum viable rep rather than skipping altogether.\n- **Anchor to Your 'Why'**: Clarify who benefits when you keep your word—your family, your future self, your community.\n- **Accountability Partnerships**: Share your commitment with a trusted mentor or peer on Be Lyft'd.\n\n---\n\n### Reflection Question\n*What is one goal you previously abandoned because it became difficult? What is one reason to revive it today?*`,
+      textContent: `# Commitment: The Power of Stickability\n\n> "Stickability is the quiet refusal to let temporary discomfort dictate permanent defeat."\n\n## What Is Stickability?\nMotivation is like weather—it changes constantly. Some days you will wake up energized, and other days you will feel completely uninspired. **Stickability** is your ability to maintain commitment regardless of your emotional state.\n\n### The 3 Enemies of Commitment\n1. **The 'Dip'**: The frustrating middle phase when initial excitement fades and results are not yet visible.\n2. **Comparison Paralysis**: Looking at someone else's highlight reel and feeling behind.\n3. **All-or-Nothing Thinking**: Giving up entirely because you missed one session or milestone.\n\n### Building Your Stickability Muscle\n- **Lower the Bar, Don't Stop**: On low-energy days, do the minimum viable rep rather than skipping altogether.\n- **Anchor to Your 'Why'**: Clarify who benefits when you keep your word—your family, your future self, your community.\n- **Accountability Partnerships**: Share your commitment with a trusted mentor or peer on Lyftd.\n\n---\n\n### Reflection Question\n*What is one goal you previously abandoned because it became difficult? What is one reason to revive it today?*`,
       estimatedTime: '5 mins',
       isCompleted: false
     },
@@ -75,7 +75,7 @@ export class MentorshipDataService {
       title: 'Contribution',
       description: 'True leadership and self-worth grow fastest when we lift others up along our journey. This course explores how small acts of service, peer encouragement, and community involvement create lasting personal fulfillment. Learn how to leverage your unique strengths to be a positive catalyst in your world.',
       audioUrl: 'https://assets.belyftd.org/audio/courses/contribution-leadership.mp3',
-      textContent: `# Contribution: The Multiplier of Purpose\n\n> "We make a living by what we get, but we make a life by what we give."\n\n## Shifting From Consumption to Contribution\nWhen we only focus on what we want to *get*—grades, followers, accolades—life feels heavy and competitive. When we shift our focus to what we can *give*, our perspective expands and confidence follows naturally.\n\n### Everyday Ways Youth Can Contribute\n- **Lift Up a Peer**: Send an unexpected encouragement note or voice shoutout on Be Lyft'd.\n- **Share Knowledge**: Help a classmate understand a difficult homework concept without judgment.\n- **Active Listening**: Give your full attention to a friend or family member who needs a safe sounding board.\n- **Community Care**: Organize a neighborhood clean-up, food drive, or youth study club.\n\n---\n\n### The Contribution Exercise\n1. Identify one person in your circle who has been working hard or feeling overwhelmed.\n2. Deliver a genuine 30-second Lyft (praise or assistance) before the day ends.`,
+      textContent: `# Contribution: The Multiplier of Purpose\n\n> "We make a living by what we get, but we make a life by what we give."\n\n## Shifting From Consumption to Contribution\nWhen we only focus on what we want to *get*—grades, followers, accolades—life feels heavy and competitive. When we shift our focus to what we can *give*, our perspective expands and confidence follows naturally.\n\n### Everyday Ways Youth Can Contribute\n- **Lift Up a Peer**: Send an unexpected encouragement note or voice shoutout on Lyftd.\n- **Share Knowledge**: Help a classmate understand a difficult homework concept without judgment.\n- **Active Listening**: Give your full attention to a friend or family member who needs a safe sounding board.\n- **Community Care**: Organize a neighborhood clean-up, food drive, or youth study club.\n\n---\n\n### The Contribution Exercise\n1. Identify one person in your circle who has been working hard or feeling overwhelmed.\n2. Deliver a genuine 30-second Lyft (praise or assistance) before the day ends.`,
       estimatedTime: '5 mins',
       isCompleted: false
     },
@@ -102,7 +102,7 @@ export class MentorshipDataService {
       title: 'Goal Setting',
       description: 'A goal without a concrete structure is just a daydream waiting to evaporate. In this hands-on course, you will learn the S.M.A.R.T. goal framework and reverse-engineering techniques used by elite leaders. Turn your biggest ambitions into manageable weekly milestones.',
       audioUrl: 'https://assets.belyftd.org/audio/courses/goal-setting-framework.mp3',
-      textContent: `# Goal Setting: Engineering Your Dreams Into Reality\n\n> "A dream written down with a date becomes a goal. A goal broken down into steps becomes a plan."\n\n## Why Vague Goals Fail\nSaying *"I want to do better in math"* or *"I want to get fit"* rarely works because your brain needs clear coordinates. Clear targets generate targeted effort.\n\n### The S.M.A.R.T.+ Execution Model\n- **Specific**: Exactly what do you want to accomplish?\n- **Measurable**: How will you know when you've reached it? (numbers, test scores, reps)\n- **Achievable**: Is it realistic given your current season and resources?\n- **Relevant**: Does this align with your personal vision and values?\n- **Time-Bound**: What is the hard deadline?\n\n### Reverse Engineering: The 30-Day Milestone Sprint\n\`\`\`text\n[ 90-Day Vision Target ]\n       │\n       ▼\n[ 30-Day Critical Checkpoint ]\n       │\n       ▼\n[ Weekly Must-Win Battles (3 Steps) ]\n       │\n       ▼\n[ Today's 1 Non-Negotiable Action ]\n\`\`\`\n\n---\n\n### Hands-On Quest\nDraft one S.M.A.R.T. goal right now and add it to your **Quests** tab in Be Lyft'd!`,
+      textContent: `# Goal Setting: Engineering Your Dreams Into Reality\n\n> "A dream written down with a date becomes a goal. A goal broken down into steps becomes a plan."\n\n## Why Vague Goals Fail\nSaying *"I want to do better in math"* or *"I want to get fit"* rarely works because your brain needs clear coordinates. Clear targets generate targeted effort.\n\n### The S.M.A.R.T.+ Execution Model\n- **Specific**: Exactly what do you want to accomplish?\n- **Measurable**: How will you know when you've reached it? (numbers, test scores, reps)\n- **Achievable**: Is it realistic given your current season and resources?\n- **Relevant**: Does this align with your personal vision and values?\n- **Time-Bound**: What is the hard deadline?\n\n### Reverse Engineering: The 30-Day Milestone Sprint\n\`\`\`text\n[ 90-Day Vision Target ]\n       │\n       ▼\n[ 30-Day Critical Checkpoint ]\n       │\n       ▼\n[ Weekly Must-Win Battles (3 Steps) ]\n       │\n       ▼\n[ Today's 1 Non-Negotiable Action ]\n\`\`\`\n\n---\n\n### Hands-On Quest\nDraft one S.M.A.R.T. goal right now and add it to your **Quests** tab in Lyftd!`,
       estimatedTime: '6 mins',
       isCompleted: false
     },
@@ -390,11 +390,11 @@ export class MentorshipDataService {
       authorGrade: '10th Grade',
       authorAvatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
       type: 'shoutout',
-      content: 'Was feeling super overwhelmed about midterms today, but listened to the "Tackling Imposter Syndrome" audio track on Be Lyft\'d. Deep breath taken. Let\'s get after it today family!',
+      content: 'Was feeling super overwhelmed about midterms today, but listened to the "Tackling Imposter Syndrome" audio track on Lyftd. Deep breath taken. Let\'s get after it today family!',
       timestamp: '2h ago',
       lyftsCount: 29,
       isLyfted: false,
-      tags: ['#Mindset', '#ExamPrep', '#BeLyftd']
+      tags: ['#Mindset', '#ExamPrep', '#Lyftd']
     },
     {
       id: 'post-3',
@@ -556,7 +556,7 @@ export class MentorshipDataService {
       timestamp: 'Just now',
       lyftsCount: 1,
       isLyfted: true,
-      tags: tags.length > 0 ? tags : ['#BeLyftd', '#YouthPower']
+      tags: tags.length > 0 ? tags : ['#Lyftd', '#YouthPower']
     };
 
     this.communityPosts.update(posts => [newPost, ...posts]);

@@ -1,5 +1,5 @@
 /**
- * Be Lyft'd Mobile App MVP - Course Catalog
+ * Lyftd Mobile App MVP - Course Catalog
  * 
  * ES6 Module containing curated courses designed to empower youth with
  * foundational mindset, character, emotional resilience, and leadership skills.
@@ -99,7 +99,7 @@ Motivation is like weather—it changes constantly. Some days you will wake up e
 ### Building Your Stickability Muscle
 - **Lower the Bar, Don't Stop**: On low-energy days, do the minimum viable rep rather than skipping altogether.
 - **Anchor to Your 'Why'**: Clarify who benefits when you keep your word—your family, your future self, your community.
-- **Accountability Partnerships**: Share your commitment with a trusted mentor or peer on Be Lyft'd.
+- **Accountability Partnerships**: Share your commitment with a trusted mentor or peer on Lyftd.
 
 ---
 
@@ -122,7 +122,7 @@ Motivation is like weather—it changes constantly. Some days you will wake up e
 When we only focus on what we want to *get*—grades, followers, accolades—life feels heavy and competitive. When we shift our focus to what we can *give*, our perspective expands and confidence follows naturally.
 
 ### Everyday Ways Youth Can Contribute
-- **Lift Up a Peer**: Send an unexpected encouragement note or voice shoutout on Be Lyft'd.
+- **Lift Up a Peer**: Send an unexpected encouragement note or voice shoutout on Lyftd.
 - **Share Knowledge**: Help a classmate understand a difficult homework concept without judgment.
 - **Active Listening**: Give your full attention to a friend or family member who needs a safe sounding board.
 - **Community Care**: Organize a neighborhood clean-up, food drive, or youth study club.
@@ -235,7 +235,7 @@ Saying *"I want to do better in math"* or *"I want to get fit"* rarely works bec
 ---
 
 ### Hands-On Quest
-Draft one S.M.A.R.T. goal right now and add it to your **Quests** tab in Be Lyft'd!`,
+Draft one S.M.A.R.T. goal right now and add it to your **Quests** tab in Lyftd!`,
     estimatedTime: '6 mins',
     isCompleted: false
   },

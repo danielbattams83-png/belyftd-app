@@ -255,7 +255,7 @@ export class CourseModalComponent {
     this.audioPlayer.speakCustomScript(
       c.title,
       `${c.description} Key takeaway: ${c.textContent.slice(0, 320)}... Practice this today.`,
-      'Be Lyft\'d Leadership Coach',
+      'Lyftd Leadership Coach',
       'Leadership'
     );
 

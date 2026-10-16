@@ -1,5 +1,5 @@
 /**
- * @fileoverview Standalone View Controller for the Be Lyft'd Course Content Screen.
+ * @fileoverview Standalone View Controller for the Lyftd Course Content Screen.
  * 
  * Provides end-to-end management for:
  * 1. Top navigation back to course catalog/dashboard

@@ -296,7 +296,7 @@ export class App {
 
     // Show simulated notification toast with deep-link trigger
     this.simulatedNotificationToast.set({
-      title: '💬 Be Lyft\'d Daily Push SMS',
+      title: '💬 Lyftd Daily Push SMS',
       body: `Hey ${this.userFirstName()}! Today's Daily Lyft is live: "${course.title}". Tap to play audio now.`,
       courseId: targetCourseId,
       link
@@ -365,7 +365,7 @@ export class App {
   readonly newPostForm = new FormGroup({
     content: new FormControl('', [Validators.required]),
     type: new FormControl<CommunityPost['type']>('win', [Validators.required]),
-    tagInput: new FormControl('#YouthWins #BeLyftd'),
+    tagInput: new FormControl('#YouthWins #Lyftd'),
   });
 
   readonly coachChatForm = new FormGroup({
@@ -526,7 +526,7 @@ export class App {
     this.dataService.addCommunityPost(type || 'win', content, tagInput || '');
     this.newPostForm.reset({
       type: 'win',
-      tagInput: '#YouthWins #BeLyftd'
+      tagInput: '#YouthWins #Lyftd'
     });
     this.themeService.announce('Post published to Hype Wall');
   }
@@ -560,7 +560,7 @@ export class App {
   async handleInstallBannerClick(): Promise<void> {
     const outcome = await this.pwaService.promptInstall();
     if (outcome === 'accepted') {
-      this.themeService.announce("Be Lyft'd is now installing to your home screen!");
+      this.themeService.announce("Lyftd is now installing to your home screen!");
     } else if (outcome === 'unsupported') {
       // Show manual install guidance toast for iOS or browsers without native prompt
       this.pwaManualGuideMessage.set(

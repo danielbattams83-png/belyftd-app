@@ -217,7 +217,7 @@ export class FirebaseService {
     const updatedProfile: UserProfileDocument = {
       ...(currentProfile ?? {
         id: user.uid,
-        displayName: fullName || user.email || 'Be Lyft\'d member',
+        displayName: fullName || user.email || 'Lyftd member',
         email: user.email || '',
         phoneNumber: user.phoneNumber || '',
         country: onboardingData.country,
@@ -233,7 +233,7 @@ export class FirebaseService {
       tourCompleted: currentProfile?.tourCompleted ?? false,
       id: user.uid,
       uid: user.uid,
-      displayName: fullName || user.email || 'Be Lyft\'d member',
+      displayName: fullName || user.email || 'Lyftd member',
       fullName,
       updatedAt: now
     };
@@ -383,7 +383,7 @@ export class FirebaseService {
           ...data,
           id: user.uid,
           uid: user.uid,
-          displayName: data.displayName || data.fullName || user.displayName || user.email || 'Be Lyft\'d member',
+          displayName: data.displayName || data.fullName || user.displayName || user.email || 'Lyftd member',
           fullName: data.fullName || data.displayName || user.displayName || '',
           email: data.email || user.email || '',
           avatarUrl: data.avatarUrl || user.photoURL,
@@ -400,7 +400,7 @@ export class FirebaseService {
           updatedAt: new Date().toISOString()
         };
       } else {
-        const fullName = user.displayName || user.email?.split('@')[0] || 'Be Lyft\'d member';
+        const fullName = user.displayName || user.email?.split('@')[0] || 'Lyftd member';
         profile = {
           id: user.uid,
           uid: user.uid,
@@ -534,7 +534,7 @@ export class FirebaseService {
    */
   async registerUser(data: UserRegistrationData): Promise<{ success: boolean; message?: string }> {
     this.errorMessage.set(null);
-    const fullName = data.fullName?.trim() || data.displayName?.trim() || 'Be Lyft\'d Leader';
+    const fullName = data.fullName?.trim() || data.displayName?.trim() || 'Lyftd Leader';
 
     // Fallback registration if offline or Firebase disconnected
     if (!this.auth || !this.db || this.isUsingLocalStorageFallback()) {

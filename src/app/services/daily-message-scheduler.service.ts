@@ -164,7 +164,7 @@ export class DailyMessageSchedulerService {
 
       return [{
         id: this.notificationId(affirmation.date),
-        title: 'Your daily Be Lyft\'d message',
+        title: 'Your daily Lyftd message',
         body: affirmation.text,
         largeBody: affirmation.text,
         schedule: {at: scheduledAt, allowWhileIdle: true},
@@ -217,7 +217,7 @@ export class DailyMessageSchedulerService {
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      await registration.showNotification('Your daily Be Lyft\'d message', {
+      await registration.showNotification('Your daily Lyftd message', {
         body: affirmation.text,
         icon: '/icon-192.svg',
         badge: '/icon-192.svg',

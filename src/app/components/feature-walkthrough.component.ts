@@ -55,7 +55,7 @@ interface WalkthroughStep {
               <mat-icon>{{ steps[stepIndex()].icon }}</mat-icon>
             </span>
             <div class="min-w-0">
-              <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-indigo-700 dark:text-indigo-300">Be Lyft'd tour</p>
+              <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-indigo-700 dark:text-indigo-300">Lyftd tour</p>
               <h1 id="feature-tour-title" class="mt-0.5 text-lg font-bold leading-tight font-display">{{ steps[stepIndex()].title }}</h1>
             </div>
           </div>

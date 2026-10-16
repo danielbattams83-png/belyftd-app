@@ -1,11 +1,11 @@
 /**
  * =============================================================================
- * Be Lyft'd — Service Worker (sw.js)
+ * Lyftd — Service Worker (sw.js)
  * High Performance Offline Cache & Audio Stream Support for PWA
  * =============================================================================
  */
 
-const CACHE_NAME = 'belyftd-pwa-v3';
+const CACHE_NAME = 'lyftd-pwa-v4';
 const AUDIO_CACHE_NAME = 'belyftd-audio-v1';
 const DAILY_DB_NAME = 'belyftd-offline';
 const DAILY_DB_VERSION = 1;
@@ -114,7 +114,7 @@ self.addEventListener('fetch', (event) => {
           const cachedShell = await caches.match('/index.html') || await caches.match('/');
           if (cachedShell) return cachedShell;
           return new Response(
-            `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Be Lyft'd - Offline</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="background:#0F172A;color:#fff;font-family:sans-serif;text-align:center;padding:40px;"><h2>Be Lyft'd Offline</h2><p>You are currently offline. Open your saved courses and reflections when connection restores.</p></body></html>`,
+            `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Lyftd - Offline</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="background:#0F172A;color:#fff;font-family:sans-serif;text-align:center;padding:40px;"><h2>Lyftd Offline</h2><p>You are currently offline. Open your saved courses and reflections when connection restores.</p></body></html>`,
             { headers: { 'Content-Type': 'text/html' } }
           );
         })
@@ -272,7 +272,7 @@ async function showDailyAffirmationIfDue() {
   const affirmation = affirmations.find((item) => item.date === today);
   if (!affirmation || !affirmation.text || !await claimDailyNotification(today)) return;
 
-  await self.registration.showNotification("Your daily Be Lyft'd message", {
+  await self.registration.showNotification("Your daily Lyftd message", {
     body: affirmation.text,
     icon: '/icon-192.svg',
     badge: '/icon-192.svg',

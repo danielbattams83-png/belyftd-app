@@ -50,7 +50,7 @@ const FOCUS_AREAS = [
         <header class="border-b border-slate-200 px-5 py-4 dark:border-slate-800 sm:px-7">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div>
-              <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Your Be Lyft'd profile</p>
+              <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Your Lyftd profile</p>
               <h1 id="onboarding-title" class="mt-1 text-xl font-bold font-display">A little about you</h1>
             </div>
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400" aria-live="polite" aria-atomic="true">Step {{ step() }} of 3</span>
