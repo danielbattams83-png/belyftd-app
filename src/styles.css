@@ -1,8 +1,13 @@
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+.font-cursive {
+  font-family: 'Dancing Script', cursive, sans-serif;
+}
 
 @layer base {
   :root {
@@ -57,4 +62,3 @@
 .animate-audio-bar-3 { animation: audio-bar 0.9s ease-in-out infinite 0.4s; }
 .animate-audio-bar-4 { animation: audio-bar 1.3s ease-in-out infinite 0.1s; }
 .animate-audio-bar-5 { animation: audio-bar 0.7s ease-in-out infinite 0.3s; }
-
