@@ -128,17 +128,6 @@ import {AudioPlayerService} from '../services/audio-player.service';
               <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 whitespace-pre-line leading-loose space-y-3 font-sans shadow-xs">
                 {{ c.textContent }}
               </div>
-              @if (c.id === 'hope') {
-                <div class="overflow-hidden rounded-2xl border border-slate-200 bg-black shadow-sm dark:border-slate-800">
-                  <iframe
-                    src="https://drive.google.com/file/d/1TOobLNdUe_l1hvnslY_zKq4CFMd23vL8/preview"
-                    title="Message of Hope video"
-                    class="aspect-video w-full"
-                    allow="autoplay"
-                    allowfullscreen
-                  ></iframe>
-                </div>
-              }
             </article>
 
             <!-- Prominent 'Mark as Complete' Button -->
