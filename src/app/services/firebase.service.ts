@@ -29,6 +29,7 @@ import {
   Auth,
   User
 } from 'firebase/auth';
+import { getStorage, ref, getDownloadURL, FirebaseStorage } from 'firebase/storage';
 import { environment } from '../../environments/environment';
 import { CourseDocument, DailyAffirmationDocument, MentorDocument, PartnershipDocument } from '../models/firestore.models';
 
@@ -114,6 +115,7 @@ export class FirebaseService {
   private app: FirebaseApp | null = null;
   private db: Firestore | null = null;
   private auth: Auth | null = null;
+  private storage: FirebaseStorage | null = null;
 
   // Reactive state signals
   readonly currentUser = signal<User | null>(null);
@@ -136,6 +138,24 @@ export class FirebaseService {
     this._checkUrlForCourseDeepLink();
   }
 
+  async getStorageDownloadUrl(path: string): Promise<string | null> {
+    if (!this.storage) return null;
+    try {
+      return await getDownloadURL(ref(this.storage, path));
+    } catch (error) {
+      console.warn('[v0] Firebase media URL unavailable:', path, error);
+      return null;
+    }
+  }
+
+  async getFirstStorageDownloadUrl(paths: string[]): Promise<string | null> {
+    for (const path of paths) {
+      const url = await this.getStorageDownloadUrl(path);
+      if (url) return url;
+    }
+    return null;
+  }
+
   /**
    * Initializes the Firebase v10+ app and services
    */
@@ -144,6 +164,7 @@ export class FirebaseService {
       this.app = getApps().length ? getApp() : initializeApp(environment.firebase);
       this.auth = getAuth(this.app);
       this.db = getFirestore(this.app);
+      this.storage = getStorage(this.app);
 
       this.isConnected.set(true);
       this.isUsingLocalStorageFallback.set(false);
