@@ -101,7 +101,7 @@ export class App {
   });
 
   constructor() {
-    void this.firebaseService.getStorageDownloadUrlByName('App_Videos/hero-hope').then((url) => {
+    void this.firebaseService.getStorageDownloadUrlByName('App_Videos', 'Hero-Hope').then((url) => {
       if (url) this.hopeVideoUrl.set(url);
     });
 
