@@ -282,6 +282,16 @@
     <!-- ========================================== -->
     @if (activeTab() === 'daily-lyft') {
       <div id="tab-daily-lyft-content" class="space-y-6 animate-in fade-in duration-150">
+        <section aria-labelledby="message-of-hope-video-title" class="overflow-hidden rounded-3xl bg-black">
+          <h2 id="message-of-hope-video-title" class="sr-only">Message of Hope video</h2>
+          <iframe
+            src="https://drive.google.com/file/d/1TOobLNdUe_l1hvnslY_zKq4CFMd23vL8/preview?autoplay=1&mute=1"
+            title="Message of Hope video"
+            class="block aspect-video w-full border-0"
+            allow="autoplay; fullscreen"
+            allowfullscreen
+          ></iframe>
+        </section>
         
         <!-- Welcome Header / Hopeful Sunrise Hero -->
         <div class="relative overflow-hidden rounded-[2rem] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
@@ -342,17 +352,6 @@
         <p class="font-cursive text-2xl text-indigo-600 dark:text-indigo-400 py-4 text-center">
           A world where everybody wins, and no one is left out.
         </p>
-
-        <section aria-labelledby="message-of-hope-video-title" class="overflow-hidden rounded-3xl border border-slate-200 bg-black shadow-sm dark:border-slate-800">
-          <h2 id="message-of-hope-video-title" class="sr-only">Message of Hope video</h2>
-          <iframe
-            src="https://drive.google.com/file/d/1TOobLNdUe_l1hvnslY_zKq4CFMd23vL8/preview"
-            title="Message of Hope video"
-            class="aspect-video w-full"
-            allow="autoplay"
-            allowfullscreen
-          ></iframe>
-        </section>
 
         @if (isLoggedIn()) {
           <!-- Quick Mood Check-in Carousel -->
