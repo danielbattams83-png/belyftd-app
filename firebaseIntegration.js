@@ -30,13 +30,13 @@ import {
 
 // Configuration for Lyftd Project
 export const firebaseConfig = {
-  projectId: "gen-lang-client-0044755913",
-  appId: "1:177759218474:web:94777394be20ecd7110c53",
-  apiKey: "AIzaSyCm7VF1Lx-gg2WyycbGUoygOUtF5GPOrSU",
-  authDomain: "gen-lang-client-0044755913.firebaseapp.com",
-  firestoreDatabaseId: "ai-studio-belyftd-cbbf5028-4323-4b5c-b73f-d3614280646a",
-  storageBucket: "gen-lang-client-0044755913.firebasestorage.app",
-  messagingSenderId: "177759218474"
+  projectId: "belyft-d-app",
+  appId: "1:254948994554:web:31002d45804b97fa9e8843",
+  apiKey: "AIzaSyCwXRbvJXqGQ2NHAnfQaG-9EQp_x64TPkQ",
+  authDomain: "belyft-d-app.firebaseapp.com",
+  firestoreDatabaseId: "firestore:database:belyft-d-app.(default)",
+  storageBucket: "belyft-d-app.firebasestorage.app",
+  messagingSenderId: "254948994554"
 };
 
 // Supported Country Dialing Codes & Flags
