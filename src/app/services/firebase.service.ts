@@ -182,6 +182,7 @@ export class FirebaseService {
       this.app = getApps().length ? getApp() : initializeApp(environment.firebase);
       this.auth = getAuth(this.app);
       this.db = getFirestore(this.app);
+      this.storage = getStorage(this.app, `gs://${environment.firebase.storageBucket}`);
 
       this.isConnected.set(true);
       this.isUsingLocalStorageFallback.set(false);
