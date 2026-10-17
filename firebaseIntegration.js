@@ -35,8 +35,8 @@ export const firebaseConfig = {
   apiKey: "AIzaSyCwXRbvJXqGQ2NHAnfQaG-9EQp_x64TPkQ",
   authDomain: "belyft-d-app.firebaseapp.com",
   firestoreDatabaseId: "firestore:database:belyft-d-app.(default)",
-  storageBucket: "gen-lang-client-0044755913.firebasestorage.app",
-  messagingSenderId: "177759218474"
+  storageBucket: "belyft-d-app.firebasestorage.app",
+  messagingSenderId: "254948994554"
 };
 
 // Supported Country Dialing Codes & Flags
