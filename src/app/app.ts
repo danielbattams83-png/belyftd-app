@@ -55,6 +55,7 @@ export class App {
   readonly aiService = inject(AiMentorService);
   readonly firebaseService = inject(FirebaseService);
   readonly pwaService = inject(PwaInstallService);
+  readonly hopeVideoUrl = signal<string | null>(null);
   readonly dailyMessageScheduler = inject(DailyMessageSchedulerService);
   readonly isLoggedIn = computed(() => this.firebaseService.isLoggedIn());
 
@@ -100,6 +101,15 @@ export class App {
   });
 
   constructor() {
+    void this.firebaseService.getFirstStorageDownloadUrl([
+      'App Videos/Hero - Hope',
+      'App Videos/Hero - Hope.mp4',
+      'App Videos/Hero - Hope.mov',
+      'App Videos/Hero - Hope.webm',
+    ]).then((url) => {
+      if (url) this.hopeVideoUrl.set(url);
+    });
+
     effect(() => {
       const authLoading = this.firebaseService.authLoading();
       if (typeof window === 'undefined' || authLoading || this.hasResolvedInitialAuth()) return;
