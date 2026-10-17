@@ -3,12 +3,12 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     // Public media used by the home page and audio players.
-    match /App Videos/{allPaths=**} {
+    match /App_Videos/{allPaths=**} {
       allow read: if true;
       allow write: if request.auth != null;
     }
 
-    match /App Audio/{allPaths=**} {
+    match /App_Audio/{allPaths=**} {
       allow read: if true;
       allow write: if request.auth != null;
     }
