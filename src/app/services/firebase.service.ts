@@ -29,7 +29,7 @@ import {
   Auth,
   User
 } from 'firebase/auth';
-import { getStorage, ref, getDownloadURL, FirebaseStorage } from 'firebase/storage';
+import { getStorage, ref, getDownloadURL, listAll, FirebaseStorage } from 'firebase/storage';
 import { environment } from '../../environments/environment';
 import { CourseDocument, DailyAffirmationDocument, MentorDocument, PartnershipDocument } from '../models/firestore.models';
 
@@ -139,8 +139,11 @@ export class FirebaseService {
   }
 
   async getStorageDownloadUrl(path: string): Promise<string | null> {
-    if (!this.storage) return null;
     try {
+      if (!this.storage && this.app) {
+        this.storage = getStorage(this.app, `gs://${environment.firebase.storageBucket}`);
+      }
+      if (!this.storage) return null;
       return await getDownloadURL(ref(this.storage, path));
     } catch (error) {
       console.warn('[v0] Firebase media URL unavailable:', path, error);
@@ -156,6 +159,21 @@ export class FirebaseService {
     return null;
   }
 
+  async getStorageDownloadUrlByName(prefix: string, nameFragment: string): Promise<string | null> {
+    try {
+      if (!this.storage && this.app) {
+        this.storage = getStorage(this.app, `gs://${environment.firebase.storageBucket}`);
+      }
+      if (!this.storage) return null;
+      const result = await listAll(ref(this.storage, prefix));
+      const match = result.items.find((item) => item.name.toLowerCase().includes(nameFragment.toLowerCase()));
+      return match ? await getDownloadURL(match) : null;
+    } catch (error) {
+      console.warn('[v0] Firebase media discovery unavailable:', prefix, error);
+      return null;
+    }
+  }
+
   /**
    * Initializes the Firebase v10+ app and services
    */
@@ -164,7 +182,6 @@ export class FirebaseService {
       this.app = getApps().length ? getApp() : initializeApp(environment.firebase);
       this.auth = getAuth(this.app);
       this.db = getFirestore(this.app);
-      this.storage = getStorage(this.app);
 
       this.isConnected.set(true);
       this.isUsingLocalStorageFallback.set(false);

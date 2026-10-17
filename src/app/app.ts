@@ -106,8 +106,9 @@ export class App {
       'App Videos/Hero - Hope.mp4',
       'App Videos/Hero - Hope.mov',
       'App Videos/Hero - Hope.webm',
-    ]).then((url) => {
-      if (url) this.hopeVideoUrl.set(url);
+    ]).then(async (url) => {
+      const resolvedUrl = url ?? await this.firebaseService.getStorageDownloadUrlByName('App Videos', 'hero - hope');
+      if (resolvedUrl) this.hopeVideoUrl.set(resolvedUrl);
     });
 
     effect(() => {
