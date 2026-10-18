@@ -219,8 +219,8 @@ export class DailyMessageSchedulerService {
       const registration = await navigator.serviceWorker.ready;
       await registration.showNotification('Your daily Lyftd message', {
         body: affirmation.text,
-        icon: '/icon-192.svg',
-        badge: '/icon-192.svg',
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
         tag: `daily-affirmation-${today}`,
         data: {url: '/?dailyMsg=true'}
       });
