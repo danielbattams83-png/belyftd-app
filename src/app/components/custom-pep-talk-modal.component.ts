@@ -89,7 +89,7 @@ import {MentorshipDataService} from '../services/mentorship-data.service';
               id="generate-pep-audio-btn"
               type="submit"
               [disabled]="aiService.isGenerating()"
-              class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs sm:text-sm font-semibold shadow-xs flex items-center justify-center gap-2 cursor-pointer transition focus-accessible"
+              class="w-full py-3.5 rounded-2xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs sm:text-sm font-semibold shadow-xs flex items-center justify-center gap-2 cursor-pointer transition focus-accessible"
             >
               @if (aiService.isGenerating()) {
                 <mat-icon class="animate-spin text-base">autorenew</mat-icon>

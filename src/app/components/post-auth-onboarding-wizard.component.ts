@@ -65,7 +65,7 @@ const FOCUS_AREAS = [
             [attr.aria-valuetext]="'Step ' + step() + ' of 3'"
           >
             @for (item of [1, 2, 3]; track item) {
-              <span class="h-1.5" [class]="step() >= item ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'"></span>
+              <span class="h-1.5" [class]="step() >= item ? 'bg-indigo-400' : 'bg-slate-200 dark:bg-slate-700'"></span>
             }
           </div>
         </header>
@@ -131,7 +131,7 @@ const FOCUS_AREAS = [
               </div>
               <div class="flex flex-wrap gap-2">
                 @for (area of focusAreaOptions; track area) {
-                  <button type="button" (click)="toggleFocusArea(area)" [attr.aria-pressed]="focusAreas().includes(area)" class="rounded-full border px-3.5 py-2 text-xs font-semibold transition focus-accessible" [class.border-indigo-600]="focusAreas().includes(area)" [class.bg-indigo-600]="focusAreas().includes(area)" [class.text-white]="focusAreas().includes(area)" [class.border-slate-300]="!focusAreas().includes(area)" [class.text-slate-700]="!focusAreas().includes(area)" [class.dark:border-slate-700]="!focusAreas().includes(area)" [class.dark:text-slate-200]="!focusAreas().includes(area)">
+                  <button type="button" (click)="toggleFocusArea(area)" [attr.aria-pressed]="focusAreas().includes(area)" class="rounded-full border px-3.5 py-2 text-xs font-semibold transition focus-accessible" [class.border-indigo-600]="focusAreas().includes(area)" [class.bg-indigo-400]="focusAreas().includes(area)" [class.text-white]="focusAreas().includes(area)" [class.border-slate-300]="!focusAreas().includes(area)" [class.text-slate-700]="!focusAreas().includes(area)" [class.dark:border-slate-700]="!focusAreas().includes(area)" [class.dark:text-slate-200]="!focusAreas().includes(area)">
                     {{ area }}
                   </button>
                 }
@@ -182,9 +182,9 @@ const FOCUS_AREAS = [
         <footer class="flex items-center justify-between border-t border-slate-200 px-5 py-4 dark:border-slate-800 sm:px-7">
           <button type="button" (click)="previousStep()" [disabled]="step() === 1 || saving()" class="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-40 dark:text-slate-300 dark:hover:bg-slate-800">Back</button>
           @if (step() < 3) {
-            <button type="button" (click)="nextStep()" [disabled]="saving()" class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus-accessible">Continue</button>
+            <button type="button" (click)="nextStep()" [disabled]="saving()" class="rounded-xl bg-indigo-400 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 focus-accessible">Continue</button>
           } @else {
-            <button type="button" (click)="completeOnboarding()" [disabled]="saving() || selectedMentorIds().length < 1" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-wait disabled:opacity-60 focus-accessible">
+            <button type="button" (click)="completeOnboarding()" [disabled]="saving() || selectedMentorIds().length < 1" class="inline-flex items-center gap-2 rounded-xl bg-indigo-400 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-wait disabled:opacity-60 focus-accessible">
               @if (saving()) { <span class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span> }
               {{ saving() ? 'Saving profile…' : 'Finish setup' }}
             </button>

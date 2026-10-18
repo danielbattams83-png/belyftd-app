@@ -75,7 +75,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
             <section class="bg-slate-50 dark:bg-slate-850 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
               <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <div class="w-11 h-11 rounded-2xl bg-indigo-400 text-white flex items-center justify-center shrink-0 shadow-sm">
                     <mat-icon class="text-xl">headphones</mat-icon>
                   </div>
                   <div class="min-w-0">
@@ -92,7 +92,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                   id="course-audio-play-pause-btn"
                   type="button"
                   (click)="togglePlay(c)"
-                  class="w-11 h-11 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center cursor-pointer transition shadow-md focus-accessible shrink-0"
+                  class="w-11 h-11 rounded-full bg-indigo-400 hover:bg-indigo-700 text-white flex items-center justify-center cursor-pointer transition shadow-md focus-accessible shrink-0"
                   [attr.aria-label]="isPlaying() ? 'Pause audio' : 'Play audio'"
                 >
                   <mat-icon class="text-xl">{{ isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
@@ -186,7 +186,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 id="btn-return-dashboard-after-success"
                 type="button"
                 (click)="confirmReturnDashboard()"
-                class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold transition cursor-pointer shadow-md focus-accessible flex items-center justify-center gap-2"
+                class="w-full py-3 px-4 rounded-xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold transition cursor-pointer shadow-md focus-accessible flex items-center justify-center gap-2"
               >
                 <span>Return to Dashboard</span>
                 <mat-icon class="text-base">arrow_forward</mat-icon>

@@ -140,7 +140,7 @@ import {VoiceJournal} from '../models/app.models';
                 <button
                   type="button"
                   (click)="selectedMood.set(mood)"
-                  [class]="selectedMood() === mood ? 'bg-indigo-600 text-white font-semibold border-indigo-600' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'"
+                  [class]="selectedMood() === mood ? 'bg-indigo-400 text-white font-semibold border-indigo-600' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'"
                   class="px-3 py-1 text-xs rounded-xl border cursor-pointer transition focus-accessible"
                 >
                   {{ mood }}
@@ -162,7 +162,7 @@ import {VoiceJournal} from '../models/app.models';
               id="save-reflection-btn"
               type="submit"
               [disabled]="!journalForm.valid"
-              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold shadow-xs cursor-pointer focus-accessible flex items-center gap-1.5"
+              class="px-5 py-2.5 rounded-xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold shadow-xs cursor-pointer focus-accessible flex items-center gap-1.5"
             >
               <mat-icon class="text-sm">save</mat-icon>
               <span>Save Reflection</span>

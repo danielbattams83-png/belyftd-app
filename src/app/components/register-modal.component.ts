@@ -44,7 +44,7 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
         <!-- Header -->
         <div class="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-400 text-white flex items-center justify-center shadow-md">
               <mat-icon class="text-2xl">person_add</mat-icon>
             </div>
             <div>
@@ -125,7 +125,7 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
             <button
               type="submit"
               [disabled]="loginForm.invalid || isSubmitting()"
-              class="w-full py-3 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition cursor-pointer shadow-md focus-accessible"
+              class="w-full py-3 px-5 rounded-xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition cursor-pointer shadow-md focus-accessible"
             >
               {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
             </button>
@@ -328,7 +328,7 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
               id="btn-submit-registration"
               type="submit"
               [disabled]="regForm.invalid || isSubmitting()"
-              class="flex-1 py-3 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold transition cursor-pointer shadow-md focus-accessible flex items-center justify-center gap-2"
+              class="flex-1 py-3 px-5 rounded-xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold transition cursor-pointer shadow-md focus-accessible flex items-center justify-center gap-2"
             >
               @if (isSubmitting()) {
                 <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

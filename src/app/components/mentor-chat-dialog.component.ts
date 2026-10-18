@@ -27,7 +27,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 referrerpolicy="no-referrer"
               />
               @if (mentor().verified) {
-                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center font-bold">
+                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-indigo-400 text-white text-[10px] flex items-center justify-center font-bold">
                   ✓
                 </span>
               }
@@ -53,7 +53,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
               id="listen-mentor-intro-btn"
               type="button"
               (click)="playMentorIntro()"
-              class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white border border-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1 cursor-pointer transition focus-accessible shadow-xs"
+              class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-400 hover:text-white border border-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1 cursor-pointer transition focus-accessible shadow-xs"
               title="Play Mentor Voice Greeting"
             >
               <mat-icon class="text-sm">record_voice_over</mat-icon>
@@ -149,7 +149,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
             >
               <div
                 [class]="msg.sender === 'user'
-                  ? 'bg-indigo-600 text-white rounded-3xl rounded-tr-xs'
+                  ? 'bg-indigo-400 text-white rounded-3xl rounded-tr-xs'
                   : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-700 rounded-3xl rounded-tl-xs'"
                 class="max-w-[82%] p-4 text-sm shadow-xs space-y-1.5"
               >
@@ -188,7 +188,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
             id="send-mentor-msg-btn"
             type="submit"
             [disabled]="!chatForm.valid"
-            class="w-11 h-11 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white flex items-center justify-center cursor-pointer transition focus-accessible shadow-xs shrink-0"
+            class="w-11 h-11 rounded-2xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-40 text-white flex items-center justify-center cursor-pointer transition focus-accessible shadow-xs shrink-0"
             aria-label="Send message"
           >
             <mat-icon class="text-base">send</mat-icon>

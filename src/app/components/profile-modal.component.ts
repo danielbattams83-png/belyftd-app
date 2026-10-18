@@ -174,7 +174,7 @@ import {FirebaseService} from '../services/firebase.service';
               id="toggle-theme-dialog-btn"
               type="button"
               (click)="themeService.toggleTheme()"
-              class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition focus-accessible shadow-xs"
+              class="px-3 py-1.5 rounded-xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition focus-accessible shadow-xs"
             >
               Switch to {{ themeService.theme() === 'dark' ? 'Light' : 'Dark' }}
             </button>

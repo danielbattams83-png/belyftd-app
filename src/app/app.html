@@ -257,7 +257,7 @@
   @if (pwaManualGuideMessage()) {
     <div
       id="pwa-manual-guide-toast"
-      class="bg-indigo-600 text-white px-4 py-3 text-xs shadow-lg border-b border-indigo-400 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-200"
+      class="bg-indigo-400 text-white px-4 py-3 text-xs shadow-lg border-b border-indigo-400 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-200"
     >
       <div class="max-w-4xl mx-auto flex items-center gap-2 w-full">
         <mat-icon class="text-amber-300 text-base shrink-0">info</mat-icon>
@@ -388,7 +388,7 @@
                   type="button"
                   (click)="setMoodCheckin(item)"
                   [class]="activeMoodPrompt()?.mood === item.mood
-                    ? 'bg-indigo-600 text-white font-semibold border-indigo-600 shadow-xs'
+                    ? 'bg-indigo-400 text-white font-semibold border-indigo-600 shadow-xs'
                     : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'"
                   class="px-4 py-2.5 rounded-2xl border text-xs whitespace-nowrap flex items-center gap-2 cursor-pointer transition focus-accessible shrink-0"
                 >
@@ -413,7 +413,7 @@
                   <button
                     type="button"
                     (click)="playMoodTrack(activeMoodPrompt()!.trackId)"
-                    class="px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center gap-1 hover:bg-indigo-700 cursor-pointer shrink-0 transition shadow-xs"
+                    class="px-3.5 py-1.5 rounded-xl bg-indigo-400 text-white text-xs font-bold flex items-center gap-1 hover:bg-indigo-700 cursor-pointer shrink-0 transition shadow-xs"
                   >
                     <mat-icon class="text-sm">play_arrow</mat-icon>
                     <span>Listen</span>
@@ -548,7 +548,7 @@
                 <button
                   type="button"
                   (click)="audioPlayer.playTrack(track)"
-                  class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white border border-slate-200 dark:border-slate-700 flex items-center justify-center cursor-pointer transition shadow-xs shrink-0 focus-accessible"
+                  class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-400 hover:text-white border border-slate-200 dark:border-slate-700 flex items-center justify-center cursor-pointer transition shadow-xs shrink-0 focus-accessible"
                   title="Play Audio Track"
                 >
                   <mat-icon class="text-base">play_arrow</mat-icon>
@@ -594,7 +594,7 @@
             </div>
             <div class="w-full h-3.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
               <div
-                class="h-full bg-indigo-600 rounded-full transition-all duration-500 ease-out"
+                class="h-full bg-indigo-400 rounded-full transition-all duration-500 ease-out"
                 [style.width.%]="coursesProgressPercent()"
               ></div>
             </div>
@@ -650,7 +650,7 @@
                 </div>
                 <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-1">
                   <div
-                    class="h-full bg-indigo-600 rounded-full transition-all duration-300"
+                    class="h-full bg-indigo-400 rounded-full transition-all duration-300"
                     [style.width.%]="growthProgressPercent()"
                   ></div>
                 </div>
@@ -709,7 +709,7 @@
                   <button
                     type="button"
                     (click)="playRecordedJournal(journal)"
-                    class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1 cursor-pointer transition shadow-xs"
+                    class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-indigo-400 hover:text-white text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1 cursor-pointer transition shadow-xs"
                   >
                     <mat-icon class="text-xs">play_arrow</mat-icon>
                     <span>Listen</span>
@@ -852,7 +852,7 @@
                   id="open-course-btn-{{ course.id }}"
                   type="button"
                   (click)="openCourse(course)"
-                  class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
+                  class="px-4 py-2 rounded-xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
                 >
                   <mat-icon class="text-sm">menu_book</mat-icon>
                   <span>Read & Listen</span>
@@ -1030,7 +1030,7 @@
                   <button
                     type="button"
                     (click)="openMentorChat(mentor)"
-                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
+                    class="px-4 py-2 rounded-xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
                   >
                     <mat-icon class="text-sm">chat</mat-icon>
                     <span>Connect</span>
@@ -1063,7 +1063,7 @@
             id="add-quest-header-btn"
             type="button"
             (click)="showNewQuestModal.set(true)"
-            class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm cursor-pointer transition focus-accessible shrink-0"
+            class="px-4 py-2.5 rounded-2xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm cursor-pointer transition focus-accessible shrink-0"
           >
             <mat-icon class="text-base">add</mat-icon>
             <span>New Quest</span>
@@ -1093,7 +1093,7 @@
           <!-- XP Bar -->
           <div class="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">
             <div
-              class="bg-indigo-600 h-full rounded-full transition-all duration-300"
+              class="bg-indigo-400 h-full rounded-full transition-all duration-300"
               [style.width.%]="totalStepsCount() ? (completedStepsCount() / totalStepsCount()) * 100 : 0"
             ></div>
           </div>
@@ -1176,7 +1176,7 @@
         
         <div class="flex items-center justify-between gap-4">
           <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+            <div class="w-11 h-11 rounded-2xl bg-indigo-400 text-white flex items-center justify-center shadow-sm">
               <mat-icon class="text-2xl">bolt</mat-icon>
             </div>
             <div>
@@ -1226,7 +1226,7 @@
             >
               <div
                 [class]="msg.sender === 'user'
-                  ? 'bg-indigo-600 text-white rounded-3xl rounded-tr-xs'
+                  ? 'bg-indigo-400 text-white rounded-3xl rounded-tr-xs'
                   : 'bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-3xl rounded-tl-xs'"
                 class="max-w-[85%] p-4 text-sm shadow-xs space-y-2"
               >
@@ -1243,7 +1243,7 @@
                     <button
                       type="button"
                       (click)="speakAiResponse(msg.text)"
-                      class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs"
+                      class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-400 hover:text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs"
                       title="Speak AI Coach Advice"
                     >
                       <mat-icon class="text-xs">volume_up</mat-icon>
@@ -1281,7 +1281,7 @@
             id="send-coach-msg-btn"
             type="submit"
             [disabled]="!coachChatForm.valid || aiService.isGenerating()"
-            class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white flex items-center justify-center shadow-sm cursor-pointer transition focus-accessible shrink-0"
+            class="w-12 h-12 rounded-2xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-40 text-white flex items-center justify-center shadow-sm cursor-pointer transition focus-accessible shrink-0"
             aria-label="Send message to Coach Spark"
           >
             <mat-icon>send</mat-icon>
@@ -1344,7 +1344,7 @@
               id="publish-post-btn"
               type="submit"
               [disabled]="!newPostForm.valid"
-              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 cursor-pointer transition focus-accessible"
+              class="px-5 py-2.5 rounded-xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-40 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 cursor-pointer transition focus-accessible"
             >
               <mat-icon class="text-sm">send</mat-icon>
               <span>Post to Wall</span>
@@ -1605,7 +1605,7 @@
         <button
           type="button"
           (click)="showStreakModal.set(false)"
-          class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition focus-accessible shadow-sm"
+          class="w-full py-3 rounded-2xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition focus-accessible shadow-sm"
         >
           Keep It Going!
         </button>
@@ -1700,7 +1700,7 @@
             <button
               type="submit"
               [disabled]="!newQuestForm.valid"
-              class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer shadow-sm"
+              class="px-5 py-2.5 rounded-2xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer shadow-sm"
             >
               Start Quest
             </button>
@@ -1840,7 +1840,7 @@
               id="btn-simulate-daily-sms-link"
               type="button"
               (click)="simulateDailySmsLink()"
-              class="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-98 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 focus-accessible"
+              class="flex-1 py-2 px-3 rounded-xl bg-indigo-400 hover:bg-indigo-500 active:scale-98 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 focus-accessible"
             >
               <mat-icon class="text-base">sms</mat-icon>
               <span>Simulate Daily SMS Link</span>

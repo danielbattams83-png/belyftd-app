@@ -56,7 +56,7 @@ interface PartnerPlan {
               <button
                 type="button"
                 (click)="initiateStripeCheckout(plan)"
-                class="mt-6 inline-flex items-center justify-center gap-2 bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 focus-accessible dark:bg-indigo-600 dark:hover:bg-indigo-500"
+                class="mt-6 inline-flex items-center justify-center gap-2 bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 focus-accessible dark:bg-indigo-400 dark:hover:bg-indigo-500"
               >
                 <mat-icon class="text-base">payments</mat-icon>
                 Choose {{ plan.name }}
