@@ -283,7 +283,7 @@
     @if (activeTab() === 'daily-lyft') {
   <div id="tab-daily-lyft-content" class="space-y-6 animate-in fade-in duration-150">
   @if (!isLoggedIn()) {
-  <aside class="flex flex-col gap-3 border border-indigo-200 bg-indigo-50 px-4 py-2.5 dark:border-indigo-900/60 dark:bg-indigo-950/30 sm:flex-row sm:items-center sm:justify-between" aria-label="Guest account benefits">
+  <aside class="flex h-[50px] flex-col gap-2 border border-indigo-200 bg-indigo-50 px-4 py-2.5 dark:border-indigo-900/60 dark:bg-indigo-950/30 sm:flex-row sm:items-center sm:justify-between" aria-label="Guest account benefits">
   <p class="text-sm leading-relaxed text-indigo-950 dark:text-indigo-100">Sign in to track your 7-day streak, save course progress, and connect directly with mentors.</p>
   <button type="button" (click)="openRegisterModal()" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-indigo-400 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700 focus-accessible">
   Get Started
