@@ -6,7 +6,7 @@
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
   
   <!-- Top App Header / Navigation Bar -->
-  <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-safe px-4 sm:px-6 py-3.5 shadow-sm">
+  <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-safe px-4 sm:px-6 pt-3.5 pb-0 shadow-sm">
     <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
       
       <!-- Brand Logo -->
@@ -89,7 +89,7 @@
             id="open-register-btn"
             type="button"
             (click)="openRegisterModal()"
-            class="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700 focus-accessible sm:px-5"
+            class="inline-flex items-center gap-2 rounded-full bg-indigo-400 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700 focus-accessible sm:px-5"
           >
             <mat-icon class="text-base">login</mat-icon>
             <span>Sign In / Register</span>
@@ -220,12 +220,12 @@
     >
       <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <div class="flex items-center gap-2.5 min-w-0 flex-1">
-          <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition shadow-xs">
+          <div class="w-7 h-7 rounded-lg bg-indigo-400 flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition shadow-xs">
             <mat-icon class="text-sm">install_mobile</mat-icon>
           </div>
           <div class="min-w-0">
             <span class="font-semibold text-white">Install Lyftd</span>
-            <span class="hidden sm:inline text-indigo-700 dark:text-indigo-200 ml-1.5">— Add to home screen for offline audio coaching & faster loading</span>
+            <span class="hidden sm:inline text-[#7e6bfb] dark:text-indigo-200 ml-1.5">— Add to home screen for offline audio coaching & faster loading</span>
           </div>
         </div>
 
@@ -234,7 +234,7 @@
             id="pwa-install-action-btn"
             type="button"
             (click)="handleInstallBannerClick()"
-            class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-xs transition flex items-center gap-1 cursor-pointer"
+            class="px-3 py-1.5 rounded-lg bg-indigo-400 hover:bg-indigo-500 text-white font-bold text-xs shadow-xs transition flex items-center gap-1 cursor-pointer"
           >
             <mat-icon class="text-xs">download</mat-icon>
             <span>Install</span>
@@ -418,7 +418,7 @@
         @if (!isLoggedIn()) {
           <aside class="flex flex-col gap-3 border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900/60 dark:bg-indigo-950/30 sm:flex-row sm:items-center sm:justify-between" aria-label="Guest account benefits">
             <p class="text-sm leading-relaxed text-indigo-950 dark:text-indigo-100">Sign in to track your 7-day streak, save course progress, and connect directly with mentors.</p>
-            <button type="button" (click)="openRegisterModal()" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700 focus-accessible">
+            <button type="button" (click)="openRegisterModal()" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-indigo-400 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700 focus-accessible">
               Get Started
               <mat-icon class="text-base">arrow_forward</mat-icon>
             </button>
@@ -453,7 +453,7 @@
                 id="start-todays-lesson-btn"
                 type="button"
                 (click)="startTodaysLesson()"
-                class="flex items-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-500/25 transition hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/25 focus-accessible"
+                class="flex items-center gap-2 rounded-2xl bg-indigo-400 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-500/25 transition hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/25 focus-accessible"
               >
                 <mat-icon class="text-lg">play_arrow</mat-icon>
                 <span>Start Today's Lesson</span>
@@ -500,7 +500,7 @@
                 type="button"
                 (click)="audioCategoryFilter.set(cat)"
                 [class]="audioCategoryFilter() === cat
-                  ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+                  ? 'bg-indigo-400 text-white font-semibold shadow-xs'
                   : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'"
                 class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
               >
@@ -773,7 +773,7 @@
             type="button"
             (click)="courseFilter.set('all')"
             [class]="courseFilter() === 'all'
-              ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+              ? 'bg-indigo-400 text-white font-semibold shadow-xs'
               : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
             class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
           >
@@ -783,7 +783,7 @@
             type="button"
             (click)="courseFilter.set('in-progress')"
             [class]="courseFilter() === 'in-progress'
-              ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+              ? 'bg-indigo-400 text-white font-semibold shadow-xs'
               : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
             class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
           >
@@ -793,7 +793,7 @@
             type="button"
             (click)="courseFilter.set('completed')"
             [class]="courseFilter() === 'completed'
-              ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+              ? 'bg-indigo-400 text-white font-semibold shadow-xs'
               : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
             class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
           >
@@ -907,7 +907,7 @@
                 (click)="mentorAgeBracketFilter.set(bracket.value)"
                 [attr.aria-pressed]="mentorAgeBracketFilter() === bracket.value"
                 [class]="mentorAgeBracketFilter() === bracket.value
-                  ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+                  ? 'bg-indigo-400 text-white font-semibold shadow-xs'
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
                 class="px-4 py-2 rounded-xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
               >
@@ -924,7 +924,7 @@
               type="button"
               (click)="mentorSpecialtyFilter.set(spec)"
               [class]="mentorSpecialtyFilter() === spec
-                ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+                ? 'bg-indigo-400 text-white font-semibold shadow-xs'
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
               class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
             >
@@ -1360,7 +1360,7 @@
               type="button"
               (click)="communityPostFilter.set(f)"
               [class]="communityPostFilter() === f
-                ? 'bg-indigo-600 text-white font-semibold shadow-xs'
+                ? 'bg-indigo-400 text-white font-semibold shadow-xs'
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'"
               class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0 capitalize"
             >
