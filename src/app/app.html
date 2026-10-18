@@ -468,6 +468,29 @@
                 <span>AI Pep Talk</span>
               </button>
             </div>
+          @if (hopeUnits().length > 1) {
+            <div class="relative z-10 mt-5 border-t border-white/70 pt-4 dark:border-slate-700/70">
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-indigo-700 dark:text-indigo-300">Hope module</p>
+                  <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">One video, then mentor audio lessons</p>
+                </div>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ hopeUnits().length }} units</span>
+              </div>
+              <div class="grid gap-2 sm:grid-cols-2">
+                @for (unit of hopeUnits().slice(1); track unit.id) {
+                  <button type="button" (click)="playHopeUnit(unit)" class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 text-left shadow-sm transition hover:bg-white focus-accessible dark:border-slate-700 dark:bg-slate-900/60 dark:hover:bg-slate-900">
+                    <img [src]="unit.avatar" [alt]="unit.mentor" class="h-11 w-11 shrink-0 rounded-xl object-cover" referrerpolicy="no-referrer" />
+                    <span class="min-w-0 flex-1">
+                      <span class="block truncate text-sm font-bold text-slate-800 dark:text-slate-100">{{ unit.title }}</span>
+                      <span class="block text-xs text-slate-500 dark:text-slate-400">{{ unit.mentor }}</span>
+                    </span>
+                    <mat-icon class="text-indigo-400">play_circle</mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+          }
           </div>
 
           <!-- Subtle Decorative Shape -->

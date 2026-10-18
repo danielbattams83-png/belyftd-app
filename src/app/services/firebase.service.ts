@@ -29,7 +29,7 @@ import {
   Auth,
   User
 } from 'firebase/auth';
-import { getStorage, ref, getDownloadURL, listAll, FirebaseStorage } from 'firebase/storage';
+import { getStorage, ref, getDownloadURL, listAll, FirebaseStorage, StorageReference } from 'firebase/storage';
 import { environment } from '../../environments/environment';
 import { CourseDocument, DailyAffirmationDocument, MentorDocument, PartnershipDocument } from '../models/firestore.models';
 
@@ -157,6 +157,28 @@ export class FirebaseService {
       if (url) return url;
     }
     return null;
+  }
+
+  async listStorageFiles(prefix: string): Promise<Array<{name: string; path: string; url: string}>> {
+    try {
+      if (!this.storage && this.app) {
+        this.storage = getStorage(this.app, `gs://${environment.firebase.storageBucket}`);
+      }
+      if (!this.storage) return [];
+      const results: Array<{name: string; path: string; url: string}> = [];
+      const visit = async (folder: StorageReference): Promise<void> => {
+        const listing = await listAll(folder);
+        for (const item of listing.items) {
+          results.push({name: item.name, path: item.fullPath, url: await getDownloadURL(item)});
+        }
+        for (const subfolder of listing.prefixes) await visit(subfolder);
+      };
+      await visit(ref(this.storage, prefix));
+      return results;
+    } catch (error) {
+      console.warn('[v0] Firebase module discovery unavailable:', prefix, error);
+      return [];
+    }
   }
 
   async getStorageDownloadUrlByName(prefix: string, nameFragment: string): Promise<string | null> {
