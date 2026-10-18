@@ -22,7 +22,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
           aria-label="Seek audio track position"
         >
           <div
-            class="bg-indigo-600 h-full rounded-full transition-all duration-150"
+            class="bg-indigo-400 h-full rounded-full transition-all duration-150"
             [style.width.%]="player.progressPercent()"
           ></div>
         </button>
@@ -81,7 +81,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
               id="toggle-play-btn"
               type="button"
               (click)="player.togglePlay()"
-              class="w-10 h-10 flex items-center justify-center rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
+              class="w-10 h-10 flex items-center justify-center rounded-2xl bg-indigo-400 hover:bg-indigo-700 text-white shadow-sm hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
               [attr.aria-label]="player.isPlaying() ? 'Pause audio' : 'Play audio'"
             >
               <mat-icon class="text-2xl">{{ player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
@@ -223,7 +223,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 id="modal-toggle-play-btn"
                 type="button"
                 (click)="player.togglePlay()"
-                class="w-16 h-16 rounded-3xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
+                class="w-16 h-16 rounded-3xl bg-indigo-400 hover:bg-indigo-700 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
                 [attr.aria-label]="player.isPlaying() ? 'Pause audio' : 'Play audio'"
               >
                 <mat-icon class="text-4xl">{{ player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>

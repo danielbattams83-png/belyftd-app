@@ -11,6 +11,15 @@ import {FirebaseService} from './services/firebase.service';
 import {PwaInstallService} from './services/pwa-install.service';
 import {DailyMessageSchedulerService} from './services/daily-message-scheduler.service';
 import {AudioTrack, Mentor, GoalQuest, CommunityPost, VoiceJournal} from './models/app.models';
+
+interface HopeUnit {
+  id: string;
+  title: string;
+  mentor: string;
+  type: 'video' | 'audio';
+  url: string;
+  avatar: string;
+}
 import {AudioPlayerComponent} from './components/audio-player.component';
 import {VoiceRecorderComponent} from './components/voice-recorder.component';
 import {MentorChatDialogComponent} from './components/mentor-chat-dialog.component';
@@ -56,12 +65,37 @@ export class App {
   readonly firebaseService = inject(FirebaseService);
   readonly pwaService = inject(PwaInstallService);
   readonly hopeVideoUrl = signal<string | null>(null);
+  readonly hopeUnits = signal<HopeUnit[]>([]);
   readonly dailyMessageScheduler = inject(DailyMessageSchedulerService);
   readonly isLoggedIn = computed(() => this.firebaseService.isLoggedIn());
 
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');
 
+  playHopeUnit(unit: HopeUnit): void {
+    if (unit.type !== 'audio') return;
+    this.audioPlayer.playTrack({
+      id: unit.id,
+      title: unit.title,
+      speaker: unit.mentor,
+      speakerRole: 'Hope module mentor',
+      speakerAvatar: unit.avatar,
+      category: 'Mindset',
+      duration: 'Audio lesson',
+      durationSec: 60,
+      audioUrl: unit.url,
+      transcript: unit.title,
+      moodTags: ['Hope'],
+      likes: 0,
+      isFavorite: false,
+    });
+  }
+
+  selectTab(tab: MainTab): void {
+    this.activeTab.set(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
   // Modals state
   readonly showVoiceRecorder = signal<boolean>(false);
   readonly activeChatMentor = signal<Mentor | null>(null);
@@ -100,10 +134,32 @@ export class App {
     return 'Leader';
   });
 
+    private async loadHopeModule(): Promise<void> {
+    const videoFiles = await this.firebaseService.listStorageFiles('Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Video');
+    const audioFiles = await this.firebaseService.listStorageFiles('Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio');
+    const heroVideo = videoFiles.find((file) => /hero[-_ ]hope/i.test(file.name)) ?? videoFiles[0];
+    if (heroVideo) this.hopeVideoUrl.set(heroVideo.url);
+
+    const avatarFor = (mentor: string): string => mentor.toLowerCase().includes('hannah')
+      ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=160&auto=format&fit=crop&q=80'
+      : mentor.toLowerCase().includes('steve')
+        ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&auto=format&fit=crop&q=80'
+        : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80';
+    const parseUnit = (file: {name: string; path: string; url: string}, type: 'video' | 'audio'): HopeUnit => {
+      const withoutExtension = file.name.replace(/\\.(mp3|mp4|mov|webm|m4a)$/i, '');
+      const match = withoutExtension.match(/^\\s*(\\d+)[-_ ]+(.+?)[-_ ]+([^ -]+)\\s*$/);
+      const mentor = match?.[3] || (file.path.match(/Mentor\\s*[-_ ]\\s*([^/]+)/i)?.[1] ?? 'Mentor');
+      return {id: file.path, title: (match?.[2] || withoutExtension).replace(/[-_]+/g, ' ').trim(), mentor, type, url: file.url, avatar: avatarFor(mentor)};
+    };
+    const units = [
+      ...(heroVideo ? [parseUnit(heroVideo, 'video')] : []),
+      ...audioFiles.filter((file) => /\\.(mp3|m4a|wav|ogg)$/i.test(file.name)).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true})).map((file) => parseUnit(file, 'audio')),
+    ];
+    this.hopeUnits.set(units);
+  }
+
   constructor() {
-    void this.firebaseService.getStorageDownloadUrlByName('App_Videos', 'Hero-Hope').then((url) => {
-      if (url) this.hopeVideoUrl.set(url);
-    });
+    void this.loadHopeModule();
 
     effect(() => {
       const authLoading = this.firebaseService.authLoading();

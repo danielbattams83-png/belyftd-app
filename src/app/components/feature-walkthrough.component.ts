@@ -77,7 +77,7 @@ interface WalkthroughStep {
           </div>
           <div class="grid grid-cols-8 gap-1" aria-hidden="true">
             @for (item of steps; track item.title; let index = $index) {
-              <span class="h-1 rounded-full transition-colors duration-200 motion-reduce:transition-none" [class.bg-indigo-600]="index <= stepIndex()" [class.dark:bg-indigo-400]="index <= stepIndex()" [class.bg-slate-200]="index > stepIndex()" [class.dark:bg-slate-700]="index > stepIndex()"></span>
+              <span class="h-1 rounded-full transition-colors duration-200 motion-reduce:transition-none" [class.bg-indigo-400]="index <= stepIndex()" [class.dark:bg-indigo-400]="index <= stepIndex()" [class.bg-slate-200]="index > stepIndex()" [class.dark:bg-slate-700]="index > stepIndex()"></span>
             }
           </div>
         </div>
@@ -105,7 +105,7 @@ interface WalkthroughStep {
           </button>
         </div>
         @if (stepIndex() < steps.length - 1) {
-          <button type="button" (click)="next()" [disabled]="saving()" class="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-indigo-600 px-4 text-sm font-bold text-white transition hover:bg-indigo-700 focus-accessible disabled:opacity-50">
+          <button type="button" (click)="next()" [disabled]="saving()" class="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-indigo-400 px-4 text-sm font-bold text-white transition hover:bg-indigo-700 focus-accessible disabled:opacity-50">
             Next
             <mat-icon class="text-lg" aria-hidden="true">arrow_forward</mat-icon>
           </button>

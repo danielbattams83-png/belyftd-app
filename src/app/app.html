@@ -13,7 +13,7 @@
       <a
         id="brand-home-btn"
         routerLink="/"
-        (click)="activeTab.set('daily-lyft')"
+        (click)="selectTab('daily-lyft')"
         class="flex items-center gap-3 text-left cursor-pointer focus-accessible rounded-xl group"
         aria-label="Lyftd Home"
       >
@@ -24,7 +24,7 @@
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
         <button
           type="button"
-          (click)="activeTab.set('daily-lyft')"
+          (click)="selectTab('daily-lyft')"
           [class]="activeTab() === 'daily-lyft' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
           class="cursor-pointer"
         >
@@ -32,7 +32,7 @@
         </button>
         <button
           type="button"
-          (click)="activeTab.set('courses')"
+          (click)="selectTab('courses')"
           [class]="activeTab() === 'courses' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
           class="cursor-pointer flex items-center gap-1.5"
         >
@@ -42,7 +42,7 @@
         <button
           id="desktop-mentors-nav-btn"
           type="button"
-          (click)="activeTab.set('mentors')"
+          (click)="selectTab('mentors')"
           [class]="activeTab() === 'mentors' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
           class="cursor-pointer"
         >
@@ -50,7 +50,7 @@
         </button>
         <button
           type="button"
-          (click)="activeTab.set('quests')"
+          (click)="selectTab('quests')"
           [class]="activeTab() === 'quests' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
           class="cursor-pointer"
         >
@@ -58,7 +58,7 @@
         </button>
         <button
           type="button"
-          (click)="activeTab.set('coach-spark')"
+          (click)="selectTab('coach-spark')"
           [class]="activeTab() === 'coach-spark' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
           class="cursor-pointer"
         >
@@ -66,7 +66,7 @@
         </button>
         <button
           type="button"
-          (click)="activeTab.set('community')"
+          (click)="selectTab('community')"
           [class]="activeTab() === 'community' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
           class="cursor-pointer"
         >
@@ -74,7 +74,7 @@
         </button>
         <button
           type="button"
-          (click)="activeTab.set('partners')"
+          (click)="selectTab('partners')"
           [class]="activeTab() === 'partners' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
           class="cursor-pointer whitespace-nowrap"
         >
@@ -257,7 +257,7 @@
   @if (pwaManualGuideMessage()) {
     <div
       id="pwa-manual-guide-toast"
-      class="bg-indigo-600 text-white px-4 py-3 text-xs shadow-lg border-b border-indigo-400 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-200"
+      class="bg-indigo-400 text-white px-4 py-3 text-xs shadow-lg border-b border-indigo-400 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-200"
     >
       <div class="max-w-4xl mx-auto flex items-center gap-2 w-full">
         <mat-icon class="text-amber-300 text-base shrink-0">info</mat-icon>
@@ -388,7 +388,7 @@
                   type="button"
                   (click)="setMoodCheckin(item)"
                   [class]="activeMoodPrompt()?.mood === item.mood
-                    ? 'bg-indigo-600 text-white font-semibold border-indigo-600 shadow-xs'
+                    ? 'bg-indigo-400 text-white font-semibold border-indigo-600 shadow-xs'
                     : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'"
                   class="px-4 py-2.5 rounded-2xl border text-xs whitespace-nowrap flex items-center gap-2 cursor-pointer transition focus-accessible shrink-0"
                 >
@@ -413,7 +413,7 @@
                   <button
                     type="button"
                     (click)="playMoodTrack(activeMoodPrompt()!.trackId)"
-                    class="px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center gap-1 hover:bg-indigo-700 cursor-pointer shrink-0 transition shadow-xs"
+                    class="px-3.5 py-1.5 rounded-xl bg-indigo-400 text-white text-xs font-bold flex items-center gap-1 hover:bg-indigo-700 cursor-pointer shrink-0 transition shadow-xs"
                   >
                     <mat-icon class="text-sm">play_arrow</mat-icon>
                     <span>Listen</span>
@@ -468,6 +468,29 @@
                 <span>AI Pep Talk</span>
               </button>
             </div>
+          @if (hopeUnits().length > 1) {
+            <div class="relative z-10 mt-5 border-t border-white/70 pt-4 dark:border-slate-700/70">
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-indigo-700 dark:text-indigo-300">Hope module</p>
+                  <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">One video, then mentor audio lessons</p>
+                </div>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ hopeUnits().length }} units</span>
+              </div>
+              <div class="grid gap-2 sm:grid-cols-2">
+                @for (unit of hopeUnits().slice(1); track unit.id) {
+                  <button type="button" (click)="playHopeUnit(unit)" class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 text-left shadow-sm transition hover:bg-white focus-accessible dark:border-slate-700 dark:bg-slate-900/60 dark:hover:bg-slate-900">
+                    <img [src]="unit.avatar" [alt]="unit.mentor" class="h-11 w-11 shrink-0 rounded-xl object-cover" referrerpolicy="no-referrer" />
+                    <span class="min-w-0 flex-1">
+                      <span class="block truncate text-sm font-bold text-slate-800 dark:text-slate-100">{{ unit.title }}</span>
+                      <span class="block text-xs text-slate-500 dark:text-slate-400">{{ unit.mentor }}</span>
+                    </span>
+                    <mat-icon class="text-indigo-400">play_circle</mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+          }
           </div>
 
           <!-- Subtle Decorative Shape -->
@@ -487,7 +510,7 @@
               </div>
             </div>
 
-            <button (click)="activeTab.set('mentors')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
+            <button (click)="selectTab('mentors')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
               Explore All →
             </button>
           </div>
@@ -548,7 +571,7 @@
                 <button
                   type="button"
                   (click)="audioPlayer.playTrack(track)"
-                  class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white border border-slate-200 dark:border-slate-700 flex items-center justify-center cursor-pointer transition shadow-xs shrink-0 focus-accessible"
+                  class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-400 hover:text-white border border-slate-200 dark:border-slate-700 flex items-center justify-center cursor-pointer transition shadow-xs shrink-0 focus-accessible"
                   title="Play Audio Track"
                 >
                   <mat-icon class="text-base">play_arrow</mat-icon>
@@ -575,7 +598,7 @@
             <button
               id="view-all-courses-btn"
               type="button"
-              (click)="activeTab.set('courses')"
+              (click)="selectTab('courses')"
               class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer flex items-center gap-1"
             >
               <span>View All (10)</span>
@@ -594,7 +617,7 @@
             </div>
             <div class="w-full h-3.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
               <div
-                class="h-full bg-indigo-600 rounded-full transition-all duration-500 ease-out"
+                class="h-full bg-indigo-400 rounded-full transition-all duration-500 ease-out"
                 [style.width.%]="coursesProgressPercent()"
               ></div>
             </div>
@@ -626,7 +649,7 @@
             
             <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
               <span class="text-slate-500 dark:text-slate-400">Daily Step: Complete portfolio check</span>
-              <button (click)="activeTab.set('quests')" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer">
+              <button (click)="selectTab('quests')" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer">
                 View Quest →
               </button>
             </div>
@@ -650,7 +673,7 @@
                 </div>
                 <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-1">
                   <div
-                    class="h-full bg-indigo-600 rounded-full transition-all duration-300"
+                    class="h-full bg-indigo-400 rounded-full transition-all duration-300"
                     [style.width.%]="growthProgressPercent()"
                   ></div>
                 </div>
@@ -709,7 +732,7 @@
                   <button
                     type="button"
                     (click)="playRecordedJournal(journal)"
-                    class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1 cursor-pointer transition shadow-xs"
+                    class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-indigo-400 hover:text-white text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1 cursor-pointer transition shadow-xs"
                   >
                     <mat-icon class="text-xs">play_arrow</mat-icon>
                     <span>Listen</span>
@@ -852,7 +875,7 @@
                   id="open-course-btn-{{ course.id }}"
                   type="button"
                   (click)="openCourse(course)"
-                  class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
+                  class="px-4 py-2 rounded-xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
                 >
                   <mat-icon class="text-sm">menu_book</mat-icon>
                   <span>Read & Listen</span>
@@ -1030,7 +1053,7 @@
                   <button
                     type="button"
                     (click)="openMentorChat(mentor)"
-                    class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
+                    class="px-4 py-2 rounded-xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
                   >
                     <mat-icon class="text-sm">chat</mat-icon>
                     <span>Connect</span>
@@ -1063,7 +1086,7 @@
             id="add-quest-header-btn"
             type="button"
             (click)="showNewQuestModal.set(true)"
-            class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm cursor-pointer transition focus-accessible shrink-0"
+            class="px-4 py-2.5 rounded-2xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm cursor-pointer transition focus-accessible shrink-0"
           >
             <mat-icon class="text-base">add</mat-icon>
             <span>New Quest</span>
@@ -1093,7 +1116,7 @@
           <!-- XP Bar -->
           <div class="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">
             <div
-              class="bg-indigo-600 h-full rounded-full transition-all duration-300"
+              class="bg-indigo-400 h-full rounded-full transition-all duration-300"
               [style.width.%]="totalStepsCount() ? (completedStepsCount() / totalStepsCount()) * 100 : 0"
             ></div>
           </div>
@@ -1176,7 +1199,7 @@
         
         <div class="flex items-center justify-between gap-4">
           <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+            <div class="w-11 h-11 rounded-2xl bg-indigo-400 text-white flex items-center justify-center shadow-sm">
               <mat-icon class="text-2xl">bolt</mat-icon>
             </div>
             <div>
@@ -1226,7 +1249,7 @@
             >
               <div
                 [class]="msg.sender === 'user'
-                  ? 'bg-indigo-600 text-white rounded-3xl rounded-tr-xs'
+                  ? 'bg-indigo-400 text-white rounded-3xl rounded-tr-xs'
                   : 'bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-3xl rounded-tl-xs'"
                 class="max-w-[85%] p-4 text-sm shadow-xs space-y-2"
               >
@@ -1243,7 +1266,7 @@
                     <button
                       type="button"
                       (click)="speakAiResponse(msg.text)"
-                      class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs"
+                      class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-400 hover:text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs"
                       title="Speak AI Coach Advice"
                     >
                       <mat-icon class="text-xs">volume_up</mat-icon>
@@ -1281,7 +1304,7 @@
             id="send-coach-msg-btn"
             type="submit"
             [disabled]="!coachChatForm.valid || aiService.isGenerating()"
-            class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white flex items-center justify-center shadow-sm cursor-pointer transition focus-accessible shrink-0"
+            class="w-12 h-12 rounded-2xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-40 text-white flex items-center justify-center shadow-sm cursor-pointer transition focus-accessible shrink-0"
             aria-label="Send message to Coach Spark"
           >
             <mat-icon>send</mat-icon>
@@ -1344,7 +1367,7 @@
               id="publish-post-btn"
               type="submit"
               [disabled]="!newPostForm.valid"
-              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 cursor-pointer transition focus-accessible"
+              class="px-5 py-2.5 rounded-xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-40 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 cursor-pointer transition focus-accessible"
             >
               <mat-icon class="text-sm">send</mat-icon>
               <span>Post to Wall</span>
@@ -1472,7 +1495,7 @@
       <button
         id="nav-daily-lyft-btn"
         type="button"
-        (click)="activeTab.set('daily-lyft')"
+        (click)="selectTab('daily-lyft')"
         [class]="activeTab() === 'daily-lyft' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
         class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
         aria-label="Home Tab"
@@ -1485,7 +1508,7 @@
       <button
         id="nav-courses-btn"
         type="button"
-        (click)="activeTab.set('courses')"
+        (click)="selectTab('courses')"
         [class]="activeTab() === 'courses' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
         class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
         aria-label="Foundational Courses Tab"
@@ -1498,7 +1521,7 @@
       <button
         id="nav-mentors-btn"
         type="button"
-        (click)="activeTab.set('mentors')"
+        (click)="selectTab('mentors')"
         [class]="activeTab() === 'mentors' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
         class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
         aria-label="Mentors Tab"
@@ -1510,7 +1533,7 @@
       <button
         id="nav-partners-btn"
         type="button"
-        (click)="activeTab.set('partners')"
+        (click)="selectTab('partners')"
         [class]="activeTab() === 'partners' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
         class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl cursor-pointer transition focus-accessible"
         aria-label="Partner with us"
@@ -1523,7 +1546,7 @@
       <button
         id="nav-quests-btn"
         type="button"
-        (click)="activeTab.set('quests')"
+        (click)="selectTab('quests')"
         [class]="activeTab() === 'quests' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
         class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
         aria-label="Quests Tab"
@@ -1605,7 +1628,7 @@
         <button
           type="button"
           (click)="showStreakModal.set(false)"
-          class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition focus-accessible shadow-sm"
+          class="w-full py-3 rounded-2xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition focus-accessible shadow-sm"
         >
           Keep It Going!
         </button>
@@ -1700,7 +1723,7 @@
             <button
               type="submit"
               [disabled]="!newQuestForm.valid"
-              class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer shadow-sm"
+              class="px-5 py-2.5 rounded-2xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold cursor-pointer shadow-sm"
             >
               Start Quest
             </button>
@@ -1720,7 +1743,7 @@
   }
 
   @if (showFeatureWalkthrough()) {
-    <app-feature-walkthrough [initialTab]="activeTab()" (tabChange)="activeTab.set($event)" (completed)="handleFeatureWalkthroughCompleted()" />
+    <app-feature-walkthrough [initialTab]="activeTab()" (tabChange)="selectTab($event)" (completed)="handleFeatureWalkthroughCompleted()" />
   }
 
   <!-- ========================================== -->
@@ -1840,7 +1863,7 @@
               id="btn-simulate-daily-sms-link"
               type="button"
               (click)="simulateDailySmsLink()"
-              class="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-98 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 focus-accessible"
+              class="flex-1 py-2 px-3 rounded-xl bg-indigo-400 hover:bg-indigo-500 active:scale-98 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5 focus-accessible"
             >
               <mat-icon class="text-base">sms</mat-icon>
               <span>Simulate Daily SMS Link</span>
