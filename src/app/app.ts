@@ -62,6 +62,11 @@ export class App {
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');
 
+  selectTab(tab: MainTab): void {
+    this.activeTab.set(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
   // Modals state
   readonly showVoiceRecorder = signal<boolean>(false);
   readonly activeChatMentor = signal<Mentor | null>(null);
