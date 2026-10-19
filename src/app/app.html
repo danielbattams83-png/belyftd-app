@@ -235,15 +235,6 @@
     <!-- ========================================== -->
     @if (activeTab() === 'daily-lyft') {
   <div id="tab-daily-lyft-content" class="space-y-6 animate-in fade-in duration-150">
-  @if (!isLoggedIn()) {
-  <aside class="flex h-[50px] flex-col gap-0 rounded-[10px] border border-indigo-200 bg-indigo-50 px-4 py-2.5 dark:border-indigo-900/60 dark:bg-indigo-950/30 sm:flex-row sm:items-center sm:justify-between" aria-label="Guest account benefits">
-  <p class="text-sm leading-relaxed text-indigo-950 dark:text-indigo-100">Sign in to track your 7-day streak, save course progress, and connect directly with mentors.</p>
-  <button type="button" (click)="openRegisterModal()" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-indigo-400 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700 focus-accessible">
-  Get Started
-  <mat-icon class="text-base">arrow_forward</mat-icon>
-  </button>
-  </aside>
-  }
   <section aria-labelledby="message-of-hope-video-title" class="overflow-hidden rounded-3xl bg-black">
           <h2 id="message-of-hope-video-title" class="sr-only">Message of Hope video</h2>
           <video
@@ -256,6 +247,16 @@
             controls
           ></video>
         </section>
+
+        @if (!isLoggedIn()) {
+        <aside class="flex h-[50px] flex-col gap-0 rounded-[10px] border border-indigo-200 bg-indigo-50 px-4 py-2.5 dark:border-indigo-900/60 dark:bg-indigo-950/30 sm:flex-row sm:items-center sm:justify-between" aria-label="Guest account benefits">
+        <p class="text-sm leading-relaxed text-indigo-950 dark:text-indigo-100">Sign in to track your 7-day streak, save course progress, and connect directly with mentors.</p>
+        <button type="button" (click)="openRegisterModal()" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-indigo-400 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700 focus-accessible">
+        Get Started
+        <mat-icon class="text-base">arrow_forward</mat-icon>
+        </button>
+        </aside>
+        }
         
         <!-- Welcome Header / Hopeful Sunrise Hero -->
         <div class="relative overflow-hidden rounded-[2rem] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
