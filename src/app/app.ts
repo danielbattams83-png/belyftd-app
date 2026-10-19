@@ -144,7 +144,17 @@ export class App {
     private async loadHopeModule(): Promise<void> {
     const videoFiles = await this.firebaseService.listStorageFiles('Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Video');
     const audioFiles = await this.firebaseService.listStorageFiles('Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio');
-    const heroVideo = videoFiles.find((file) => /hero[-_ ]hope/i.test(file.name)) ?? videoFiles[0];
+    const heroPath = 'App_Videos/Hero-Hope';
+    const heroUrl = await this.firebaseService.getFirstStorageDownloadUrl([
+      heroPath,
+      'App_Videos/Hero-Hope.mp4',
+      'App_Videos/Hero-Hope.mov',
+      'App_Videos/Hero-Hope.webm',
+    ]);
+    const moduleHeroVideo = videoFiles.find((file) => /hero[-_ ]hope/i.test(file.name)) ?? videoFiles[0];
+    const heroVideo = heroUrl
+      ? {name: 'Hero-Hope', path: heroPath, url: heroUrl}
+      : moduleHeroVideo;
     if (heroVideo) this.hopeVideoUrl.set(heroVideo.url);
 
     const avatarFor = (mentor: string): string => mentor.toLowerCase().includes('hannah')
