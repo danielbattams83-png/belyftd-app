@@ -234,8 +234,8 @@
     <!-- TAB 1: DAILY LYFT (HOME / DAILY MESSAGE)   -->
     <!-- ========================================== -->
     @if (activeTab() === 'daily-lyft') {
-  <div id="tab-daily-lyft-content" class="space-y-6 animate-in fade-in duration-150">
-  <section aria-labelledby="message-of-hope-video-title" class="overflow-hidden rounded-3xl bg-black">
+  <div id="tab-daily-lyft-content" class="flex flex-col gap-6 animate-in fade-in duration-150">
+  <section aria-labelledby="message-of-hope-video-title" class="order-1 overflow-hidden rounded-3xl bg-black">
           <h2 id="message-of-hope-video-title" class="sr-only">Message of Hope video</h2>
           <video
             class="block aspect-video w-full object-cover"
@@ -260,7 +260,7 @@
         }
         
         <!-- Welcome Header / Hopeful Sunrise Hero -->
-        <div class="relative overflow-hidden rounded-[2rem] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
+        <div class="order-2 relative overflow-hidden rounded-[2rem] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
           <div class="absolute -top-12 right-8 h-32 w-32 rounded-full bg-amber-300/40 blur-2xl"></div>
           <div class="absolute bottom-4 left-8 h-24 w-24 rounded-full bg-indigo-400/20 blur-2xl"></div>
 
@@ -315,14 +315,14 @@
           </div>
         </div>
 
-  <p class="font-cursive text-3xl text-indigo-600 dark:text-indigo-400 pt-0 pb-4 text-center">
+  <p class="order-3 font-cursive text-3xl text-indigo-600 dark:text-indigo-400 pt-0 pb-4 text-center">
   “A world where everybody wins,&nbsp;<br />
   and no one is left out.”
   </p>
 
         @if (isLoggedIn()) {
           <!-- Quick Mood Check-in Carousel -->
-          <section id="daily-mood-checkin" class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+          <section id="daily-mood-checkin" class="order-6 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
@@ -380,7 +380,7 @@
         }
 
   <!-- 'Daily Message' Card with 'Start Today's Lesson' Direct CTA -->
-        <div id="daily-message-card" class="relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+        <div id="daily-message-card" class="order-4 relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
           <div class="absolute inset-0 bg-gradient-to-r from-amber-100/80 via-rose-50/80 to-indigo-50/80 dark:from-amber-950/20 dark:via-rose-950/10 dark:to-indigo-950/20"></div>
   <div class="relative z-10 space-y-4 text-center">
   <div class="flex items-center justify-center gap-4 flex-wrap">
@@ -452,8 +452,8 @@
           <div class="pointer-events-none absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-indigo-50 opacity-60 dark:bg-indigo-950/20"></div>
         </div>
 
-        <!-- Short Courses: Featured Audio Lessons -->
-        <section class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+<!-- Short Courses: Featured Audio Lessons -->
+  <section class="order-5 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
               <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
