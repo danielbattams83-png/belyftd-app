@@ -244,8 +244,9 @@
             autoplay
   muted
   playsinline
-            controls
-          ></video>
+  controls
+  (canplay)="playMainVideo($event)"
+  ></video>
         </section>
 
         @if (!isLoggedIn()) {
