@@ -72,6 +72,13 @@ export class App {
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');
 
+  playMainVideo(event: Event): void {
+    const video = event.target as HTMLVideoElement;
+    void video.play().catch(() => {
+      // Browser autoplay policies may still require the user to press play.
+    });
+  }
+
   playHopeUnit(unit: HopeUnit): void {
     if (unit.type !== 'audio') return;
     this.audioPlayer.playTrack({
