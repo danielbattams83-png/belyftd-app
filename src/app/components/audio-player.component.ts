@@ -12,17 +12,17 @@ import {AudioPlayerService} from '../services/audio-player.service';
       <!-- Mini Floating Player Bar -->
       <div
         id="mini-audio-player"
-        class="fixed bottom-18 md:bottom-6 left-3 right-3 max-w-lg mx-auto z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl p-3.5 transition-all duration-300"
+        class="fixed bottom-18 md:bottom-6 left-3 right-3 max-w-lg mx-auto z-40 bg-[#333333] text-white backdrop-blur-md border border-slate-700 rounded-3xl shadow-xl p-3.5 transition-all duration-300"
       >
         <!-- Progress Bar Line on Top -->
         <button
           type="button"
-          class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mb-2.5 cursor-pointer block p-0 border-0"
+          class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden mb-2.5 cursor-pointer block p-0 border-0"
           (click)="onProgressBarClick($event)"
           aria-label="Seek audio track position"
         >
           <div
-            class="bg-indigo-400 h-full rounded-full transition-all duration-150"
+            class="bg-[#1A9BEF] h-full rounded-full transition-all duration-150"
             [style.width.%]="player.progressPercent()"
           ></div>
         </button>
@@ -57,7 +57,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 {{ player.activeTrack()?.title }}
               </p>
               <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                {{ player.activeTrack()?.speaker }} • {{ player.formatTime(player.currentTime()) }} / {{ player.formatTime(player.duration()) }}
+                {{ player.activeTrack()?.speaker }}{{ player.activeTrack()?.language ? ' - ' + player.activeTrack()?.language : '' }} • {{ player.formatTime(player.currentTime()) }} / {{ player.formatTime(player.duration()) }}
               </p>
             </div>
           </button>
@@ -81,7 +81,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
               id="toggle-play-btn"
               type="button"
               (click)="player.togglePlay()"
-              class="w-10 h-10 flex items-center justify-center rounded-2xl bg-indigo-400 hover:bg-indigo-700 text-white shadow-sm hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
+              class="w-10 h-10 flex items-center justify-center rounded-2xl bg-[#1A9BEF] hover:bg-sky-500 text-white shadow-sm hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
               [attr.aria-label]="player.isPlaying() ? 'Pause audio' : 'Play audio'"
             >
               <mat-icon class="text-2xl">{{ player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
@@ -167,7 +167,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 {{ player.activeTrack()?.title }}
               </h2>
               <p class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 mt-1">
-                {{ player.activeTrack()?.speaker }}
+                {{ player.activeTrack()?.speaker }}{{ player.activeTrack()?.language ? ' - ' + player.activeTrack()?.language : '' }}
               </p>
               <p class="text-xs text-slate-500 dark:text-slate-400">
                 {{ player.activeTrack()?.speakerRole }}

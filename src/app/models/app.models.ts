@@ -25,6 +25,7 @@ export interface AudioTrack {
   id: string;
   title: string;
   speaker: string;
+  language?: string;
   speakerRole: string;
   speakerAvatar: string;
   category: 'Mindset' | 'Confidence' | 'Career & Goals' | 'Overcoming Anxiety' | 'Leadership' | 'Wellness';
