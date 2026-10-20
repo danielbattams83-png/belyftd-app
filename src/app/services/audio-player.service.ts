@@ -51,20 +51,20 @@ export class AudioPlayerService {
     this.duration.set(track.durationSec || 60);
     this.currentTime.set(0);
 
-    // If track has an actual audio file, play it
-    if (track.audioUrl && this.audioElem) {
-      this.audioElem.src = track.audioUrl;
+    // Only Firebase course-content media is eligible for playback. Legacy placeholder
+    // URLs are intentionally ignored so they cannot re-enter the player pipeline.
+    const isCourseContentAudio = track.audioUrl?.includes('course-content') ?? false;
+    if (isCourseContentAudio && this.audioElem) {
+      this.audioElem.src = track.audioUrl!;
       this.audioElem.playbackRate = this.playbackRate();
       this.audioElem.volume = this.volume();
       this.audioElem.play().then(() => {
         this.isPlaying.set(true);
       }).catch(() => {
-        // Fallback to spoken narration with speech synthesis & soothing ambient chords
-        this.playSynthesizedTrack(track);
+        this.isPlaying.set(false);
       });
     } else {
-      // Use interactive speech synthesis + ambient soundscape
-      this.playSynthesizedTrack(track);
+      this.isPlaying.set(false);
     }
   }
 
@@ -109,10 +109,7 @@ export class AudioPlayerService {
       this.startProgressTimer();
       this.resumeAmbientSoundscape();
     } else {
-      const track = this.activeTrack();
-      if (track) {
-        this.playSynthesizedTrack(track);
-      }
+      this.isPlaying.set(false);
     }
   }
 

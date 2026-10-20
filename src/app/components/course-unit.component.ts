@@ -88,7 +88,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
 
             @for (media of audioMedia(); track media.key) {
               <section class="space-y-2 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800">
-                <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ media.key }}</h2>
+                <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ media.label }}</h2>
                 <audio class="w-full" controls preload="metadata" [src]="media.url">
                   Your browser does not support audio playback.
                 </audio>
@@ -110,9 +110,9 @@ export class CourseUnitComponent implements OnInit {
   readonly sponsor = signal<SponsorProfileDocument | null>(null);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
-  readonly audioMedia = signal<{key: string; url: string}[]>([]);
-  readonly videoMedia = signal<{key: string; url: string}[]>([]);
-  readonly selectedVideo = signal<{key: string; url: string} | null>(null);
+  readonly audioMedia = signal<{key: string; label: string; url: string}[]>([]);
+  readonly videoMedia = signal<{key: string; label: string; url: string}[]>([]);
+  readonly selectedVideo = signal<{key: string; label: string; url: string} | null>(null);
   readonly videoLoading = signal(false);
   readonly videoLoadError = signal(false);
   private readonly videoPlayer = viewChild<ElementRef<HTMLVideoElement>>('videoPlayer');
@@ -170,15 +170,17 @@ export class CourseUnitComponent implements OnInit {
 
   private async resolveMedia(
     storagePaths: Record<string, string>
-  ): Promise<{key: string; url: string}[]> {
+  ): Promise<{key: string; label: string; url: string}[]> {
     const media = await Promise.all(Object.entries(storagePaths ?? {}).map(async ([key, storagePath]) => {
       const url = await this.firebaseService.getCourseMediaUrlFromPath(storagePath);
-      return {key, url};
+      const mentor = key.replace(/[-_]+/g, ' ').trim().replace(/^(mentor\s*)/i, '');
+      const language = /sophie/i.test(key) ? 'English' : /omari/i.test(key) ? 'Swahili' : '';
+      return {key, label: language ? `${mentor} - ${language}` : mentor, url};
     }));
     return media;
   }
 
-  selectVideo(media: {key: string; url: string}): void {
+  selectVideo(media: {key: string; label: string; url: string}): void {
     if (this.selectedVideo()?.url === media.url) return;
     this.videoLoadError.set(false);
     this.videoLoading.set(true);
