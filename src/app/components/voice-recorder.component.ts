@@ -71,7 +71,7 @@ import {VoiceJournal} from '../models/app.models';
                 Voice Reflection Ready ({{ formatTimer(recordingSeconds()) }})
               </p>
               <!-- Native Player preview -->
-              <audio [src]="recordedAudioUrl()" controls class="w-full h-10"></audio>
+              <audio [src]="recordedAudioUrl()" controls preload="metadata" class="w-full h-10"></audio>
             </div>
           } @else {
             <div class="text-center py-2">
