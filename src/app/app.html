@@ -236,16 +236,17 @@
     <!-- ========================================== -->
     @if (activeTab() === 'daily-lyft') {
   <div id="tab-daily-lyft-content" class="flex flex-col gap-6 animate-in fade-in duration-150">
-  <section aria-labelledby="message-of-hope-video-title" class="order-1 overflow-hidden rounded-3xl bg-black">
+  <section aria-labelledby="message-of-hope-video-title" class="order-1 mt-6 overflow-hidden rounded-3xl bg-black">
           <h2 id="message-of-hope-video-title" class="sr-only">Message of Hope video</h2>
           <video
             class="block aspect-video w-full object-cover"
             [src]="hopeVideoUrl() || ''"
             title="Message of Hope video"
-            preload="auto"
+            preload="metadata"
             autoplay
   muted
   playsinline
+  webkit-playsinline
   controls
   (canplay)="playMainVideo($event)"
   ></video>

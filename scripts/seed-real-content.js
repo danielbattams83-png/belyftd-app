@@ -212,7 +212,7 @@ async function main() {
           destination: objectPath,
           metadata: {
             contentType: extension === 'mp3' ? 'audio/mpeg' : 'video/mp4',
-            cacheControl: 'private, no-store',
+            cacheControl: 'public, max-age=31536000',
           },
         });
         map[label] = objectPath;

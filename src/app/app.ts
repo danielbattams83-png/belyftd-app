@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal, effect} from '@angular/core';
+import {afterNextRender, ChangeDetectionStrategy, Component, computed, inject, signal, effect} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
@@ -158,6 +158,17 @@ export class App {
   }
 
   constructor() {
+    afterNextRender(() => {
+      setTimeout(() => {
+        const splash = document.getElementById('app-splash-screen');
+        if (splash) {
+          splash.style.transition = 'opacity 0.4s ease';
+          splash.style.opacity = '0';
+          setTimeout(() => splash.remove(), 400);
+        }
+      }, 1200);
+    });
+
     effect(() => {
       const authLoading = this.firebaseService.authLoading();
       this.firebaseService.currentUser();

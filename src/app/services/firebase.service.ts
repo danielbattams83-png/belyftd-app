@@ -30,7 +30,7 @@ import {
   Auth,
   User
 } from 'firebase/auth';
-import { getStorage, ref, getDownloadURL, getBlob, listAll, FirebaseStorage, StorageReference } from 'firebase/storage';
+import { getStorage, ref, getDownloadURL, listAll, FirebaseStorage, StorageReference } from 'firebase/storage';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { environment } from '../../environments/environment';
 import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDocument, ModuleUnitDocument, PartnershipDocument, SubscriptionTier } from '../models/firestore.models';
@@ -200,7 +200,7 @@ export class FirebaseService {
     return profile.exists() ? profile.data() as SponsorProfileDocument : null;
   }
 
-  async getCourseMediaObjectUrl(
+  async getCourseMediaUrl(
     moduleId: string,
     unitId: string,
     mediaType: CourseMediaType,
@@ -208,10 +208,10 @@ export class FirebaseService {
     extension: string
   ): Promise<string> {
     const path = buildCourseMediaStoragePath(moduleId, unitId, mediaType, avatarId, extension);
-    return this.getCourseMediaObjectUrlFromPath(path);
+    return this.getCourseMediaUrlFromPath(path);
   }
 
-  async getCourseMediaObjectUrlFromPath(storagePath: string): Promise<string> {
+  async getCourseMediaUrlFromPath(storagePath: string): Promise<string> {
     const bucketUriPrefix = `gs://${environment.firebase.storageBucket}/`;
     const path = storagePath.startsWith(bucketUriPrefix)
       ? storagePath.slice(bucketUriPrefix.length)
@@ -236,12 +236,14 @@ export class FirebaseService {
       fileName.slice(0, extensionSeparator),
       fileName.slice(extensionSeparator + 1)
     );
-    if (!this.storage && this.app) {
-      this.storage = getStorage(this.app, `gs://${environment.firebase.storageBucket}`);
-    }
-    if (!this.storage) throw new Error('Firebase Storage is unavailable.');
-    const blob = await getBlob(ref(this.storage, normalizedPath));
-    return URL.createObjectURL(blob);
+    const user = this.currentUser();
+    if (!user) throw new Error('Sign in before requesting course media.');
+    const getSignedUrl = httpsCallable<
+      {moduleId: string; unitId: string; mediaType: CourseMediaType; storagePath: string},
+      {url: string}
+    >(getFunctions(this.app ?? undefined, 'us-central1'), 'getCourseMediaUrl');
+    const result = await getSignedUrl({moduleId, unitId, mediaType, storagePath: normalizedPath});
+    return result.data.url;
   }
 
   async getFirstStorageDownloadUrl(paths: string[]): Promise<string | null> {

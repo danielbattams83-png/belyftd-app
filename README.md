@@ -23,7 +23,7 @@ To run the server-side rendered Node server with local environment variables, bu
 
 ## Tiered course content
 
-Course units are stored at `modules/{moduleId}/units/{unitId}` with `minTier` (`1`, `2`, or `3`), `textContent`, and `audioUrls` / `videoUrls` maps keyed by avatar ID. Each media map value must be a Storage object path such as `course-content/{moduleId}/{unitId}/audio/{avatarId}.mp3` (or the corresponding `gs://` URI), not a tokenized download URL. The unit player fetches media through the authenticated Firebase Storage SDK so Storage rules can check access for every download.
+Course units are stored at `modules/{moduleId}/units/{unitId}` with `minTier` (`1`, `2`, or `3`), `textContent`, and `audioUrls` / `videoUrls` maps keyed by avatar ID. Each media map value must be a Storage object path such as `course-content/{moduleId}/{unitId}/audio/{avatarId}.mp3` (or the corresponding `gs://` URI), not a tokenized download URL. Before playback, the `getCourseMediaUrl` callable verifies the user's tier and that the requested object belongs to the unit, then issues a V4 signed URL valid for ten minutes so native media players can stream and seek without downloading the entire file first. The signed URL is a temporary bearer credential; keep it out of logs and third-party analytics.
 
 Set the numeric `subscriptionTier` custom claim (`1`, `2`, or `3`) on authenticated users from a trusted server. The course-unit route guard checks the claim, and Firestore and Storage rules independently enforce the unit's `minTier`. The deployment must publish both `firestore.rules` and `storage.rules`.
 
@@ -43,4 +43,4 @@ To write the real lesson files, upload matched media, and seed the shared Friday
 npm run seed:real-content -- --project belyft-d-app --apply
 ```
 
-Set `LYFTD_SITE_FILES` if the local `Site Files` folder is not at its default mapped-drive path. Deploy the callable function and Firestore/Storage rules to `belyft-d-app` before attendees redeem codes. Course media is stored as protected Storage object paths, not public tokenized URLs, so tier rules remain effective.
+Set `LYFTD_SITE_FILES` if the local `Site Files` folder is not at its default mapped-drive path. Deploy the callable function and Firestore/Storage rules to `belyft-d-app` before attendees redeem codes. Course media is stored as protected Storage object paths, not public tokenized URLs. The ingestion metadata allows long-lived caching, while signed playback responses override caching to private for five minutes so shared caches cannot retain access beyond the short-lived URL. The Cloud Functions runtime service account needs permission to sign URLs (`roles/iam.serviceAccountTokenCreator` on its own service account) in addition to its existing object read permissions.
