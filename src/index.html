@@ -6,12 +6,12 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content="Lyftd is an uplifting mobile-first mentorship PWA for youth, featuring daily audio pep-talks, mentor matching, goal tracking, and safe community support." />
-    <meta name="theme-color" content="#4F46E5" />
+    <meta name="theme-color" content="#1A9BEF" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Lyftd" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icon-512.png" />
     
     <!-- Distinctive Typography: Outfit (Display) + Plus Jakarta Sans (Body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -20,9 +20,50 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
     <link rel="icon" type="image/png" href="/icon-192.png" />
+
+    <style>
+      /* Zero-Latency Animated Splash Screen Styles */
+      #app-splash-screen {
+        position: fixed;
+        inset: 0;
+        background-color: #333333;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        font-family: 'Outfit', sans-serif;
+      }
+
+      .splash-logo {
+        width: 110px;
+        height: 110px;
+        animation: pulseGlow 1.8s ease-in-out infinite;
+      }
+
+      @keyframes pulseGlow {
+        0%, 100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 0px rgba(26, 155, 239, 0));
+        }
+        50% {
+          transform: scale(1.06);
+          filter: drop-shadow(0 0 16px rgba(26, 155, 239, 0.6));
+        }
+      }
+    </style>
   </head>
-  <body class="antialiased select-none font-sans">
+  <body class="antialiased select-none font-sans bg-[#333333] text-white">
+    <!-- Animated Loading Splash Screen (Hides automatically when Angular loads) -->
+    <div id="app-splash-screen">
+      <svg class="splash-logo" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="256" cy="110" r="50" fill="#1A9BEF" />
+        <path d="M190 145 C220 180, 292 180, 322 145 C350 175, 400 170, 380 220 L275 350 L275 500 L237 500 L237 350 L132 220 C112 170, 162 175, 190 145 Z" fill="#1A9BEF" />
+      </svg>
+    </div>
+
     <app-root></app-root>
+
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
