@@ -31,7 +31,7 @@ import {
 } from 'firebase/auth';
 import { getStorage, ref, getDownloadURL, listAll, FirebaseStorage, StorageReference } from 'firebase/storage';
 import { environment } from '../../environments/environment';
-import { CourseDocument, DailyAffirmationDocument, MentorDocument, PartnershipDocument } from '../models/firestore.models';
+import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDocument, PartnershipDocument } from '../models/firestore.models';
 
 export interface UserRegistrationData {
   email: string;
@@ -71,6 +71,7 @@ export interface UserProfileDocument {
   totalLyftsSent?: number;
   completedCourses: string[];
   role: 'student' | 'mentor' | 'admin';
+  subscriptionTier?: 1 | 2 | 3;
   createdAt: string | unknown;
   createdDate?: Date | string | unknown;
   updatedAt: string | unknown;
@@ -136,6 +137,16 @@ export class FirebaseService {
     this._initFirebase();
     this._loadLocalStorageFallback();
     this._checkUrlForCourseDeepLink();
+  }
+
+  async getCourseUnit(moduleId: string, unitId: string): Promise<CourseUnitDocument | null> {
+    try {
+      const snapshot = await getDoc(doc(this._requireFirestore(), 'modules', moduleId, 'units', unitId));
+      return snapshot.exists() ? {id: snapshot.id, moduleId, unitId, ...(snapshot.data() as Omit<CourseUnitDocument, 'id' | 'moduleId' | 'unitId'>)} : null;
+    } catch (error) {
+      console.warn('[v0] Unable to load course unit:', error);
+      return null;
+    }
   }
 
   async getStorageDownloadUrl(path: string): Promise<string | null> {
