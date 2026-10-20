@@ -3,16 +3,20 @@ import type {Course, Mentor} from './app.models';
 export type CourseDocument = Course;
 
 export type CourseMediaUrls = Record<string, string>;
+export type SubscriptionTier = 1 | 2 | 3;
 
-export interface CourseUnitDocument {
-  id?: string;
-  moduleId?: string;
-  unitId?: string;
-  title: string;
-  minTier: 1 | 2 | 3;
+export interface ModuleUnitDocument {
+  id: string;
+  title?: string;
+  minTier: SubscriptionTier;
   textContent: string;
   audioUrls: CourseMediaUrls;
   videoUrls: CourseMediaUrls;
+}
+
+export interface CourseUnitDocument extends ModuleUnitDocument {
+  moduleId?: string;
+  unitId?: string;
 }
 
 export interface DailyAffirmationDocument {

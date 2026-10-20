@@ -13,15 +13,26 @@ service firebase.storage {
       allow write: if request.auth != null;
     }
 
-    // Course media follows course-content/{moduleId}/{unitId}/{mediaType}/{avatarId}.{ext}.
-    // The subscriptionTier custom claim is issued by trusted backend code.
-    match /course-content/{moduleId}/{unitId}/{mediaType}/{avatarId} {
-      allow read: if request.auth != null
-        && request.auth.token.subscriptionTier is number
-        && request.auth.token.subscriptionTier >= 1
-        && (mediaType == 'audio' || mediaType == 'video');
-      allow write: if request.auth != null
-        && request.auth.token.admin == true;
+    match /course-content/{moduleId}/{unitId}/{mediaType}/{fileName} {
+      function unitMinTier() {
+        return firestore.get(
+          /databases/(default)/documents/modules/$(moduleId)/units/$(unitId)
+        ).data.minTier;
+      }
+
+      function hasRequiredTier(minTier) {
+        return request.auth != null
+          && request.auth.token.subscriptionTier is int
+          && request.auth.token.subscriptionTier in [1, 2, 3]
+          && minTier is int
+          && minTier in [1, 2, 3]
+          && request.auth.token.subscriptionTier >= minTier;
+      }
+
+      allow read: if mediaType in ['audio', 'video']
+        && fileName.matches('^[A-Za-z0-9_.-]+\\.[A-Za-z0-9]+$')
+        && hasRequiredTier(unitMinTier());
+      allow write: if false;
     }
 
     // Keep all other Storage paths private by default.

@@ -12,6 +12,13 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    function hasSubscriptionTier(minTier) {
+      return isAuthenticated()
+        && request.auth.token.subscriptionTier is int
+        && request.auth.token.subscriptionTier in [1, 2, 3]
+        && request.auth.token.subscriptionTier >= minTier;
+    }
+
     // User profile access rules
     match /users/{userId} {
       allow read, write: if isOwner(userId);
@@ -27,10 +34,14 @@ service cloud.firestore {
     }
 
     match /modules/{moduleId}/units/{unitId} {
-      allow read: if isAuthenticated()
-        && request.auth.token.subscriptionTier is number
-        && request.auth.token.subscriptionTier >= resource.data.minTier;
-      allow write: if request.auth.token.admin == true;
+      allow read: if resource.data.minTier is int
+        && resource.data.minTier in [1, 2, 3]
+        && hasSubscriptionTier(resource.data.minTier);
+    }
+
+    match /sponsorProfiles/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false;
     }
 
     match /dailyAffirmations/{affirmationId} {

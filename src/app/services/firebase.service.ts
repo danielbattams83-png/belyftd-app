@@ -26,12 +26,15 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  getIdTokenResult,
   Auth,
   User
 } from 'firebase/auth';
-import { getStorage, ref, getDownloadURL, listAll, FirebaseStorage, StorageReference } from 'firebase/storage';
+import { getStorage, ref, getDownloadURL, getBlob, listAll, FirebaseStorage, StorageReference } from 'firebase/storage';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { environment } from '../../environments/environment';
-import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDocument, PartnershipDocument } from '../models/firestore.models';
+import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDocument, ModuleUnitDocument, PartnershipDocument, SubscriptionTier } from '../models/firestore.models';
+import {buildCourseMediaStoragePath, CourseMediaType} from './course-assets';
 
 export interface UserRegistrationData {
   email: string;
@@ -86,6 +89,13 @@ export interface UserOnboardingData {
   selectedMentorIds: string[];
 }
 
+export interface SponsorProfileDocument {
+  orgId: string;
+  sponsorName: string;
+  subscriptionTier: SubscriptionTier;
+  codeId: string;
+}
+
 export const COUNTRY_OPTIONS = [
   { name: 'United States', code: 'US', dialCode: '+1', flag: '🇺🇸' },
   { name: 'Australia', code: 'AU', dialCode: '+61', flag: '🇦🇺' },
@@ -117,9 +127,14 @@ export class FirebaseService {
   private db: Firestore | null = null;
   private auth: Auth | null = null;
   private storage: FirebaseStorage | null = null;
+  private resolveAuthStateReady!: () => void;
+  private readonly authStateReady = new Promise<void>(resolve => {
+    this.resolveAuthStateReady = resolve;
+  });
 
   // Reactive state signals
   readonly currentUser = signal<User | null>(null);
+  readonly subscriptionTier = signal<SubscriptionTier | 0>(0);
   readonly userProfile = signal<UserProfileDocument | null>(null);
   readonly hasRegisteredUser = signal<boolean>(false);
   readonly isLoggedIn = computed(() => this.currentUser() !== null);
@@ -160,6 +175,73 @@ export class FirebaseService {
       console.warn('[v0] Firebase media URL unavailable:', path, error);
       return null;
     }
+  }
+
+  waitForAuthStateReady(): Promise<void> {
+    return this.authStateReady;
+  }
+
+  async redeemSponsorCode(code: string): Promise<SponsorProfileDocument> {
+    const user = this.currentUser();
+    if (!user) throw new Error('Sign in before redeeming a sponsor code.');
+
+    const redeem = httpsCallable<
+      {code: string},
+      SponsorProfileDocument
+    >(getFunctions(this.app ?? undefined, 'us-central1'), 'redeemSponsorCode');
+    const result = await redeem({code: code.trim().toUpperCase()});
+    await user.getIdToken(true);
+    await this.getCurrentSubscriptionTier(true);
+    return result.data;
+  }
+
+  async getSponsorProfile(uid: string): Promise<SponsorProfileDocument | null> {
+    const profile = await getDoc(doc(this._requireFirestore(), 'sponsorProfiles', uid));
+    return profile.exists() ? profile.data() as SponsorProfileDocument : null;
+  }
+
+  async getCourseMediaObjectUrl(
+    moduleId: string,
+    unitId: string,
+    mediaType: CourseMediaType,
+    avatarId: string,
+    extension: string
+  ): Promise<string> {
+    const path = buildCourseMediaStoragePath(moduleId, unitId, mediaType, avatarId, extension);
+    return this.getCourseMediaObjectUrlFromPath(path);
+  }
+
+  async getCourseMediaObjectUrlFromPath(storagePath: string): Promise<string> {
+    const bucketUriPrefix = `gs://${environment.firebase.storageBucket}/`;
+    const path = storagePath.startsWith(bucketUriPrefix)
+      ? storagePath.slice(bucketUriPrefix.length)
+      : storagePath;
+    const [root, moduleId, unitId, mediaType, fileName, ...extraSegments] = path.split('/');
+    const extensionSeparator = fileName?.lastIndexOf('.') ?? -1;
+    if (
+      root !== 'course-content' ||
+      !moduleId ||
+      !unitId ||
+      !fileName ||
+      extraSegments.length > 0 ||
+      (mediaType !== 'audio' && mediaType !== 'video') ||
+      extensionSeparator < 1
+    ) {
+      throw new Error('Tiered course media must use the configured course-content Storage path.');
+    }
+    const normalizedPath = buildCourseMediaStoragePath(
+      moduleId,
+      unitId,
+      mediaType,
+      fileName.slice(0, extensionSeparator),
+      fileName.slice(extensionSeparator + 1)
+    );
+    if (!this.storage && this.app) {
+      this.storage = getStorage(this.app, `gs://${environment.firebase.storageBucket}`);
+    }
+    if (!this.storage) throw new Error('Firebase Storage is unavailable.');
+    const blob = await getBlob(ref(this.storage, normalizedPath));
+    return URL.createObjectURL(blob);
   }
 
   async getFirstStorageDownloadUrl(paths: string[]): Promise<string | null> {
@@ -224,22 +306,34 @@ export class FirebaseService {
       onAuthStateChanged(this.auth, async (user) => {
         this.currentUser.set(user);
         if (user) {
+          try {
+            await this.getCurrentSubscriptionTier();
+          } catch (error) {
+            this.subscriptionTier.set(0);
+            console.error('[FirebaseService] Unable to read subscription tier claim:', error);
+          }
           void this._persistActiveSession(user);
           await this._fetchUserProfile(user.uid);
         } else {
+          this.subscriptionTier.set(0);
           this.hasRegisteredUser.set(false);
           this.userProfile.set(null);
           this._clearActiveSession();
         }
-        this.authLoading.set(false);
+        this._finishAuthLoading();
       });
     } catch (err: unknown) {
       console.warn('[FirebaseService] Firebase initialization notice, activating LocalStorage fallback:', err);
       this.isConnected.set(false);
       this.isUsingLocalStorageFallback.set(true);
-      this.authLoading.set(false);
+      this._finishAuthLoading();
       this._loadLocalStorageFallback();
     }
+  }
+
+  private _finishAuthLoading(): void {
+    this.authLoading.set(false);
+    this.resolveAuthStateReady();
   }
 
   async saveUserProfile(userData: UserProfileDocument): Promise<void> {
@@ -387,6 +481,42 @@ export class FirebaseService {
     const courseDoc = await getDoc(doc(this._requireFirestore(), 'courses', id));
     return courseDoc.exists()
       ? { ...courseDoc.data(), id: courseDoc.id } as CourseDocument
+      : null;
+  }
+
+  async getCurrentSubscriptionTier(forceRefresh = false): Promise<SubscriptionTier | 0> {
+    const user = this.currentUser();
+    if (!user) {
+      this.subscriptionTier.set(0);
+      return 0;
+    }
+
+    const claim = (await getIdTokenResult(user, forceRefresh)).claims['subscriptionTier'];
+    const tier = claim === 1 || claim === 2 || claim === 3 ? claim : 0;
+    this.subscriptionTier.set(tier);
+    return tier;
+  }
+
+  async getModuleUnits(moduleId: string): Promise<ModuleUnitDocument[]> {
+    if (!this.currentUser()) return [];
+
+    const tier = await this.getCurrentSubscriptionTier();
+    if (!tier) return [];
+    const units = await getDocs(query(
+      collection(this._requireFirestore(), 'modules', moduleId, 'units'),
+      where('minTier', '<=', tier)
+    ));
+    return units.docs.map(unitDoc => ({
+      ...unitDoc.data(),
+      id: unitDoc.id
+    } as ModuleUnitDocument));
+  }
+
+  async getModuleUnit(moduleId: string, unitId: string): Promise<ModuleUnitDocument | null> {
+    if (!this.currentUser()) return null;
+    const unitDoc = await getDoc(doc(this._requireFirestore(), 'modules', moduleId, 'units', unitId));
+    return unitDoc.exists()
+      ? { ...unitDoc.data(), id: unitDoc.id } as ModuleUnitDocument
       : null;
   }
 

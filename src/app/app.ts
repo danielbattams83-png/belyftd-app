@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, signal, effect} fr
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink, RouterOutlet} from '@angular/router';
 import {AudioPlayerService} from './services/audio-player.service';
 import {MentorshipDataService} from './services/mentorship-data.service';
 import {ThemeAccessibilityService} from './services/theme-accessibility.service';
@@ -14,10 +14,9 @@ import {AudioTrack, Mentor, GoalQuest, CommunityPost, VoiceJournal} from './mode
 
 interface HopeUnit {
   id: string;
+  moduleId: string;
   title: string;
   mentor: string;
-  type: 'video' | 'audio';
-  url: string;
   avatar: string;
 }
 import {AudioPlayerComponent} from './components/audio-player.component';
@@ -43,6 +42,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     ReactiveFormsModule,
     MatIconModule,
     RouterLink,
+    RouterOutlet,
     AudioPlayerComponent,
     VoiceRecorderComponent,
     MentorChatDialogComponent,
@@ -63,6 +63,7 @@ export class App {
   readonly themeService = inject(ThemeAccessibilityService);
   readonly aiService = inject(AiMentorService);
   readonly firebaseService = inject(FirebaseService);
+  private readonly router = inject(Router);
   readonly pwaService = inject(PwaInstallService);
   readonly hopeVideoUrl = signal<string | null>(null);
   readonly hopeUnits = signal<HopeUnit[]>([]);
@@ -80,22 +81,7 @@ export class App {
   }
 
   playHopeUnit(unit: HopeUnit): void {
-    if (unit.type !== 'audio') return;
-    this.audioPlayer.playTrack({
-      id: unit.id,
-      title: unit.title,
-      speaker: unit.mentor,
-      speakerRole: 'Hope module mentor',
-      speakerAvatar: unit.avatar,
-      category: 'Mindset',
-      duration: 'Audio lesson',
-      durationSec: 60,
-      audioUrl: unit.url,
-      transcript: unit.title,
-      moodTags: ['Hope'],
-      likes: 0,
-      isFavorite: false,
-    });
+    void this.router.navigate(['/modules', unit.moduleId, 'units', unit.id]);
   }
 
   selectTab(tab: MainTab): void {
@@ -142,8 +128,6 @@ export class App {
   });
 
     private async loadHopeModule(): Promise<void> {
-    const videoFiles = await this.firebaseService.listStorageFiles('Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Video');
-    const audioFiles = await this.firebaseService.listStorageFiles('Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio');
     const heroPath = 'App_Videos/Hero-Hope';
     const heroUrl = await this.firebaseService.getFirstStorageDownloadUrl([
       heroPath,
@@ -151,32 +135,38 @@ export class App {
       'App_Videos/Hero-Hope.mov',
       'App_Videos/Hero-Hope.webm',
     ]);
-    const moduleHeroVideo = videoFiles.find((file) => /hero[-_ ]hope/i.test(file.name)) ?? videoFiles[0];
-    const heroVideo = heroUrl
-      ? {name: 'Hero-Hope', path: heroPath, url: heroUrl}
-      : moduleHeroVideo;
-    if (heroVideo) this.hopeVideoUrl.set(heroVideo.url);
+    if (heroUrl) this.hopeVideoUrl.set(heroUrl);
 
     const avatarFor = (mentor: string): string => mentor.toLowerCase().includes('hannah')
       ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=160&auto=format&fit=crop&q=80'
       : mentor.toLowerCase().includes('steve')
         ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&auto=format&fit=crop&q=80'
         : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80';
-    const parseUnit = (file: {name: string; path: string; url: string}, type: 'video' | 'audio'): HopeUnit => {
-      const withoutExtension = file.name.replace(/\\.(mp3|mp4|mov|webm|m4a)$/i, '');
-      const match = withoutExtension.match(/^\\s*(\\d+)[-_ ]+(.+?)[-_ ]+([^ -]+)\\s*$/);
-      const mentor = match?.[3] || (file.path.match(/Mentor\\s*[-_ ]\\s*([^/]+)/i)?.[1] ?? 'Mentor');
-      return {id: file.path, title: (match?.[2] || withoutExtension).replace(/[-_]+/g, ' ').trim(), mentor, type, url: file.url, avatar: avatarFor(mentor)};
-    };
-    const units = [
-      ...(heroVideo ? [parseUnit(heroVideo, 'video')] : []),
-      ...audioFiles.filter((file) => /\\.(mp3|m4a|wav|ogg)$/i.test(file.name)).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true})).map((file) => parseUnit(file, 'audio')),
-    ];
-    this.hopeUnits.set(units);
+    const units = await this.firebaseService.getModuleUnits('hope');
+    this.hopeUnits.set(units.flatMap(unit => {
+      const firstAudio = Object.entries(unit.audioUrls ?? {})[0];
+      if (!firstAudio) return [];
+      const [mentor] = firstAudio;
+      return [{
+        id: unit.id,
+        moduleId: 'hope',
+        title: unit.title || unit.id,
+        mentor,
+        avatar: avatarFor(mentor),
+      }];
+    }));
   }
 
   constructor() {
-    void this.loadHopeModule();
+    effect(() => {
+      const authLoading = this.firebaseService.authLoading();
+      this.firebaseService.currentUser();
+      this.firebaseService.subscriptionTier();
+      if (typeof window === 'undefined' || authLoading) return;
+      void this.loadHopeModule().catch(error => {
+        console.error('[App] Unable to load course units:', error);
+      });
+    });
 
     effect(() => {
       const authLoading = this.firebaseService.authLoading();
