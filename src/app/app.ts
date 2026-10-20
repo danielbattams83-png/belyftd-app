@@ -159,12 +159,14 @@ export class App {
 
   constructor() {
     afterNextRender(() => {
-      const splash = document.getElementById('app-splash-screen');
-      if (splash) {
-        splash.style.transition = 'opacity 0.4s ease';
-        splash.style.opacity = '0';
-        setTimeout(() => splash.remove(), 400);
-      }
+      setTimeout(() => {
+        const splash = document.getElementById('app-splash-screen');
+        if (splash) {
+          splash.style.transition = 'opacity 0.4s ease';
+          splash.style.opacity = '0';
+          setTimeout(() => splash.remove(), 400);
+        }
+      }, 1200);
     });
 
     effect(() => {
