@@ -1,9 +1,11 @@
+import {canAccessModule} from '../services/tier.service';
+import {AudioPlayerService} from '../services/audio-player.service';
 import {productionMentorForLabel} from '../services/production-mentors';
 import {MentorAudioComponent} from './mentor-audio.component';
 import {AudioTrack} from '../models/app.models';
 import {parseMentorLabel, isProductionMentorVariant} from '../services/course-assets';
 import {BackButtonComponent} from './back-button.component';
-import {ChangeDetectionStrategy, Component, ElementRef, OnInit, effect, inject, signal, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, OnInit, OnDestroy, computed, effect, inject, signal, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
@@ -41,7 +43,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
               <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ lesson.title || lesson.id }}</h1>
             </header>
 
-            @if (videoMedia().length > 0) {
+            @if (hasMediaAccess() && videoMedia().length > 0) {
               <section class="space-y-3">
                 <div class="flex flex-wrap gap-2" aria-label="Choose video avatar or language">
                   @for (media of videoMedia(); track media.path) {
@@ -77,18 +79,13 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
                         <span class="h-10 w-10 animate-spin rounded-full border-4 border-white/35 border-t-white"></span>
                       </div>
                     }
-                    @if (videoLoadError()) {
-                      <p class="absolute inset-x-4 bottom-4 rounded-lg bg-black/75 px-3 py-2 text-center text-sm text-white" role="alert">
-                        This video could not be loaded. Please try selecting it again.
-                      </p>
-                    }
                     <span class="sr-only">{{ activeVideo.key }}</span>
                   </div>
                 }
               </section>
             }
 
-            <app-mentor-audio [tracks]="audioTracks()" />
+            @if (hasMediaAccess() && audioTracks().length) { <app-mentor-audio [tracks]="audioTracks()" /> }
 
             <div class="whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-200">{{ lesson.textContent }}</div>
           </article>
@@ -97,9 +94,20 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
     </section>
   `,
 })
-export class CourseUnitComponent implements OnInit {
+export class CourseUnitComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly firebaseService = inject(FirebaseService);
+
+  private readonly audioPlayer = inject(AudioPlayerService);
+  readonly hasMediaAccess = computed(() => canAccessModule(this.firebaseService.subscriptionTier(), this.route.snapshot.paramMap.get('moduleId') ?? ''));
+  private destroyed = false;
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
+    const video = this.videoPlayer()?.nativeElement;
+    if (video) { video.pause(); video.currentTime = 0; video.removeAttribute('src'); video.load(); }
+    this.audioPlayer.close();
+  }
 
   readonly unit = signal<ModuleUnitDocument | null>(null);
   readonly sponsor = signal<SponsorProfileDocument | null>(null);
@@ -118,6 +126,7 @@ export class CourseUnitComponent implements OnInit {
       const player = this.videoPlayer()?.nativeElement;
       if (!media || !player) return;
 
+      if (!this.hasMediaAccess()) { player.pause(); player.currentTime = 0; return; }
       player.src = media.url;
       player.load();
     });
@@ -141,7 +150,8 @@ export class CourseUnitComponent implements OnInit {
       if (!unit) {
         this.errorMessage.set('This lesson could not be found.');
       } else {
-        const [videoMedia, audioMedia] = await Promise.all([this.resolveMedia(unit.videoUrls, moduleId, unitId, 'video'), this.resolveMedia(unit.audioUrls, moduleId, unitId, 'audio')]);
+        const [videoMedia, audioMedia] = this.hasMediaAccess() ? await Promise.all([this.resolveMedia(unit.videoUrls, moduleId, unitId, 'video'), this.resolveMedia(unit.audioUrls, moduleId, unitId, 'audio')]) : [[], []];
+        if (this.destroyed) return;
         this.audioTracks.set(audioMedia.flatMap(({key: label, path}) => {
           if (!path.startsWith(`course-content/${moduleId}/${unitId}/audio/`)) return [];
           const {mentorName, language} = parseMentorLabel(label);
@@ -200,6 +210,8 @@ export class CourseUnitComponent implements OnInit {
 
   handleVideoError(): void {
     this.videoLoading.set(false);
-    this.videoLoadError.set(true);
+    const failed = this.selectedVideo()?.url;
+    this.videoMedia.update(media => media.filter(item => item.url !== failed));
+    this.selectedVideo.set(this.videoMedia()[0] ?? null);
   }
 }

@@ -1,3 +1,4 @@
+import {canAccessModule} from './tier.service';
 import {PRODUCTION_MENTORS} from './production-mentors';
 import { computed, Injectable, signal } from '@angular/core';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
@@ -75,7 +76,7 @@ export interface UserProfileDocument {
   totalLyftsSent?: number;
   completedCourses: string[];
   role: 'student' | 'mentor' | 'admin';
-  subscriptionTier?: 1 | 2 | 3;
+  subscriptionTier?: SubscriptionTier;
   createdAt: string | unknown;
   createdDate?: Date | string | unknown;
   updatedAt: string | unknown;
@@ -495,7 +496,7 @@ export class FirebaseService {
     }
 
     const claim = (await getIdTokenResult(user, forceRefresh)).claims['subscriptionTier'];
-    const tier = claim === 1 || claim === 2 || claim === 3 ? claim : 0;
+    const tier = claim === 1 || claim === 2 || claim === 3 || claim === 4 ? claim : 0;
     this.subscriptionTier.set(tier);
     return tier;
   }
@@ -504,11 +505,8 @@ export class FirebaseService {
     if (!this.currentUser()) return [];
 
     const tier = await this.getCurrentSubscriptionTier();
-    if (!tier) return [];
-    const units = await getDocs(query(
-      collection(this._requireFirestore(), 'modules', moduleId, 'units'),
-      where('minTier', '<=', tier)
-    ));
+    if (!canAccessModule(tier, moduleId)) return [];
+    const units = await getDocs(collection(this._requireFirestore(), 'modules', moduleId, 'units'));
     return units.docs.map(unitDoc => ({
       ...unitDoc.data(),
       id: unitDoc.id

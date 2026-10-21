@@ -9,7 +9,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
   imports: [CommonModule, MatIconModule],
   host: {'(document:keydown.escape)': 'player.close()'},
   template: `
-    @if (player.activeTrack()) {
+    @if (player.hasPlayableMedia()) {
       <section id="mini-audio-player" aria-label="Audio player"
         class="fixed bottom-20 md:bottom-6 left-3 right-3 max-w-lg mx-auto z-[60] space-y-3 rounded-3xl border border-slate-700 bg-[#333333] p-4 text-white shadow-2xl">
         <div class="flex items-start gap-3">
@@ -24,7 +24,6 @@ import {AudioPlayerService} from '../services/audio-player.service';
             <mat-icon>close</mat-icon>
           </button>
         </div>
-        @if (player.errorMessage()) { <p role="alert" class="text-xs leading-relaxed text-rose-200">{{ player.errorMessage() }}</p> }
         @if (player.isLoading()) { <p role="status" class="text-xs text-slate-300">Loading recording...</p> }
         @if (player.activeTrack()?.audioUrl) {
           <input type="range" min="0" step="0.1" [max]="player.duration()" [value]="player.currentTime()"
@@ -80,8 +79,6 @@ import {AudioPlayerService} from '../services/audio-player.service';
               </button>
               </div>
             </div>
-
-            @if (player.errorMessage()) { <p role="alert" class="pt-3 text-sm text-rose-200">{{ player.errorMessage() }}</p> }
             <!-- Speaker Hero Art & Waveform -->
             <div class="py-6 flex flex-col items-center text-center">
               <div class="relative w-28 h-28 rounded-3xl overflow-hidden shadow-lg border-2 border-[#1A9BEF]/50 mb-4">

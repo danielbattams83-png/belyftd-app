@@ -23,7 +23,9 @@ describe('Mentor recording selectors', () => {
     component.playRecording.subscribe(play);
     expect(component.modules().length).toBe(2);
     expect(component.language()).toBe('English');
-    expect(component.languages()).toEqual(['English']);
+    expect(component.moduleId()).toBe('module-5');
+    expect(component.lessonId()).toBe('unit-1');
+    expect(component.languages()).toEqual(['English', 'Swahili']);
     choose('Module', 'module-5');
     expect(component.lessons().map(lesson => lesson.id)).toEqual(['unit-1', 'unit-2', 'unit-3']);
     choose('Lesson', 'unit-3');
@@ -58,4 +60,33 @@ describe('Mentor recording selectors', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('button')).toBeNull();
     expect((fixture.nativeElement as HTMLElement).querySelector('select')).toBeNull();
   });
+  it('defaults Sophie to a complete pair without automatically playing it', () => {
+    const {component} = setup('Sophie', true);
+    expect(component.moduleId()).toBe('module-5');
+    expect(component.lessonId()).toBe('unit-1');
+    expect(component.languages()).toEqual(['Chinese', 'English']);
+    expect(component.language()).toBe('English');
+  });
+
+  it('reselects a complete default when asynchronous tracks arrive', () => {
+    const {fixture, component} = setup('Omari', true);
+    const omari = VERIFIED_MENTOR_RECORDINGS.filter(track => track.mentorName === 'Omari');
+    fixture.componentRef.setInput('tracks', omari.filter(track => track.audioUrl?.includes('module-2')));
+    fixture.detectChanges();
+    expect(component.moduleId()).toBe('module-2');
+    fixture.componentRef.setInput('tracks', omari);
+    fixture.detectChanges();
+    expect(component.moduleId()).toBe('module-5');
+    expect(component.languages()).toEqual(['English', 'Swahili']);
+  });
+
+  it('preserves an explicitly selected partial unit when the catalog refreshes', () => {
+    const {fixture, component, choose} = setup('Omari', true);
+    choose('Module', 'module-2');
+    fixture.componentRef.setInput('tracks', [...VERIFIED_MENTOR_RECORDINGS.filter(track => track.mentorName === 'Omari')]);
+    fixture.detectChanges();
+    expect(component.moduleId()).toBe('module-2');
+    expect(component.languages()).toEqual(['English']);
+  });
+
 });

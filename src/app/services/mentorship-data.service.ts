@@ -1,3 +1,4 @@
+import {canAccessModule, TierService} from './tier.service';
 import {VERIFIED_MENTOR_RECORDINGS} from './verified-mentor-recordings';
 import {PRODUCTION_MENTORS, productionMentorForLabel} from './production-mentors';
 import {parseMentorLabel, isProductionMentorVariant} from './course-assets';
@@ -9,6 +10,7 @@ import {FirebaseService} from './firebase.service';
   providedIn: 'root',
 })
 export class MentorshipDataService {
+  private readonly tiers = inject(TierService);
   private readonly firebaseService = inject(FirebaseService);
 
   // Current Youth User State
@@ -432,11 +434,17 @@ export class MentorshipDataService {
   openCourseById(courseId: string): void {
     const found = this.courses().find(c => c.id === courseId);
     if (found) {
-      this.activeSelectedCourse.set(found);
+      this.openCourse(found);
     }
   }
 
   openCourse(course: Course): void {
+    // Unmapped legacy lesson previews use Module 1 access until curriculum IDs are assigned.
+    const moduleId = course.moduleId ?? 'module-1';
+    if (!canAccessModule(this.firebaseService.subscriptionTier(), moduleId)) {
+      this.tiers.requestUpgrade(moduleId);
+      return;
+    }
     this.activeSelectedCourse.set(course);
   }
 

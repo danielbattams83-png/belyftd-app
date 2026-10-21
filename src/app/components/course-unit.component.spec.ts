@@ -6,7 +6,7 @@ import {FirebaseService} from '../services/firebase.service';
 import {AudioPlayerService} from '../services/audio-player.service';
 
 describe('Course unit media visibility', () => {
-  async function render(audioUrls: Record<string, string>, videoUrls: Record<string, string>) {
+  async function render(audioUrls: Record<string, string>, videoUrls: Record<string, string>, tier = 3) {
     const sign = vi.fn(async (path: string) => {
       if (path.includes('missing')) throw new Error('Not found');
       return 'https://storage.googleapis.com/verified-recording';
@@ -15,16 +15,16 @@ describe('Course unit media visibility', () => {
       provideRouter([]),
       {provide: ActivatedRoute, useValue: {snapshot: {paramMap: convertToParamMap({moduleId: 'module-5', unitId: 'unit-2'})}}},
       {provide: FirebaseService, useValue: {
-        currentUser: signal(null), getCourseMediaUrlFromPath: sign,
+        subscriptionTier: signal(tier), currentUser: signal(null), getCourseMediaUrlFromPath: sign,
         getModuleUnit: vi.fn().mockResolvedValue({id: 'unit-2', title: 'Hope', minTier: 3, textContent: 'Clean reading content', audioUrls, videoUrls}),
       }},
-      {provide: AudioPlayerService, useValue: {activeTrack: signal(null), formatTime: () => '0:00'}},
+      {provide: AudioPlayerService, useValue: {activeTrack: signal(null), isTrackAvailable: () => tier >= 3, close: vi.fn(), formatTime: () => '0:00'}},
     ]}).compileComponents();
     const fixture = TestBed.createComponent(CourseUnitComponent);
     fixture.detectChanges();
     await vi.waitFor(() => expect(fixture.componentInstance.loading()).toBe(false));
     fixture.detectChanges();
-    return {element: fixture.nativeElement as HTMLElement, sign};
+    return {element: fixture.nativeElement as HTMLElement, sign, fixture};
   }
 
   it('renders text without players or selectors when media is absent or empty', async () => {
@@ -59,4 +59,22 @@ describe('Course unit media visibility', () => {
     load.mockRestore();
   });
 
+  it('omits restricted media without requesting signed URLs or showing a banner', async () => {
+    const {element, sign} = await render({'Sophie (english)': 'course-content/module-5/unit-2/audio/sophie.mp3'}, {'Sophie (chinese)': 'course-content/module-5/unit-2/video/sophie.mp4'}, 1);
+    expect(sign).not.toHaveBeenCalled();
+    expect(element.querySelector('video')).toBeNull();
+    expect(element.querySelector('[aria-label="Mentor audio player"]')).toBeNull();
+    expect(element.querySelector('[role="alert"]')).toBeNull();
+    expect(element.textContent).toContain('Clean reading content');
+  });
+
+  it('removes failed video controls without a media error banner', async () => {
+    vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => undefined);
+    const {element, fixture} = await render({}, {'Sophie (chinese)': 'course-content/module-5/unit-2/video/sophie.mp4'});
+    element.querySelector('video')!.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+    expect(element.querySelector('video')).toBeNull();
+    expect(element.querySelector('[role="alert"]')).toBeNull();
+    vi.restoreAllMocks();
+  });
 });

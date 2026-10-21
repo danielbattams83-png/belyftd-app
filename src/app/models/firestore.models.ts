@@ -3,7 +3,8 @@ import type {Course, Mentor} from './app.models';
 export type CourseDocument = Course;
 
 export type CourseMediaUrls = Record<string, string>;
-export type SubscriptionTier = 1 | 2 | 3;
+import type {SubscriptionTier} from './tier.model';
+export type {SubscriptionTier} from './tier.model';
 
 export interface ModuleUnitDocument {
   id: string;
@@ -32,6 +33,8 @@ export type MentorDocument = Mentor & {
 };
 
 export interface PartnershipDocument {
+  subscriptionTier?: SubscriptionTier;
+  active?: boolean;
   id: string;
   name: string;
   description?: string;

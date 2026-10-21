@@ -28,7 +28,7 @@ describe('AudioPlayerService production playback', () => {
     vi.stubGlobal('Audio', class { constructor() { return audio; } });
     sign = vi.fn().mockResolvedValue('https://storage.googleapis.com/recording?signature=short-lived');
     TestBed.configureTestingModule({providers: [{provide: FirebaseService, useValue: {
-      currentUser: signal({uid: 'listener'}), getCourseMediaUrlFromPath: sign,
+      subscriptionTier: signal(3), currentUser: signal({uid: 'listener'}), getCourseMediaUrlFromPath: sign,
     }}]});
     player = TestBed.inject(AudioPlayerService);
   });
@@ -118,7 +118,9 @@ describe('AudioPlayerService production playback', () => {
   it('closes an unavailable recording and both player views', async () => {
     sign.mockRejectedValueOnce({code: 'functions/permission-denied'});
     await player.playTrack(track('restricted'));
-    expect(player.errorMessage()).toContain('course access');
+    expect(player.errorMessage()).toBeNull();
+    expect(player.hasPlayableMedia()).toBe(false);
+    expect(player.isTrackAvailable(track('restricted'))).toBe(false);
     player.showFullPlayer.set(true);
     player.close();
     expect(player.activeTrack()).toBeNull();
@@ -140,4 +142,22 @@ describe('AudioPlayerService production playback', () => {
     expect(player.isPlaying()).toBe(false);
   });
 
+  it('does not request or play media outside the tier module cap', async () => {
+    TestBed.inject(FirebaseService).subscriptionTier.set(1);
+    await player.playTrack(track('restricted'));
+    expect(sign).not.toHaveBeenCalled();
+    expect(audio.play).not.toHaveBeenCalled();
+    expect(player.hasPlayableMedia()).toBe(false);
+    expect(player.errorMessage()).toBeNull();
+  });
+
+  it('omits blank and missing signed media without an error banner', async () => {
+    await player.playTrack({...track('blank'), audioUrl: '  '});
+    expect(sign).not.toHaveBeenCalled();
+    sign.mockResolvedValueOnce('');
+    await player.playTrack(track('missing'));
+    expect(audio.play).not.toHaveBeenCalled();
+    expect(player.hasPlayableMedia()).toBe(false);
+    expect(player.errorMessage()).toBeNull();
+  });
 });

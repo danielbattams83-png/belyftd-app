@@ -1,14 +1,16 @@
+import {canAccessModule} from './services/tier.service';
+import {UpgradeModalComponent} from './components/upgrade-modal.component';
 import {SmartSearchComponent} from './components/smart-search/smart-search.component';
 import {MentorRecordingPickerComponent} from './components/mentor-recording-picker.component';
 import {productionMentorForLabel} from './services/production-mentors';
 import {BackButtonComponent} from './components/back-button.component';
 import {NavigationService} from './services/navigation.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {afterNextRender, ChangeDetectionStrategy, Component, computed, inject, signal, effect} from '@angular/core';
+import {afterNextRender, DestroyRef, ElementRef, viewChild, ChangeDetectionStrategy, Component, computed, inject, signal, effect} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
-import {NavigationEnd, Router, RouterLink, RouterOutlet} from '@angular/router';
+import {NavigationStart, NavigationEnd, Router, RouterLink, RouterOutlet} from '@angular/router';
 import {AudioPlayerService} from './services/audio-player.service';
 import {MentorshipDataService} from './services/mentorship-data.service';
 import {ThemeAccessibilityService} from './services/theme-accessibility.service';
@@ -43,6 +45,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    UpgradeModalComponent,
     SmartSearchComponent,
     MentorRecordingPickerComponent,
     BackButtonComponent,
@@ -85,8 +88,24 @@ export class App {
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');
 
+  private readonly heroVideo = viewChild<ElementRef<HTMLVideoElement>>('heroVideo');
+
+  private stopHeroVideo(): void {
+    const video = this.heroVideo()?.nativeElement;
+    if (!video) return;
+    video.pause();
+    video.currentTime = 0;
+  }
+
   playMainVideo(event: Event): void {
     const video = event.target as HTMLVideoElement;
+    if (!this.isDashboard() || this.showProfileModal()) {
+      video.pause();
+      video.currentTime = 0;
+      return;
+    }
+    video.muted = true;
+    video.defaultMuted = true;
     void video.play().catch(() => {
       // Browser autoplay policies may still require the user to press play.
     });
@@ -165,6 +184,10 @@ export class App {
   }
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      this.stopHeroVideo();
+      this.audioPlayer.close();
+    });
     const syncNavigation = () => {
       const path = this.router.parseUrl(this.router.url).root.children['primary']?.segments.map(segment => segment.path).join('/') ?? '';
       const tabs: Record<string, MainTab> = {
@@ -177,6 +200,10 @@ export class App {
     };
     syncNavigation();
     this.router.events.pipe(takeUntilDestroyed()).subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.stopHeroVideo();
+        this.audioPlayer.close();
+      }
       if (event instanceof NavigationEnd) syncNavigation();
     });
 
@@ -575,7 +602,13 @@ export class App {
   }
 
   mentorRecordings(mentorName: string): AudioTrack[] {
-    return this.dataService.availableAudioTracks().filter(track => track.mentorName === mentorName);
+    const tier = this.firebaseService.subscriptionTier();
+    return this.dataService.availableAudioTracks().filter(track => {
+      if (track.mentorName !== mentorName || this.audioPlayer.unavailableTracks().has(track.id)) return false;
+      const moduleId = /^course-content\/([^/]+)\//.exec(track.audioUrl?.trim() ?? '')?.[1];
+      // Guests may browse the audited inventory; playback still requires sign-in.
+      return !!moduleId && (!tier || canAccessModule(tier, moduleId));
+    });
   }
 
   playMentorRecording(track: AudioTrack): void {

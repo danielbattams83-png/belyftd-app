@@ -1,3 +1,4 @@
+import {canAccessModule} from './tier.service';
 import {FirebaseService} from './firebase.service';
 import {Injectable, signal, computed, inject, effect} from '@angular/core';
 import {AudioTrack} from '../models/app.models';
@@ -9,6 +10,29 @@ export class AudioPlayerService {
   private readonly firebaseService = inject(FirebaseService);
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly unavailableTracks = signal<ReadonlySet<string>>(new Set());
+  readonly mediaReady = signal(false);
+  readonly hasPlayableMedia = computed(() => {
+    const track = this.activeTrack();
+    return !!track && this.mediaReady() && !this.errorMessage() && this.isTrackAvailable(track);
+  });
+
+  isTrackAvailable(track: AudioTrack): boolean {
+    const path = track.audioUrl?.trim();
+    if (!path || this.unavailableTracks().has(track.id)) return false;
+    if (path.startsWith('blob:')) return true;
+    const moduleId = /^course-content\/(module-[1-9][0-9]*)\/[^/]+\/audio\/[^/]+\.mp3$/.exec(path)?.[1];
+    return !!moduleId && canAccessModule(this.firebaseService.subscriptionTier(), moduleId);
+  }
+
+  private hideUnavailableTrack(): void {
+    const track = this.activeTrack();
+    if (track) this.unavailableTracks.update(ids => new Set([...ids, track.id]));
+    this.stopAll();
+    this.mediaReady.set(false);
+    this.errorMessage.set(null);
+  }
+
   private playbackRequest = 0;
   private resolvedAt = 0;
   private retried = false;
@@ -49,8 +73,16 @@ export class AudioPlayerService {
 
   constructor() {
     let previousUserId: string | undefined;
+    let previousTier: number | undefined;
     effect(() => {
       const userId = this.firebaseService.currentUser()?.uid;
+      const tier = this.firebaseService.subscriptionTier();
+      if (previousUserId !== userId || previousTier !== tier) {
+        this.unavailableTracks.set(new Set());
+      }
+      previousTier = tier;
+      const track = this.activeTrack();
+      if (track && !this.isTrackAvailable(track)) this.close();
       if (previousUserId && previousUserId !== userId) {
         this.stopAll();
         this.activeTrack.set(null);
@@ -90,9 +122,7 @@ export class AudioPlayerService {
           void this.playTrack(track, this.currentTime(), true);
           return;
         }
-        this.errorMessage.set('This recording could not be played. Please try again.');
-        this.isLoading.set(false);
-        this.isPlaying.set(false);
+        this.hideUnavailableTrack();
       });
     }
   }
@@ -106,18 +136,18 @@ export class AudioPlayerService {
     this.duration.set(track.durationSec || 0);
     this.currentTime.set(startTime);
     if (!this.audioElem) return;
-    if (!track.audioUrl) {
-      this.errorMessage.set('No mentor recording is available for this text yet.');
-      return;
-    }
+    if (!this.isTrackAvailable(track)) return;
     this.isLoading.set(true);
     try {
       // Course media must go through the tier-checked, ten-minute signed URL endpoint.
       // Blob URLs belong to the user's own voice journal recordings.
-      const url = track.audioUrl.startsWith('blob:')
-        ? track.audioUrl
-        : await this.firebaseService.getCourseMediaUrlFromPath(track.audioUrl);
+      const path = track.audioUrl!.trim();
+      const url = path.startsWith('blob:')
+        ? path
+        : await this.firebaseService.getCourseMediaUrlFromPath(path);
       if (request !== this.playbackRequest) return;
+      if (!url?.trim()) { this.hideUnavailableTrack(); return; }
+      this.mediaReady.set(true);
       this.resolvedAt = Date.now();
       this.audioElem.src = url;
       this.audioElem.preload = 'metadata';
@@ -130,6 +160,11 @@ export class AudioPlayerService {
       this.isLoading.set(false);
     } catch (error: unknown) {
       if (request !== this.playbackRequest) return;
+      const code = (error as {code?: string} | null)?.code;
+      if (['functions/permission-denied', 'functions/unauthenticated', 'functions/not-found'].includes(code ?? '')) {
+        this.hideUnavailableTrack();
+        return;
+      }
       this.errorMessage.set(this.playbackErrorMessage(error));
       this.isLoading.set(false);
       this.isPlaying.set(false);
@@ -263,6 +298,7 @@ export class AudioPlayerService {
   }
 
   stopAll(): void {
+    this.mediaReady.set(false);
     ++this.playbackRequest;
     this.isLoading.set(false);
     this.isPlaying.set(false);

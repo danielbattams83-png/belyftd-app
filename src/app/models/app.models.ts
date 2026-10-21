@@ -117,6 +117,7 @@ export interface VoiceJournal {
 }
 
 export interface Course {
+  moduleId?: string;
   id: string;
   title: string;
   description: string;

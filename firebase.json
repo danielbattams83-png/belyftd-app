@@ -7,5 +7,23 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "hosting": {
+    "site": "belyft-d-app",
+    "public": "dist/app/browser",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.csr.html"
+      }
+    ],
+    "predeploy": [
+      "npm run build"
+    ]
   }
 }

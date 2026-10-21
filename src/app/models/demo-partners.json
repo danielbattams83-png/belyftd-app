@@ -1,0 +1,18 @@
+[
+  {
+    "id": "demo-enterprise",
+    "name": "Horizon Community (Demo)",
+    "active": true,
+    "subscriptionTier": 4,
+    "logoUrl": "/partners/demo-enterprise.svg",
+    "description": "Demo Enterprise Sponsor"
+  },
+  {
+    "id": "demo-impact",
+    "name": "Bright Futures (Demo)",
+    "active": true,
+    "subscriptionTier": 3,
+    "logoUrl": "/partners/demo-impact.svg",
+    "description": "Demo Impact Leader"
+  }
+]

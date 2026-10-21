@@ -27,7 +27,7 @@ exports.redeemSponsorCode = onCall(async (request) => {
   const invite = codeSnapshot.data();
   if (
     invite.active !== true ||
-    ![1, 2, 3].includes(invite.subscriptionTier) ||
+    ![1, 2, 3, 4].includes(invite.subscriptionTier) ||
     typeof invite.orgId !== 'string' ||
     typeof invite.sponsorName !== 'string'
   ) {
@@ -82,11 +82,10 @@ exports.getCourseMediaUrl = onCall({serviceAccount: 'course-media@belyft-d-app.i
 
   const unit = unitSnapshot.data();
   const tier = request.auth.token.subscriptionTier;
-  if (
-    ![1, 2, 3].includes(tier) ||
-    ![1, 2, 3].includes(unit.minTier) ||
-    tier < unit.minTier
-  ) {
+  const moduleMatch = /^module-([1-9][0-9]*)$/.exec(moduleId);
+  const moduleNumber = moduleMatch ? Number(moduleMatch[1]) : 0;
+  const requiredTier = moduleNumber === 1 ? 1 : moduleNumber <= 3 ? 2 : 3;
+  if (!moduleNumber || ![1, 2, 3, 4].includes(tier) || tier < requiredTier) {
     throw new HttpsError('permission-denied', 'Your subscription does not allow access to this course media.');
   }
 

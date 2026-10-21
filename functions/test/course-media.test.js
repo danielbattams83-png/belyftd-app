@@ -4,15 +4,15 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-function setup({exists = true, tier = 3, unitExists = true} = {}) {
-  const storagePath = 'course-content/module-5/unit-2/audio/hope-sophie--english.mp3';
+function setup({exists = true, tier = 3, minTier = 3, moduleNumber = 5, unitExists = true} = {}) {
+  const storagePath = `course-content/module-${moduleNumber}/unit-2/audio/hope-sophie--english.mp3`;
   let signed = false;
   const modules = {
     'firebase-admin/app': {initializeApp() {}},
     'firebase-admin/auth': {getAuth() {}},
     'firebase-admin/firestore': {FieldValue: {}, getFirestore: () => ({
       collection: () => ({doc: () => ({collection: () => ({doc: () => ({get: async () => ({
-        exists: unitExists, data: () => ({minTier: 3, audioUrls: {'Sophie (English)': storagePath}}),
+        exists: unitExists, data: () => ({minTier, audioUrls: {'Sophie (English)': storagePath}}),
       })})})})}),
     })},
     'firebase-admin/storage': {getStorage: () => ({bucket: bucket => {
@@ -41,7 +41,7 @@ function setup({exists = true, tier = 3, unitExists = true} = {}) {
   return {
     handler: exports.getCourseMediaUrl,
     request: {auth: {uid: 'test-user', token: {subscriptionTier: tier}}, data: {
-      moduleId: 'module-5', unitId: 'unit-2', mediaType: 'audio', storagePath,
+      moduleId: `module-${moduleNumber}`, unitId: 'unit-2', mediaType: 'audio', storagePath,
     }},
     wasSigned: () => signed,
   };
@@ -74,3 +74,31 @@ test('rejects unregistered placeholders and cross-unit paths', async () => {
   }
   assert.equal(wasSigned(), false);
 });
+
+test('Enterprise accounts can access Impact and Enterprise media', async () => {
+  for (const minTier of [3, 4]) {
+    const {handler, request, wasSigned} = setup({tier: 4, minTier});
+    await handler(request);
+    assert.equal(wasSigned(), true);
+  }
+});
+
+test('rejects unsupported subscription claims and full curriculum media for lower tiers', async () => {
+  for (const tier of [0, 2, 5, '4']) {
+    const {handler, request, wasSigned} = setup({tier, minTier: 4});
+    await assert.rejects(handler(request), error => error.code === 'permission-denied');
+    assert.equal(wasSigned(), false);
+  }
+});
+
+for (const tier of [1, 2, 3, 4]) {
+  test(`module caps enforced for Tier ${tier}, independent of legacy minTier`, async () => {
+    for (const moduleNumber of [1, 2, 3, 4, 5, 6, 10]) {
+      const allowed = tier >= 3 || (tier === 2 && moduleNumber <= 3) || moduleNumber === 1;
+      const {handler, request, wasSigned} = setup({tier, moduleNumber, minTier: allowed ? 4 : 1});
+      if (allowed) await handler(request);
+      else await assert.rejects(handler(request), error => error.code === 'permission-denied');
+      assert.equal(wasSigned(), allowed);
+    }
+  });
+}

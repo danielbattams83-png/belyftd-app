@@ -1,0 +1,37 @@
+<section aria-label="Monthly subscription plans" class="paywall" id="partner-plans">
+  <p class="billing-note">Monthly subscriptions &middot; All prices in USD</p>
+  <div class="pricing-grid">
+    @for (plan of plans; track plan.tier) {
+      <article class="plan" [class.popular]="plan.tier === 3" [class.selected]="selectedTier() === plan.tier" [id]="'partner-tier-' + plan.tier">
+        <div class="badge-slot">@if (plan.badge) { <span class="badge">{{ plan.badge }}</span> }</div>
+        <p class="tier">Tier {{ plan.tier }}</p>
+        <h2>{{ plan.name }}</h2>
+        <p class="price">{{ plan.price | currency:'USD':'symbol':'1.2-2' }}<span> USD/mo</span></p>
+        <ul>@for (feature of plan.features; track feature) { <li>{{ feature }}</li> }</ul>
+        <button type="button" (click)="choosePlan(plan)">Select Plan: {{ plan.name }}</button>
+      </article>
+    }
+  </div>
+  <p role="status">{{ checkoutMessage() }}</p>
+  <form class="redemption" (ngSubmit)="redeem()">
+    <label for="partner-redemption-code">Have a Partner Redemption Code? Enter here</label>
+    <div class="code-row">
+      <input id="partner-redemption-code" name="partnerCode" [(ngModel)]="code" placeholder="Enter partner code" autocomplete="off" autocapitalize="characters" required [disabled]="submitting()" />
+      <button type="submit" [disabled]="!code.trim() || submitting()">{{ submitting() ? 'Verifying...' : 'Redeem code' }}</button>
+    </div>
+    <p role="status">{{ redemptionMessage() }}</p>
+  </form>
+</section>
+@if (showAuth()) { <div class="auth-overlay"><app-register-modal (closeModal)="showAuth.set(false)" /></div> }
+
+@if (checkoutPlan(); as plan) {
+  <div class="checkout-overlay">
+    <section class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (keydown.escape)="checkoutPlan.set(null)">
+      <h2 id="checkout-title">Checkout - {{ plan.name }}</h2>
+      <p>{{ plan.price | currency:'USD':'symbol':'1.2-2' }} USD per month</p>
+      <p>Secure checkout is coming soon. This demo does not collect payment or activate a subscription.</p>
+      <p>Have a sponsor code? Close this window and redeem it below the plans.</p>
+      <button type="button" (click)="checkoutPlan.set(null)">Back to plans</button>
+    </section>
+  </div>
+}

@@ -1,4 +1,6 @@
-import {ChangeDetectionStrategy, Component, computed, input, output, signal} from '@angular/core';
+import {getDefaultUnitForMentor, MentorAudioUnit} from '../services/course.service';
+import {parseMentorLabel} from '../services/course-assets';
+import {ChangeDetectionStrategy, Component, computed, input, output, signal, OnInit, OnChanges} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {AudioTrack} from '../models/app.models';
 
@@ -48,16 +50,32 @@ const MODULE_TITLES: Record<string, string> = {
     }
   `,
 })
-export class MentorRecordingPickerComponent {
+export class MentorRecordingPickerComponent implements OnInit, OnChanges {
   readonly tracks = input.required<AudioTrack[]>();
   readonly showLanguageSelector = input(false);
   readonly playRecording = output<AudioTrack>();
+  private userSelectedUnit = false;
+  private readonly mentorId = computed(() => {
+    const track = this.tracks()[0];
+    return (track?.mentorName ?? (track ? parseMentorLabel(track.speaker).mentorName : '')).toLowerCase();
+  });
+  getDefaultUnitForMentor(mentorId = this.mentorId()): MentorAudioUnit | undefined {
+    return getDefaultUnitForMentor(mentorId, this.tracks());
+  }
+  ngOnInit(): void { this.selectDefaultUnit(); }
+  ngOnChanges(): void { if (!this.userSelectedUnit) this.selectDefaultUnit(); }
+  private selectDefaultUnit(): void {
+    const unit = this.getDefaultUnitForMentor();
+    this.chosenModule.set(unit?.moduleId ?? '');
+    this.chosenLesson.set(unit?.unitId ?? '');
+  }
   private readonly chosenModule = signal('');
   private readonly chosenLesson = signal('');
   private readonly chosenLanguage = signal('English');
   private readonly recordings = computed(() => this.tracks().flatMap(track => {
-    const match = track.audioUrl?.match(/^course-content\/([^/]+)\/([^/]+)\/audio\/[^/]+$/);
-    return match ? [{track, moduleId: match[1], lessonId: match[2]}] : [];
+    const match = track.audioUrl?.trim().match(/^course-content\/(module-[1-9][0-9]*)\/(unit-[1-9][0-9]*)\/audio\/[^/]+\.mp3$/);
+    const normalizedTrack = {...track, language: parseMentorLabel(`${track.mentorName ?? ''} (${track.language ?? ''})`).language};
+    return match ? [{track: normalizedTrack, moduleId: match[1], lessonId: match[2]}] : [];
   }));
   readonly modules = computed(() => [...new Set(this.recordings().map(item => item.moduleId))]
     .sort((a, b) => a.localeCompare(b, undefined, {numeric: true}))
@@ -77,11 +95,13 @@ export class MentorRecordingPickerComponent {
   readonly selectedTrack = computed(() => this.lessonRecordings().find(item => item.track.language === this.language())?.track);
 
   chooseModule(event: Event): void {
+    this.userSelectedUnit = true;
     this.chosenModule.set((event.target as HTMLSelectElement).value);
     this.chosenLesson.set('');
   }
 
   chooseLesson(event: Event): void {
+    this.userSelectedUnit = true;
     this.chosenLesson.set((event.target as HTMLSelectElement).value);
   }
 

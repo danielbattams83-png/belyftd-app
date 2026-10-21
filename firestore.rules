@@ -15,7 +15,7 @@ service cloud.firestore {
     function hasSubscriptionTier(minTier) {
       return isAuthenticated()
         && request.auth.token.subscriptionTier is int
-        && request.auth.token.subscriptionTier in [1, 2, 3]
+        && request.auth.token.subscriptionTier in [1, 2, 3, 4]
         && request.auth.token.subscriptionTier >= minTier;
     }
 
@@ -34,9 +34,9 @@ service cloud.firestore {
     }
 
     match /modules/{moduleId}/units/{unitId} {
-      allow read: if resource.data.minTier is int
-        && resource.data.minTier in [1, 2, 3]
-        && hasSubscriptionTier(resource.data.minTier);
+      allow read: if moduleId.matches('module-[1-9][0-9]*')
+        && hasSubscriptionTier(moduleId == 'module-1' ? 1 :
+          (moduleId in ['module-2', 'module-3'] ? 2 : 3));
     }
 
     match /sponsorProfiles/{userId} {

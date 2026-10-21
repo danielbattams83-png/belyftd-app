@@ -1,5 +1,5 @@
 import {TestBed} from '@angular/core/testing';
-import {provideRouter} from '@angular/router';
+import {Router, provideRouter} from '@angular/router';
 import {App} from './app';
 
 describe('App', () => {
@@ -16,7 +16,7 @@ describe('App', () => {
     } as MediaQueryList)));
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([])],
+      providers: [provideRouter([{path: 'profile', children: []}, {path: 'dashboard', children: []}])],
     }).compileComponents();
   });
 
@@ -44,6 +44,45 @@ describe('App', () => {
     const play = vi.spyOn(app.audioPlayer, 'playTrack');
     app.playMentorRecording(app.mentorRecordings('Sophie')[0]);
     expect(play).not.toHaveBeenCalled();
+  });
+
+  it('keeps hero autoplay muted on the home route', async () => {
+    const app = TestBed.createComponent(App).componentInstance;
+    const video = document.createElement('video');
+    const play = vi.spyOn(video, 'play').mockResolvedValue(undefined);
+    app.isDashboard.set(true);
+    app.showProfileModal.set(false);
+    app.playMainVideo({target: video} as unknown as Event);
+    expect(video.muted).toBe(true);
+    expect(video.defaultMuted).toBe(true);
+    expect(play).toHaveBeenCalledOnce();
+  });
+
+  it('stops global audio on navigation and prevents hero playback on profile', async () => {
+    const app = TestBed.createComponent(App).componentInstance;
+    const close = vi.spyOn(app.audioPlayer, 'close').mockImplementation(() => undefined);
+    await TestBed.inject(Router).navigateByUrl('/profile');
+    expect(close).toHaveBeenCalled();
+    expect(app.isDashboard()).toBe(false);
+    const video = document.createElement('video');
+    const play = vi.spyOn(video, 'play').mockResolvedValue(undefined);
+    const pause = vi.spyOn(video, 'pause').mockImplementation(() => undefined);
+    video.currentTime = 10;
+    app.playMainVideo({target: video} as unknown as Event);
+    expect(play).not.toHaveBeenCalled();
+    expect(pause).toHaveBeenCalledOnce();
+    expect(video.currentTime).toBe(0);
+  });
+
+  it('allows Tier 1 users to open legacy lesson previews without unlocking mapped modules', () => {
+    const app = TestBed.createComponent(App).componentInstance;
+    app.firebaseService.subscriptionTier.set(1);
+    const preview = app.dataService.courses()[0];
+    app.dataService.openCourse({...preview, moduleId: undefined});
+    expect(app.dataService.activeSelectedCourse()?.id).toBe(preview.id);
+    app.dataService.closeCourse();
+    app.dataService.openCourse({...preview, moduleId: 'module-5'});
+    expect(app.dataService.activeSelectedCourse()).toBeNull();
   });
 
 });

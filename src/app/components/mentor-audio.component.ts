@@ -15,7 +15,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
           <span>Mentor recording</span>
           <select class="w-full rounded-xl border border-slate-600 bg-[#333333] p-3 text-white focus-accessible"
             [value]="track.id" (change)="selectTrack($event)">
-            @for (option of tracks(); track option.id) {
+            @for (option of availableTracks(); track option.id) {
               <option [value]="option.id">{{ option.speaker }}</option>
             }
           </select>
@@ -37,7 +37,6 @@ import {AudioPlayerService} from '../services/audio-player.service';
           <span>{{ player.formatTime(isCurrent() ? player.duration() : 0) }}</span>
         </div>
         @if (isCurrent() && player.isLoading()) { <p role="status" class="text-sm text-slate-300">Loading recording...</p> }
-        @if (isCurrent() && player.errorMessage()) { <p role="alert" class="text-sm text-rose-200">{{ player.errorMessage() }}</p> }
       }
     </section>
     }
@@ -47,7 +46,8 @@ export class MentorAudioComponent {
   readonly tracks = input.required<AudioTrack[]>();
   readonly player = inject(AudioPlayerService);
   private readonly selectedId = signal('');
-  readonly selectedTrack = computed(() => this.tracks().find(track => track.id === this.selectedId()) ?? this.tracks()[0]);
+  readonly availableTracks = computed(() => this.tracks().filter(track => this.player.isTrackAvailable(track)));
+  readonly selectedTrack = computed(() => this.availableTracks().find(track => track.id === this.selectedId()) ?? this.availableTracks()[0]);
   readonly isCurrent = computed(() => !!this.selectedTrack() && this.player.activeTrack()?.id === this.selectedTrack()?.id);
   readonly progressBackground = computed(() => {
     const percent = this.isCurrent() ? this.player.progressPercent() : 0;

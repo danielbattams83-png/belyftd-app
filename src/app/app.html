@@ -246,9 +246,12 @@
     <!-- ========================================== -->
     @if (activeTab() === 'daily-lyft') {
   <div id="tab-daily-lyft-content" class="flex flex-col gap-6 animate-in fade-in duration-150">
+  @if (isDashboard() && hopeVideoUrl()) {
   <section aria-labelledby="message-of-hope-video-title" class="order-1 mt-6 overflow-hidden rounded-3xl bg-black">
           <h2 id="message-of-hope-video-title" class="sr-only">Message of Hope video</h2>
           <video
+            #heroVideo
+            [muted]="true"
             class="block aspect-video w-full object-cover"
             [src]="hopeVideoUrl() || ''"
             title="Message of Hope video"
@@ -261,6 +264,7 @@
   (canplay)="playMainVideo($event)"
   ></video>
         </section>
+  }
 
         @if (!isLoggedIn()) {
         <aside class="flex h-[50px] flex-col gap-0 rounded-[10px] border border-indigo-200 bg-indigo-50 px-4 py-2.5 dark:border-indigo-900/60 dark:bg-indigo-950/30 sm:flex-row sm:items-center sm:justify-between" aria-label="Guest account benefits">
@@ -1789,3 +1793,5 @@
   }
 
 </div>
+
+<app-upgrade-modal />
