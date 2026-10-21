@@ -86,7 +86,7 @@ This command requires authenticated Google Cloud CLI access, previews every orig
 backs up Firestore records under ignored `tmp/`, uses optimistic Firestore updates, and verifies
 both Firestore and Storage after every write. It fails if a source is missing or ambiguous.
 Original Word formatting runs are concatenated verbatim; explicit paragraph and line breaks
-are preserved. It does not run narration extraction or cut reading exercises from lessons.
+are preserved. It does not run narration extraction. Reading cleanup stops at worksheet footer headings (My to do list, My Goals today are, or Notes) and removes response rules and Loom URLs.
 
 
 ## Full reading curriculum and module catalog (22 October 2026)
@@ -95,7 +95,7 @@ The complete library is organized in the synced Unit Documents destination under
 Its numbered folders follow the existing Clean Audio Texts index: 21 course modules and 136 sessions.
 Six unassigned library lessons are explicitly supplemental reading (internal module-22); two reference
 Word documents are exported separately and excluded from the course list. Original source files are
-never changed. Reading exports retain exercises, reflection questions, and alternate source versions.
+never changed. Reading exports retain lesson text and alternate source versions, ending each source at its worksheet footer.
 
 ```powershell
 python scripts/organize-reading-library.py
@@ -144,3 +144,10 @@ The home hero uses Hannah's `5.2-HOPE-Hannah.mp4`, from Drive file
 SHA-256 prefix so browsers request the replacement without reusing the previous video cache.
 The original Drive video and course-unit media mappings are unchanged. Muted inline autoplay
 and pause/reset on navigation remain in place.
+
+
+Worksheet footer cleanup is shared by the frontend reader and the Python/Node ingestion paths.
+Both lesson reading views wrap long strings within the card. On 22 October 2026, all 142
+canonical units were regenerated from original documents and republished to Firestore and private
+Storage JSON. Generated Drive exports were backed up under ignored tmp/ before refreshing;
+original Word documents remain hash-verified and unchanged.

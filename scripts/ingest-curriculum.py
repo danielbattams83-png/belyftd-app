@@ -144,6 +144,8 @@ def main():
         object_path = fields['readingContentPath']['stringValue']
         request(f'https://storage.googleapis.com/upload/storage/v1/b/{BUCKET}/o?' + urlencode({'uploadType': 'media', 'name': object_path}), 'POST', raw=json.dumps(reading, ensure_ascii=False).encode('utf-8'))
         request(f'https://storage.googleapis.com/storage/v1/b/{BUCKET}/o/' + quote(object_path, safe=''), 'PATCH', {'cacheControl': 'private, no-store'})
+        stored_reading = request(f'https://storage.googleapis.com/storage/v1/b/{BUCKET}/o/' + quote(object_path, safe='') + '?alt=media')
+        if stored_reading != reading: raise RuntimeError(f'Storage verification failed: {name}')
         query = [('updateMask.fieldPaths', key) for key in fields]
         query.append(('currentDocument.updateTime', existing[name]['updateTime']) if name in existing else ('currentDocument.exists', 'false'))
         request(base + '/' + name + '?' + urlencode(query), 'PATCH', {'fields': fields})

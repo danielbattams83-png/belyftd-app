@@ -18,6 +18,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
   selector: 'app-course-unit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MentorAudioComponent, BackButtonComponent, CommonModule, MatIconModule],
+  styles: [`.unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
   template: `
     <section class="fixed inset-0 z-50 overflow-y-auto bg-slate-50 p-4 dark:bg-slate-950 sm:p-8">
       <div class="mx-auto max-w-3xl space-y-6">
@@ -89,7 +90,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
 
             @if (hasMediaAccess() && audioTracks().length) { <app-mentor-audio [tracks]="audioTracks()" /> }
 
-            <div class="whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-200">{{ cleanContent(lesson.textContent) }}</div>
+            <div class="unit-content-body whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-200">{{ cleanContent(lesson.textContent) }}</div>
             @if (hasMediaAccess()) {
               <button type="button" [disabled]="curriculum.isCompleted(moduleId, unitId)" (click)="curriculum.markCompleted(moduleId, unitId)"
                 class="rounded-xl bg-indigo-400 px-4 py-3 text-sm font-semibold text-slate-950 disabled:opacity-60">

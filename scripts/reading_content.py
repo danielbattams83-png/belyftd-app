@@ -6,6 +6,11 @@ from zipfile import ZipFile
 
 
 def clean_content(text):
+    if not text: return ''
+    footer = re.search(r'\bmy\s+to[\s\-\u2010-\u2014]*do\s+list(?:\s+this\s+week)?\s*:|\bmy\s+goals\s+today\s+are\s*:|^\s*notes\s*:', text, re.I | re.M)
+    if footer: text = text[:footer.start()]
+    text = re.sub(r'[-_\u2013\u2014]{5,}', ' ', text)
+    text = re.sub(r'https?://(?:www\.)?loom\.com/[^\s]+', ' ', text, flags=re.I)
     while re.search(r'\[[^\[\]]*\]', text):
         text = re.sub(r'\[[^\[\]]*\]', ' ', text)
     text = text.replace('\xa0', ' ')

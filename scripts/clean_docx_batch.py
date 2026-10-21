@@ -26,6 +26,7 @@ END_MARKER = re.compile(
     r'\bmy\s+to[\s\-\u2010-\u2014]*do\s+list(?:\s+this\s+week)?\s*:'
     r'|\bmy\s+goals\s+today\s+are\s*:'
     r'|^\s*(?:workshop|to[\s-]*do\s+list)\s*(?::|$)'
+    r'|^\s*notes\s*:'
     r'|^\s*check\s+(?:this|the)\s+video\s+link\b',
     re.IGNORECASE,
 )
@@ -84,7 +85,7 @@ def extract_clean_script(docx_path: Path, known_titles: set[str] | None = None,
                 found_end = True
             if line and line.casefold() not in {'top of form', 'bottom of form'}:
                 # Blank response rules are not narration; keep text surrounding them.
-                line = re.sub(r'_{3,}', '', line).strip()
+                line = re.sub(r'[-_\u2013\u2014]{5,}|_{3,}', ' ', line).strip()
                 style = paragraph.style.name.casefold() if paragraph.style else ''
                 header_style = style in {'title', 'subtitle'} or style.startswith('heading')
                 if not in_body and (HEADER_PREFIX.match(line) or header_style):

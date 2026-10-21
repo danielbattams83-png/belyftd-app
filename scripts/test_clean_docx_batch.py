@@ -11,6 +11,18 @@ from clean_docx_batch import extract_clean_script, main
 
 
 class CleanDocxTests(unittest.TestCase):
+    def test_notes_and_goals_cutoffs(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / 'lesson.docx'
+            for marker in ['Notes:', 'My Goals today are:', 'My to do list:']:
+                document = Document()
+                document.add_paragraph('Read this.')
+                document.add_paragraph('-----_____')
+                document.add_paragraph(marker)
+                document.add_paragraph('Do not include this worksheet.')
+                document.save(source)
+                self.assertEqual(extract_clean_script(source), ('Read this.', True))
+
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)

@@ -2,6 +2,15 @@ import {describe, expect, it} from 'vitest';
 import {cleanContent} from './reading-content';
 
 describe('reading text sanitizer', () => {
+  it('cuts worksheet footers while preserving the lesson before them', () => {
+    for (const footer of ['My to do list:', 'My TO-DO LIST this week:', 'My Goals today are:', 'Notes:']) {
+      expect(cleanContent(`Read this.\n${footer}\nhttps://www.loom.com/share/example\n-----`)).toBe('Read this.');
+    }
+  });
+  it('removes response rules and Loom links without merging words', () => {
+    expect(cleanContent('Keep-----these_____words.\nhttps://loom.com/share/example')).toBe('Keep these words.');
+    expect(cleanContent('Keep self-belief and notes about progress.')).toBe('Keep self-belief and notes about progress.');
+  });
   it('removes direction tags without merging surrounding words', () => {
     expect(cleanContent('  [Tone: Warm, conversational] Hello[warm tone]world  ')).toBe('Hello world');
     expect(cleanContent('[Tone: warm\nand slow] Keep going.')).toBe('Keep going.');

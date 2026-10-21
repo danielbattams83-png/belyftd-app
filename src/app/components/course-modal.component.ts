@@ -12,6 +12,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
   selector: 'app-course-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BackButtonComponent, MentorAudioComponent, CommonModule, MatIconModule],
+  styles: [`.unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
   template: `
     @if (course(); as c) {
       <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
@@ -70,7 +71,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
 
             <!-- Clean Text Reader Area (Markdown) -->
             <article class="prose prose-slate dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200 font-sans space-y-4 pt-2">
-              <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 whitespace-pre-line leading-loose space-y-3 font-sans shadow-xs">
+              <div class="unit-content-body bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 whitespace-pre-line leading-loose space-y-3 font-sans shadow-xs">
                 {{ cleanContent(c.textContent) }}
               </div>
             </article>

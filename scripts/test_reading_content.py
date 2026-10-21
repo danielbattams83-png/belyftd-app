@@ -5,6 +5,11 @@ from zipfile import ZipFile
 from reading_content import clean_content, extract_reading_document
 
 class ReadingContentTests(unittest.TestCase):
+    def test_worksheet_footers_and_rules(self):
+        for footer in ['My to do list:', 'My TO-DO LIST this week:', 'My Goals today are:', 'Notes:']:
+            self.assertEqual(clean_content(f'Read this.\n{footer}\nhttps://loom.com/share/example\n-----'), 'Read this.')
+        self.assertEqual(clean_content('Keep-----these_____words.\nhttps://loom.com/share/example'), 'Keep these words.')
+
     def test_tags_and_acronyms(self):
         self.assertEqual(clean_content('[Tone: Warm] H-stands for hope. Hstands for hope.'), 'H - stands for hope. H - stands for hope.')
         self.assertEqual(clean_content('Hello[warm tone]world'), 'Hello world')
