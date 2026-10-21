@@ -11,6 +11,11 @@ const recordings = [
     "title": "Identity Theft"
   },
   {
+    "path": "course-content/module-2/unit-1/audio/identity-theft-omari--english.mp3",
+    "label": "Omari (English)",
+    "title": "Identity Theft"
+  },
+  {
     "path": "course-content/module-2/unit-1/audio/identity_theft-hannah.mp3",
     "label": "Hannah",
     "title": "Identity Theft"
@@ -18,22 +23,22 @@ const recordings = [
   {
     "path": "course-content/module-2/unit-2/audio/2.-xerox-dont-be-a-copy-steve.mp3",
     "label": "Steve",
-    "title": "Xerox: Don't Be a Copy"
+    "title": "Don't Be a Xerox"
   },
   {
     "path": "course-content/module-2/unit-2/audio/xerox-dont-be-a-copy-hannah.mp3",
     "label": "Hannah",
-    "title": "Xerox: Don't Be a Copy"
+    "title": "Don't Be a Xerox"
   },
   {
     "path": "course-content/module-2/unit-3/audio/3-hands-and-feet-steve.mp3",
     "label": "Steve",
-    "title": "Hands and Feet"
+    "title": "Hands And Feet"
   },
   {
     "path": "course-content/module-2/unit-3/audio/hands-and-feet-hannah.mp3",
     "label": "Hannah",
-    "title": "Hands and Feet"
+    "title": "Hands And Feet"
   },
   {
     "path": "course-content/module-2/unit-4/audio/4-gifts-steve.mp3",
@@ -56,13 +61,28 @@ const recordings = [
     "title": "Awareness"
   },
   {
-    "path": "course-content/module-5/unit-2/audio/hope-omari--swahili.mp3",
-    "label": "Omari (swahili)",
-    "title": "Hope"
+    "path": "course-content/module-5/unit-1/audio/against-all-odds-omari--english.mp3",
+    "label": "Omari (English)",
+    "title": "Against All Odds"
   },
   {
-    "path": "course-content/module-5/unit-2/audio/hope-sophie--english.mp3",
-    "label": "Sophie (english)",
+    "path": "course-content/module-5/unit-1/audio/against-all-odds-omari--swahili.mp3",
+    "label": "Omari (Swahili)",
+    "title": "Against All Odds"
+  },
+  {
+    "path": "course-content/module-5/unit-1/audio/against-all-odds-sophie--chinese.mp3",
+    "label": "Sophie (Chinese)",
+    "title": "Against All Odds"
+  },
+  {
+    "path": "course-content/module-5/unit-1/audio/against-all-odds-sophie--english.mp3",
+    "label": "Sophie (English)",
+    "title": "Against All Odds"
+  },
+  {
+    "path": "course-content/module-5/unit-2/audio/hope---hannah.mp3",
+    "label": "Hannah",
     "title": "Hope"
   },
   {
@@ -71,14 +91,29 @@ const recordings = [
     "title": "Hope"
   },
   {
-    "path": "course-content/module-5/unit-2/audio/hope---hannah.mp3",
-    "label": "Hannah",
+    "path": "course-content/module-5/unit-2/audio/hope-omari--swahili.mp3",
+    "label": "Omari (swahili)",
     "title": "Hope"
   },
   {
     "path": "course-content/module-5/unit-2/audio/hope-sophie--chinese.mp3",
     "label": "Sophie (chinese)",
     "title": "Hope"
+  },
+  {
+    "path": "course-content/module-5/unit-2/audio/hope-sophie--english.mp3",
+    "label": "Sophie (english)",
+    "title": "Hope"
+  },
+  {
+    "path": "course-content/module-5/unit-3/audio/courage-omari--english.mp3",
+    "label": "Omari (English)",
+    "title": "Courage"
+  },
+  {
+    "path": "course-content/module-5/unit-3/audio/courage-omari--swahili.mp3",
+    "label": "Omari (Swahili)",
+    "title": "Courage"
   }
 ];
 

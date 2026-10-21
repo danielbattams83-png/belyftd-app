@@ -74,12 +74,16 @@ export class AudioPlayerService {
         this.onPlaybackEnded();
       });
       this.audioElem.addEventListener('playing', () => {
+        if (!this.audioElem?.getAttribute('src') || !this.activeTrack()) return;
         this.isLoading.set(false);
         this.isPlaying.set(true);
       });
-      this.audioElem.addEventListener('waiting', () => this.isLoading.set(true));
+      this.audioElem.addEventListener('waiting', () => {
+        if (this.audioElem?.getAttribute('src') && this.activeTrack()) this.isLoading.set(true);
+      });
       this.audioElem.addEventListener('pause', () => this.isPlaying.set(false));
       this.audioElem.addEventListener('error', () => {
+        if (!this.audioElem?.getAttribute('src') || !this.activeTrack()) return;
         const track = this.activeTrack();
         if (track?.audioUrl?.startsWith('course-content/') && !this.retried && Date.now() - this.resolvedAt > 9 * 60 * 1000) {
           this.retried = true;
@@ -124,12 +128,35 @@ export class AudioPlayerService {
       if (request !== this.playbackRequest) return;
       this.isPlaying.set(true);
       this.isLoading.set(false);
-    } catch {
+    } catch (error: unknown) {
       if (request !== this.playbackRequest) return;
-      this.errorMessage.set('This recording is unavailable. Check your access and try again.');
+      this.errorMessage.set(this.playbackErrorMessage(error));
       this.isLoading.set(false);
       this.isPlaying.set(false);
     }
+  }
+
+  private playbackErrorMessage(error: unknown): string {
+    const code = (error as {code?: string} | null)?.code;
+    if (code === 'functions/permission-denied') return 'Your current course access does not include this recording. Redeem a sponsor code or choose a lesson included in your plan.';
+    if (code === 'functions/unauthenticated') return 'Please sign in again to play this recording.';
+    if (code === 'functions/not-found') return 'This recording is not available yet. Please choose another recording.';
+    if (code === 'functions/unavailable' || code === 'functions/deadline-exceeded') return 'Unable to connect. Check your internet connection and try again.';
+    return 'This recording could not start. Please try again.';
+  }
+
+  stop(): void {
+    this.stopAll();
+    this.currentTime.set(0);
+    this.errorMessage.set(null);
+  }
+
+  close(): void {
+    this.stop();
+    this.activeTrack.set(null);
+    this.duration.set(0);
+    this.showFullPlayer.set(false);
+    this.showTranscript.set(false);
   }
 
   togglePlay(): void {

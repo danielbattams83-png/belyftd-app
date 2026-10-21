@@ -1,5 +1,5 @@
 ﻿{
-    "checkedAtUtc":  "2026-10-20T22:53:12.1852201Z",
+    "checkedAtUtc":  "2026-10-21T03:54:18.1394813Z",
     "bucket":  "belyft-d-app.firebasestorage.app",
     "localAudioFiles":  [
 
@@ -73,6 +73,12 @@
                              "md5Hash":  "NoF0tBB6rebjrTbY0/TzUg=="
                          },
                          {
+                             "name":  "course-content/module-2/unit-1/audio/identity-theft-omari--english.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2933456",
+                             "md5Hash":  "RaRjzoHKdOtrBL3DJ1pBCg=="
+                         },
+                         {
                              "name":  "course-content/module-2/unit-1/audio/identity_theft-hannah.mp3",
                              "contentType":  "audio/mpeg",
                              "size":  "3470347",
@@ -127,6 +133,30 @@
                              "md5Hash":  "rrB4UJy/zB5gqBV0j8V1eQ=="
                          },
                          {
+                             "name":  "course-content/module-5/unit-1/audio/against-all-odds-omari--english.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1911963",
+                             "md5Hash":  "s5z2RJaCojYR9XUTBIRErA=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-1/audio/against-all-odds-omari--swahili.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2153962",
+                             "md5Hash":  "tzsRQKw+HuSyhpA/dAeyAw=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-1/audio/against-all-odds-sophie--chinese.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2505883",
+                             "md5Hash":  "jEdEm9lNL4ntP//VNkEUWA=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-1/audio/against-all-odds-sophie--english.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2020633",
+                             "md5Hash":  "MJ2oQb1CDmDTM/8zB0Vnpw=="
+                         },
+                         {
                              "name":  "course-content/module-5/unit-2/audio/hope---hannah.mp3",
                              "contentType":  "audio/mpeg",
                              "size":  "1644702",
@@ -155,6 +185,18 @@
                              "contentType":  "audio/mpeg",
                              "size":  "1526420",
                              "md5Hash":  "iYuYpYM/rEuGaewPLd132w=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-3/audio/courage-omari--english.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1414174",
+                             "md5Hash":  "UZyW7HhN50QNibrE5KYSpQ=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-3/audio/courage-omari--swahili.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1631513",
+                             "md5Hash":  "hoG1g9/QCePdhMyrEkeY+w=="
                          }
                      ],
     "firestoreAudioReferences":  [
@@ -168,6 +210,12 @@
                                          "unit":  "modules/module-2/units/unit-1",
                                          "mentor":  "Hannah",
                                          "path":  "course-content/module-2/unit-1/audio/identity_theft-hannah.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-1",
+                                         "mentor":  "Omari (English)",
+                                         "path":  "course-content/module-2/unit-1/audio/identity-theft-omari--english.mp3",
                                          "exists":  true
                                      },
                                      {
@@ -219,6 +267,30 @@
                                          "exists":  true
                                      },
                                      {
+                                         "unit":  "modules/module-5/units/unit-1",
+                                         "mentor":  "Omari (English)",
+                                         "path":  "course-content/module-5/unit-1/audio/against-all-odds-omari--english.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-1",
+                                         "mentor":  "Omari (Swahili)",
+                                         "path":  "course-content/module-5/unit-1/audio/against-all-odds-omari--swahili.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-1",
+                                         "mentor":  "Sophie (Chinese)",
+                                         "path":  "course-content/module-5/unit-1/audio/against-all-odds-sophie--chinese.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-1",
+                                         "mentor":  "Sophie (English)",
+                                         "path":  "course-content/module-5/unit-1/audio/against-all-odds-sophie--english.mp3",
+                                         "exists":  true
+                                     },
+                                     {
                                          "unit":  "modules/module-5/units/unit-2",
                                          "mentor":  "Omari (swahili)",
                                          "path":  "course-content/module-5/unit-2/audio/hope-omari--swahili.mp3",
@@ -246,6 +318,18 @@
                                          "unit":  "modules/module-5/units/unit-2",
                                          "mentor":  "Sophie (chinese)",
                                          "path":  "course-content/module-5/unit-2/audio/hope-sophie--chinese.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-3",
+                                         "mentor":  "Omari (English)",
+                                         "path":  "course-content/module-5/unit-3/audio/courage-omari--english.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-3",
+                                         "mentor":  "Omari (Swahili)",
+                                         "path":  "course-content/module-5/unit-3/audio/courage-omari--swahili.mp3",
                                          "exists":  true
                                      }
                                  ],

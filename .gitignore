@@ -53,3 +53,7 @@ Thumbs.db
 /firestore-debug.log
 /ui-debug.log
 /pubsub-debug.log
+
+# Generated narration text
+/scripts/clean_audio_texts/
+/scripts/__pycache__/

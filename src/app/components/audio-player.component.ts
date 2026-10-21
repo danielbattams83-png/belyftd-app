@@ -7,134 +7,56 @@ import {AudioPlayerService} from '../services/audio-player.service';
   selector: 'app-audio-player',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatIconModule],
+  host: {'(document:keydown.escape)': 'player.close()'},
   template: `
     @if (player.activeTrack()) {
-      <!-- Mini Floating Player Bar -->
-      <div
-        id="mini-audio-player"
-        class="fixed bottom-18 md:bottom-6 left-3 right-3 max-w-lg mx-auto z-40 bg-[#333333] text-white backdrop-blur-md border border-slate-700/80 rounded-3xl shadow-2xl p-3.5 transition-all duration-300"
-      >
-        @if (player.isLoading()) { <p role="status" class="mb-2 text-xs text-slate-300">Loading recording...</p> }
-        @if (player.errorMessage()) { <p role="alert" class="mb-2 text-xs text-rose-200">{{ player.errorMessage() }}</p> }
-        @if (player.activeTrack()?.audioUrl) {
-        <!-- Progress Bar Line on Top -->
-        <button
-          type="button"
-          class="w-full bg-slate-700/80 h-1.5 rounded-full overflow-hidden mb-2.5 cursor-pointer block p-0 border-0"
-          (click)="onProgressBarClick($event)"
-          aria-label="Seek audio track position"
-        >
-          <div
-            class="bg-[#1A9BEF] h-full rounded-full transition-all duration-150"
-            [style.width.%]="player.progressPercent()"
-          ></div>
-        </button>
-
-        }
-        <div class="flex items-center justify-between gap-3">
-          <!-- Track Info & Thumbnail (Click to open full player) -->
-          <button
-            id="open-full-player-btn"
-            type="button"
-            (click)="player.toggleFullPlayer()"
-            class="flex items-center gap-3 min-w-0 text-left cursor-pointer focus-accessible rounded-2xl flex-1"
-            aria-label="Open full audio player view"
-          >
-            <div class="relative w-11 h-11 rounded-2xl overflow-hidden shrink-0 border border-slate-600">
-              <img
-                [src]="player.activeTrack()?.speakerAvatar"
-                [alt]="player.activeTrack()?.speaker || 'Speaker'"
-                class="w-full h-full object-cover"
-                referrerpolicy="no-referrer"
-              />
-              @if (player.isPlaying()) {
-                <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center gap-0.5">
-                  <div class="w-1 bg-[#1A9BEF] rounded-full animate-audio-bar-1 h-3"></div>
-                  <div class="w-1 bg-[#1A9BEF] rounded-full animate-audio-bar-2 h-4"></div>
-                  <div class="w-1 bg-[#1A9BEF] rounded-full animate-audio-bar-3 h-2"></div>
-                </div>
-              }
-            </div>
-
-            <div class="min-w-0">
-              <p class="text-sm font-bold text-white truncate leading-tight font-display">
-                {{ player.activeTrack()?.title }}
-              </p>
-              <p class="text-xs text-slate-300 truncate mt-0.5">
-                {{ player.mentorLanguageLabel() || player.activeTrack()?.speaker }} • {{ player.formatTime(player.currentTime()) }} / {{ player.formatTime(player.duration()) }}
-              </p>
-            </div>
+      <section id="mini-audio-player" aria-label="Audio player"
+        class="fixed bottom-20 md:bottom-6 left-3 right-3 max-w-lg mx-auto z-[60] space-y-3 rounded-3xl border border-slate-700 bg-[#333333] p-4 text-white shadow-2xl">
+        <div class="flex items-start gap-3">
+          <button type="button" (click)="player.toggleFullPlayer()" aria-label="Open full audio player"
+            class="flex min-w-0 flex-1 items-center gap-3 text-left focus-accessible rounded-xl">
+            <img [src]="player.activeTrack()?.speakerAvatar" alt="" class="h-11 w-11 shrink-0 rounded-xl object-cover" />
+            <span class="min-w-0"><span class="block truncate text-sm font-bold">{{ player.activeTrack()?.title }}</span>
+              <span class="block truncate text-xs text-slate-300">{{ player.mentorLanguageLabel() }}</span></span>
           </button>
-
-          @if (player.activeTrack()?.audioUrl) {
-          <!-- Quick Controls -->
-          <div class="flex items-center gap-1.5 shrink-0">
-            <!-- Mentor - Language Indicator Badge -->
-            <span class="px-2.5 py-1 text-xs font-bold rounded-xl bg-[#1A9BEF]/20 text-[#1A9BEF] border border-[#1A9BEF]/30 hidden sm:inline-flex items-center gap-1">
-              <mat-icon class="text-sm">record_voice_over</mat-icon>
-              {{ player.mentorLanguageLabel() }}
-            </span>
-
-            <!-- Skip -10s -->
-            <button
-              id="skip-back-btn"
-              type="button"
-              (click)="player.skip(-10)"
-              class="w-9 h-9 flex items-center justify-center rounded-2xl text-slate-300 hover:bg-slate-700/60 cursor-pointer focus-accessible"
-              aria-label="Skip back 10 seconds"
-              title="Skip back 10s"
-            >
-              <mat-icon class="text-xl">replay_10</mat-icon>
-            </button>
-
-            <!-- Play / Pause Main Button -->
-            <button
-              id="toggle-play-btn"
-              type="button"
-              (click)="player.togglePlay()"
-              class="w-10 h-10 flex items-center justify-center rounded-2xl bg-[#1A9BEF] hover:bg-[#1689d4] text-white shadow-md hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
-              [attr.aria-label]="player.isPlaying() ? 'Pause audio' : 'Play audio'"
-            >
-              <mat-icon class="text-2xl">{{ player.isLoading() ? 'hourglass_top' : player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
-            </button>
-
-            <!-- Skip +10s -->
-            <button
-              id="skip-forward-btn"
-              type="button"
-              (click)="player.skip(10)"
-              class="w-9 h-9 flex items-center justify-center rounded-2xl text-slate-300 hover:bg-slate-700/60 cursor-pointer focus-accessible"
-              aria-label="Skip forward 10 seconds"
-              title="Skip forward 10s"
-            >
-              <mat-icon class="text-xl">forward_10</mat-icon>
-            </button>
-
-            <!-- Expand Full View -->
-            <button
-              id="expand-player-btn"
-              type="button"
-              (click)="player.toggleFullPlayer()"
-              class="w-9 h-9 flex items-center justify-center rounded-2xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer focus-accessible"
-              aria-label="Expand player"
-            >
-              <mat-icon class="text-xl">expand_less</mat-icon>
-            </button>
-          </div>
-          }
+          <button id="close-mini-player-btn" type="button" (click)="player.close()" aria-label="Close audio player" title="Close and stop audio"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-200 hover:bg-slate-700 focus-accessible">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
-      </div>
+        @if (player.errorMessage()) { <p role="alert" class="text-xs leading-relaxed text-rose-200">{{ player.errorMessage() }}</p> }
+        @if (player.isLoading()) { <p role="status" class="text-xs text-slate-300">Loading recording...</p> }
+        @if (player.activeTrack()?.audioUrl) {
+          <input type="range" min="0" step="0.1" [max]="player.duration()" [value]="player.currentTime()"
+            [disabled]="!player.duration()" (input)="onScrubChange($event)" aria-label="Seek audio track position"
+            class="block h-1.5 w-full cursor-pointer accent-[#1A9BEF] focus-accessible" />
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs tabular-nums text-slate-300">{{ player.formatTime(player.currentTime()) }} / {{ player.formatTime(player.duration()) }}</span>
+            <div class="flex items-center gap-1">
+              <button type="button" (click)="player.skip(-10)" aria-label="Rewind 10 seconds" class="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-700 focus-accessible"><mat-icon>replay_10</mat-icon></button>
+              <button id="toggle-play-btn" type="button" (click)="player.togglePlay()"
+                [attr.aria-label]="player.isLoading() ? 'Cancel loading' : player.isPlaying() ? 'Pause audio' : 'Play audio'"
+                class="flex h-11 w-11 items-center justify-center rounded-full bg-[#1A9BEF] text-white hover:bg-[#1689d4] focus-accessible">
+                <mat-icon>{{ player.isLoading() ? 'close' : player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
+              </button>
+              <button id="stop-mini-player-btn" type="button" (click)="player.stop()" aria-label="Stop audio" title="Stop and rewind"
+                class="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-700 focus-accessible"><mat-icon>stop</mat-icon></button>
+              <button type="button" (click)="player.skip(10)" aria-label="Forward 10 seconds" class="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-700 focus-accessible"><mat-icon>forward_10</mat-icon></button>
+            </div>
+          </div>
+        }
+      </section>
 
       <!-- Expanded Full Audio Sheet / Modal -->
       @if (player.showFullPlayer()) {
-        <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-sm p-0 sm:p-4">
+        <div class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-sm p-0 sm:p-4">
           <div
             id="full-audio-sheet"
-            class="bg-[#333333] text-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-700 p-6 sm:p-8 shadow-2xl max-h-[92vh] flex flex-col animate-in fade-in slide-in-from-bottom duration-200"
+            class="bg-[#333333] text-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-700 p-6 sm:p-8 shadow-2xl max-h-[92vh] overflow-y-auto flex flex-col animate-in fade-in slide-in-from-bottom duration-200"
           >
             <!-- Header Bar -->
-            <div class="flex items-center justify-between pb-4 border-b border-slate-700">
-              <div class="flex items-center gap-2">
+            <div class="sticky top-0 z-10 flex items-center justify-between gap-2 bg-[#333333] pb-4 border-b border-slate-700">
+              <div class="flex min-w-0 flex-wrap items-center gap-2">
                 <span class="px-3 py-1 text-xs font-semibold rounded-full bg-[#1A9BEF]/20 text-[#1A9BEF] border border-[#1A9BEF]/30">
                   {{ player.activeTrack()?.category }}
                 </span>
@@ -144,17 +66,22 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 </span>
               </div>
 
+              <div class="flex shrink-0 items-center gap-1">
+              <button type="button" (click)="player.toggleFullPlayer()" aria-label="Minimize audio player"
+                class="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-700 focus-accessible"><mat-icon>keyboard_arrow_down</mat-icon></button>
               <button
                 id="close-full-player-btn"
                 type="button"
-                (click)="player.toggleFullPlayer()"
-                class="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-300 cursor-pointer focus-accessible"
+                (click)="player.close()"
+                class="w-10 h-10 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-300 cursor-pointer focus-accessible"
                 aria-label="Close full player"
               >
-                <mat-icon>keyboard_arrow_down</mat-icon>
+                <mat-icon>close</mat-icon>
               </button>
+              </div>
             </div>
 
+            @if (player.errorMessage()) { <p role="alert" class="pt-3 text-sm text-rose-200">{{ player.errorMessage() }}</p> }
             <!-- Speaker Hero Art & Waveform -->
             <div class="py-6 flex flex-col items-center text-center">
               <div class="relative w-28 h-28 rounded-3xl overflow-hidden shadow-lg border-2 border-[#1A9BEF]/50 mb-4">
@@ -211,7 +138,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
             </div>
 
             <!-- Playback Controls Cluster -->
-            <div class="flex items-center justify-around py-5">
+            <div class="flex flex-wrap items-center justify-center gap-3 py-5">
               <!-- Speed Selector -->
               <button
                 id="speed-cycle-btn"
@@ -240,10 +167,13 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 type="button"
                 (click)="player.togglePlay()"
                 class="w-16 h-16 rounded-3xl bg-[#1A9BEF] hover:bg-[#1689d4] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
-                [attr.aria-label]="player.isPlaying() ? 'Pause audio' : 'Play audio'"
+                [attr.aria-label]="player.isLoading() ? 'Cancel loading' : player.isPlaying() ? 'Pause audio' : 'Play audio'"
               >
                 <mat-icon class="text-4xl">{{ player.isLoading() ? 'hourglass_top' : player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
               </button>
+
+              <button id="stop-full-player-btn" type="button" (click)="player.stop()" aria-label="Stop audio"
+                class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-700 text-white hover:bg-slate-600 focus-accessible"><mat-icon>stop</mat-icon></button>
 
               <!-- Skip +10s -->
               <button

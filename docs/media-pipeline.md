@@ -13,7 +13,7 @@ The roster in `production-mentors.ts` contains only these four identities, with 
 
 ## Asset audit
 
-`audio-asset-audit.json` records all 25 audio objects and 15 unit audio references. Every referenced object exists. Ten objects are original Hannah/Steve source copies outside `course-content/`; these were preserved. There is no `src/assets/` folder, and no audio files were found in the local `assets/` or `public/` directories.
+`audio-asset-audit.json` records all 32 audio objects and 22 unit audio references. Every referenced object exists. Ten objects are original Hannah/Steve source copies outside `course-content/`; these were preserved. There is no `src/assets/` folder, and no audio files were found in the local `assets/` or `public/` directories.
 
 No objects could be positively identified as legacy ringing/robotic placeholders from their paths or metadata, so no cloud recordings were deleted. Audio quality has not been assessed by listening. The fabricated lesson paths and sample daily audio catalog were removed from the app.
 
@@ -34,7 +34,7 @@ Runtime identity: `course-media@belyft-d-app.iam.gserviceaccount.com`. Its roles
 
 The Firebase CLI login was expired, so the available Google Cloud CLI credentials were used to deploy only this function. Frontend changes remain in the workspace; frontend hosting was not deployed.
 
-Live checks confirmed Storage returns HTTP 206 with the requested 1,024 bytes for a production MP3 and the callable rejects unauthenticated requests with HTTP 401. Authenticated browser playback still requires a real Firebase user with the appropriate subscription tier; it was not manually exercised.
+Live checks confirmed Storage returns HTTP 206 with the requested 1,024 bytes for a production MP3 and the callable rejects unauthenticated requests with HTTP 401. A temporary Firebase test account confirmed that a user without a tier receives HTTP 403 and a tier-3 user receives working signed URLs for existing and newly imported recordings. Range requests to those signed URLs returned HTTP 206 with 1,024 bytes. The temporary accounts were removed. Browser playback was not manually exercised.
 
 ## Checks
 
@@ -43,3 +43,17 @@ Live checks confirmed Storage returns HTTP 206 with the requested 1,024 bytes fo
 - `node --test functions/test/course-media.test.js scripts/media-service-worker.test.js`
 
 The repository-wide lint command reports existing errors in the partner page, notification scheduler, and Firebase service. Targeted lint covers the new media components and services.
+
+## Additional audio import (21 October 2026)
+
+Seven new Sophie/Omari recordings were imported with `scripts/ingest_mentor_audio.py --apply`:
+
+- Identity Theft: Omari (English), added to module-2/unit-1.
+- Against All Odds: Sophie (English/Chinese), Omari (English/Swahili), added as module-5/unit-1.
+- Courage: Omari (English/Swahili), added as module-5/unit-3.
+
+The two new units use their original Library teaching text and tier 3, consistent with the existing module-5 Hope unit. Existing unit content, tier requirements, and other mentor recordings were preserved. The importer verifies checksums, skips unchanged objects, refuses to overwrite different objects, and patches audio maps with a Firestore update-time precondition. The import report lists the local sources and Storage destinations.
+
+The player includes separate Stop (rewind while keeping the selected recording) and Close (stop and dismiss both views) controls. Closing cancels pending playback requests. The full view scrolls with its close controls kept at the top; the support shortcut moves above the mini player. Permission-denied errors explain the course access requirement.
+
+Mentor cards now use cascading Module and Lesson selectors, with a Language selector for Sophie and Omari. Options are derived from the mentor's actual registered recordings, so languages and lessons are limited to the selected module/lesson. Selection changes do not autoplay; one Play lesson button requests the selected recording through the existing access checks.

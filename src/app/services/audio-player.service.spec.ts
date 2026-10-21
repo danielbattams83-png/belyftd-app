@@ -104,4 +104,40 @@ describe('AudioPlayerService production playback', () => {
     expect(audio.currentTime).toBe(25);
     vi.restoreAllMocks();
   });
+  it('stops and rewinds without keeping the source loaded', async () => {
+    await player.playTrack(track('omari'));
+    player.currentTime.set(25);
+    player.stop();
+    expect(audio.pause).toHaveBeenCalled();
+    expect(audio.src).toBe('');
+    expect(player.currentTime()).toBe(0);
+    expect(player.activeTrack()?.id).toBe('omari');
+    expect(player.isPlaying()).toBe(false);
+  });
+
+  it('closes an unavailable recording and both player views', async () => {
+    sign.mockRejectedValueOnce({code: 'functions/permission-denied'});
+    await player.playTrack(track('restricted'));
+    expect(player.errorMessage()).toContain('course access');
+    player.showFullPlayer.set(true);
+    player.close();
+    expect(player.activeTrack()).toBeNull();
+    expect(player.showFullPlayer()).toBe(false);
+    expect(player.errorMessage()).toBeNull();
+    expect(audio.src).toBe('');
+  });
+
+  it('does not reopen playback after closing during a signed URL request', async () => {
+    let complete!: (url: string) => void;
+    sign.mockReturnValueOnce(new Promise<string>(resolve => complete = resolve));
+    const pending = player.playTrack(track('pending'));
+    player.close();
+    complete('https://example.com/late');
+    await pending;
+    audio.dispatchEvent(new Event('playing'));
+    expect(audio.play).not.toHaveBeenCalled();
+    expect(player.activeTrack()).toBeNull();
+    expect(player.isPlaying()).toBe(false);
+  });
+
 });

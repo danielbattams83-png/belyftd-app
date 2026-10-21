@@ -1,3 +1,4 @@
+import {MentorRecordingPickerComponent} from './components/mentor-recording-picker.component';
 import {productionMentorForLabel} from './services/production-mentors';
 import {BackButtonComponent} from './components/back-button.component';
 import {NavigationService} from './services/navigation.service';
@@ -41,6 +42,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MentorRecordingPickerComponent,
     BackButtonComponent,
     CommonModule,
     FormsModule,

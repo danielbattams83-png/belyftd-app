@@ -938,14 +938,11 @@
                 </div>
               </div>
               <p class="text-sm text-slate-600 dark:text-slate-300">{{ mentor.bio }}</p>
-              @for (track of mentorRecordings(mentor.name); track track.id) {
-                <button type="button" (click)="playMentorRecording(track)"
-                  class="flex w-full items-center gap-2 rounded-xl bg-[#1A9BEF] px-4 py-3 text-left text-sm font-semibold text-white focus-accessible">
-                  <mat-icon class="shrink-0">headphones</mat-icon>
-                  <span class="min-w-0"><span class="block">{{ track.title }}</span><span class="block text-xs font-medium opacity-90">Listen in {{ track.language }}</span></span>
-                  <mat-icon class="ml-auto shrink-0">play_arrow</mat-icon>
-                </button>
-              }
+              <app-mentor-recording-picker
+                [tracks]="mentorRecordings(mentor.name)"
+                [showLanguageSelector]="mentor.languages.length > 1"
+                (playRecording)="playMentorRecording($event)"
+              />
             </article>
           }
         </div>
@@ -1358,6 +1355,7 @@
     target="_blank"
     rel="noopener noreferrer"
     aria-label="Contact Lyftd support on WhatsApp"
+    [style.bottom]="audioPlayer.activeTrack() ? 'calc(env(safe-area-inset-bottom) + 19rem)' : null"
     class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg shadow-green-500/30 ring-4 ring-white/60 transition hover:scale-105 hover:bg-green-600 focus-accessible"
     title="WhatsApp Support"
   >

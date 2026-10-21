@@ -1,0 +1,72 @@
+{
+  "project": "belyft-d-app",
+  "newAudioObjects": 7,
+  "recordings": [
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Omari (Black-Middle)\\Audio\\AGAINST ALL ODDS-omari-(english).mp3",
+      "storagePath": "course-content/module-5/unit-1/audio/against-all-odds-omari--english.mp3",
+      "label": "Omari (English)",
+      "uploaded": true
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Omari (Black-Middle)\\Audio\\AGAINST ALL ODDS-omari-(swahili).mp3",
+      "storagePath": "course-content/module-5/unit-1/audio/against-all-odds-omari--swahili.mp3",
+      "label": "Omari (Swahili)",
+      "uploaded": true
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Sophie (Asian-Young)\\Audio\\AGAINST ALL ODDS-sophie-(chinese).mp3",
+      "storagePath": "course-content/module-5/unit-1/audio/against-all-odds-sophie--chinese.mp3",
+      "label": "Sophie (Chinese)",
+      "uploaded": true
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Sophie (Asian-Young)\\Audio\\AGAINST ALL ODDS-sophie-(english).mp3",
+      "storagePath": "course-content/module-5/unit-1/audio/against-all-odds-sophie--english.mp3",
+      "label": "Sophie (English)",
+      "uploaded": true
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Omari (Black-Middle)\\Audio\\COURAGE-omari-(english).mp3",
+      "storagePath": "course-content/module-5/unit-3/audio/courage-omari--english.mp3",
+      "label": "Omari (English)",
+      "uploaded": true
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Omari (Black-Middle)\\Audio\\COURAGE-omari-(swahili).mp3",
+      "storagePath": "course-content/module-5/unit-3/audio/courage-omari--swahili.mp3",
+      "label": "Omari (Swahili)",
+      "uploaded": true
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Omari (Black-Middle)\\Audio\\HOPE-omari-(english).mp3",
+      "storagePath": "course-content/module-5/unit-2/audio/hope-omari--english.mp3",
+      "label": "Omari (english)",
+      "uploaded": false
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Omari (Black-Middle)\\Audio\\HOPE-omari-(swahili).mp3",
+      "storagePath": "course-content/module-5/unit-2/audio/hope-omari--swahili.mp3",
+      "label": "Omari (swahili)",
+      "uploaded": false
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Sophie (Asian-Young)\\Audio\\HOPE-Sophie-(chinese).mp3",
+      "storagePath": "course-content/module-5/unit-2/audio/hope-sophie--chinese.mp3",
+      "label": "Sophie (chinese)",
+      "uploaded": false
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Sophie (Asian-Young)\\Audio\\HOPE-Sophie-(english).mp3",
+      "storagePath": "course-content/module-5/unit-2/audio/hope-sophie--english.mp3",
+      "label": "Sophie (english)",
+      "uploaded": false
+    },
+    {
+      "source": "H:\\My Drive\\Lyft'd Lessons\\Site Files\\4. Mentors\\Omari (Black-Middle)\\Audio\\IDENTITY-THEFT-omari-(english).mp3",
+      "storagePath": "course-content/module-2/unit-1/audio/identity-theft-omari--english.mp3",
+      "label": "Omari (English)",
+      "uploaded": true
+    }
+  ]
+}

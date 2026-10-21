@@ -34,8 +34,8 @@ describe('App', () => {
       expect(recordings.length).toBeGreaterThan(0);
       expect(recordings.every(track => track.audioUrl?.startsWith('course-content/'))).toBe(true);
     }
-    expect(app.mentorRecordings('Sophie').map(track => track.language).sort()).toEqual(['Chinese', 'English']);
-    expect(app.mentorRecordings('Omari').map(track => track.language).sort()).toEqual(['English', 'Swahili']);
+    expect([...new Set(app.mentorRecordings('Sophie').map(track => track.language))].sort()).toEqual(['Chinese', 'English']);
+    expect([...new Set(app.mentorRecordings('Omari').map(track => track.language))].sort()).toEqual(['English', 'Swahili']);
   });
 
   it('requires sign-in before requesting a mentor recording', () => {
