@@ -2,6 +2,7 @@ import {getDefaultUnitForMentor, MentorAudioUnit} from '../services/course.servi
 import {parseMentorLabel} from '../services/course-assets';
 import {ChangeDetectionStrategy, Component, computed, input, output, signal, OnInit, OnChanges} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
+import {FormsModule} from '@angular/forms';
 import {AudioTrack} from '../models/app.models';
 
 const MODULE_TITLES: Record<string, string> = {
@@ -11,7 +12,7 @@ const MODULE_TITLES: Record<string, string> = {
 
 @Component({
   selector: 'app-mentor-recording-picker',
-  imports: [MatIconModule],
+  imports: [MatIconModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (selectedTrack(); as track) {
@@ -19,14 +20,14 @@ const MODULE_TITLES: Record<string, string> = {
         <div class="grid min-w-0 gap-3">
           <label class="block min-w-0 space-y-1.5 text-xs font-semibold">
             <span>Module</span>
-            <select aria-label="Module" [value]="moduleId()" (change)="chooseModule($event)"
+            <select aria-label="Module" [ngModel]="moduleId()" (ngModelChange)="chooseModule($event)"
               class="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 focus-accessible dark:border-slate-600 dark:bg-slate-900 dark:text-white">
               @for (module of modules(); track module.id) { <option [value]="module.id">{{ module.title }}</option> }
             </select>
           </label>
           <label class="block min-w-0 space-y-1.5 text-xs font-semibold">
             <span>Lesson</span>
-            <select aria-label="Lesson" [value]="lessonId()" (change)="chooseLesson($event)"
+            <select aria-label="Lesson" [ngModel]="lessonId()" (ngModelChange)="chooseLesson($event)"
               class="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 focus-accessible dark:border-slate-600 dark:bg-slate-900 dark:text-white">
               @for (lesson of lessons(); track lesson.id) { <option [value]="lesson.id">{{ lesson.title }}</option> }
             </select>
@@ -34,7 +35,7 @@ const MODULE_TITLES: Record<string, string> = {
           @if (showLanguageSelector()) {
             <label class="block min-w-0 space-y-1.5 text-xs font-semibold">
               <span>Language</span>
-              <select aria-label="Language" [value]="language()" (change)="chooseLanguage($event)"
+              <select aria-label="Language" [ngModel]="language()" (ngModelChange)="chooseLanguage($event)"
                 class="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 focus-accessible dark:border-slate-600 dark:bg-slate-900 dark:text-white">
                 @for (option of languages(); track option) { <option [value]="option">{{ option }}</option> }
               </select>
@@ -91,24 +92,25 @@ export class MentorRecordingPickerComponent implements OnInit, OnChanges {
     .filter(item => item.moduleId === this.moduleId() && item.lessonId === this.lessonId()));
   readonly languages = computed(() => [...new Set(this.lessonRecordings().map(item => item.track.language).filter((language): language is string => !!language))].sort());
   readonly language = computed(() => {
-    const preferred = this.chosenLanguage() || (this.mentorId() === 'omari' ? 'Swahili' : 'English');
+    const defaultLanguage = this.mentorId() === 'omari' ? 'Swahili' : this.mentorId() === 'sophie' ? 'Chinese' : 'English';
+    const preferred = this.chosenLanguage() || defaultLanguage;
     return this.languages().includes(preferred) ? preferred : this.languages()[0] ?? '';
   });
   readonly selectedTrack = computed(() => this.lessonRecordings().find(item => item.track.language === this.language())?.track);
 
-  chooseModule(event: Event): void {
+  chooseModule(moduleId: string): void {
     this.userSelectedUnit = true;
-    this.chosenModule.set((event.target as HTMLSelectElement).value);
+    this.chosenModule.set(moduleId);
     this.chosenLesson.set('');
   }
 
-  chooseLesson(event: Event): void {
+  chooseLesson(lessonId: string): void {
     this.userSelectedUnit = true;
-    this.chosenLesson.set((event.target as HTMLSelectElement).value);
+    this.chosenLesson.set(lessonId);
   }
 
-  chooseLanguage(event: Event): void {
-    this.chosenLanguage.set((event.target as HTMLSelectElement).value);
+  chooseLanguage(language: string): void {
+    this.chosenLanguage.set(language);
   }
 
   playSelected(): void {
