@@ -571,7 +571,12 @@ export class App {
   }
 
   mentorRecordings(mentorName: string): AudioTrack[] {
-    return this.dataService.audioTracks().filter(track => track.mentorName === mentorName);
+    return this.dataService.availableAudioTracks().filter(track => track.mentorName === mentorName);
+  }
+
+  playMentorRecording(track: AudioTrack): void {
+    if (!this.requireSignIn()) return;
+    void this.audioPlayer.playTrack(track);
   }
 
   openMentorChat(mentor: Mentor): void {

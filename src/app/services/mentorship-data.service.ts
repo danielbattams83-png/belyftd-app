@@ -1,6 +1,7 @@
+import {VERIFIED_MENTOR_RECORDINGS} from './verified-mentor-recordings';
 import {PRODUCTION_MENTORS, productionMentorForLabel} from './production-mentors';
 import {parseMentorLabel, isProductionMentorVariant} from './course-assets';
-import {Injectable, inject, signal, effect} from '@angular/core';
+import {Injectable, inject, signal, effect, computed} from '@angular/core';
 import {UserProfile, AudioTrack, Mentor, GoalQuest, CommunityPost, ChatMessage, VoiceJournal, Course} from '../models/app.models';
 import {FirebaseService} from './firebase.service';
 
@@ -141,6 +142,11 @@ export class MentorshipDataService {
 
   // Only expose audio actually registered on ingested Firestore units.
   readonly audioTracks = signal<AudioTrack[]>([]);
+  readonly availableAudioTracks = computed(() => {
+    const recordings = new Map(VERIFIED_MENTOR_RECORDINGS.map(track => [track.id, track]));
+    for (const track of this.audioTracks()) recordings.set(track.id, track);
+    return [...recordings.values()];
+  });
   readonly audioCatalogLoading = signal(false);
   readonly audioCatalogError = signal<string | null>(null);
   private catalogRequest = 0;

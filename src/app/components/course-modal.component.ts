@@ -1,3 +1,4 @@
+import {BackButtonComponent} from './back-button.component';
 import {MentorAudioComponent} from './mentor-audio.component';
 import {ChangeDetectionStrategy, Component, inject, output, input, signal, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
@@ -9,7 +10,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
 @Component({
   selector: 'app-course-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MentorAudioComponent, CommonModule, MatIconModule],
+  imports: [BackButtonComponent, MentorAudioComponent, CommonModule, MatIconModule],
   template: `
     @if (course(); as c) {
       <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
@@ -19,16 +20,8 @@ import {AudioPlayerService} from '../services/audio-player.service';
           class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-3xl rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] my-auto"
         >
           <!-- Top Back-Button Navigation Bar -->
-          <header class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-20">
-            <button
-              id="course-back-to-list-btn"
-              type="button"
-              (click)="onBack()"
-              class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 transition cursor-pointer focus-accessible"
-            >
-              <mat-icon class="text-base">arrow_back</mat-icon>
-              <span>Back to Courses</span>
-            </button>
+          <header class="flex items-center justify-between px-3 sm:px-6 py-3 border-b border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-20">
+            <app-back-button id="course-back-to-list-btn" label="Back to courses" [navigate]="false" (pressed)="onBack()" />
 
             <div class="flex items-center gap-2">
               <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/50 uppercase tracking-wider">
@@ -162,7 +155,7 @@ export class CourseModalComponent {
     const course = this.course();
     if (!course) return [];
     const normalize = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '');
-    return this.dataService.audioTracks().filter(track => normalize(track.title) === normalize(course.title));
+    return this.dataService.availableAudioTracks().filter(track => normalize(track.title) === normalize(course.title));
   });
 
   pauseAudio(): void {

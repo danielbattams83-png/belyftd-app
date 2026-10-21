@@ -1,0 +1,17 @@
+
+/* Keep the brand legible; switch to the existing app symbol before squeezing it. */
+.app-header-layout { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.app-header-brand { container-type: inline-size; display: block; flex: 1 1 48px; min-width: 48px; max-width: 160px; }
+.app-header-logo { display: block; width: 130px; min-width: 130px; height: auto; }
+.app-header-mark { display: none; width: 44px; height: 44px; border-radius: 10px; }
+.app-header-actions { flex-shrink: 0; margin-left: auto; }
+.app-header-nav { order: 3; width: 100%; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 0 4px; }
+.header-signin-short { display: none; }
+@container (max-width: 129px) {
+  .app-header-logo { display: none; }
+  .app-header-mark { display: block; }
+}
+@media (max-width: 379px) {
+  .header-signin-full { display: none; }
+  .header-signin-short { display: inline; }
+}

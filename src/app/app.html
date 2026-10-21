@@ -6,8 +6,8 @@
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans text-lg transition-colors duration-200">
   
   <!-- Top App Header / Navigation Bar -->
-  <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-safe px-4 sm:px-6 pt-3.5 pb-0 shadow-sm">
-    <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+  <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-safe px-3 sm:px-6 py-2 shadow-sm">
+    <div class="app-header-layout max-w-4xl mx-auto">
       
       @if (!isDashboard()) {
         <app-back-button />
@@ -17,14 +17,15 @@
       <a
         id="brand-home-btn"
         routerLink="/dashboard"
-        class="flex items-center gap-3 text-left cursor-pointer focus-accessible rounded-xl group"
+        class="app-header-brand cursor-pointer focus-accessible rounded-xl group"
         aria-label="Lyftd Home"
       >
-        <img src="/logo.png" alt="Lyftd" class="h-[120px] sm:h-[120px] w-[130px] object-contain flex items-start justify-start" />
+        <img src="/logo.png" alt="Lyftd" width="130" height="67" class="app-header-logo" />
+        <img src="/icon-192.png" alt="Lyftd" width="44" height="44" class="app-header-mark" />
       </a>
 
       <!-- Desktop Nav Links (Hidden on small mobile, visible on tablet/desktop) -->
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+      <nav class="app-header-nav hidden md:flex items-center text-sm font-medium">
         <button
           type="button"
           (click)="selectTab('daily-lyft')"
@@ -86,7 +87,7 @@
       </nav>
 
       <!-- Right Action Items -->
-      <div class="flex items-center gap-2">
+      <div class="app-header-actions flex items-center gap-1 sm:gap-2">
         @if (!firebaseService.authLoading() && !isLoggedIn()) {
           <button
             id="open-register-btn"
@@ -95,7 +96,7 @@
             class="inline-flex h-10 items-center gap-2 rounded-[10px] bg-indigo-400 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700 focus-accessible sm:px-5"
           >
             <mat-icon class="text-base">login</mat-icon>
-            <span>Sign In / Register</span>
+            <span class="header-signin-full">Sign In / Register</span><span class="header-signin-short">Sign in</span>
           </button>
         }
 
@@ -938,9 +939,11 @@
               </div>
               <p class="text-sm text-slate-600 dark:text-slate-300">{{ mentor.bio }}</p>
               @for (track of mentorRecordings(mentor.name); track track.id) {
-                <button type="button" (click)="audioPlayer.playTrack(track)"
+                <button type="button" (click)="playMentorRecording(track)"
                   class="flex w-full items-center gap-2 rounded-xl bg-[#1A9BEF] px-4 py-3 text-left text-sm font-semibold text-white focus-accessible">
-                  <mat-icon>play_arrow</mat-icon><span>{{ track.title }} - {{ track.speaker }}</span>
+                  <mat-icon class="shrink-0">headphones</mat-icon>
+                  <span class="min-w-0"><span class="block">{{ track.title }}</span><span class="block text-xs font-medium opacity-90">Listen in {{ track.language }}</span></span>
+                  <mat-icon class="ml-auto shrink-0">play_arrow</mat-icon>
                 </button>
               }
             </article>
