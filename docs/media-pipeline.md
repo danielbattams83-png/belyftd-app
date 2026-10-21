@@ -134,3 +134,13 @@ the read-only Firebase Rules test API. The application continues to play course 
 through signed URLs from `getCourseMediaUrl`. Live signed playback was verified with HTTP 206
 Range responses for all four tiers. A direct Firebase Storage SDK-style request returned HTTP 403;
 it is not used by the app's course player. Storage rule-engine checks passed independently.
+
+
+## Home Hope video (22 October 2026)
+
+The home hero uses Hannah's `5.2-HOPE-Hannah.mp4`, from Drive file
+`18W6zdSUKHxIMyhzqiwQ5MWGZX0CRKt_p`, at
+`App_Videos/Hero-Hope-Hannah-f69d46967a11.mp4`. The object name includes the source
+SHA-256 prefix so browsers request the replacement without reusing the previous video cache.
+The original Drive video and course-unit media mappings are unchanged. Muted inline autoplay
+and pause/reset on navigation remain in place.

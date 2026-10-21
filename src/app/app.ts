@@ -163,13 +163,7 @@ export class App {
   });
 
     private async loadHopeModule(): Promise<void> {
-    const heroPath = 'App_Videos/Hero-Hope';
-    const heroUrl = await this.firebaseService.getFirstStorageDownloadUrl([
-      heroPath,
-      'App_Videos/Hero-Hope.mp4',
-      'App_Videos/Hero-Hope.mov',
-      'App_Videos/Hero-Hope.webm',
-    ]);
+    const heroUrl = await this.firebaseService.getStorageDownloadUrl('App_Videos/Hero-Hope-Hannah-f69d46967a11.mp4');
     if (heroUrl) this.hopeVideoUrl.set(heroUrl);
 
     const units = (await this.firebaseService.getModuleUnits('module-5')).filter(unit => unit.id === 'unit-2');
