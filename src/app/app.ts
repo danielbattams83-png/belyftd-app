@@ -1,3 +1,5 @@
+import {CoursesCurriculumComponent} from './components/courses-curriculum.component';
+import {CurriculumService} from './services/curriculum.service';
 import {canAccessModule} from './services/tier.service';
 import {UpgradeModalComponent} from './components/upgrade-modal.component';
 import {SmartSearchComponent} from './components/smart-search/smart-search.component';
@@ -45,6 +47,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    CoursesCurriculumComponent,
     UpgradeModalComponent,
     SmartSearchComponent,
     MentorRecordingPickerComponent,
@@ -72,6 +75,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
 export class App {
   readonly audioPlayer = inject(AudioPlayerService);
   readonly dataService = inject(MentorshipDataService);
+  readonly curriculum = inject(CurriculumService);
   readonly themeService = inject(ThemeAccessibilityService);
   readonly aiService = inject(AiMentorService);
   readonly firebaseService = inject(FirebaseService);
@@ -363,11 +367,11 @@ export class App {
 
   // Course metrics
   readonly completedCoursesCount = computed(() => {
-    return this.dataService.courses().filter(c => c.isCompleted).length;
+    return this.curriculum.completedCount();
   });
 
   readonly totalCoursesCount = computed(() => {
-    return this.dataService.courses().length;
+    return this.curriculum.totalUnits();
   });
 
   readonly coursesProgressPercent = computed(() => {

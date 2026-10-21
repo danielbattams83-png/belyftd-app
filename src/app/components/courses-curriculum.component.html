@@ -1,0 +1,36 @@
+<section id="foundational-courses-grid" aria-label="Course modules" class="module-list">
+  @if (curriculum.loading()) { <p role="status">Loading curriculum...</p> }
+  @if (curriculum.usingSnapshot()) { <p class="catalog-note" role="status">Showing the saved course catalog. Live updates are temporarily unavailable.</p> }
+  @for (module of visibleModules(); track module.id) {
+    <details class="module-accordion" [open]="isExpanded(module.id)" (toggle)="onToggle(module.id, $event)">
+      <summary>
+        <span class="module-title">@if (module.supplemental) { {{ module.title }} } @else { Module {{ module.id.split('-')[1] }}@if (module.title) {<span>: {{ module.title }}</span>} }</span>
+        <span class="module-stats">{{ module.allUnitCount }} Units &middot; {{ module.percent }}% Completed</span>
+        @if (!curriculum.canAccess(module.id)) { <mat-icon aria-label="Upgrade required">lock</mat-icon> }
+        <mat-icon class="chevron" aria-hidden="true">expand_more</mat-icon>
+      </summary>
+      <ol class="unit-list">
+        @for (unit of module.units; track unit.id) {
+          <li class="unit-card">
+            <div class="unit-description">
+              <span class="unit-number">Unit {{ unit.id.split('-')[1] }}</span>
+              <h3>{{ unit.title }}</h3>
+              @if (curriculum.isCompleted(module.id, unit.id)) { <span class="completion-label">Completed</span> }
+            </div>
+            <div class="unit-actions">
+              <button type="button" (click)="curriculum.openUnit(module.id, unit.id)" [attr.aria-label]="(!curriculum.canAccess(module.id) ? 'Upgrade to unlock ' : unit.hasMedia ? 'Read and listen to ' : 'Read ') + unit.title">
+                <mat-icon aria-hidden="true">{{ !curriculum.canAccess(module.id) ? 'lock' : unit.hasMedia ? 'headphones' : 'menu_book' }}</mat-icon>
+                {{ !curriculum.canAccess(module.id) ? 'Upgrade to Unlock' : unit.hasMedia ? 'Read & Listen' : 'Read Unit' }}
+              </button>
+              @if (curriculum.canAccess(module.id) && !curriculum.isCompleted(module.id, unit.id)) {
+                <button class="complete-button" type="button" (click)="curriculum.markCompleted(module.id, unit.id)" [attr.aria-label]="'Mark ' + unit.title + ' completed'">Mark completed</button>
+              }
+            </div>
+          </li>
+        }
+      </ol>
+    </details>
+  } @empty {
+    <p>No units match this filter.</p>
+  }
+</section>

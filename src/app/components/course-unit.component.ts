@@ -1,3 +1,4 @@
+import {CurriculumService} from '../services/curriculum.service';
 import {cleanContent} from '../services/reading-content';
 import {canAccessModule} from '../services/tier.service';
 import {AudioPlayerService} from '../services/audio-player.service';
@@ -89,6 +90,12 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
             @if (hasMediaAccess() && audioTracks().length) { <app-mentor-audio [tracks]="audioTracks()" /> }
 
             <div class="whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-200">{{ cleanContent(lesson.textContent) }}</div>
+            @if (hasMediaAccess()) {
+              <button type="button" [disabled]="curriculum.isCompleted(moduleId, unitId)" (click)="curriculum.markCompleted(moduleId, unitId)"
+                class="rounded-xl bg-indigo-400 px-4 py-3 text-sm font-semibold text-slate-950 disabled:opacity-60">
+                {{ curriculum.isCompleted(moduleId, unitId) ? 'Unit completed' : 'Mark unit completed' }}
+              </button>
+            }
           </article>
         }
       </div>
@@ -97,6 +104,9 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
 })
 export class CourseUnitComponent implements OnInit, OnDestroy {
   readonly cleanContent = cleanContent;
+  readonly curriculum = inject(CurriculumService);
+  readonly moduleId = inject(ActivatedRoute).snapshot.paramMap.get('moduleId') ?? '';
+  readonly unitId = inject(ActivatedRoute).snapshot.paramMap.get('unitId') ?? '';
   private readonly route = inject(ActivatedRoute);
   private readonly firebaseService = inject(FirebaseService);
 

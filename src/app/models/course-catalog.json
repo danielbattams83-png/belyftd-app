@@ -1,0 +1,1008 @@
+[
+  {
+    "id": "module-1",
+    "title": "MINDSET – REBOOT YOUR THINKING",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Mindset",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "As a Man Thinks",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Belief Systems",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Thinking",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "What Are You Thinking?",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Set Your Mind",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-7",
+        "title": "Habits",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-8",
+        "title": "Change",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-9",
+        "title": "The TUDES",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-2",
+    "title": "DISCOVERING YOUR IDENTITY",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Identity Theft – Who Are You?",
+        "hasText": true,
+        "hasMedia": true
+      },
+      {
+        "id": "unit-2",
+        "title": "Don’t Be a Xerox",
+        "hasText": true,
+        "hasMedia": true
+      },
+      {
+        "id": "unit-3",
+        "title": "Hands and Feet",
+        "hasText": true,
+        "hasMedia": true
+      },
+      {
+        "id": "unit-4",
+        "title": "Gifts",
+        "hasText": true,
+        "hasMedia": true
+      },
+      {
+        "id": "unit-5",
+        "title": "Awareness",
+        "hasText": true,
+        "hasMedia": true
+      }
+    ]
+  },
+  {
+    "id": "module-3",
+    "title": "FINDING YOUR PURPOSE",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Why?",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Purpose",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Desire",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Passion",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Mission",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "No Dream No Vision",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-7",
+        "title": "Future",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-8",
+        "title": "Look",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-9",
+        "title": "See the Mountain First",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-4",
+    "title": "GOALS, VISION & ACTION",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Vision",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Goal Setting",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Planning Ahead",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Setting Up Your Future",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "What Steps Do I Need?",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Write It Down",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-7",
+        "title": "What’s Next?",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-5",
+    "title": "BUILDING RESILIENCE & HOPE",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Against All Odds – The Peter Daniels Story",
+        "hasText": true,
+        "hasMedia": true
+      },
+      {
+        "id": "unit-2",
+        "title": "Hope",
+        "hasText": true,
+        "hasMedia": true
+      },
+      {
+        "id": "unit-3",
+        "title": "Courage",
+        "hasText": true,
+        "hasMedia": true
+      },
+      {
+        "id": "unit-4",
+        "title": "Fear – The Vaccine to Eliminate Hope",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Don’t Give Up",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Failure Is Not Final",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-7",
+        "title": "Thrive or Survive",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-8",
+        "title": "Victimhood Versus Victory",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-9",
+        "title": "Resilience – Real Stories & Wisdom",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-10",
+        "title": "You Do Make a Difference",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-6",
+    "title": "PERSONAL SUCCESS & GREATNESS",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Abundance / Success",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Being Number 1",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Eagles Soar Above the Crowd",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Octave of Success",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Success",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Your Greatness",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-7",
+    "title": "ATTITUDE, CHOICE & RESPONSIBILITY",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Choice",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Behavioural Accountability",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Action Versus Reaction",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Correction – Self Esteem",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Gratitude",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Attitude Towards Money",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-8",
+    "title": "CHARACTER, INTEGRITY & WISDOM",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Integrity",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Honour",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Folly Versus Wisdom",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Moral Compass",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Reputation",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Wisdom",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-7",
+        "title": "Wisdom 101",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-9",
+    "title": "COMMUNICATION & LISTENING",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Communication",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Listen – Be in the Moment",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Words",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Words – Version 2",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "How To’s",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-10",
+    "title": "BUILDING HEALTHY RELATIONSHIPS",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Commitment / Stickability",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Love – The 7 Love Levels",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Forgive Me",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Thank You",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Perception and Criticism",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Open Heart",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-7",
+        "title": "Trust",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-8",
+        "title": "Promises",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-11",
+    "title": "LEADERSHIP – LEADING YOURSELF & OTHERS",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "How to Become a Vulnerable Leader",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Mastermind",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Greatness – Serve",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "More Like Jesus",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Legacy",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-12",
+    "title": "FAITH – BUILDING YOUR WALK WITH GOD",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Faith",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "God’s Real Nature",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Intimacy and Listening to God’s Voice",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Power of Prayer",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Power of Praise and Worship",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Prayer Seeds",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-7",
+        "title": "Repentance",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-8",
+        "title": "Take a Chance on God",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-9",
+        "title": "Four 4 C’s of Confession – Part 1",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-10",
+        "title": "Four 4 C’s of Confession – Part 2",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-13",
+    "title": "CHRISTIAN LIVING – LIVING OUT YOUR FAITH",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Basics That Bind Us",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Authority, Respect, Reverence",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Giving",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Contribution",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "What About the Church?",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Four 4 C’s of Confession – Part 3",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-14",
+    "title": "FORGIVENESS, HEALING & NEW BEGINNINGS",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Why Did It Happen?",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "When the Bedroom Door Is Shut",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Triggers",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "The Will of God for Your Healing",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "New Beginnings",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Resetting Beliefs and Starting Over",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-15",
+    "title": "MONEY, FINANCE & STEWARDSHIP",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Budget",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Budget Basics 1 & 2",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Financial Tips",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "True Wealth",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "There’s NO PIE!!",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-16",
+    "title": "TIME, DISCIPLINE & PERSONAL MANAGEMENT",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Priorise Time Management",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Focus",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Self-Discipline",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "To Do! or Not To Do?",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Eight Things",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-17",
+    "title": "LEARNING, KNOWLEDGE & PERSONAL GROWTH",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Knowledge",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Study Great People",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Invest in Yourself",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Where To Now? Your Finished!",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Why Is It OK to Be Positive?",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-18",
+    "title": "BALANCE & A BETTER LIFE",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Balance",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Balance in Your Life",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Lifestyle Excellence",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Practical Stuff",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Needs",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-19",
+    "title": "SERVICE, CONTRIBUTION & COMMUNITY",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Thirty Day Service Challenge",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Thirty Day Service Challenge – Extra Questions",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Your Best Life O.T.H.E.R.S.",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Generosity",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Contribution",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-20",
+    "title": "WORK, BUSINESS & PERSONAL EXCELLENCE",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "W.O.R.K. – The Perspective You NEVER Had on WORK",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Momentum Principle",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Ethics",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Cashflow for Personal & Business",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Collaboration",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Mastery",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-21",
+    "title": "DIGITAL LIFE & SOCIAL MEDIA SAFETY",
+    "supplemental": false,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Thrills & Spills – Social Media",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "Social Isolation – Connection V Disruption",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "Communication",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "Choices",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "Accountability",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "Awareness",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  },
+  {
+    "id": "module-22",
+    "title": "Additional Library Lessons",
+    "supplemental": true,
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "CONNECTION AND COMMUNICATION",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-2",
+        "title": "KENYA THIRTY DAY SERVICE CHALLENGE",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-3",
+        "title": "OPPORTUNITY",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-4",
+        "title": "OVERCOMER",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-5",
+        "title": "SCARCITY VERSUS POTENTIAL",
+        "hasText": true,
+        "hasMedia": false
+      },
+      {
+        "id": "unit-6",
+        "title": "WORK",
+        "hasText": true,
+        "hasMedia": false
+      }
+    ]
+  }
+]

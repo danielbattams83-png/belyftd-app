@@ -11,7 +11,8 @@
     "lint": "ng lint",
     "serve:ssr:app": "node dist/app/server/server.mjs",
     "serve:ssr:local": "node --env-file=.env.local dist/app/server/server.mjs",
-    "seed:real-content": "node scripts/seed-real-content.js"
+    "seed:real-content": "node scripts/seed-real-content.js",
+    "ingest:curriculum": "python scripts/ingest-curriculum.py"
   },
   "private": true,
   "dependencies": {

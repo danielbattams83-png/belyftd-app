@@ -734,7 +734,7 @@
               <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/40 uppercase tracking-wider">
                 Leadership Curriculum
               </span>
-              <span class="text-xs text-slate-500 dark:text-slate-400">10 Modules</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">{{ curriculum.courseModuleCount() }} Modules</span>
             </div>
             <h2 id="courses-tour-anchor" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display mt-1">
               Foundational Courses
@@ -836,38 +836,13 @@
           </div>
         }
 
-        <section class="space-y-4 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900" aria-labelledby="course-audio-heading">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <h3 id="course-audio-heading" class="text-base font-bold text-slate-900 dark:text-slate-100">Short Courses</h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">{{ filteredTracks().length }} audio lessons available</p>
-            </div>
-            <mat-icon class="text-indigo-400">headphones</mat-icon>
-          </div>
-          <div class="grid gap-3 md:grid-cols-2">
-            @if (dataService.audioCatalogLoading()) { <p role="status" class="text-sm text-slate-500">Loading mentor recordings...</p> }
-            @if (dataService.audioCatalogError()) { <p role="alert" class="text-sm text-rose-500">{{ dataService.audioCatalogError() }}</p> }
-            @if (!dataService.audioCatalogLoading() && !filteredTracks().length) { <p class="text-sm text-slate-500">No mentor recordings are available for your current access.</p> }
-            @for (track of filteredTracks(); track track.id) {
-              <button type="button" (click)="audioPlayer.playTrack(track)" class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-3 text-left transition hover:border-indigo-200 hover:bg-indigo-50/60 focus-accessible dark:border-slate-800 dark:bg-slate-800/60 dark:hover:border-indigo-900">
-                <img [src]="track.speakerAvatar" [alt]="track.speaker" class="h-12 w-12 shrink-0 rounded-2xl object-cover" referrerpolicy="no-referrer" />
-                <span class="min-w-0 flex-1">
-                  <span class="block text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">{{ track.category }}</span>
-                  <span class="block truncate text-xs font-bold text-slate-900 dark:text-slate-100">{{ track.title }}</span>
-                  <span class="block truncate text-[11px] text-slate-500 dark:text-slate-400">{{ track.speaker }} • {{ track.duration }}</span>
-                </span>
-                <mat-icon class="text-indigo-400">play_arrow</mat-icon>
-              </button>
-            }
-          </div>
-        </section>
 
         @if (isLoggedIn()) {
         <section id="course-progress-card" class="space-y-3 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900" aria-labelledby="course-progress-heading">
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
               <mat-icon class="text-indigo-400">auto_stories</mat-icon>
-              <div><h3 id="course-progress-heading" class="text-sm font-bold text-slate-900 dark:text-slate-100">Foundational Courses Progress</h3><p class="text-xs text-slate-500 dark:text-slate-400">10 Core Youth Leadership &amp; Mindset Modules</p></div>
+              <div><h3 id="course-progress-heading" class="text-sm font-bold text-slate-900 dark:text-slate-100">Foundational Courses Progress</h3><p class="text-xs text-slate-500 dark:text-slate-400">{{ curriculum.courseModuleCount() }} Modules &middot; {{ curriculum.totalUnits() }} Units</p></div>
             </div>
             <span class="font-mono text-sm font-bold text-indigo-600 dark:text-indigo-400">{{ coursesProgressPercent() }}%</span>
           </div>
@@ -911,80 +886,7 @@
         </div>
         }
 
-        <!-- Foundational Courses Responsive Grid (1 col on mobile, 2 cols on tablet/desktop) -->
-        <div id="foundational-courses-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          @for (course of filteredCourses(); track course.id) {
-            <div
-              id="course-card-{{ course.id }}"
-              class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition flex flex-col justify-between space-y-4 group"
-            >
-              <div class="space-y-2.5">
-                <!-- Top Row: Time & Status Badge -->
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                    <mat-icon class="text-sm">schedule</mat-icon>
-                    {{ course.estimatedTime }}
-                  </span>
-
-                  <!-- Status Badge -->
-                  @if (!isLoggedIn()) {
-                    <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                      <mat-icon class="text-xs">menu_book</mat-icon>
-                      Available
-                    </span>
-                  } @else if (course.isCompleted) {
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50">
-                      <mat-icon class="text-xs">check_circle</mat-icon>
-                      Completed
-                    </span>
-                  } @else {
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                      <mat-icon class="text-xs">play_circle_outline</mat-icon>
-                      Up Next
-                    </span>
-                  }
-                </div>
-
-                <!-- Course Title -->
-                <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 font-display tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                  {{ course.title }}
-                </h3>
-
-                <!-- 2-3 Sentences Description -->
-                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
-                  {{ course.description }}
-                </p>
-              </div>
-
-              <!-- Actions Bottom Bar -->
-              <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                <button
-                  id="open-course-btn-{{ course.id }}"
-                  type="button"
-                  (click)="openCourse(course)"
-                  class="px-4 py-2 rounded-xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
-                >
-                  <mat-icon class="text-sm">menu_book</mat-icon>
-                  <span>Read & Listen</span>
-                </button>
-
-                @if (isLoggedIn()) {
-                <button
-                  id="toggle-course-complete-btn-{{ course.id }}"
-                  type="button"
-                  (click)="dataService.toggleCourseCompletion(course.id)"
-                  class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium cursor-pointer transition focus-accessible flex items-center gap-1"
-                  [attr.title]="course.isCompleted ? 'Mark as Incomplete' : 'Mark as Completed'"
-                >
-                  <mat-icon class="text-base" [class.text-emerald-600]="course.isCompleted">
-                    {{ course.isCompleted ? 'check_box' : 'check_box_outline_blank' }}
-                  </mat-icon>
-                </button>
-                }
-              </div>
-            </div>
-          }
-        </div>
+        <app-courses-curriculum [filter]="courseFilter()" />
 
       </div>
     }

@@ -87,3 +87,33 @@ backs up Firestore records under ignored `tmp/`, uses optimistic Firestore updat
 both Firestore and Storage after every write. It fails if a source is missing or ambiguous.
 Original Word formatting runs are concatenated verbatim; explicit paragraph and line breaks
 are preserved. It does not run narration extraction or cut reading exercises from lessons.
+
+
+## Full reading curriculum and module catalog (22 October 2026)
+
+The complete library is organized in the synced Unit Documents destination under `Clean Reading Units`.
+Its numbered folders follow the existing Clean Audio Texts index: 21 course modules and 136 sessions.
+Six unassigned library lessons are explicitly supplemental reading (internal module-22); two reference
+Word documents are exported separately and excluded from the course list. Original source files are
+never changed. Reading exports retain exercises, reflection questions, and alternate source versions.
+
+```powershell
+python scripts/organize-reading-library.py
+python scripts/organize-reading-library.py --apply
+npm run ingest:curriculum
+npm run ingest:curriculum -- --apply
+```
+
+The organizer reads original DOCX files, using audio indexes for ordering only. It produces per-source
+Markdown, per-unit clean reading JSON, the module/session index, hashes, and a source manifest. The
+importer automatically prefers this generated reading tree when present. It includes DOCX/JSON units
+regardless of media availability, preserves existing audio/video maps, and updates canonical private
+Storage JSON, Firestore reading copies, and text-free `moduleCatalog` documents. A bundled catalog
+snapshot provides the same titles/order if Firestore is temporarily unavailable.
+
+The public catalog exposes unit titles and text/media availability; it never contains lesson text or
+media URLs. Firestore unit text and the canonical reading callable retain the subscription rules:
+Tier 1 = Module 1; Tier 2 = Modules 1-3; Tiers 3/4 = all modules, including supplemental lessons.
+Accordions list all units (including locked units), sort module/unit numbers numerically, and select
+the first accessible incomplete module. Completion keys use `module-N/unit-M` in the user profile;
+Firestore progress document IDs encode the slash so progress writes remain valid document paths.

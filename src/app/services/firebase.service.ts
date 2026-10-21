@@ -1,3 +1,4 @@
+import {CurriculumModule} from '../models/curriculum.model';
 import {cleanContent} from './reading-content';
 import {canAccessModule} from './tier.service';
 import {PRODUCTION_MENTORS} from './production-mentors';
@@ -502,6 +503,11 @@ export class FirebaseService {
     const tier = claim === 1 || claim === 2 || claim === 3 || claim === 4 ? claim : 0;
     this.subscriptionTier.set(tier);
     return tier;
+  }
+
+  async getModuleCatalog(): Promise<CurriculumModule[]> {
+    const snapshot = await getDocs(collection(this._requireFirestore(), 'moduleCatalog'));
+    return snapshot.docs.map(document => ({...document.data(), id: document.id} as CurriculumModule));
   }
 
   async getModuleUnits(moduleId: string): Promise<ModuleUnitDocument[]> {
@@ -1051,7 +1057,7 @@ export class FirebaseService {
           updatedAt: serverTimestamp()
         });
 
-        const progressDocRef = doc(this.db, 'users', user.uid, 'progress', courseId);
+        const progressDocRef = doc(this.db, 'users', user.uid, 'progress', encodeURIComponent(courseId));
         await setDoc(progressDocRef, {
           userId: user.uid,
           courseId,

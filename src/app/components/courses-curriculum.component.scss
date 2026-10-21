@@ -1,0 +1,20 @@
+:host { display: block; min-width: 0; }
+.module-list { display: grid; gap: 1rem; }
+.module-accordion { min-width: 0; border: 1px solid #6b7280; border-radius: 16px; overflow: hidden; }
+summary { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; padding: 1.25rem; cursor: pointer; list-style: none; background: #333; color: white; }
+summary::-webkit-details-marker { display: none; }
+.module-title { flex: 1 1 250px; font-weight: 700; overflow-wrap: anywhere; }
+.module-stats { font-size: 12px; }
+.chevron { flex-shrink: 0; transition: transform .2s; }
+details[open] > summary .chevron { transform: rotate(180deg); }
+.unit-list { display: grid; gap: 1rem; padding: 1.25rem; margin: 0; list-style: none; }
+.unit-card { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; min-width: 0; padding: 1rem; border: 1px solid #6b7280; border-radius: 12px; }
+.unit-description { flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }
+.unit-number, .completion-label { font-size: 12px; } .completion-label { color: #168543; }
+h3 { font-size: 16px; font-weight: 700; margin: .25rem 0; }
+.unit-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .75rem; border-radius: 8px; background: #1a9bef; color: #071c29; font-size: 12px; font-weight: 700; cursor: pointer; }
+.complete-button { background: transparent; color: inherit; border: 1px solid #6b7280; }
+button:focus-visible, summary:focus-visible { outline: 3px solid #1a9bef; outline-offset: -3px; }
+.catalog-note { font-size: 12px; }
+@media (max-width: 600px) { .unit-actions { width: 100%; } .unit-actions button { flex: 1; } }

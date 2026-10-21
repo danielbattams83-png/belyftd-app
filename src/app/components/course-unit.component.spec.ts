@@ -15,7 +15,7 @@ describe('Course unit media visibility', () => {
       provideRouter([]),
       {provide: ActivatedRoute, useValue: {snapshot: {paramMap: convertToParamMap({moduleId: 'module-5', unitId: 'unit-2'})}}},
       {provide: FirebaseService, useValue: {
-        subscriptionTier: signal(tier), currentUser: signal(null), getCourseMediaUrlFromPath: sign,
+        userProfile: signal(null), getModuleCatalog: vi.fn().mockResolvedValue([]), subscriptionTier: signal(tier), currentUser: signal(null), getCourseMediaUrlFromPath: sign,
         getModuleUnit: vi.fn().mockResolvedValue({id: 'unit-2', title: 'Hope', minTier: 3, textContent, audioUrls, videoUrls}),
       }},
       {provide: AudioPlayerService, useValue: {activeTrack: signal(null), isTrackAvailable: () => tier >= 3, close: vi.fn(), formatTime: () => '0:00'}},
