@@ -22,14 +22,13 @@ describe('Mentor recording selectors', () => {
     const play = vi.fn();
     component.playRecording.subscribe(play);
     expect(component.modules().length).toBe(2);
-    expect(component.language()).toBe('English');
+    expect(component.language()).toBe('Swahili');
     expect(component.moduleId()).toBe('module-5');
     expect(component.lessonId()).toBe('unit-1');
     expect(component.languages()).toEqual(['English', 'Swahili']);
     choose('Module', 'module-5');
     expect(component.lessons().map(lesson => lesson.id)).toEqual(['unit-1', 'unit-2', 'unit-3']);
     choose('Lesson', 'unit-3');
-    choose('Language', 'Swahili');
     expect(play).not.toHaveBeenCalled();
     (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
     expect(play.mock.calls[0][0].audioUrl).toBe('course-content/module-5/unit-3/audio/courage-omari--swahili.mp3');
@@ -74,10 +73,21 @@ describe('Mentor recording selectors', () => {
     fixture.componentRef.setInput('tracks', omari.filter(track => track.audioUrl?.includes('module-2')));
     fixture.detectChanges();
     expect(component.moduleId()).toBe('module-2');
+    expect(component.language()).toBe('English');
     fixture.componentRef.setInput('tracks', omari);
     fixture.detectChanges();
     expect(component.moduleId()).toBe('module-5');
     expect(component.languages()).toEqual(['English', 'Swahili']);
+    expect(component.language()).toBe('Swahili');
+  });
+
+  it('preserves an explicit English preference for Omari across catalog refreshes', () => {
+    const {fixture, component, choose} = setup('Omari', true);
+    choose('Language', 'English');
+    fixture.componentRef.setInput('tracks', [...VERIFIED_MENTOR_RECORDINGS.filter(track => track.mentorName === 'Omari')]);
+    fixture.detectChanges();
+    expect(component.language()).toBe('English');
+    expect(component.selectedTrack()?.language).toBe('English');
   });
 
   it('preserves an explicitly selected partial unit when the catalog refreshes', () => {

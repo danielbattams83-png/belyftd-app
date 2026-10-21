@@ -71,7 +71,7 @@ export class MentorRecordingPickerComponent implements OnInit, OnChanges {
   }
   private readonly chosenModule = signal('');
   private readonly chosenLesson = signal('');
-  private readonly chosenLanguage = signal('English');
+  private readonly chosenLanguage = signal('');
   private readonly recordings = computed(() => this.tracks().flatMap(track => {
     const match = track.audioUrl?.trim().match(/^course-content\/(module-[1-9][0-9]*)\/(unit-[1-9][0-9]*)\/audio\/[^/]+\.mp3$/);
     const normalizedTrack = {...track, language: parseMentorLabel(`${track.mentorName ?? ''} (${track.language ?? ''})`).language};
@@ -90,8 +90,10 @@ export class MentorRecordingPickerComponent implements OnInit, OnChanges {
   private readonly lessonRecordings = computed(() => this.recordings()
     .filter(item => item.moduleId === this.moduleId() && item.lessonId === this.lessonId()));
   readonly languages = computed(() => [...new Set(this.lessonRecordings().map(item => item.track.language).filter((language): language is string => !!language))].sort());
-  readonly language = computed(() => this.languages().includes(this.chosenLanguage())
-    ? this.chosenLanguage() : this.languages()[0] ?? '');
+  readonly language = computed(() => {
+    const preferred = this.chosenLanguage() || (this.mentorId() === 'omari' ? 'Swahili' : 'English');
+    return this.languages().includes(preferred) ? preferred : this.languages()[0] ?? '';
+  });
   readonly selectedTrack = computed(() => this.lessonRecordings().find(item => item.track.language === this.language())?.track);
 
   chooseModule(event: Event): void {
