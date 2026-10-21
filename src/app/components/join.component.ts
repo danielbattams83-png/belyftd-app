@@ -1,7 +1,8 @@
+import {BackButtonComponent} from './back-button.component';
 import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {Router, RouterLink} from '@angular/router';
+import {Router} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
 import {RegisterModalComponent} from './register-modal.component';
 import {FirebaseService} from '../services/firebase.service';
@@ -9,14 +10,11 @@ import {FirebaseService} from '../services/firebase.service';
 @Component({
   selector: 'app-join',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, RouterLink, MatIconModule, RegisterModalComponent],
+  imports: [BackButtonComponent, CommonModule, FormsModule, MatIconModule, RegisterModalComponent],
   template: `
     <section class="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-4 backdrop-blur-sm">
       <div class="w-full max-w-lg space-y-6 rounded-3xl border border-slate-200 bg-white p-7 shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:p-9">
-        <a routerLink="/" class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 hover:underline dark:text-indigo-300">
-          <mat-icon>arrow_back</mat-icon>
-          Back to Lyft'd
-        </a>
+        <app-back-button />
         <div class="space-y-3 text-center">
           <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
             <mat-icon class="text-3xl">handshake</mat-icon>

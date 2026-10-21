@@ -1,0 +1,259 @@
+﻿{
+    "checkedAtUtc":  "2026-10-20T22:53:12.1852201Z",
+    "bucket":  "belyft-d-app.firebasestorage.app",
+    "localAudioFiles":  [
+
+                        ],
+    "srcAssetsExists":  false,
+    "audioObjects":  [
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Hannah/1-IDENTITY_THEFT-Hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "3470347",
+                             "md5Hash":  "7QI6I24N/TRD96urnZG0sw=="
+                         },
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Hannah/2.-XEROX-DONT-BE-A-COPY-Hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1927242",
+                             "md5Hash":  "F74QMLfNjkk5GKRSu9Kp4g=="
+                         },
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Hannah/3-HANDS-AND-FEET-Hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "4952849",
+                             "md5Hash":  "h/3oYnmi5VnYlaJPnj5EVg=="
+                         },
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Hannah/4-GIFTS-Hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2719693",
+                             "md5Hash":  "Z7+fmpGDJgbiugKAIbPndg=="
+                         },
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Hannah/5-AWARENESS-Hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1453694",
+                             "md5Hash":  "rrB4UJy/zB5gqBV0j8V1eQ=="
+                         },
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Steve/1-IDENTITY_THEFT-Steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2580094",
+                             "md5Hash":  "NoF0tBB6rebjrTbY0/TzUg=="
+                         },
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Steve/2.-XEROX-DONT-BE-A-COPY-Steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1454530",
+                             "md5Hash":  "Q/12zKWStJV/VJJtfLrbtw=="
+                         },
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Steve/3-HANDS-AND-FEET-Steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "4100630",
+                             "md5Hash":  "WUFhwx4wpjPKMaM9SqwjCQ=="
+                         },
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Steve/4-GIFTS-Steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2052630",
+                             "md5Hash":  "dx6c/oixGtiiq6Mq0oOd1g=="
+                         },
+                         {
+                             "name":  "Course Material/Modules/Tier 1 Modules/Module 2 - Identity/Audio/Mentor - Steve/5-AWARENESS-Steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1072526",
+                             "md5Hash":  "5PD/q9Q66jp/5NSNqEleAg=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-1/audio/1-identity_theft-steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2580094",
+                             "md5Hash":  "NoF0tBB6rebjrTbY0/TzUg=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-1/audio/identity_theft-hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "3470347",
+                             "md5Hash":  "7QI6I24N/TRD96urnZG0sw=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-2/audio/2.-xerox-dont-be-a-copy-steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1454530",
+                             "md5Hash":  "Q/12zKWStJV/VJJtfLrbtw=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-2/audio/xerox-dont-be-a-copy-hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1927242",
+                             "md5Hash":  "F74QMLfNjkk5GKRSu9Kp4g=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-3/audio/3-hands-and-feet-steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "4100630",
+                             "md5Hash":  "WUFhwx4wpjPKMaM9SqwjCQ=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-3/audio/hands-and-feet-hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "4952849",
+                             "md5Hash":  "h/3oYnmi5VnYlaJPnj5EVg=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-4/audio/4-gifts-steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2052630",
+                             "md5Hash":  "dx6c/oixGtiiq6Mq0oOd1g=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-4/audio/gifts-hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2719693",
+                             "md5Hash":  "Z7+fmpGDJgbiugKAIbPndg=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-5/audio/5-awareness-steve.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1072526",
+                             "md5Hash":  "5PD/q9Q66jp/5NSNqEleAg=="
+                         },
+                         {
+                             "name":  "course-content/module-2/unit-5/audio/awareness-hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1453694",
+                             "md5Hash":  "rrB4UJy/zB5gqBV0j8V1eQ=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-2/audio/hope---hannah.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1644702",
+                             "md5Hash":  "zfJvbJNDQjqeGScMzEshbQ=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-2/audio/hope-omari--english.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1301325",
+                             "md5Hash":  "exWiaZt3VpFqpXDaoMeZ1g=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-2/audio/hope-omari--swahili.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "2405050",
+                             "md5Hash":  "Nj7Dvcs/V/SPnS8JXGoMsA=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-2/audio/hope-sophie--chinese.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1321292",
+                             "md5Hash":  "VSg00dW5NrLnTWeGuDBimg=="
+                         },
+                         {
+                             "name":  "course-content/module-5/unit-2/audio/hope-sophie--english.mp3",
+                             "contentType":  "audio/mpeg",
+                             "size":  "1526420",
+                             "md5Hash":  "iYuYpYM/rEuGaewPLd132w=="
+                         }
+                     ],
+    "firestoreAudioReferences":  [
+                                     {
+                                         "unit":  "modules/module-2/units/unit-1",
+                                         "mentor":  "Steve",
+                                         "path":  "course-content/module-2/unit-1/audio/1-identity_theft-steve.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-1",
+                                         "mentor":  "Hannah",
+                                         "path":  "course-content/module-2/unit-1/audio/identity_theft-hannah.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-2",
+                                         "mentor":  "Steve",
+                                         "path":  "course-content/module-2/unit-2/audio/2.-xerox-dont-be-a-copy-steve.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-2",
+                                         "mentor":  "Hannah",
+                                         "path":  "course-content/module-2/unit-2/audio/xerox-dont-be-a-copy-hannah.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-3",
+                                         "mentor":  "Steve",
+                                         "path":  "course-content/module-2/unit-3/audio/3-hands-and-feet-steve.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-3",
+                                         "mentor":  "Hannah",
+                                         "path":  "course-content/module-2/unit-3/audio/hands-and-feet-hannah.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-4",
+                                         "mentor":  "Steve",
+                                         "path":  "course-content/module-2/unit-4/audio/4-gifts-steve.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-4",
+                                         "mentor":  "Hannah",
+                                         "path":  "course-content/module-2/unit-4/audio/gifts-hannah.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-5",
+                                         "mentor":  "Steve",
+                                         "path":  "course-content/module-2/unit-5/audio/5-awareness-steve.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-2/units/unit-5",
+                                         "mentor":  "Hannah",
+                                         "path":  "course-content/module-2/unit-5/audio/awareness-hannah.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-2",
+                                         "mentor":  "Omari (swahili)",
+                                         "path":  "course-content/module-5/unit-2/audio/hope-omari--swahili.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-2",
+                                         "mentor":  "Sophie (english)",
+                                         "path":  "course-content/module-5/unit-2/audio/hope-sophie--english.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-2",
+                                         "mentor":  "Omari (english)",
+                                         "path":  "course-content/module-5/unit-2/audio/hope-omari--english.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-2",
+                                         "mentor":  "Hannah",
+                                         "path":  "course-content/module-5/unit-2/audio/hope---hannah.mp3",
+                                         "exists":  true
+                                     },
+                                     {
+                                         "unit":  "modules/module-5/units/unit-2",
+                                         "mentor":  "Sophie (chinese)",
+                                         "path":  "course-content/module-5/unit-2/audio/hope-sophie--chinese.mp3",
+                                         "exists":  true
+                                     }
+                                 ],
+    "explicitPlaceholderCandidates":  [
+
+                                      ],
+    "deletedObjects":  [
+
+                       ],
+    "note":  "No confirmed placeholder audio objects were found. Original Hannah/Steve source copies were preserved. Listening quality cannot be determined from object names or metadata."
+}

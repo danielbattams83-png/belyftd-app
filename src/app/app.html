@@ -9,11 +9,14 @@
   <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-safe px-4 sm:px-6 pt-3.5 pb-0 shadow-sm">
     <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
       
+      @if (!isDashboard()) {
+        <app-back-button />
+      }
+
       <!-- Brand Logo -->
       <a
         id="brand-home-btn"
-        routerLink="/"
-        (click)="selectTab('daily-lyft')"
+        routerLink="/dashboard"
         class="flex items-center gap-3 text-left cursor-pointer focus-accessible rounded-xl group"
         aria-label="Lyftd Home"
       >
@@ -144,7 +147,7 @@
         <button
           id="open-profile-dialog-btn"
           type="button"
-          (click)="showProfileModal.set(true)"
+          (click)="openProfileOrSignIn()"
           class="w-10 h-10 rounded-full bg-slate-200 border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden cursor-pointer focus-accessible shrink-0 hover:ring-2 hover:ring-indigo-500/50 transition"
           aria-label="Open User Profile and Settings"
         >
@@ -490,6 +493,9 @@
 
           <!-- Tracks List -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            @if (dataService.audioCatalogLoading()) { <p role="status" class="text-sm text-slate-500">Loading mentor recordings...</p> }
+            @if (dataService.audioCatalogError()) { <p role="alert" class="text-sm text-rose-500">{{ dataService.audioCatalogError() }}</p> }
+            @if (!dataService.audioCatalogLoading() && !filteredTracks().length) { <p class="text-sm text-slate-500">No mentor recordings are available for your current access.</p> }
             @for (track of filteredTracks(); track track.id) {
               <div
                 class="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750 hover:border-slate-300 dark:hover:border-slate-700 transition flex items-center justify-between gap-3 group"
@@ -596,7 +602,7 @@
                 </div>
                 <div>
                   <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Career Pathing & Interview Prep</p>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-2.5">With Marcus Vance • Tech Lead</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-2.5">Personal learning time</p>
                   <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg inline-block">
                     Tomorrow, 4:00 PM
                   </span>
@@ -732,7 +738,7 @@
           <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-4"><h4 class="text-slate-900 dark:text-slate-100 font-bold text-base">Upcoming Session</h4><span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 rounded-full">Active</span></div>
-              <div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0"><mat-icon class="text-2xl">event_available</mat-icon></div><div><p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Career Pathing &amp; Interview Prep</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-2.5">With Marcus Vance • Tech Lead</p><span class="text-xs font-medium px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg inline-block">Tomorrow, 4:00 PM</span></div></div>
+              <div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0"><mat-icon class="text-2xl">event_available</mat-icon></div><div><p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Career Pathing &amp; Interview Prep</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-2.5">Personal learning time</p><span class="text-xs font-medium px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg inline-block">Tomorrow, 4:00 PM</span></div></div>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs"><span class="text-slate-500 dark:text-slate-400">Daily Step: Complete portfolio check</span><button type="button" (click)="selectTab('quests')" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer">View Quest →</button></div>
           </div>
@@ -770,6 +776,9 @@
             <mat-icon class="text-indigo-400">headphones</mat-icon>
           </div>
           <div class="grid gap-3 md:grid-cols-2">
+            @if (dataService.audioCatalogLoading()) { <p role="status" class="text-sm text-slate-500">Loading mentor recordings...</p> }
+            @if (dataService.audioCatalogError()) { <p role="alert" class="text-sm text-rose-500">{{ dataService.audioCatalogError() }}</p> }
+            @if (!dataService.audioCatalogLoading() && !filteredTracks().length) { <p class="text-sm text-slate-500">No mentor recordings are available for your current access.</p> }
             @for (track of filteredTracks(); track track.id) {
               <button type="button" (click)="audioPlayer.playTrack(track)" class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-3 text-left transition hover:border-indigo-200 hover:bg-indigo-50/60 focus-accessible dark:border-slate-800 dark:bg-slate-800/60 dark:hover:border-indigo-900">
                 <img [src]="track.speakerAvatar" [alt]="track.speaker" class="h-12 w-12 shrink-0 rounded-2xl object-cover" referrerpolicy="no-referrer" />
@@ -915,169 +924,31 @@
     <!-- TAB 2: MENTORS DIRECTORY & 1-ON-1 SESSIONS -->
     <!-- ========================================== -->
     @if (activeTab() === 'mentors') {
-      <div id="tab-mentors-content" class="space-y-6 animate-in fade-in duration-150">
-        
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <h2 id="mentors-tour-anchor" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
-              Find Your Mentor
-            </h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Connect with verified leaders in STEM, College Prep, Life Skills, and Creative Arts.
-            </p>
-          </div>
-        </div>
-
-        <!-- Specialty Filter Pills -->
-        <div class="space-y-2">
-          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Age bracket</p>
-          <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs" role="group" aria-label="Filter mentors by age bracket">
-            @for (bracket of mentorAgeBrackets; track bracket.value) {
-              <button
-                type="button"
-                (click)="mentorAgeBracketFilter.set(bracket.value)"
-                [attr.aria-pressed]="mentorAgeBracketFilter() === bracket.value"
-                [class]="mentorAgeBracketFilter() === bracket.value
-                  ? 'bg-indigo-400 text-white font-semibold shadow-xs'
-                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
-                class="px-4 py-2 rounded-xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
-              >
-                {{ bracket.label }}
-              </button>
-            }
-          </div>
-        </div>
-
-        <!-- Specialty Filter Pills -->
-        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
-          @for (spec of ['All', 'Coding', 'College', 'Leadership', 'Financial', 'Creative']; track spec) {
-            <button
-              type="button"
-              (click)="mentorSpecialtyFilter.set(spec)"
-              [class]="mentorSpecialtyFilter() === spec
-                ? 'bg-indigo-400 text-white font-semibold shadow-xs'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
-              class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
-            >
-              {{ spec === 'All' ? 'All Mentors' : spec }}
-            </button>
-          }
-        </div>
-
-        <!-- Mentors Deck -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          @for (mentor of filteredMentors(); track mentor.id) {
-            <div
-              class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between"
-            >
-              <!-- Card Top Header with Gradient Accent -->
-              <div>
-                <div class="p-5 bg-gradient-to-r {{ mentor.bannerGradient }} text-white flex items-center justify-between">
-                  <div class="flex items-center gap-3.5">
-                    <div class="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/40 shadow-sm shrink-0">
-                      <img
-                        [src]="mentor.avatar"
-                        [alt]="mentor.name"
-                        class="w-full h-full object-cover"
-                        referrerpolicy="no-referrer"
-                      />
-                    </div>
-                    <div>
-                      <div class="flex items-center gap-1.5">
-                        <h3 class="text-base font-bold font-display text-white">{{ mentor.name }}</h3>
-                        @if (mentor.verified) {
-                          <span class="w-4 h-4 rounded-full bg-white text-indigo-700 text-[10px] flex items-center justify-center font-bold">✓</span>
-                        }
-                      </div>
-                      <p class="text-[11px] text-white/80">Prefers {{ mentor.preferredNickname || mentor.name }}</p>
-                      <p class="text-xs text-white/90 font-medium">{{ mentor.title }}</p>
-                      <p class="text-[11px] text-white/70">{{ mentor.organization }}</p>
-                    </div>
-                  </div>
-
-                  <!-- Rating -->
-                  <div class="flex flex-col items-end">
-                    <div class="flex items-center gap-1 bg-black/20 backdrop-blur-xs px-2.5 py-1 rounded-xl text-amber-300 text-xs font-bold">
-                      <mat-icon class="text-xs">star</mat-icon>
-                      <span>{{ mentor.rating }}</span>
-                    </div>
-                    <span class="text-[10px] text-white/80 mt-1">{{ mentor.menteesCount }} mentored</span>
-                  </div>
-                </div>
-
-                <!-- Card Body -->
-                <div class="p-5 space-y-3.5">
-                  <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    {{ mentor.bio }}
-                  </p>
-
-                  <!-- Mentor Quote -->
-                  <div class="p-3 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 text-xs font-medium text-indigo-700 dark:text-indigo-300 italic">
-                    "{{ mentor.quote }}"
-                  </div>
-
-                  <!-- Specialty Tags -->
-                  <div class="flex flex-wrap gap-1.5">
-                    @for (tag of mentor.specialties; track tag) {
-                      <span class="px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                        {{ tag }}
-                      </span>
-                    }
-                  </div>
-
-                  @if (mentor.lifeExperienceTags?.length) {
-                    <div class="space-y-1.5">
-                      <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Life experience</p>
-                      <div class="flex flex-wrap gap-1.5">
-                        @for (tag of mentor.lifeExperienceTags; track tag) {
-                          <span class="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
-                            {{ tag }}
-                          </span>
-                        }
-                      </div>
-                    </div>
-                  }
+      <section id="tab-mentors-content" class="space-y-6 py-6">
+        <h2 id="mentors-tour-anchor" class="text-3xl font-bold">Meet Your Mentors</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-300">Explore course recordings from our four production mentors.</p>
+        <div class="grid gap-6 sm:grid-cols-2">
+          @for (mentor of dataService.mentors(); track mentor.id) {
+            <article class="space-y-4 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-[#333333]">
+              <div class="flex items-center gap-4">
+                <img [src]="mentor.avatar" [alt]="mentor.name" class="h-20 w-20 rounded-2xl object-cover" />
+                <div><h3 class="text-xl font-bold">{{ mentor.name }}</h3>
+                  <p class="text-sm font-semibold text-[#1A9BEF]">{{ mentor.languages.join(' / ') }}</p>
                 </div>
               </div>
-              <!-- Availability & CTA Actions Footer -->
-              <div class="px-5 pb-5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
-                  <mat-icon class="text-sm">schedule</mat-icon>
-                  <span>{{ mentor.availableNext }}</span>
-                </div>
-
-                <div class="flex items-center gap-2">
-                  <!-- Listen to Intro -->
-                  <button
-                    type="button"
-                    (click)="audioPlayer.speakCustomScript('Mentor Intro with ' + mentor.name, mentor.voiceIntroPrompt, mentor.name, 'Confidence')"
-                    class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition focus-accessible"
-                    title="Listen to Voice Intro"
-                  >
-                    <mat-icon class="text-sm text-indigo-600 dark:text-indigo-400">volume_up</mat-icon>
-                    <span>Intro</span>
-                  </button>
-
-                  <!-- Open Chat / Booking -->
-                  <button
-                    type="button"
-                    (click)="openMentorChat(mentor)"
-                    class="px-4 py-2 rounded-xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs focus-accessible"
-                  >
-                    <mat-icon class="text-sm">chat</mat-icon>
-                    <span>Connect</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+              <p class="text-sm text-slate-600 dark:text-slate-300">{{ mentor.bio }}</p>
+              @for (track of mentorRecordings(mentor.name); track track.id) {
+                <button type="button" (click)="audioPlayer.playTrack(track)"
+                  class="flex w-full items-center gap-2 rounded-xl bg-[#1A9BEF] px-4 py-3 text-left text-sm font-semibold text-white focus-accessible">
+                  <mat-icon>play_arrow</mat-icon><span>{{ track.title }} - {{ track.speaker }}</span>
+                </button>
+              }
+            </article>
           }
         </div>
-      </div>
+      </section>
     }
 
-    <!-- ========================================== -->
-    <!-- TAB 3: QUESTS & GOAL MILESTONES           -->
-    <!-- ========================================== -->
     @if (activeTab() === 'quests') {
       <div id="tab-quests-content" class="space-y-6 animate-in fade-in duration-150">
         
@@ -1613,7 +1484,7 @@
   <!-- Profile & Settings Modal -->
   @if (showProfileModal()) {
     <app-profile-modal
-      (closeModal)="showProfileModal.set(false)"
+      (closeModal)="navigation.goBack()"
       (logoutComplete)="handleProfileLogout()"
       (editOnboarding)="editProfileOnboarding()"
       (replayTour)="replayAppTour()"

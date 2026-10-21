@@ -24,7 +24,7 @@ export const coursesData = [
     title: 'Behavioral Accountability',
     description:
       'True power begins the moment you stop blaming circumstances and start owning your choices. This course teaches youth how to recognize personal agency in school, relationships, and digital spaces. You will master practical methods to turn setbacks into growth through active ownership.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/behavioral-accountability.mp3',
+    audioUrl: 'course-content/module-1/unit-1/audio/sophie-english.mp3',
     textContent: `# Behavioral Accountability: Owning Your Path
 
 > "Accountability is the bridge between intention and real transformation."
@@ -50,7 +50,7 @@ When things don't go according to plan, human instinct often looks outward for s
     title: 'Changing Habits',
     description:
       'Our daily routines quietly construct the person we become tomorrow. In this lesson, you will discover the science of the habit loop and how micro-adjustments lead to compounding self-confidence. Learn how to replace draining behavioral patterns with empowering rituals.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/changing-habits.mp3',
+    audioUrl: 'course-content/module-1/unit-2/audio/sophie-english.mp3',
     textContent: `# Changing Habits: The Architecture of Daily Wins
 
 > "You do not rise to the level of your goals; you fall to the level of your systems."
@@ -83,7 +83,7 @@ Pick one negative habit you want to shift. Identify its primary **Cue** and choo
     title: 'Commitment: The Power of Stickability',
     description:
       'Starting a new journey is easy, but staying the course when enthusiasm fades is what separates dreamers from achievers. This module dives into the mindset of stickability and grit. You will build stamina to stay loyal to what you said you would do long after the mood of saying it has left.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/stickability-commitment.mp3',
+    audioUrl: 'course-content/module-2/unit-1/audio/omari-swahili.mp3',
     textContent: `# Commitment: The Power of Stickability
 
 > "Stickability is the quiet refusal to let temporary discomfort dictate permanent defeat."
@@ -113,7 +113,7 @@ Motivation is like weather—it changes constantly. Some days you will wake up e
     title: 'Contribution',
     description:
       'True leadership and self-worth grow fastest when we lift others up along our journey. This course explores how small acts of service, peer encouragement, and community involvement create lasting personal fulfillment. Learn how to leverage your unique strengths to be a positive catalyst in your world.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/contribution-leadership.mp3',
+    audioUrl: 'course-content/module-3/unit-1/audio/sophie-english.mp3',
     textContent: `# Contribution: The Multiplier of Purpose
 
 > "We make a living by what we get, but we make a life by what we give."
@@ -140,7 +140,7 @@ When we only focus on what we want to *get*—grades, followers, accolades—lif
     title: "Don't Give Up",
     description:
       'Every champion encounters dark valleys where throwing in the towel feels like the easiest option. This course is an injection of perseverance, showing you how to reframe adversity as mental conditioning. You will develop the resilience needed to stand back up one more time than you fall.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/dont-give-up.mp3',
+    audioUrl: 'course-content/module-3/unit-2/audio/sophie-english.mp3',
     textContent: `# Don't Give Up: Reframing Failure as Fuel
 
 > "Fall seven times, stand up eight." — Proverb
@@ -167,7 +167,7 @@ When you are working toward something meaningful—a sport, coding, learning an 
     title: 'Emotional Intelligence',
     description:
       'Understanding your emotional triggers gives you an unbeatable superpower in school, sports, and life. This course breaks down self-awareness, active empathy, and stress regulation into actionable daily tools. Discover how to respond with calm clarity rather than reacting out of impulse.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/emotional-intelligence.mp3',
+    audioUrl: 'course-content/module-4/unit-1/audio/sophie-english.mp3',
     textContent: `# Emotional Intelligence (EQ): Mastering Your Internal Compass
 
 > "Between stimulus and response there is a space. In that space is our power to choose our response." — Viktor Frankl
@@ -203,7 +203,7 @@ Next time you feel a surge of frustration, write down:
     title: 'Goal Setting',
     description:
       'A goal without a concrete structure is just a daydream waiting to evaporate. In this hands-on course, you will learn the S.M.A.R.T. goal framework and reverse-engineering techniques used by elite leaders. Turn your biggest ambitions into manageable weekly milestones.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/goal-setting-framework.mp3',
+    audioUrl: 'course-content/module-4/unit-2/audio/sophie-english.mp3',
     textContent: `# Goal Setting: Engineering Your Dreams Into Reality
 
 > "A dream written down with a date becomes a goal. A goal broken down into steps becomes a plan."
@@ -244,7 +244,7 @@ Draft one S.M.A.R.T. goal right now and add it to your **Quests** tab in Lyftd!`
     title: 'Integrity: The Cornerstone of Character',
     description:
       'Integrity is doing the right thing even when no one is watching and nobody will ever know. This module explores personal honor, honesty in the digital era, and standing firm in your values against peer pressure. Build an unshakeable reputation that opens doors for your future.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/integrity-cornerstone.mp3',
+    audioUrl: 'course-content/module-5/unit-1/audio/sophie-english.mp3',
     textContent: `# Integrity: The Cornerstone of Character
 
 > "Reputation is who you are in public; character is who you are in the dark."
@@ -272,7 +272,7 @@ Integrity is rarely tested in massive crises; it is forged in small, unnoticed d
     title: 'Momentum Principles',
     description:
       'Objects in motion stay in motion—and the same rule applies to your productivity and personal drive. This course reveals how to break procrastination, engineer quick wins, and ride positive momentum loops. Learn how starting small creates an unstoppable chain reaction.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/momentum-principles.mp3',
+    audioUrl: 'course-content/module-5/unit-2/audio/sophie-english.mp3',
     textContent: `# Momentum Principles: Igniting the Flywheel of Progress
 
 > "Action creates motivation, not the other way around."
@@ -302,7 +302,7 @@ Pick the hardest task on your to-do list. Set a timer for 5 minutes and begin im
     title: 'Moral Compass',
     description:
       'In a world full of noise, social media trends, and conflicting advice, having a grounded internal compass keeps you centered. This lesson guides youth through discovering their core values and moral courage. Learn how to navigate tough ethical dilemmas with conviction.',
-    audioUrl: 'https://assets.belyftd.org/audio/courses/moral-compass.mp3',
+    audioUrl: 'course-content/module-5/unit-2/audio/omari-swahili.mp3',
     textContent: `# Moral Compass: Navigating the Storms of Life
 
 > "Stand for something, or you will fall for anything."

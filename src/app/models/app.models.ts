@@ -25,6 +25,7 @@ export interface AudioTrack {
   id: string;
   title: string;
   speaker: string;
+  mentorName?: string;
   language?: string;
   speakerRole: string;
   speakerAvatar: string;
@@ -42,6 +43,8 @@ export interface AudioTrack {
 export interface Mentor {
   id: string;
   name: string;
+  languages: string[];
+  mediaPaths: string[];
   preferredNickname?: string;
   title: string;
   organization: string;
@@ -51,13 +54,13 @@ export interface Mentor {
   lifeExperienceTags?: string[];
   ageBrackets?: string[];
   bio: string;
-  rating: number;
-  menteesCount: number;
-  quote: string;
-  availableNext: string;
+  rating?: number;
+  menteesCount?: number;
+  quote?: string;
+  availableNext?: string;
   verified: boolean;
   recommendedFor: string[];
-  voiceIntroPrompt: string;
+  voiceIntroPrompt?: string;
 }
 
 export interface GoalStep {
@@ -117,7 +120,7 @@ export interface Course {
   id: string;
   title: string;
   description: string;
-  audioUrl: string;
+  audioUrl?: string;
   textContent: string;
   estimatedTime: string;
   isCompleted: boolean;

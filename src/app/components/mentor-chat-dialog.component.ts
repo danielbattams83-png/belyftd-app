@@ -48,18 +48,6 @@ import {AudioPlayerService} from '../services/audio-player.service';
           </div>
 
           <div class="flex items-center gap-2">
-            <!-- Listen to Audio Intro -->
-            <button
-              id="listen-mentor-intro-btn"
-              type="button"
-              (click)="playMentorIntro()"
-              class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-400 hover:text-white border border-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1 cursor-pointer transition focus-accessible shadow-xs"
-              title="Play Mentor Voice Greeting"
-            >
-              <mat-icon class="text-sm">record_voice_over</mat-icon>
-              <span>Intro</span>
-            </button>
-
             <!-- Close -->
             <button
               id="close-mentor-dialog-btn"
@@ -245,12 +233,5 @@ export class MentorChatDialogComponent {
     }, 2000);
   }
 
-  playMentorIntro(): void {
-    this.player.speakCustomScript(
-      `Voice Intro with ${this.mentor().name}`,
-      this.mentor().voiceIntroPrompt,
-      this.mentor().name,
-      'Confidence'
-    );
-  }
+
 }

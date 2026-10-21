@@ -1,3 +1,4 @@
+import {PRODUCTION_MENTORS} from './production-mentors';
 import { computed, Injectable, signal } from '@angular/core';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import {
@@ -543,12 +544,9 @@ export class FirebaseService {
   }
 
   async getMentorsByAgeBracket(bracket: string): Promise<MentorDocument[]> {
-    const mentorsQuery = query(
-      collection(this._requireFirestore(), 'mentors'),
-      where('ageBrackets', 'array-contains', bracket)
-    );
-    const snapshot = await getDocs(mentorsQuery);
-    return snapshot.docs.map(mentorDoc => ({ ...mentorDoc.data(), id: mentorDoc.id } as MentorDocument));
+    return PRODUCTION_MENTORS
+      .filter(mentor => !mentor.ageBrackets?.length || mentor.ageBrackets.includes(bracket))
+      .map(mentor => ({...mentor, ageBrackets: mentor.ageBrackets ?? []}));
   }
 
   async getPartners(): Promise<PartnershipDocument[]> {

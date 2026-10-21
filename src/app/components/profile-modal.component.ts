@@ -1,3 +1,4 @@
+import {BackButtonComponent} from './back-button.component';
 import {ChangeDetectionStrategy, Component, computed, inject, output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
@@ -8,7 +9,7 @@ import {FirebaseService} from '../services/firebase.service';
 @Component({
   selector: 'app-profile-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule],
+  imports: [BackButtonComponent, CommonModule, MatIconModule],
   template: `
     <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
       <div
@@ -17,6 +18,7 @@ import {FirebaseService} from '../services/firebase.service';
       >
         <!-- Header -->
         <div class="flex items-center justify-between">
+          <app-back-button />
           <h3 class="text-base font-bold font-display">My Lyft'd Profile & Settings</h3>
           <button
             id="close-profile-btn"

@@ -172,8 +172,9 @@
 
     /* HTML5 Audio Player Widget */
     .audio-player-widget {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
+      background: #333333;
+      color: #ffffff;
+      border: 1px solid #475569;
       border-radius: var(--radius-lg);
       padding: 20px 24px;
       margin-bottom: 28px;
@@ -201,8 +202,8 @@
       width: 44px;
       height: 44px;
       border-radius: var(--radius-md);
-      background: var(--primary-light);
-      color: var(--primary);
+      background: rgba(26, 155, 239, 0.2);
+      color: #1A9BEF;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -219,19 +220,33 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      color: var(--text-main);
+      color: #ffffff;
     }
 
     .track-subtitle {
       font-size: 12px;
-      color: var(--text-muted);
+      color: #1A9BEF;
+      font-weight: 600;
+    }
+
+    .mentor-lang-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: var(--radius-md);
+      background: rgba(26, 155, 239, 0.2);
+      color: #1A9BEF;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(26, 155, 239, 0.3);
     }
 
     .btn-play-pause {
       width: 46px;
       height: 46px;
       border-radius: 50%;
-      background: var(--primary);
+      background: #1A9BEF;
       color: #ffffff;
       border: none;
       display: flex;
@@ -239,12 +254,12 @@
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 4px 12px rgba(26, 155, 239, 0.3);
       flex-shrink: 0;
     }
 
     .btn-play-pause:hover {
-      background: var(--primary-hover);
+      background: #1689d4;
       transform: scale(1.06);
     }
 
@@ -289,7 +304,7 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: var(--primary);
+      background: #1A9BEF;
       cursor: pointer;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       transition: transform 0.1s ease;
@@ -538,7 +553,9 @@
           </div>
           <div class="track-details">
             <div class="track-title" id="player-track-title">Audio Masterclass</div>
-            <div class="track-subtitle" id="player-track-subtitle">Lyftd Youth Mentor</div>
+            <div class="track-subtitle" id="player-track-subtitle">
+              <span class="mentor-lang-badge" id="player-mentor-lang-badge">Sophie - English</span>
+            </div>
           </div>
         </div>
 
@@ -612,7 +629,7 @@
         id: 'behavioral-accountability',
         title: 'Behavioral Accountability',
         description: 'True power begins the moment you stop blaming circumstances and start owning your choices.',
-        audioUrl: 'https://assets.belyftd.org/audio/courses/behavioral-accountability.mp3',
+        audioUrl: 'course-content/module-1/unit-1/audio/sophie-english.mp3',
         textContent: '# Behavioral Accountability: Owning Your Path\n\n> "Accountability is the bridge between intention and real transformation."\n\n## Why Accountability Matters\nWhen things don\'t go according to plan, human instinct often looks outward for someone or something to blame. However, when you give away credit for your mistakes, you also give away your power to fix them.',
         estimatedTime: '6 mins',
         isCompleted: false

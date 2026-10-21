@@ -5,8 +5,7 @@
  * =============================================================================
  */
 
-const CACHE_NAME = 'lyftd-pwa-v4';
-const AUDIO_CACHE_NAME = 'belyftd-audio-v1';
+const CACHE_NAME = 'lyftd-pwa-v5';
 const DAILY_DB_NAME = 'belyftd-offline';
 const DAILY_DB_VERSION = 1;
 const DAILY_AFFIRMATIONS_STORE = 'dailyAffirmations';
@@ -44,7 +43,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keyList) => {
       return Promise.all(
         keyList.map((key) => {
-          if (key !== CACHE_NAME && key !== AUDIO_CACHE_NAME) {
+          if (key !== CACHE_NAME) {
             console.log('[ServiceWorker] Removing old cache:', key);
             return caches.delete(key);
           }
@@ -64,37 +63,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 1. Audio and Media requests: Cache-First strategy with fallback
+  // Signed media must reach Storage with its original Range headers. Never retain
+  // old recordings or expired bearer URLs in the service worker's offline cache.
   if (
-    url.pathname.endsWith('.mp3') || 
-    url.pathname.endsWith('.wav') || 
-    url.pathname.endsWith('.ogg') || 
-    url.pathname.includes('/audio/') ||
-    request.destination === 'audio'
+    /\.(mp3|wav|ogg|m4a|aac|mp4|webm)$/i.test(url.pathname) ||
+    url.pathname.includes('/audio/') || url.pathname.includes('/video/') ||
+    request.destination === 'audio' || request.destination === 'video' ||
+    url.searchParams.has('X-Goog-Signature')
   ) {
-    event.respondWith(
-      caches.open(AUDIO_CACHE_NAME).then(async (audioCache) => {
-        const cachedResponse = await audioCache.match(request);
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        try {
-          const networkResponse = await fetch(request);
-          if (networkResponse && networkResponse.status === 200) {
-            audioCache.put(request, networkResponse.clone());
-          }
-          return networkResponse;
-        } catch {
-          // If offline and audio not found, synthesize a 200 OK empty audio response or header
-          console.warn('[ServiceWorker] Audio offline fallback for:', request.url);
-          return new Response(new Uint8Array(0), {
-            status: 200,
-            headers: { 'Content-Type': 'audio/mpeg' }
-          });
-        }
-      })
-    );
+    event.respondWith(fetch(request));
     return;
   }
 

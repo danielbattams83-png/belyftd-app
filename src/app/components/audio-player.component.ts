@@ -12,12 +12,15 @@ import {AudioPlayerService} from '../services/audio-player.service';
       <!-- Mini Floating Player Bar -->
       <div
         id="mini-audio-player"
-        class="fixed bottom-18 md:bottom-6 left-3 right-3 max-w-lg mx-auto z-40 bg-[#333333] text-white backdrop-blur-md border border-slate-700 rounded-3xl shadow-xl p-3.5 transition-all duration-300"
+        class="fixed bottom-18 md:bottom-6 left-3 right-3 max-w-lg mx-auto z-40 bg-[#333333] text-white backdrop-blur-md border border-slate-700/80 rounded-3xl shadow-2xl p-3.5 transition-all duration-300"
       >
+        @if (player.isLoading()) { <p role="status" class="mb-2 text-xs text-slate-300">Loading recording...</p> }
+        @if (player.errorMessage()) { <p role="alert" class="mb-2 text-xs text-rose-200">{{ player.errorMessage() }}</p> }
+        @if (player.activeTrack()?.audioUrl) {
         <!-- Progress Bar Line on Top -->
         <button
           type="button"
-          class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden mb-2.5 cursor-pointer block p-0 border-0"
+          class="w-full bg-slate-700/80 h-1.5 rounded-full overflow-hidden mb-2.5 cursor-pointer block p-0 border-0"
           (click)="onProgressBarClick($event)"
           aria-label="Seek audio track position"
         >
@@ -27,6 +30,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
           ></div>
         </button>
 
+        }
         <div class="flex items-center justify-between gap-3">
           <!-- Track Info & Thumbnail (Click to open full player) -->
           <button
@@ -36,7 +40,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
             class="flex items-center gap-3 min-w-0 text-left cursor-pointer focus-accessible rounded-2xl flex-1"
             aria-label="Open full audio player view"
           >
-            <div class="relative w-11 h-11 rounded-2xl overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700">
+            <div class="relative w-11 h-11 rounded-2xl overflow-hidden shrink-0 border border-slate-600">
               <img
                 [src]="player.activeTrack()?.speakerAvatar"
                 [alt]="player.activeTrack()?.speaker || 'Speaker'"
@@ -45,31 +49,38 @@ import {AudioPlayerService} from '../services/audio-player.service';
               />
               @if (player.isPlaying()) {
                 <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center gap-0.5">
-                  <div class="w-1 bg-amber-400 rounded-full animate-audio-bar-1 h-3"></div>
-                  <div class="w-1 bg-indigo-400 rounded-full animate-audio-bar-2 h-4"></div>
-                  <div class="w-1 bg-pink-400 rounded-full animate-audio-bar-3 h-2"></div>
+                  <div class="w-1 bg-[#1A9BEF] rounded-full animate-audio-bar-1 h-3"></div>
+                  <div class="w-1 bg-[#1A9BEF] rounded-full animate-audio-bar-2 h-4"></div>
+                  <div class="w-1 bg-[#1A9BEF] rounded-full animate-audio-bar-3 h-2"></div>
                 </div>
               }
             </div>
 
             <div class="min-w-0">
-              <p class="text-sm font-bold text-slate-900 dark:text-slate-100 truncate leading-tight font-display">
+              <p class="text-sm font-bold text-white truncate leading-tight font-display">
                 {{ player.activeTrack()?.title }}
               </p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                {{ player.activeTrack()?.speaker }}{{ player.activeTrack()?.language ? ' - ' + player.activeTrack()?.language : '' }} • {{ player.formatTime(player.currentTime()) }} / {{ player.formatTime(player.duration()) }}
+              <p class="text-xs text-slate-300 truncate mt-0.5">
+                {{ player.mentorLanguageLabel() || player.activeTrack()?.speaker }} • {{ player.formatTime(player.currentTime()) }} / {{ player.formatTime(player.duration()) }}
               </p>
             </div>
           </button>
 
+          @if (player.activeTrack()?.audioUrl) {
           <!-- Quick Controls -->
           <div class="flex items-center gap-1.5 shrink-0">
+            <!-- Mentor - Language Indicator Badge -->
+            <span class="px-2.5 py-1 text-xs font-bold rounded-xl bg-[#1A9BEF]/20 text-[#1A9BEF] border border-[#1A9BEF]/30 hidden sm:inline-flex items-center gap-1">
+              <mat-icon class="text-sm">record_voice_over</mat-icon>
+              {{ player.mentorLanguageLabel() }}
+            </span>
+
             <!-- Skip -10s -->
             <button
               id="skip-back-btn"
               type="button"
               (click)="player.skip(-10)"
-              class="w-9 h-9 flex items-center justify-center rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer focus-accessible"
+              class="w-9 h-9 flex items-center justify-center rounded-2xl text-slate-300 hover:bg-slate-700/60 cursor-pointer focus-accessible"
               aria-label="Skip back 10 seconds"
               title="Skip back 10s"
             >
@@ -81,10 +92,10 @@ import {AudioPlayerService} from '../services/audio-player.service';
               id="toggle-play-btn"
               type="button"
               (click)="player.togglePlay()"
-              class="w-10 h-10 flex items-center justify-center rounded-2xl bg-[#1A9BEF] hover:bg-sky-500 text-white shadow-sm hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
+              class="w-10 h-10 flex items-center justify-center rounded-2xl bg-[#1A9BEF] hover:bg-[#1689d4] text-white shadow-md hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
               [attr.aria-label]="player.isPlaying() ? 'Pause audio' : 'Play audio'"
             >
-              <mat-icon class="text-2xl">{{ player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
+              <mat-icon class="text-2xl">{{ player.isLoading() ? 'hourglass_top' : player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
             </button>
 
             <!-- Skip +10s -->
@@ -92,7 +103,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
               id="skip-forward-btn"
               type="button"
               (click)="player.skip(10)"
-              class="w-9 h-9 flex items-center justify-center rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer focus-accessible"
+              class="w-9 h-9 flex items-center justify-center rounded-2xl text-slate-300 hover:bg-slate-700/60 cursor-pointer focus-accessible"
               aria-label="Skip forward 10 seconds"
               title="Skip forward 10s"
             >
@@ -110,24 +121,26 @@ import {AudioPlayerService} from '../services/audio-player.service';
               <mat-icon class="text-xl">expand_less</mat-icon>
             </button>
           </div>
+          }
         </div>
       </div>
 
       <!-- Expanded Full Audio Sheet / Modal -->
       @if (player.showFullPlayer()) {
-        <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-sm p-0 sm:p-4">
+        <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-sm p-0 sm:p-4">
           <div
             id="full-audio-sheet"
-            class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-8 shadow-2xl max-h-[92vh] flex flex-col animate-in fade-in slide-in-from-bottom duration-200"
+            class="bg-[#333333] text-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-700 p-6 sm:p-8 shadow-2xl max-h-[92vh] flex flex-col animate-in fade-in slide-in-from-bottom duration-200"
           >
             <!-- Header Bar -->
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-700">
               <div class="flex items-center gap-2">
-                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-[#1A9BEF]/20 text-[#1A9BEF] border border-[#1A9BEF]/30">
                   {{ player.activeTrack()?.category }}
                 </span>
-                <span class="text-xs text-slate-400">
-                  🎧 Spoken Focus Track
+                <span class="px-3 py-1 text-xs font-bold rounded-full bg-[#1A9BEF]/20 text-[#1A9BEF] border border-[#1A9BEF]/40 flex items-center gap-1">
+                  <mat-icon class="text-sm">record_voice_over</mat-icon>
+                  {{ player.mentorLanguageLabel() }}
                 </span>
               </div>
 
@@ -135,7 +148,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 id="close-full-player-btn"
                 type="button"
                 (click)="player.toggleFullPlayer()"
-                class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 cursor-pointer focus-accessible"
+                class="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-300 cursor-pointer focus-accessible"
                 aria-label="Close full player"
               >
                 <mat-icon>keyboard_arrow_down</mat-icon>
@@ -144,7 +157,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
 
             <!-- Speaker Hero Art & Waveform -->
             <div class="py-6 flex flex-col items-center text-center">
-              <div class="relative w-28 h-28 rounded-3xl overflow-hidden shadow-md border-2 border-indigo-500/30 mb-4">
+              <div class="relative w-28 h-28 rounded-3xl overflow-hidden shadow-lg border-2 border-[#1A9BEF]/50 mb-4">
                 <img
                   [src]="player.activeTrack()?.speakerAvatar"
                   [alt]="player.activeTrack()?.speaker || 'Speaker'"
@@ -152,28 +165,30 @@ import {AudioPlayerService} from '../services/audio-player.service';
                   referrerpolicy="no-referrer"
                 />
                 @if (player.isPlaying()) {
-                  <div class="absolute inset-0 bg-indigo-950/40 backdrop-blur-[1px] flex items-center justify-center">
+                  <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-[1px] flex items-center justify-center">
                     <div class="flex items-center gap-1">
-                      <span class="w-1.5 bg-amber-400 rounded-full animate-audio-bar-1 h-6"></span>
-                      <span class="w-1.5 bg-indigo-300 rounded-full animate-audio-bar-2 h-10"></span>
-                      <span class="w-1.5 bg-pink-400 rounded-full animate-audio-bar-3 h-8"></span>
-                      <span class="w-1.5 bg-emerald-400 rounded-full animate-audio-bar-4 h-5"></span>
+                      <span class="w-1.5 bg-[#1A9BEF] rounded-full animate-audio-bar-1 h-6"></span>
+                      <span class="w-1.5 bg-[#1A9BEF] rounded-full animate-audio-bar-2 h-10"></span>
+                      <span class="w-1.5 bg-[#1A9BEF] rounded-full animate-audio-bar-3 h-8"></span>
+                      <span class="w-1.5 bg-[#1A9BEF] rounded-full animate-audio-bar-4 h-5"></span>
                     </div>
                   </div>
                 }
               </div>
 
-              <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight max-w-sm font-display">
+              <h2 class="text-xl font-bold text-white tracking-tight max-w-sm font-display">
                 {{ player.activeTrack()?.title }}
               </h2>
-              <p class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 mt-1">
-                {{ player.activeTrack()?.speaker }}{{ player.activeTrack()?.language ? ' - ' + player.activeTrack()?.language : '' }}
+              <p class="text-sm font-bold text-[#1A9BEF] mt-1 flex items-center gap-1 justify-center">
+                <mat-icon class="text-base">record_voice_over</mat-icon>
+                {{ player.mentorLanguageLabel() }}
               </p>
-              <p class="text-xs text-slate-500 dark:text-slate-400">
+              <p class="text-xs text-slate-400 mt-0.5">
                 {{ player.activeTrack()?.speakerRole }}
               </p>
             </div>
 
+            @if (player.activeTrack()?.audioUrl) {
             <!-- Scrub Slider & Timers -->
             <div class="space-y-2">
               <div class="relative flex items-center">
@@ -184,7 +199,8 @@ import {AudioPlayerService} from '../services/audio-player.service';
                   [max]="player.duration()"
                   [value]="player.currentTime()"
                   (input)="onScrubChange($event)"
-                  class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus-accessible"
+                  class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#1A9BEF] focus-accessible"
+                  [style.background]="'linear-gradient(to right, #1A9BEF ' + player.progressPercent() + '%, #475569 ' + player.progressPercent() + '%)'"
                   aria-label="Scrub audio timeline"
                 />
               </div>
@@ -201,7 +217,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 id="speed-cycle-btn"
                 type="button"
                 (click)="cycleSpeed()"
-                class="px-3 py-1.5 text-xs font-semibold font-mono rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 cursor-pointer focus-accessible"
+                class="px-3 py-1.5 text-xs font-semibold font-mono rounded-xl bg-slate-700 text-slate-200 hover:bg-slate-600 cursor-pointer focus-accessible"
                 aria-label="Change playback speed"
               >
                 {{ player.playbackRate() }}x
@@ -212,7 +228,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 id="modal-skip-back-btn"
                 type="button"
                 (click)="player.skip(-10)"
-                class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center cursor-pointer focus-accessible"
+                class="w-12 h-12 rounded-2xl bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center justify-center cursor-pointer focus-accessible"
                 aria-label="Rewind 10 seconds"
               >
                 <mat-icon class="text-2xl">replay_10</mat-icon>
@@ -223,10 +239,10 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 id="modal-toggle-play-btn"
                 type="button"
                 (click)="player.togglePlay()"
-                class="w-16 h-16 rounded-3xl bg-indigo-400 hover:bg-indigo-700 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
+                class="w-16 h-16 rounded-3xl bg-[#1A9BEF] hover:bg-[#1689d4] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition cursor-pointer focus-accessible"
                 [attr.aria-label]="player.isPlaying() ? 'Pause audio' : 'Play audio'"
               >
-                <mat-icon class="text-4xl">{{ player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
+                <mat-icon class="text-4xl">{{ player.isLoading() ? 'hourglass_top' : player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
               </button>
 
               <!-- Skip +10s -->
@@ -234,7 +250,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 id="modal-skip-fwd-btn"
                 type="button"
                 (click)="player.skip(10)"
-                class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center cursor-pointer focus-accessible"
+                class="w-12 h-12 rounded-2xl bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center justify-center cursor-pointer focus-accessible"
                 aria-label="Forward 10 seconds"
               >
                 <mat-icon class="text-2xl">forward_10</mat-icon>
@@ -245,7 +261,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                 id="toggle-transcript-btn"
                 type="button"
                 (click)="player.toggleTranscript()"
-                [class]="player.showTranscript() ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50' : 'text-slate-400 bg-slate-100 dark:bg-slate-800'"
+                [class]="player.showTranscript() ? 'text-white bg-[#1A9BEF]' : 'text-slate-400 bg-slate-700'"
                 class="w-10 h-10 rounded-2xl flex items-center justify-center cursor-pointer focus-accessible"
                 aria-label="Toggle transcript drawer"
                 title="View Transcript"
@@ -254,11 +270,12 @@ import {AudioPlayerService} from '../services/audio-player.service';
               </button>
             </div>
 
+            }
             <!-- Transcript Drawer / Live Script Area -->
             @if (player.showTranscript()) {
-              <div class="mt-2 p-4 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-y-auto max-h-44 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-700">
-                  <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+              <div class="mt-2 p-4 bg-slate-800 rounded-2xl border border-slate-700 overflow-y-auto max-h-44 text-sm leading-relaxed text-slate-200">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-700">
+                  <span class="text-xs font-bold uppercase tracking-wider text-[#1A9BEF]">
                     Spoken Transcript
                   </span>
                   <span class="text-xs text-slate-400">

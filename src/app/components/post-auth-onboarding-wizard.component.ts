@@ -236,7 +236,7 @@ export class PostAuthOnboardingWizardComponent {
     this.preferredLanguage.set(profile?.preferredLanguage || 'English');
     this.avatarUrl.set(profile?.avatarUrl || this.socialAvatarUrl() || AVATAR_OPTIONS[0].url);
     this.focusAreas.set(profile?.focusAreas || []);
-    this.selectedMentorIds.set(profile?.selectedMentorIds || []);
+    this.selectedMentorIds.set((profile?.selectedMentorIds || []).filter(id => this.dataService.mentors().some(mentor => mentor.id === id)));
   }
 
   nextStep(): void {

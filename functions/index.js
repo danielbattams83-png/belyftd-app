@@ -58,7 +58,7 @@ exports.redeemSponsorCode = onCall(async (request) => {
   };
 });
 
-exports.getCourseMediaUrl = onCall(async (request) => {
+exports.getCourseMediaUrl = onCall({serviceAccount: 'course-media@belyft-d-app.iam.gserviceaccount.com'}, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Sign in before requesting course media.');
   }
@@ -104,7 +104,10 @@ exports.getCourseMediaUrl = onCall(async (request) => {
   }
 
   const expires = Date.now() + 10 * 60 * 1000;
-  const [url] = await getStorage().bucket().file(storagePath).getSignedUrl({
+  const file = getStorage().bucket('belyft-d-app.firebasestorage.app').file(storagePath);
+  const [exists] = await file.exists();
+  if (!exists) throw new HttpsError('not-found', 'This recording is not available.');
+  const [url] = await file.getSignedUrl({
     version: 'v4',
     action: 'read',
     expires,

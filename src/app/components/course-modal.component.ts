@@ -1,4 +1,5 @@
-import {ChangeDetectionStrategy, Component, inject, output, input, signal, computed, effect} from '@angular/core';
+import {MentorAudioComponent} from './mentor-audio.component';
+import {ChangeDetectionStrategy, Component, inject, output, input, signal, computed} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {Course} from '../models/app.models';
@@ -8,7 +9,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
 @Component({
   selector: 'app-course-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatIconModule],
+  imports: [MentorAudioComponent, CommonModule, MatIconModule],
   template: `
     @if (course(); as c) {
       <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
@@ -71,57 +72,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
               </p>
             </section>
 
-            <!-- Custom Styled HTML5 Audio Player Widget -->
-            <section class="bg-slate-50 dark:bg-slate-850 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-11 h-11 rounded-2xl bg-indigo-400 text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <mat-icon class="text-xl">headphones</mat-icon>
-                  </div>
-                  <div class="min-w-0">
-                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
-                      {{ c.title }} (Audio Lesson)
-                    </h4>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                      Spoken Mentorship Narration • {{ c.estimatedTime }}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  id="course-audio-play-pause-btn"
-                  type="button"
-                  (click)="togglePlay(c)"
-                  class="w-11 h-11 rounded-full bg-indigo-400 hover:bg-indigo-700 text-white flex items-center justify-center cursor-pointer transition shadow-md focus-accessible shrink-0"
-                  [attr.aria-label]="isPlaying() ? 'Pause audio' : 'Play audio'"
-                >
-                  <mat-icon class="text-xl">{{ isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
-                </button>
-              </div>
-
-              <!-- Timeline Slider & Duration Counters -->
-              <div class="space-y-1 pt-1">
-                <div class="flex items-center gap-3">
-                  <span class="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 w-9 text-right shrink-0">
-                    {{ formatTime(currentTimeSec()) }}
-                  </span>
-                  
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    [value]="timelineProgress()"
-                    (input)="onScrub($event)"
-                    class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-indigo-600 focus-accessible"
-                    aria-label="Audio timeline scrubber"
-                  />
-
-                  <span class="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 w-9 text-left shrink-0">
-                    {{ formatTime(totalDurationSec()) }}
-                  </span>
-                </div>
-              </div>
-            </section>
+            <app-mentor-audio [tracks]="recordings()" />
 
             <!-- Clean Text Reader Area (Markdown) -->
             <article class="prose prose-slate dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200 font-sans space-y-4 pt-2">
@@ -206,76 +157,18 @@ export class CourseModalComponent {
   readonly course = input<Course | null>(null);
   readonly closeModal = output<void>();
 
-  readonly isPlaying = signal<boolean>(false);
-  readonly currentTimeSec = signal<number>(0);
-  readonly totalDurationSec = signal<number>(360);
   readonly showSuccessConfirmation = signal<boolean>(false);
-
-  readonly timelineProgress = computed(() => {
-    const total = this.totalDurationSec();
-    if (!total) return 0;
-    return (this.currentTimeSec() / total) * 100;
+  readonly recordings = computed(() => {
+    const course = this.course();
+    if (!course) return [];
+    const normalize = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    return this.dataService.audioTracks().filter(track => normalize(track.title) === normalize(course.title));
   });
 
-  private timerInterval: ReturnType<typeof setInterval> | null = null;
-
-  constructor() {
-    effect(() => {
-      const c = this.course();
-      if (c) {
-        const mins = parseInt(c.estimatedTime?.match(/\d+/)?.[0] || '6', 10);
-        this.totalDurationSec.set(mins * 60);
-        this.currentTimeSec.set(0);
-        this.isPlaying.set(false);
-      }
-    });
-  }
-
-  togglePlay(c: Course): void {
-    if (this.isPlaying()) {
-      this.pauseAudio();
-    } else {
-      this.playAudio(c);
-    }
-  }
-
-  playAudio(c: Course): void {
-    this.isPlaying.set(true);
-    this.audioPlayer.speakCustomScript(
-      c.title,
-      `${c.description} Key takeaway: ${c.textContent.slice(0, 320)}... Practice this today.`,
-      'Lyftd Leadership Coach',
-      'Leadership'
-    );
-
-    if (this.timerInterval) clearInterval(this.timerInterval);
-    this.timerInterval = setInterval(() => {
-      this.currentTimeSec.update(t => {
-        if (t >= this.totalDurationSec()) {
-          this.pauseAudio();
-          return this.totalDurationSec();
-        }
-        return t + 1;
-      });
-    }, 1000);
-  }
-
   pauseAudio(): void {
-    this.isPlaying.set(false);
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
+    if (this.recordings().some(track => track.id === this.audioPlayer.activeTrack()?.id)) {
+      this.audioPlayer.pause();
     }
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.pause();
-    }
-  }
-
-  onScrub(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const percent = parseFloat(target.value);
-    const newSec = Math.round((percent / 100) * this.totalDurationSec());
-    this.currentTimeSec.set(newSec);
   }
 
   markAsComplete(c: Course): void {
@@ -284,6 +177,7 @@ export class CourseModalComponent {
   }
 
   confirmReturnDashboard(): void {
+    this.pauseAudio();
     this.showSuccessConfirmation.set(false);
     this.closeModal.emit();
   }

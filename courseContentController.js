@@ -110,6 +110,25 @@ export class CourseContentController {
   }
 
   /**
+   * Extracts mentor name and language from the audio URL
+   * @private
+   */
+  _getMentorLanguageLabel() {
+    if (!this.course.audioUrl) return 'Unknown Mentor';
+    const parts = this.course.audioUrl.split('/');
+    const filename = parts[parts.length - 1] || '';
+    const nameLang = filename.split('.')[0] || '';
+    const splits = nameLang.split('-');
+    
+    if (splits.length >= 2) {
+      const name = splits[0].charAt(0).toUpperCase() + splits[0].slice(1);
+      const lang = splits[1].charAt(0).toUpperCase() + splits[1].slice(1);
+      return `${name} - ${lang}`;
+    }
+    return 'Sophie - English';
+  }
+
+  /**
    * Populates the title, estimated time, and synopsis.
    * @private
    */
@@ -118,8 +137,11 @@ export class CourseContentController {
     if (this.durationText) this.durationText.textContent = this.course.estimatedTime;
     if (this.descriptionText) this.descriptionText.textContent = this.course.description;
 
-    if (this.trackTitle) this.trackTitle.textContent = `${this.course.title} (Narration)`;
-    if (this.trackSubtitle) this.trackSubtitle.textContent = `Estimated Lesson Time: ${this.course.estimatedTime}`;
+    if (this.trackTitle) this.trackTitle.textContent = `${this.course.title}`;
+    if (this.trackSubtitle) {
+      const mentorLang = this._getMentorLanguageLabel();
+      this.trackSubtitle.innerHTML = `<span class="mentor-lang-badge" id="player-mentor-lang-badge">${mentorLang}</span> • Estimated: ${this.course.estimatedTime}`;
+    }
 
     this._updateStatusBadge();
   }
@@ -220,6 +242,7 @@ export class CourseContentController {
     if (!this.audioElement) return;
 
     this.audioElement.src = this.course.audioUrl || '';
+    this.audioElement.preload = 'metadata';
     this.audioElement.addEventListener('timeupdate', this._handleTimeUpdate);
     this.audioElement.addEventListener('loadedmetadata', this._handleLoadedMetadata);
     this.audioElement.addEventListener('ended', this._handleAudioEnded);
@@ -314,8 +337,9 @@ export class CourseContentController {
           this._updatePlayPauseIcon();
         })
         .catch((error) => {
-          console.warn('[CourseContentController] Remote MP3 not found or blocked. Using Web Speech API fallback.', error);
-          this._fallbackSpeechAudio();
+          console.warn('[CourseContentController] Audio playback failed or blocked:', error);
+          this.isPlaying = false;
+          this._updatePlayPauseIcon();
         });
     }
   }
@@ -324,9 +348,6 @@ export class CourseContentController {
    * Pauses audio playback.
    */
   pauseAudio() {
-    if (window.speechSynthesis && window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
     if (this.audioElement) {
       this.audioElement.pause();
     }
@@ -343,44 +364,6 @@ export class CourseContentController {
     if (this.audioElement) {
       this.audioElement.currentTime = 0;
     }
-  }
-
-  /**
-   * Web Speech synthesis fallback for interactive narration if audioUrl is a dummy asset.
-   * @private
-   */
-  _fallbackSpeechAudio() {
-    if (!('speechSynthesis' in window)) {
-      alert('Audio playback is not supported on this browser.');
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    // Narration text combining title and description
-    const narrationText = `${this.course.title}. ${this.course.description}. Lesson content: ${this.course.textContent.replace(/#|\*|>|-/g, ' ')}`;
-    const utterance = new SpeechSynthesisUtterance(narrationText.slice(0, 1000));
-    utterance.rate = 0.95;
-    utterance.pitch = 1.0;
-
-    utterance.onstart = () => {
-      this.isPlaying = true;
-      this._updatePlayPauseIcon();
-    };
-
-    utterance.onend = () => {
-      this.isPlaying = false;
-      this._updatePlayPauseIcon();
-      if (this.currentTimeDisplay) this.currentTimeDisplay.textContent = '0:00';
-      if (this.timelineSlider) this.timelineSlider.value = 0;
-    };
-
-    utterance.onerror = () => {
-      this.isPlaying = false;
-      this._updatePlayPauseIcon();
-    };
-
-    window.speechSynthesis.speak(utterance);
   }
 
   /**
@@ -444,7 +427,9 @@ export class CourseContentController {
    * @private
    */
   _handleAudioError() {
-    console.info('[CourseContentController] Remote audio source unavailable. Web Speech fallback active.');
+    console.error('[CourseContentController] Remote audio source unavailable or blocked.');
+    this.isPlaying = false;
+    this._updatePlayPauseIcon();
   }
 
   /**

@@ -1,8 +1,12 @@
+import {productionMentorForLabel} from './services/production-mentors';
+import {BackButtonComponent} from './components/back-button.component';
+import {NavigationService} from './services/navigation.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {afterNextRender, ChangeDetectionStrategy, Component, computed, inject, signal, effect} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
-import {Router, RouterLink, RouterOutlet} from '@angular/router';
+import {NavigationEnd, Router, RouterLink, RouterOutlet} from '@angular/router';
 import {AudioPlayerService} from './services/audio-player.service';
 import {MentorshipDataService} from './services/mentorship-data.service';
 import {ThemeAccessibilityService} from './services/theme-accessibility.service';
@@ -37,6 +41,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    BackButtonComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -70,6 +75,9 @@ export class App {
   readonly dailyMessageScheduler = inject(DailyMessageSchedulerService);
   readonly isLoggedIn = computed(() => this.firebaseService.isLoggedIn());
 
+  readonly navigation = inject(NavigationService);
+  readonly isDashboard = signal(true);
+
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');
 
@@ -85,8 +93,8 @@ export class App {
   }
 
   selectTab(tab: MainTab): void {
-    this.activeTab.set(tab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    void this.router.navigateByUrl(tab === 'daily-lyft' ? '/dashboard' : '/' + tab);
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   
   // Modals state
@@ -137,27 +145,37 @@ export class App {
     ]);
     if (heroUrl) this.hopeVideoUrl.set(heroUrl);
 
-    const avatarFor = (mentor: string): string => mentor.toLowerCase().includes('hannah')
-      ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=160&auto=format&fit=crop&q=80'
-      : mentor.toLowerCase().includes('steve')
-        ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&auto=format&fit=crop&q=80'
-        : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80';
-    const units = await this.firebaseService.getModuleUnits('hope');
+    const units = (await this.firebaseService.getModuleUnits('module-5')).filter(unit => unit.id === 'unit-2');
     this.hopeUnits.set(units.flatMap(unit => {
       const firstAudio = Object.entries(unit.audioUrls ?? {})[0];
       if (!firstAudio) return [];
       const [mentor] = firstAudio;
       return [{
         id: unit.id,
-        moduleId: 'hope',
+        moduleId: 'module-5',
         title: unit.title || unit.id,
         mentor,
-        avatar: avatarFor(mentor),
+        avatar: productionMentorForLabel(mentor)?.avatar || '/logo.png',
       }];
     }));
   }
 
   constructor() {
+    const syncNavigation = () => {
+      const path = this.router.parseUrl(this.router.url).root.children['primary']?.segments.map(segment => segment.path).join('/') ?? '';
+      const tabs: Record<string, MainTab> = {
+        '': 'daily-lyft', dashboard: 'daily-lyft', courses: 'courses', mentors: 'mentors',
+        quests: 'quests', 'coach-spark': 'coach-spark', community: 'community', partners: 'partners',
+      };
+      this.isDashboard.set(path === '' || path === 'dashboard');
+      this.activeTab.set(tabs[path] ?? 'daily-lyft');
+      this.showProfileModal.set(path === 'profile' || path === 'settings');
+    };
+    syncNavigation();
+    this.router.events.pipe(takeUntilDestroyed()).subscribe(event => {
+      if (event instanceof NavigationEnd) syncNavigation();
+    });
+
     afterNextRender(() => {
       setTimeout(() => {
         const splash = document.getElementById('app-splash-screen');
@@ -271,7 +289,7 @@ export class App {
 
   openProfileOrSignIn(): void {
     if (!this.requireSignIn()) return;
-    this.showProfileModal.set(true);
+    void this.router.navigateByUrl('/profile');
   }
 
   editProfileOnboarding(): void {
@@ -512,31 +530,26 @@ export class App {
       mood: '⚡ Hyped & Ready',
       emoji: '⚡',
       advice: 'You have tremendous momentum right now! Channel this energy into your biggest quest step today.',
-      trackId: 'track-1',
     },
     {
       mood: '😰 Nervous / Doubting',
       emoji: '😰',
       advice: 'Pause and take 3 deep breaths. Nervousness is just excitement without breath. You belong here.',
-      trackId: 'track-2',
     },
     {
       mood: '😴 Low Energy / Tired',
       emoji: '😴',
       advice: 'Do not quit on yourself. Rest if you must, but take 1 tiny step before wrapping up.',
-      trackId: 'track-3',
     },
     {
       mood: '🎯 Laser Focused',
       emoji: '🎯',
       advice: 'Lock in. Eliminate distractions and conquer your top priority for the next 25 minutes.',
-      trackId: 'track-3',
     },
     {
       mood: '🌧️ Overwhelmed',
       emoji: '🌧️',
       advice: 'You do not have to solve the entire semester or career today. Just handle the next 10 minutes.',
-      trackId: 'track-5',
     }
   ];
 
@@ -544,16 +557,21 @@ export class App {
     this.activeMoodPrompt.set({
       mood: item.mood,
       advice: item.advice,
-      trackId: item.trackId,
+      trackId: this.dataService.audioTracks()[0]?.id ?? '',
     });
     this.themeService.announce(`Mood updated to ${item.mood}`);
   }
 
   playMoodTrack(trackId: string): void {
-    const track = this.dataService.audioTracks().find(t => t.id === trackId);
+    const tracks = this.dataService.audioTracks();
+    const track = tracks.find(t => t.id === trackId);
     if (track) {
       this.audioPlayer.playTrack(track);
     }
+  }
+
+  mentorRecordings(mentorName: string): AudioTrack[] {
+    return this.dataService.audioTracks().filter(track => track.mentorName === mentorName);
   }
 
   openMentorChat(mentor: Mentor): void {

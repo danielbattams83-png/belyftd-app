@@ -1,19 +1,25 @@
-import {Injectable, signal, computed} from '@angular/core';
+import {FirebaseService} from './firebase.service';
+import {Injectable, signal, computed, inject, effect} from '@angular/core';
 import {AudioTrack} from '../models/app.models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AudioPlayerService {
+  private readonly firebaseService = inject(FirebaseService);
+  readonly isLoading = signal(false);
+  readonly errorMessage = signal<string | null>(null);
+  private playbackRequest = 0;
+  private resolvedAt = 0;
+  private retried = false;
   readonly activeTrack = signal<AudioTrack | null>(null);
   readonly isPlaying = signal<boolean>(false);
   readonly currentTime = signal<number>(0);
-  readonly duration = signal<number>(60);
+  readonly duration = signal<number>(0);
   readonly playbackRate = signal<number>(1);
   readonly volume = signal<number>(0.9);
   readonly showFullPlayer = signal<boolean>(false);
   readonly showTranscript = signal<boolean>(false);
-  readonly isSpeaking = signal<boolean>(false);
 
   readonly progressPercent = computed(() => {
     const dur = this.duration();
@@ -21,65 +27,115 @@ export class AudioPlayerService {
     return Math.min(100, Math.max(0, (this.currentTime() / dur) * 100));
   });
 
+  readonly mentorLanguageLabel = computed(() => {
+    const track = this.activeTrack();
+    if (!track) return '';
+    if (track.mentorName && track.language) {
+      return `${track.mentorName} - ${track.language}`;
+    }
+    if (track.speaker && track.language) {
+      return `${track.speaker} - ${track.language}`;
+    }
+    if (track.speaker) {
+      if (track.speaker.includes(' - ')) return track.speaker;
+      const match = track.speaker.match(/^([^(]+)\s*\(([^)]+)\)$/);
+      if (match) return `${match[1].trim()} - ${match[2].trim()}`;
+      return track.speaker;
+    }
+    return 'Mentor recording';
+  });
+
   private audioElem: HTMLAudioElement | null = null;
-  private progressInterval: ReturnType<typeof setInterval> | null = null;
-  private audioCtx: AudioContext | null = null;
-  private synthNodes: {osc1?: OscillatorNode; osc2?: OscillatorNode; gain?: GainNode} = {};
 
   constructor() {
+    let previousUserId: string | undefined;
+    effect(() => {
+      const userId = this.firebaseService.currentUser()?.uid;
+      if (previousUserId && previousUserId !== userId) {
+        this.stopAll();
+        this.activeTrack.set(null);
+      }
+      previousUserId = userId;
+    });
     if (typeof window !== 'undefined') {
       this.audioElem = new Audio();
+      this.audioElem.preload = 'metadata';
       this.audioElem.addEventListener('timeupdate', () => {
         if (this.audioElem) {
           this.currentTime.set(this.audioElem.currentTime);
         }
       });
       this.audioElem.addEventListener('loadedmetadata', () => {
-        if (this.audioElem && !isNaN(this.audioElem.duration) && this.audioElem.duration > 0) {
+        if (this.audioElem && Number.isFinite(this.audioElem.duration) && this.audioElem.duration > 0) {
           this.duration.set(this.audioElem.duration);
         }
       });
       this.audioElem.addEventListener('ended', () => {
         this.onPlaybackEnded();
       });
-    }
-  }
-
-  playTrack(track: AudioTrack): void {
-    this.stopAll();
-    this.activeTrack.set(track);
-    this.duration.set(track.durationSec || 60);
-    this.currentTime.set(0);
-
-    // Only Firebase course-content media is eligible for playback. Legacy placeholder
-    // URLs are intentionally ignored so they cannot re-enter the player pipeline.
-    const isCourseContentAudio = track.audioUrl?.includes('course-content') ?? false;
-    if (isCourseContentAudio && this.audioElem) {
-      this.audioElem.src = track.audioUrl!;
-      this.audioElem.playbackRate = this.playbackRate();
-      this.audioElem.volume = this.volume();
-      this.audioElem.play().then(() => {
+      this.audioElem.addEventListener('playing', () => {
+        this.isLoading.set(false);
         this.isPlaying.set(true);
-      }).catch(() => {
+      });
+      this.audioElem.addEventListener('waiting', () => this.isLoading.set(true));
+      this.audioElem.addEventListener('pause', () => this.isPlaying.set(false));
+      this.audioElem.addEventListener('error', () => {
+        const track = this.activeTrack();
+        if (track?.audioUrl?.startsWith('course-content/') && !this.retried && Date.now() - this.resolvedAt > 9 * 60 * 1000) {
+          this.retried = true;
+          void this.playTrack(track, this.currentTime(), true);
+          return;
+        }
+        this.errorMessage.set('This recording could not be played. Please try again.');
+        this.isLoading.set(false);
         this.isPlaying.set(false);
       });
-    } else {
-      this.isPlaying.set(false);
     }
   }
 
-  private playSynthesizedTrack(track: AudioTrack): void {
-    this.startAmbientSoundscape(track.ambientTone || 'lofi-warm');
-    this.speakText(track.transcript, track.durationSec, () => {
-      this.onPlaybackEnded();
-    });
-    this.isPlaying.set(true);
+  async playTrack(track: AudioTrack, startTime = 0, retry = false): Promise<void> {
+    this.stopAll();
+    const request = this.playbackRequest;
+    this.retried = retry;
+    this.activeTrack.set(track);
+    this.errorMessage.set(null);
+    this.duration.set(track.durationSec || 0);
+    this.currentTime.set(startTime);
+    if (!this.audioElem) return;
+    if (!track.audioUrl) {
+      this.errorMessage.set('No mentor recording is available for this text yet.');
+      return;
+    }
+    this.isLoading.set(true);
+    try {
+      // Course media must go through the tier-checked, ten-minute signed URL endpoint.
+      // Blob URLs belong to the user's own voice journal recordings.
+      const url = track.audioUrl.startsWith('blob:')
+        ? track.audioUrl
+        : await this.firebaseService.getCourseMediaUrlFromPath(track.audioUrl);
+      if (request !== this.playbackRequest) return;
+      this.resolvedAt = Date.now();
+      this.audioElem.src = url;
+      this.audioElem.preload = 'metadata';
+      this.audioElem.playbackRate = this.playbackRate();
+      this.audioElem.volume = this.volume();
+      if (startTime > 0) this.audioElem.currentTime = startTime;
+      await this.audioElem.play();
+      if (request !== this.playbackRequest) return;
+      this.isPlaying.set(true);
+      this.isLoading.set(false);
+    } catch {
+      if (request !== this.playbackRequest) return;
+      this.errorMessage.set('This recording is unavailable. Check your access and try again.');
+      this.isLoading.set(false);
+      this.isPlaying.set(false);
+    }
   }
 
   togglePlay(): void {
     if (!this.activeTrack()) return;
 
-    if (this.isPlaying()) {
+    if (this.isPlaying() || this.isLoading()) {
       this.pause();
     } else {
       this.resume();
@@ -87,30 +143,34 @@ export class AudioPlayerService {
   }
 
   pause(): void {
+    ++this.playbackRequest;
+    this.isLoading.set(false);
     this.isPlaying.set(false);
     if (this.audioElem && this.audioElem.src) {
       this.audioElem.pause();
     }
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.pause();
-    }
-    this.stopProgressTimer();
-    this.pauseAmbientSoundscape();
   }
 
   resume(): void {
-    if (!this.activeTrack()) return;
-    this.isPlaying.set(true);
-
-    if (this.audioElem && this.audioElem.src && !this.isSpeaking()) {
-      this.audioElem.play();
-    } else if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-      this.startProgressTimer();
-      this.resumeAmbientSoundscape();
-    } else {
-      this.isPlaying.set(false);
+    const track = this.activeTrack();
+    if (!track) return;
+    if (this.errorMessage() || !this.audioElem?.getAttribute('src') ||
+        (track.audioUrl?.startsWith('course-content/') && Date.now() - this.resolvedAt > 9 * 60 * 1000)) {
+      void this.playTrack(track, this.currentTime());
+      return;
     }
+    this.isLoading.set(true);
+    const request = this.playbackRequest;
+    void this.audioElem.play().then(() => {
+      if (request !== this.playbackRequest) return;
+      this.isPlaying.set(true);
+      this.isLoading.set(false);
+    }).catch(() => {
+      if (request !== this.playbackRequest) return;
+      this.isLoading.set(false);
+      this.isPlaying.set(false);
+      this.errorMessage.set('Playback could not start. Please try again.');
+    });
   }
 
   seek(seconds: number): void {
@@ -130,13 +190,6 @@ export class AudioPlayerService {
     if (this.audioElem) {
       this.audioElem.playbackRate = rate;
     }
-    // If speaking, restart speech with updated rate
-    if (this.isSpeaking() && this.activeTrack()) {
-      const track = this.activeTrack()!;
-      this.stopAll();
-      this.activeTrack.set(track);
-      this.playSynthesizedTrack(track);
-    }
   }
 
   setVolume(vol: number): void {
@@ -144,9 +197,6 @@ export class AudioPlayerService {
     this.volume.set(clamped);
     if (this.audioElem) {
       this.audioElem.volume = clamped;
-    }
-    if (this.synthNodes.gain) {
-      this.synthNodes.gain.gain.value = clamped * 0.15;
     }
   }
 
@@ -162,178 +212,42 @@ export class AudioPlayerService {
     const customTrack: AudioTrack = {
       id: `custom-${Date.now()}`,
       title,
-      speaker: speakerName,
-      speakerRole: 'Lyftd AI Coach',
+      speaker: speakerName || 'Coach Spark',
+      speakerRole: 'Lyftd AI Mentor',
       speakerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       category,
-      duration: '0:45',
-      durationSec: 45,
+      duration: '',
+      durationSec: 0,
+      // Generated text has no ingested recording. Never substitute a lesson audio file.
       transcript: scriptText,
       moodTags: ['Custom', 'Motivational', 'Personalized'],
       likes: 1,
       isFavorite: true,
-      ambientTone: 'ambient-synth',
     };
 
     this.playTrack(customTrack);
     this.showFullPlayer.set(true);
-  }
-
-  private speakText(text: string, estDurationSec: number, onEnd: () => void): void {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      this.startProgressTimer(estDurationSec, onEnd);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = this.playbackRate() * 0.95;
-    utterance.pitch = 1.05;
-    utterance.volume = this.volume();
-
-    // Pick warm natural voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => (v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Alex'))));
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-
-    this.isSpeaking.set(true);
-
-    utterance.onend = () => {
-      this.isSpeaking.set(false);
-      onEnd();
-    };
-
-    utterance.onerror = () => {
-      this.isSpeaking.set(false);
-      onEnd();
-    };
-
-    window.speechSynthesis.speak(utterance);
-    this.startProgressTimer(estDurationSec, onEnd);
-  }
-
-  private startProgressTimer(maxSec?: number, onComplete?: () => void): void {
-    this.stopProgressTimer();
-    const targetDur = maxSec || this.duration();
-    this.progressInterval = setInterval(() => {
-      if (this.isPlaying()) {
-        const next = this.currentTime() + 0.5 * this.playbackRate();
-        if (next >= targetDur) {
-          this.currentTime.set(targetDur);
-          this.stopProgressTimer();
-          if (onComplete) onComplete();
-        } else {
-          this.currentTime.set(next);
-        }
-      }
-    }, 500);
-  }
-
-  private stopProgressTimer(): void {
-    if (this.progressInterval) {
-      clearInterval(this.progressInterval);
-      this.progressInterval = null;
-    }
-  }
-
-  private startAmbientSoundscape(tone: string): void {
-    if (typeof window === 'undefined') return;
-    try {
-      const AudioCtxClass = window.AudioContext || (window as unknown as {webkitAudioContext: typeof AudioContext}).webkitAudioContext;
-      if (!AudioCtxClass) return;
-
-      if (!this.audioCtx) {
-        this.audioCtx = new AudioCtxClass();
-      }
-
-      if (this.audioCtx.state === 'suspended') {
-        this.audioCtx.resume();
-      }
-
-      this.stopAmbientSoundscape();
-
-      const gain = this.audioCtx.createGain();
-      gain.gain.value = this.volume() * 0.08; // subtle soothing background layer
-
-      const osc1 = this.audioCtx.createOscillator();
-      const osc2 = this.audioCtx.createOscillator();
-
-      // Root harmonic warm drone chords (e.g. 216Hz and 432Hz calming tuning)
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(tone === 'energizing' ? 261.63 : 216, this.audioCtx.currentTime); // C4 or Calming tone
-
-      osc2.type = 'triangle';
-      osc2.frequency.setValueAtTime(tone === 'energizing' ? 329.63 : 324, this.audioCtx.currentTime); // E4 harmonic
-
-      osc1.connect(gain);
-      osc2.connect(gain);
-      gain.connect(this.audioCtx.destination);
-
-      osc1.start();
-      osc2.start();
-
-      this.synthNodes = {osc1, osc2, gain};
-    } catch {
-      // AudioContext might be blocked until user gesture, graceful bypass
-    }
-  }
-
-  private pauseAmbientSoundscape(): void {
-    if (this.synthNodes.gain && this.audioCtx) {
-      this.synthNodes.gain.gain.setValueAtTime(0, this.audioCtx.currentTime);
-    }
-  }
-
-  private resumeAmbientSoundscape(): void {
-    if (this.synthNodes.gain && this.audioCtx) {
-      this.synthNodes.gain.gain.setValueAtTime(this.volume() * 0.08, this.audioCtx.currentTime);
-    }
-  }
-
-  private stopAmbientSoundscape(): void {
-    try {
-      if (this.synthNodes.osc1) {
-        this.synthNodes.osc1.stop();
-        this.synthNodes.osc1.disconnect();
-      }
-      if (this.synthNodes.osc2) {
-        this.synthNodes.osc2.stop();
-        this.synthNodes.osc2.disconnect();
-      }
-      if (this.synthNodes.gain) {
-        this.synthNodes.gain.disconnect();
-      }
-      this.synthNodes = {};
-    } catch {
-      // Cleanup safe
-    }
+    this.showTranscript.set(true);
   }
 
   private onPlaybackEnded(): void {
     this.isPlaying.set(false);
-    this.isSpeaking.set(false);
     this.currentTime.set(this.duration());
-    this.stopProgressTimer();
-    this.stopAmbientSoundscape();
   }
 
   stopAll(): void {
+    ++this.playbackRequest;
+    this.isLoading.set(false);
     this.isPlaying.set(false);
-    this.isSpeaking.set(false);
-    this.stopProgressTimer();
-    this.stopAmbientSoundscape();
     if (this.audioElem) {
       this.audioElem.pause();
-      this.audioElem.currentTime = 0;
-    }
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+      this.audioElem.removeAttribute('src');
+      this.audioElem.load();
     }
   }
 
   formatTime(seconds: number): string {
+    if (isNaN(seconds) || seconds < 0) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
