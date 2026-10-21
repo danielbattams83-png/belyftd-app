@@ -1,0 +1,29 @@
+:host { display: contents; }
+.discovery { width: min(640px, calc(100vw - 24px)); max-height: min(85dvh, 850px); margin: auto; padding: 24px; border: 1px solid #555; border-radius: 24px; background: #333333; color: #fff; box-shadow: 0 24px 80px #0009; overflow-y: auto; color-scheme: dark; }
+.discovery::backdrop { background: #000a; backdrop-filter: blur(5px); }
+.discovery-header { display: flex; align-items: flex-start; gap: 16px; justify-content: space-between; margin-bottom: 20px; }
+h2 { font-size: 1.4rem; font-weight: 750; margin: 0 0 6px; }
+p { margin: 0; }
+.discovery-header p, .status, .hint { color: #d1d5db; font-size: .85rem; }
+button { cursor: pointer; font: inherit; }
+.close { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; background: #ffffff12; border: 1px solid #666; color: white; }
+.search-label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: 8px; }
+input { width: 100%; border: 1px solid #888; border-radius: 14px; padding: 14px; background: #252525; color: #fff; font-size: 1rem; }
+input::placeholder { color: #b8bec5; }
+:is(input, button):focus-visible { outline: 3px solid #1A9BEF; outline-offset: 3px; }
+.intents { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.intents button { border: 1px solid #777; border-radius: 999px; padding: 10px 12px; background: #414141; color: #fff; font-size: .8rem; min-height: 44px; }
+.intents button[aria-pressed=true], .intents button:hover { border-color: #1A9BEF; background: #0d5789; }
+.status { margin-bottom: 10px; }
+.status button { color: #7dcdff; text-decoration: underline; }
+ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.result { width: 100%; display: grid; gap: 5px; text-align: left; border: 1px solid #626262; border-radius: 16px; padding: 16px; color: #fff; background: #ffffff08; }
+.result:hover { border-color: #1A9BEF; background: #1a9bef18; }
+.result:disabled { opacity: .6; cursor: wait; }
+.module { color: #d1d5db; font-size: .75rem; }
+.media { color: #d1d5db; font-size: .8rem; line-height: 1.6; }
+.open-lesson { color: #7dcdff; font-size: .85rem; font-weight: 600; }
+.empty { padding: 24px 4px; font-size: .95rem; line-height: 1.6; color: #d1d5db; }
+.error { color: #ffcccc; padding: 12px 0; font-size: .9rem; }
+.hint { margin-top: 18px; }
+@media (max-width: 400px) { .discovery { padding: 18px; } }

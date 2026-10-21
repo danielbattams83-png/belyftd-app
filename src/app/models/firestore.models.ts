@@ -8,6 +8,8 @@ export type SubscriptionTier = 1 | 2 | 3;
 export interface ModuleUnitDocument {
   id: string;
   title?: string;
+  tags?: string[];
+  description?: string;
   minTier: SubscriptionTier;
   textContent: string;
   audioUrls: CourseMediaUrls;

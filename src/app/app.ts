@@ -1,3 +1,4 @@
+import {SmartSearchComponent} from './components/smart-search/smart-search.component';
 import {MentorRecordingPickerComponent} from './components/mentor-recording-picker.component';
 import {productionMentorForLabel} from './services/production-mentors';
 import {BackButtonComponent} from './components/back-button.component';
@@ -42,6 +43,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    SmartSearchComponent,
     MentorRecordingPickerComponent,
     BackButtonComponent,
     CommonModule,
