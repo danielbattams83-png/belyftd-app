@@ -15,3 +15,56 @@
   .header-signin-full { display: none; }
   .header-signin-short { display: inline; }
 }
+
+/* Courses: keep summary widgets below the title, with intrinsic card heights. */
+.courses-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+.courses-page-header > div:first-child { flex: 1 1 260px; min-width: 0; }
+.courses-hero-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+.courses-hero-summary .summary-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  padding: 1.25rem;
+}
+.courses-hero-summary .reflections-card { justify-content: flex-start; }
+.summary-card-heading, .summary-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  min-width: 0;
+}
+.summary-card-heading { margin-bottom: 1rem; }
+.summary-session-details, .summary-reflections-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  min-width: 0;
+}
+.summary-card-heading > button, .summary-card-footer > button { flex-shrink: 0; }
+@media (max-width: 1023.98px) {
+  .courses-hero-summary { grid-template-columns: minmax(0, 1fr); }
+}
