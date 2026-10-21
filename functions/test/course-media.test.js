@@ -66,7 +66,7 @@ test('rejects missing objects without signing them', async () => {
 });
 
 test('rejects unauthenticated and insufficient-tier requests', async () => {
-  const {handler, request, wasSigned} = setup({tier: 1});
+  const {handler, request, wasSigned} = setup({tier: 1, moduleNumber: 11});
   await assert.rejects(handler({...request, auth: null}), error => error.code === 'unauthenticated');
   await assert.rejects(handler(request), error => error.code === 'permission-denied');
   assert.equal(wasSigned(), false);
@@ -90,7 +90,7 @@ test('Enterprise accounts can access Impact and Enterprise media', async () => {
 
 test('rejects unsupported subscription claims and full curriculum media for lower tiers', async () => {
   for (const tier of [0, 2, 5, '4']) {
-    const {handler, request, wasSigned} = setup({tier, minTier: 4});
+    const {handler, request, wasSigned} = setup({tier, minTier: 4, moduleNumber: 11});
     await assert.rejects(handler(request), error => error.code === 'permission-denied');
     assert.equal(wasSigned(), false);
   }
@@ -98,12 +98,14 @@ test('rejects unsupported subscription claims and full curriculum media for lowe
 
 for (const tier of [1, 2, 3, 4]) {
   test(`module caps enforced for Tier ${tier}, independent of legacy minTier`, async () => {
-    for (const moduleNumber of [1, 2, 3, 4, 5, 6, 10]) {
-      const allowed = tier >= 3 || (tier === 2 && moduleNumber <= 3) || moduleNumber === 1;
-      const {handler, request, wasSigned} = setup({tier, moduleNumber, minTier: allowed ? 4 : 1});
+    for (const moduleNumber of [1, 5, 6, 10, 11, 21, 22]) {
+      const allowed = tier >= 3 || (tier === 2 && moduleNumber <= 10) || moduleNumber <= 5;
+      const {handler, readingHandler, request, wasSigned} = setup({tier, moduleNumber, minTier: allowed ? 4 : 1});
       if (allowed) await handler(request);
       else await assert.rejects(handler(request), error => error.code === 'permission-denied');
       assert.equal(wasSigned(), allowed);
+      if (allowed) assert.equal((await readingHandler(request)).content, 'H - stands for hope.');
+      else await assert.rejects(readingHandler(request), error => error.code === 'permission-denied');
     }
   });
 }
@@ -119,7 +121,7 @@ test('reading endpoint rejects scripts, dirty JSON, and insufficient tiers', asy
     const {readingHandler, request} = setup({reading});
     await assert.rejects(readingHandler(request), error => error.code === 'failed-precondition');
   }
-  const {readingHandler, request} = setup({tier: 1});
+  const {readingHandler, request} = setup({tier: 1, moduleNumber: 11});
   await assert.rejects(readingHandler(request), error => error.code === 'permission-denied');
   await assert.rejects(readingHandler({...request, auth: null}), error => error.code === 'unauthenticated');
 });

@@ -31,7 +31,7 @@ const sponsorCodes = [
     active: true,
   },
 ];
-const tierByModule = {1: 1, 2: 2, 3: 2, 4: 3, 5: 3};
+const tierForModule = number => number <= 5 ? 1 : number <= 10 ? 2 : 3;
 const lessonCodePattern = /^(\d+)[.-](\d+)(?=[.-])/;
 
 function fail(message) {
@@ -169,7 +169,7 @@ async function main() {
       unitId,
       data: {
         title: lessonTitle(source.filePath, text),
-        minTier: tierByModule[moduleNumber] || 3,
+        minTier: tierForModule(moduleNumber),
         textContent: text,
         readingContentPath: `course-content/${moduleId}/${unitId}/text.json`,
         contentKind: 'reading',

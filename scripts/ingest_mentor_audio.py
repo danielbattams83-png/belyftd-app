@@ -120,7 +120,7 @@ def main():
             body = extract_reading_document(library / first['document'])
             if not body:
                 raise ValueError(f'Empty lesson text for {name}')
-            patch.update({'title': {'stringValue': first['title']}, 'minTier': {'integerValue': '3'},
+            patch.update({'title': {'stringValue': first['title']}, 'minTier': {'integerValue': str(1 if int(first['module'][7:]) <= 5 else 2 if int(first['module'][7:]) <= 10 else 3)},
                           'textContent': {'stringValue': body}, 'videoUrls': {'mapValue': {'fields': {}}},
                           'sourceFile': {'stringValue': first['document']},
                           'contentKind': {'stringValue': 'reading'},

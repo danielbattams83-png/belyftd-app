@@ -84,7 +84,7 @@ exports.getCourseMediaUrl = onCall({serviceAccount: 'course-media@belyft-d-app.i
   const tier = request.auth.token.subscriptionTier;
   const moduleMatch = /^module-([1-9][0-9]*)$/.exec(moduleId);
   const moduleNumber = moduleMatch ? Number(moduleMatch[1]) : 0;
-  const requiredTier = moduleNumber === 1 ? 1 : moduleNumber <= 3 ? 2 : 3;
+  const requiredTier = moduleNumber <= 5 ? 1 : moduleNumber <= 10 ? 2 : 3;
   if (!moduleNumber || ![1, 2, 3, 4].includes(tier) || tier < requiredTier) {
     throw new HttpsError('permission-denied', 'Your subscription does not allow access to this course media.');
   }
@@ -126,7 +126,7 @@ exports.getCourseReadingContent = onCall({serviceAccount: 'course-media@belyft-d
     throw new HttpsError('invalid-argument', 'Invalid lesson identifiers.');
   }
   const number = Number(match[1]);
-  const requiredTier = number === 1 ? 1 : number <= 3 ? 2 : 3;
+  const requiredTier = number <= 5 ? 1 : number <= 10 ? 2 : 3;
   const tier = request.auth.token.subscriptionTier;
   if (![1, 2, 3, 4].includes(tier) || tier < requiredTier) {
     throw new HttpsError('permission-denied', 'This lesson requires an upgraded subscription.');

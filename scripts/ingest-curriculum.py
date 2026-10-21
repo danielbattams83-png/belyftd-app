@@ -115,7 +115,7 @@ def main():
         if metadata.get('supplemental'): supplemental_modules.add(module)
         fields = {'title': encode(clean_content(title)), 'textContent': encode(text), 'contentKind': encode('reading'),
                   'readingContentPath': encode(f'course-content/{module}/{unit}/text.json'), 'sourceFile': encode(metadata.get('sourceFile', source.name)),
-                  'minTier': encode(1 if number == 1 else 2 if number <= 3 else 3)}
+                  'minTier': encode(1 if number <= 5 else 2 if number <= 10 else 3)}
         if metadata.get('sourceFiles'): fields['sourceFiles'] = encode(metadata['sourceFiles'])
         if name not in existing: fields.update({'audioUrls': encode({}), 'videoUrls': encode({}), 'active': encode(True)})
         all_units[name] = {**old, **fields}

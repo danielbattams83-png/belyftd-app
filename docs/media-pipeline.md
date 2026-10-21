@@ -113,7 +113,24 @@ snapshot provides the same titles/order if Firestore is temporarily unavailable.
 
 The public catalog exposes unit titles and text/media availability; it never contains lesson text or
 media URLs. Firestore unit text and the canonical reading callable retain the subscription rules:
-Tier 1 = Module 1; Tier 2 = Modules 1-3; Tiers 3/4 = all modules, including supplemental lessons.
+Tier 1 = Modules 1-5; Tier 2 = Modules 1-10; Tiers 3/4 = all modules, including supplemental lessons.
 Accordions list all units (including locked units), sort module/unit numbers numerically, and select
 the first accessible incomplete module. Completion keys use `module-N/unit-M` in the user profile;
 Firestore progress document IDs encode the slash so progress writes remain valid document paths.
+
+
+Subscription pricing is displayed as one vertical card stack at every screen width. The checkout
+hook carries `SubscriptionPlan.moduleAccess` as the highest included core module (5, 10, or 21),
+and the checkout placeholder repeats that entitlement. Prices and Tier 4 branding privileges are
+unchanged. Stripe is not connected: the event hook/modal does not charge money or grant access.
+Sponsor codes continue to grant tier claims; the common access policy supplies their module range.
+Core Modules 1-21 are included at Tier 3/4; the existing supplemental section remains included.
+
+
+For a tier-policy change, `python scripts/sync-subscription-tiers.py --apply` updates only unit
+`minTier` metadata and verifies that lesson/media fields are unchanged. `python
+scripts/test-storage-tier-policy.py` tests Storage rules using mocked requests/resources through
+the read-only Firebase Rules test API. The application continues to play course media exclusively
+through signed URLs from `getCourseMediaUrl`. Live signed playback was verified with HTTP 206
+Range responses for all four tiers. A direct Firebase Storage SDK-style request returned HTTP 403;
+it is not used by the app's course player. Storage rule-engine checks passed independently.

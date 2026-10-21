@@ -144,7 +144,7 @@ describe('AudioPlayerService production playback', () => {
 
   it('does not request or play media outside the tier module cap', async () => {
     TestBed.inject(FirebaseService).subscriptionTier.set(1);
-    await player.playTrack(track('restricted'));
+    await player.playTrack({...track('restricted'), audioUrl: track('restricted').audioUrl!.replace('module-5', 'module-6')});
     expect(sign).not.toHaveBeenCalled();
     expect(audio.play).not.toHaveBeenCalled();
     expect(player.hasPlayableMedia()).toBe(false);

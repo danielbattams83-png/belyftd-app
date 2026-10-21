@@ -6,14 +6,14 @@ import {FirebaseService} from '../services/firebase.service';
 import {AudioPlayerService} from '../services/audio-player.service';
 
 describe('Course unit media visibility', () => {
-  async function render(audioUrls: Record<string, string>, videoUrls: Record<string, string>, tier = 3, textContent = 'Clean reading content') {
+  async function render(audioUrls: Record<string, string>, videoUrls: Record<string, string>, tier = 3, textContent = 'Clean reading content', moduleId = 'module-5') {
     const sign = vi.fn(async (path: string) => {
       if (path.includes('missing')) throw new Error('Not found');
       return 'https://storage.googleapis.com/verified-recording';
     });
     await TestBed.configureTestingModule({imports: [CourseUnitComponent], providers: [
       provideRouter([]),
-      {provide: ActivatedRoute, useValue: {snapshot: {paramMap: convertToParamMap({moduleId: 'module-5', unitId: 'unit-2'})}}},
+      {provide: ActivatedRoute, useValue: {snapshot: {paramMap: convertToParamMap({moduleId, unitId: 'unit-2'})}}},
       {provide: FirebaseService, useValue: {
         userProfile: signal(null), getModuleCatalog: vi.fn().mockResolvedValue([]), subscriptionTier: signal(tier), currentUser: signal(null), getCourseMediaUrlFromPath: sign,
         getModuleUnit: vi.fn().mockResolvedValue({id: 'unit-2', title: 'Hope', minTier: 3, textContent, audioUrls, videoUrls}),
@@ -60,7 +60,7 @@ describe('Course unit media visibility', () => {
   });
 
   it('omits restricted media without requesting signed URLs or showing a banner', async () => {
-    const {element, sign} = await render({'Sophie (english)': 'course-content/module-5/unit-2/audio/sophie.mp3'}, {'Sophie (chinese)': 'course-content/module-5/unit-2/video/sophie.mp4'}, 1);
+    const {element, sign} = await render({'Sophie (english)': 'course-content/module-6/unit-2/audio/sophie.mp3'}, {'Sophie (chinese)': 'course-content/module-6/unit-2/video/sophie.mp4'}, 1, undefined, 'module-6');
     expect(sign).not.toHaveBeenCalled();
     expect(element.querySelector('video')).toBeNull();
     expect(element.querySelector('[aria-label="Mentor audio player"]')).toBeNull();

@@ -29,6 +29,7 @@
     <section class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (keydown.escape)="checkoutPlan.set(null)">
       <h2 id="checkout-title">Checkout - {{ plan.name }}</h2>
       <p>{{ plan.price | currency:'USD':'symbol':'1.2-2' }} USD per month</p>
+      <p class="checkout-access">Includes all units in Modules 1-{{ plan.moduleAccess }}{{ plan.tier >= 3 ? ' and supplemental reading' : '' }}.</p>
       <p>Secure checkout is coming soon. This demo does not collect payment or activate a subscription.</p>
       <p>Have a sponsor code? Close this window and redeem it below the plans.</p>
       <button type="button" (click)="checkoutPlan.set(null)">Back to plans</button>

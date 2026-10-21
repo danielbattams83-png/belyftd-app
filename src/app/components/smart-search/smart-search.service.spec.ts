@@ -56,7 +56,7 @@ describe('Discovery catalog loading', () => {
     TestBed.tick();
     expect(getModuleUnits).not.toHaveBeenCalled();
     await service.load();
-    expect(getModuleUnits).toHaveBeenCalledTimes(5);
+    expect(getModuleUnits).toHaveBeenCalledTimes(22);
     expect(service.lessons().some(lesson => lesson.title === 'Goal Setting')).toBe(true);
     expect(service.error()).toContain('Some lessons');
     expect(service.lessons().some(lesson => lesson.title === 'Hope')).toBe(true);
@@ -66,4 +66,18 @@ describe('Discovery catalog loading', () => {
     expect(service.lessons().some(lesson => lesson.title === 'Goal Setting')).toBe(false);
     expect(service.loading()).toBe(false);
   });
+  it('includes Modules 6-10 for Tier 2 without requesting higher-tier reading text', async () => {
+    const getModuleUnits = vi.fn().mockResolvedValue([]);
+    TestBed.configureTestingModule({providers: [
+      {provide: FirebaseService, useValue: {currentUser: signal({uid: 'test'}), subscriptionTier: signal(2), getModuleUnits}},
+      {provide: MentorshipDataService, useValue: {availableAudioTracks: signal([])}},
+    ]});
+    const service = TestBed.inject(SmartSearchService);
+    TestBed.tick();
+    await service.load();
+    expect(getModuleUnits).toHaveBeenCalledTimes(10);
+    expect(getModuleUnits).toHaveBeenCalledWith('module-10');
+    expect(getModuleUnits).not.toHaveBeenCalledWith('module-11');
+  });
+
 });

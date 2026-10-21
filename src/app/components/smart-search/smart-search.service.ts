@@ -1,3 +1,5 @@
+import catalogSnapshot from '../../models/course-catalog.json';
+import {canAccessModule} from '../../services/tier.service';
 import {computed, effect, inject, Injectable, signal} from '@angular/core';
 import {AudioTrack} from '../../models/app.models';
 import {ModuleUnitDocument} from '../../models/firestore.models';
@@ -116,9 +118,8 @@ export class SmartSearchService {
     const request = ++this.request;
     this.loading.set(true);
     this.error.set(null);
-    // Same module IDs as the production ingestion pipeline. Text-only units are included.
-    const results = await Promise.allSettled([1, 2, 3, 4, 5].map(async number => {
-      const moduleId = `module-${number}`;
+    const moduleIds = catalogSnapshot.filter(module => canAccessModule(this.firebase.subscriptionTier(), module.id)).map(module => module.id);
+    const results = await Promise.allSettled(moduleIds.map(async moduleId => {
       const units = await this.firebase.getModuleUnits(moduleId);
       return units.map(unit => this.fromUnit(moduleId, unit));
     }));

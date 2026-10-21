@@ -1,3 +1,4 @@
+import catalogSnapshot from '../models/course-catalog.json';
 import {canAccessModule, TierService} from './tier.service';
 import {VERIFIED_MENTOR_RECORDINGS} from './verified-mentor-recordings';
 import {PRODUCTION_MENTORS, productionMentorForLabel} from './production-mentors';
@@ -156,8 +157,7 @@ export class MentorshipDataService {
   private async loadAudioCatalog(request: number): Promise<void> {
     this.audioCatalogLoading.set(true);
     this.audioCatalogError.set(null);
-    // These are the module IDs produced by seed-real-content.js.
-    const moduleIds = ['module-1', 'module-2', 'module-3', 'module-4', 'module-5'];
+    const moduleIds = catalogSnapshot.filter(module => canAccessModule(this.firebaseService.subscriptionTier(), module.id)).map(module => module.id);
     const results = await Promise.allSettled(moduleIds.map(async moduleId => {
       const units = await this.firebaseService.getModuleUnits(moduleId);
       const tracks = units.flatMap(unit => Object.entries(unit.audioUrls ?? {}).flatMap(([label, storagePath]) => {

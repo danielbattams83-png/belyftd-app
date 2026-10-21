@@ -23,7 +23,7 @@ describe('tier route guard', () => {
     return TestBed.runInInjectionContext(() => tierAccessGuard(route, {} as RouterStateSnapshot));
   }
   it('opens the upgrade paywall before requesting restricted content', async () => {
-    expect(await navigate('module-2')).toBe(false);
+    expect(await navigate('module-6')).toBe(false);
     expect(TestBed.inject(TierService).requiredUpgrade()).toBe(2);
     expect(firebase.getModuleUnit).not.toHaveBeenCalled();
   });

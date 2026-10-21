@@ -81,7 +81,7 @@ describe('App', () => {
     app.dataService.openCourse({...preview, moduleId: undefined});
     expect(app.dataService.activeSelectedCourse()?.id).toBe(preview.id);
     app.dataService.closeCourse();
-    app.dataService.openCourse({...preview, moduleId: 'module-5'});
+    app.dataService.openCourse({...preview, moduleId: 'module-11'});
     expect(app.dataService.activeSelectedCourse()).toBeNull();
   });
 
