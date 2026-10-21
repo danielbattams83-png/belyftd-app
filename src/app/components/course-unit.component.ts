@@ -1,3 +1,4 @@
+import {cleanContent} from '../services/reading-content';
 import {canAccessModule} from '../services/tier.service';
 import {AudioPlayerService} from '../services/audio-player.service';
 import {productionMentorForLabel} from '../services/production-mentors';
@@ -87,7 +88,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
 
             @if (hasMediaAccess() && audioTracks().length) { <app-mentor-audio [tracks]="audioTracks()" /> }
 
-            <div class="whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-200">{{ lesson.textContent }}</div>
+            <div class="whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-200">{{ cleanContent(lesson.textContent) }}</div>
           </article>
         }
       </div>
@@ -95,6 +96,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
   `,
 })
 export class CourseUnitComponent implements OnInit, OnDestroy {
+  readonly cleanContent = cleanContent;
   private readonly route = inject(ActivatedRoute);
   private readonly firebaseService = inject(FirebaseService);
 

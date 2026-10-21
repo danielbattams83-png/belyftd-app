@@ -1,3 +1,4 @@
+const {cleanContent} = require('./reading-content.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const mammoth = require('mammoth');
@@ -116,7 +117,7 @@ async function main() {
     return;
   }
 
-  const candidates = listFiles(contentRoot).filter(file => path.extname(file).toLowerCase() === '.docx');
+  const candidates = listFiles(contentRoot).filter(file => path.extname(file).toLowerCase() === '.docx' && !/[\\/](?:scripts?|narration|elevenlabs)[\\/]|script_elevenlabs/i.test(file));
   const selectedByUnit = new Map();
   for (const filePath of candidates) {
     const code = parseLessonCode(filePath);
@@ -124,10 +125,10 @@ async function main() {
     const unitKey = `module-${code.moduleNumber}/unit-${code.unitNumber}`;
     const isMaster = /[\\/]Master Files[\\/]/i.test(filePath);
     const prior = selectedByUnit.get(unitKey);
-    if (!prior || (prior.isMaster && !isMaster)) {
+    if (!prior || (!prior.isMaster && isMaster)) {
       selectedByUnit.set(unitKey, {filePath, isMaster});
-    } else if (!prior.isMaster && !isMaster) {
-      throw new Error(`Multiple script documents found for ${unitKey}: ${prior.filePath} and ${filePath}`);
+    } else if (prior.isMaster === isMaster) {
+      throw new Error(`Multiple reading documents found for ${unitKey}: ${prior.filePath} and ${filePath}`);
     }
   }
 
@@ -140,7 +141,7 @@ async function main() {
   for (const [unitPath, source] of [...selectedByUnit.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     const [moduleId, unitId] = unitPath.split('/');
     const moduleNumber = Number(moduleId.slice('module-'.length));
-    const text = (await mammoth.extractRawText({path: source.filePath})).value.trim();
+    const text = cleanContent((await mammoth.extractRawText({path: source.filePath})).value);
     if (!text) throw new Error(`The lesson document is empty: ${source.filePath}`);
 
     const lessonCode = `${moduleNumber}.${Number(unitId.slice('unit-'.length))}`;
@@ -170,6 +171,8 @@ async function main() {
         title: lessonTitle(source.filePath, text),
         minTier: tierByModule[moduleNumber] || 3,
         textContent: text,
+        readingContentPath: `course-content/${moduleId}/${unitId}/text.json`,
+        contentKind: 'reading',
         audioUrls: {},
         videoUrls: {},
         sourceFile: path.basename(source.filePath),
@@ -221,6 +224,7 @@ async function main() {
       unit.data[`${mediaType}Urls`] = map;
     }
 
+    await bucket.file(unit.data.readingContentPath).save(JSON.stringify({schemaVersion: 1, contentKind: 'reading', content: unit.data.textContent}), {contentType: 'application/json', metadata: {cacheControl: 'private, no-store'}});
     await db.collection('modules').doc(unit.moduleId).collection('units').doc(unit.unitId).set(unit.data, {merge: true});
     console.log(`Seeded ${unit.moduleId}/${unit.unitId}`);
   }

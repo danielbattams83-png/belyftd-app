@@ -6,7 +6,7 @@ import {FirebaseService} from '../services/firebase.service';
 import {AudioPlayerService} from '../services/audio-player.service';
 
 describe('Course unit media visibility', () => {
-  async function render(audioUrls: Record<string, string>, videoUrls: Record<string, string>, tier = 3) {
+  async function render(audioUrls: Record<string, string>, videoUrls: Record<string, string>, tier = 3, textContent = 'Clean reading content') {
     const sign = vi.fn(async (path: string) => {
       if (path.includes('missing')) throw new Error('Not found');
       return 'https://storage.googleapis.com/verified-recording';
@@ -16,7 +16,7 @@ describe('Course unit media visibility', () => {
       {provide: ActivatedRoute, useValue: {snapshot: {paramMap: convertToParamMap({moduleId: 'module-5', unitId: 'unit-2'})}}},
       {provide: FirebaseService, useValue: {
         subscriptionTier: signal(tier), currentUser: signal(null), getCourseMediaUrlFromPath: sign,
-        getModuleUnit: vi.fn().mockResolvedValue({id: 'unit-2', title: 'Hope', minTier: 3, textContent: 'Clean reading content', audioUrls, videoUrls}),
+        getModuleUnit: vi.fn().mockResolvedValue({id: 'unit-2', title: 'Hope', minTier: 3, textContent, audioUrls, videoUrls}),
       }},
       {provide: AudioPlayerService, useValue: {activeTrack: signal(null), isTrackAvailable: () => tier >= 3, close: vi.fn(), formatTime: () => '0:00'}},
     ]}).compileComponents();
@@ -77,4 +77,11 @@ describe('Course unit media visibility', () => {
     expect(element.querySelector('[role="alert"]')).toBeNull();
     vi.restoreAllMocks();
   });
+  it('sanitizes reading directions and preserves acronym spacing in the rendered lesson', async () => {
+    const {element} = await render({}, {}, 3, '[Tone: Warm, conversational] H-stands for hope. Hstands for hope.');
+    expect(element.textContent).not.toContain('[Tone:');
+    expect(element.textContent).not.toContain('Hstands');
+    expect(element.textContent).toContain('H - stands for hope. H - stands for hope.');
+  });
+
 });

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-function setup({exists = true, tier = 3, minTier = 3, moduleNumber = 5, unitExists = true} = {}) {
+function setup({exists = true, tier = 3, minTier = 3, moduleNumber = 5, unitExists = true, reading = {contentKind: 'reading', content: 'H - stands for hope.'}} = {}) {
   const storagePath = `course-content/module-${moduleNumber}/unit-2/audio/hope-sophie--english.mp3`;
   let signed = false;
   const modules = {
@@ -18,6 +18,10 @@ function setup({exists = true, tier = 3, minTier = 3, moduleNumber = 5, unitExis
     'firebase-admin/storage': {getStorage: () => ({bucket: bucket => {
       assert.equal(bucket, 'belyft-d-app.firebasestorage.app');
       return {file: filePath => {
+        if (filePath.endsWith('/text.json')) {
+          assert.equal(filePath, `course-content/module-${moduleNumber}/unit-2/text.json`);
+          return {download: async () => [Buffer.from(JSON.stringify(reading))]};
+        }
         assert.equal(filePath, storagePath);
         return {exists: async () => [exists], getSignedUrl: async options => {
           signed = true;
@@ -40,6 +44,7 @@ function setup({exists = true, tier = 3, minTier = 3, moduleNumber = 5, unitExis
   });
   return {
     handler: exports.getCourseMediaUrl,
+    readingHandler: exports.getCourseReadingContent,
     request: {auth: {uid: 'test-user', token: {subscriptionTier: tier}}, data: {
       moduleId: `module-${moduleNumber}`, unitId: 'unit-2', mediaType: 'audio', storagePath,
     }},
@@ -102,3 +107,19 @@ for (const tier of [1, 2, 3, 4]) {
     }
   });
 }
+
+test('reading endpoint accepts only canonical reading JSON', async () => {
+  const {readingHandler, request} = setup();
+  const result = await readingHandler({...request, data: {...request.data, storagePath: 'script_elevenlabs.txt'}});
+  assert.equal(result.content, 'H - stands for hope.');
+});
+
+test('reading endpoint rejects scripts, dirty JSON, and insufficient tiers', async () => {
+  for (const reading of [{contentKind: 'narration', content: 'Script'}, {contentKind: 'reading', content: '[Tone: Warm] Hello'}, {contentKind: 'reading', content: ''}]) {
+    const {readingHandler, request} = setup({reading});
+    await assert.rejects(readingHandler(request), error => error.code === 'failed-precondition');
+  }
+  const {readingHandler, request} = setup({tier: 1});
+  await assert.rejects(readingHandler(request), error => error.code === 'permission-denied');
+  await assert.rejects(readingHandler({...request, auth: null}), error => error.code === 'unauthenticated');
+});

@@ -1,3 +1,4 @@
+import {cleanContent} from './reading-content';
 import {canAccessModule} from './tier.service';
 import {PRODUCTION_MENTORS} from './production-mentors';
 import { computed, Injectable, signal } from '@angular/core';
@@ -159,7 +160,9 @@ export class FirebaseService {
   async getCourseUnit(moduleId: string, unitId: string): Promise<CourseUnitDocument | null> {
     try {
       const snapshot = await getDoc(doc(this._requireFirestore(), 'modules', moduleId, 'units', unitId));
-      return snapshot.exists() ? {id: snapshot.id, moduleId, unitId, ...(snapshot.data() as Omit<CourseUnitDocument, 'id' | 'moduleId' | 'unitId'>)} : null;
+      if (!snapshot.exists()) return null;
+      const textContent = await this.getReadingContent(moduleId, unitId);
+      return {...snapshot.data(), id: snapshot.id, moduleId, unitId, textContent} as CourseUnitDocument;
     } catch (error) {
       console.warn('[v0] Unable to load course unit:', error);
       return null;
@@ -516,9 +519,16 @@ export class FirebaseService {
   async getModuleUnit(moduleId: string, unitId: string): Promise<ModuleUnitDocument | null> {
     if (!this.currentUser()) return null;
     const unitDoc = await getDoc(doc(this._requireFirestore(), 'modules', moduleId, 'units', unitId));
-    return unitDoc.exists()
-      ? { ...unitDoc.data(), id: unitDoc.id } as ModuleUnitDocument
-      : null;
+    if (!unitDoc.exists()) return null;
+    const textContent = await this.getReadingContent(moduleId, unitId);
+    return {...unitDoc.data(), id: unitDoc.id, textContent} as ModuleUnitDocument;
+  }
+
+  private async getReadingContent(moduleId: string, unitId: string): Promise<string> {
+    const read = httpsCallable<{moduleId: string; unitId: string}, {content: string}>(
+      getFunctions(this.app ?? undefined, 'us-central1'), 'getCourseReadingContent');
+    const result = await read({moduleId, unitId});
+    return cleanContent(result.data.content);
   }
 
   async getDailyAffirmationsCache(daysCount: number): Promise<DailyAffirmationDocument[]> {

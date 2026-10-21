@@ -57,3 +57,33 @@ The two new units use their original Library teaching text and tier 3, consisten
 The player includes separate Stop (rewind while keeping the selected recording) and Close (stop and dismiss both views) controls. Closing cancels pending playback requests. The full view scrolls with its close controls kept at the top; the support shortcut moves above the mini player. Permission-denied errors explain the course access requirement.
 
 Mentor cards now use cascading Module and Lesson selectors, with a Language selector for Sophie and Omari. Options are derived from the mentor's actual registered recordings, so languages and lessons are limited to the selected module/lesson. Selection changes do not autoplay; one Play lesson button requests the selected recording through the existing access checks.
+
+
+## Reading content boundary (22 October 2026)
+
+The unit reader obtains text exclusively through `getCourseReadingContent`, which reads
+`course-content/{moduleId}/{unitId}/text.json` from private Storage after enforcing module-tier access.
+This file must contain `{ "schemaVersion": 1, "contentKind": "reading", "content": "..." }`.
+The callable never accepts a client-supplied filename or falls back to Firestore narration text.
+Firestore retains a sanitized reading copy plus `readingContentPath` for catalog metadata.
+The frontend also strips square-bracket directions and preserves acronym dash spacing in
+unit readings, legacy previews, and the transcript drawer.
+
+`seed-real-content.js` excludes narration folders, prefers original Master Files, sanitizes
+reading text, and writes canonical JSON. `ingest_mentor_audio.py` uses the independent original
+reading extractor when creating a new unit. Neither pipeline reads `script_elevenlabs.txt`.
+Voice-generation scripts are temporary narration inputs only; never register their contents
+as Firestore `textContent` or reading JSON. Audio objects and their metadata remain separate.
+
+To repair existing active units without touching media or tier settings:
+
+```powershell
+python scripts/reprocess-reading-content.py
+python scripts/reprocess-reading-content.py --apply
+```
+
+This command requires authenticated Google Cloud CLI access, previews every original source,
+backs up Firestore records under ignored `tmp/`, uses optimistic Firestore updates, and verifies
+both Firestore and Storage after every write. It fails if a source is missing or ambiguous.
+Original Word formatting runs are concatenated verbatim; explicit paragraph and line breaks
+are preserved. It does not run narration extraction or cut reading exercises from lessons.

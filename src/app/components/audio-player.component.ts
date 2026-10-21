@@ -1,3 +1,4 @@
+import {cleanContent} from '../services/reading-content';
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
@@ -209,7 +210,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
                     Accessible Text
                   </span>
                 </div>
-                <p class="font-normal text-xs sm:text-sm">{{ player.activeTrack()?.transcript }}</p>
+                <p class="font-normal text-xs sm:text-sm">{{ cleanContent(player.activeTrack()?.transcript) }}</p>
               </div>
             }
           </div>
@@ -219,6 +220,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
   `,
 })
 export class AudioPlayerComponent {
+  readonly cleanContent = cleanContent;
   readonly player = inject(AudioPlayerService);
 
   onProgressBarClick(event: MouseEvent): void {

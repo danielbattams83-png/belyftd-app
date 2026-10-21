@@ -17,8 +17,7 @@ from urllib.error import HTTPError
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
-from clean_docx_batch import collect_known_titles, extract_clean_script
-from clean_library_audio import LIBRARY_END
+from reading_content import extract_reading_document
 
 PROJECT = 'belyft-d-app'
 BUCKET = PROJECT + '.firebasestorage.app'
@@ -96,8 +95,7 @@ def main():
     if not args.apply:
         return
     library = args.site_files / '2. Documents' / '2. 2025 LIBRARY LYFTD' / '2025 LIBRARY LYFTD'
-    new_sources = [library / item['document'] for item in media if item['document']]
-    titles = collect_known_titles(list(set(new_sources)))
+
     report = []
     for name, existing in units.items():
         relevant = [item for item in media if name == f"modules/{item['module']}/units/{item['unit']}"]
@@ -119,12 +117,17 @@ def main():
             first = relevant[0]
             if not first['document']:
                 raise ValueError(f'No source lesson for new unit {name}')
-            body, _ = extract_clean_script(library / first['document'], titles, LIBRARY_END)
+            body = extract_reading_document(library / first['document'])
             if not body:
                 raise ValueError(f'Empty lesson text for {name}')
             patch.update({'title': {'stringValue': first['title']}, 'minTier': {'integerValue': '3'},
                           'textContent': {'stringValue': body}, 'videoUrls': {'mapValue': {'fields': {}}},
-                          'sourceFile': {'stringValue': first['document']}})
+                          'sourceFile': {'stringValue': first['document']},
+                          'contentKind': {'stringValue': 'reading'},
+                          'readingContentPath': {'stringValue': f"course-content/{first['module']}/{first['unit']}/text.json"}})
+            reading = {'schemaVersion': 1, 'contentKind': 'reading', 'content': body}
+            query = urlencode({'uploadType': 'media', 'name': patch['readingContentPath']['stringValue'], 'ifGenerationMatch': '0'})
+            request_json(f'https://storage.googleapis.com/upload/storage/v1/b/{BUCKET}/o?{query}', token, method='POST', data=reading)
         query = [('updateMask.fieldPaths', key) for key in patch]
         query.append(('currentDocument.updateTime', existing['updateTime']) if existing else ('currentDocument.exists', 'false'))
         request_json(firestore + name + '?' + urlencode(query), token, method='PATCH', data={'fields': patch})

@@ -1,3 +1,4 @@
+import {cleanContent} from '../services/reading-content';
 import {BackButtonComponent} from './back-button.component';
 import {MentorAudioComponent} from './mentor-audio.component';
 import {ChangeDetectionStrategy, Component, inject, output, input, signal, computed} from '@angular/core';
@@ -70,7 +71,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
             <!-- Clean Text Reader Area (Markdown) -->
             <article class="prose prose-slate dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200 font-sans space-y-4 pt-2">
               <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 whitespace-pre-line leading-loose space-y-3 font-sans shadow-xs">
-                {{ c.textContent }}
+                {{ cleanContent(c.textContent) }}
               </div>
             </article>
 
@@ -144,6 +145,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
   `
 })
 export class CourseModalComponent {
+  readonly cleanContent = cleanContent;
   readonly dataService = inject(MentorshipDataService);
   readonly audioPlayer = inject(AudioPlayerService);
 

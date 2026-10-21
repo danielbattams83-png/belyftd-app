@@ -116,3 +116,31 @@ exports.getCourseMediaUrl = onCall({serviceAccount: 'course-media@belyft-d-app.i
   });
   return {url, expiresAt: expires};
 });
+
+// The path is constructed here, never accepted from a client or narration metadata.
+exports.getCourseReadingContent = onCall({serviceAccount: 'course-media@belyft-d-app.iam.gserviceaccount.com'}, async request => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in to read this lesson.');
+  const {moduleId, unitId} = request.data ?? {};
+  const match = typeof moduleId === 'string' && /^module-([1-9][0-9]*)$/.exec(moduleId);
+  if (!match || typeof unitId !== 'string' || !/^unit-[1-9][0-9]*$/.test(unitId)) {
+    throw new HttpsError('invalid-argument', 'Invalid lesson identifiers.');
+  }
+  const number = Number(match[1]);
+  const requiredTier = number === 1 ? 1 : number <= 3 ? 2 : 3;
+  const tier = request.auth.token.subscriptionTier;
+  if (![1, 2, 3, 4].includes(tier) || tier < requiredTier) {
+    throw new HttpsError('permission-denied', 'This lesson requires an upgraded subscription.');
+  }
+  const file = getStorage().bucket('belyft-d-app.firebasestorage.app').file(`course-content/${moduleId}/${unitId}/text.json`);
+  try {
+    const [bytes] = await file.download();
+    const reading = JSON.parse(bytes.toString('utf8'));
+    if (reading.contentKind !== 'reading' || typeof reading.content !== 'string' || !reading.content.trim() || /[\[\]]/.test(reading.content)) {
+      throw new HttpsError('failed-precondition', 'Clean reading content is not available.');
+    }
+    return {content: reading.content};
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError('not-found', 'Reading content is not available.');
+  }
+});

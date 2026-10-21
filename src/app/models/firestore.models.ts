@@ -13,6 +13,8 @@ export interface ModuleUnitDocument {
   description?: string;
   minTier: SubscriptionTier;
   textContent: string;
+  readingContentPath?: string;
+  contentKind?: 'reading';
   audioUrls: CourseMediaUrls;
   videoUrls: CourseMediaUrls;
 }
