@@ -45,3 +45,11 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Local sync caches and Firebase runtime logs
+/.tmp.driveupload/
+/.firebase/
+/firebase-debug.log
+/firestore-debug.log
+/ui-debug.log
+/pubsub-debug.log
