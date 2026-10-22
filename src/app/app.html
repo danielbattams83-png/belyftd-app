@@ -305,14 +305,18 @@
 
               <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
                 <div class="flex -space-x-2">
-                  <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-amber-200 to-orange-300 text-[10px] font-bold text-slate-700 shadow-sm">MJ</div>
-                  <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-rose-200 to-pink-300 text-[10px] font-bold text-slate-700 shadow-sm">AK</div>
-                  <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-emerald-200 to-teal-300 text-[10px] font-bold text-slate-700 shadow-sm">LM</div>
-                  <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-indigo-200 to-violet-300 text-[10px] font-bold text-slate-700 shadow-sm">TP</div>
+                  @for (mentor of homeMentors(); track mentor.id) {
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br text-[10px] font-bold text-slate-700 shadow-sm"
+                      [class.from-amber-200]="$index % 4 === 0" [class.to-orange-300]="$index % 4 === 0"
+                      [class.from-rose-200]="$index % 4 === 1" [class.to-pink-300]="$index % 4 === 1"
+                      [class.from-emerald-200]="$index % 4 === 2" [class.to-teal-300]="$index % 4 === 2"
+                      [class.from-indigo-200]="$index % 4 === 3" [class.to-violet-300]="$index % 4 === 3"
+                      [title]="mentor.name" [attr.aria-label]="mentor.name">{{ mentor.initials }}</div>
+                  }
                 </div>
                 <div class="inline-flex items-center gap-2 rounded-full bg-white/80 dark:bg-slate-900/60 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
                   <span class="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                  12 Mentors Online & Ready to Listen
+                  {{ homeMentors().length }} Mentors Online
                 </div>
               </div>
             </div>

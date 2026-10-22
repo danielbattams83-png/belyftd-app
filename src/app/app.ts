@@ -75,6 +75,9 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
 export class App {
   readonly audioPlayer = inject(AudioPlayerService);
   readonly dataService = inject(MentorshipDataService);
+  readonly homeMentors = computed(() => [...this.dataService.mentors()]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(mentor => ({...mentor, initials: mentor.name.slice(0, 2).toUpperCase()})));
   readonly curriculum = inject(CurriculumService);
   readonly themeService = inject(ThemeAccessibilityService);
   readonly aiService = inject(AiMentorService);
