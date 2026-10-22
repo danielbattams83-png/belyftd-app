@@ -1,3 +1,4 @@
+import {contextualCoachResponse} from './app/services/coach-response';
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
@@ -38,22 +39,11 @@ function getGenAI(): GoogleGenAI | null {
 // Mentor AI Guidance Endpoint
 app.post('/api/mentor-chat', async (req, res) => {
   try {
-    const {message, youthName, focusArea, mentorPersonality} = req.body;
+    const {message, focusArea, mentorPersonality} = req.body;
     const ai = getGenAI();
 
     if (!ai) {
-      // High-quality fallback if no API key
-      const fallbackTips = [
-        `"Remember, growth happens one small choice at a time. Take a deep breath and break this down into one 5-minute action step."`,
-        `"You've handled tough challenges before. Focus on what is directly in your control right now."`,
-        `"Every leader started with doubts. The key is showing up anyway. What's one thing you can do right now to make progress?"`,
-      ];
-      const randomTip = fallbackTips[Math.floor(Math.random() * fallbackTips.length)];
-      res.json({
-        reply: `Hey ${youthName || 'friend'}! I hear you loud and clear. ${randomTip} You've got this!`,
-        actionStep: "Write down 1 small win you achieved this week.",
-        confidenceScore: 92,
-      });
+      res.json(contextualCoachResponse(message || 'I need some guidance'));
       return;
     }
 
@@ -72,17 +62,14 @@ Youth's Focus Area: ${focusArea || 'General Growth'}.`;
       },
     });
 
-    const replyText = response.text || "You have the power to shape your story. Keep pushing forward!";
+    const replyText = response.text?.trim() || contextualCoachResponse(message || 'I need some guidance').reply;
     res.json({
       reply: replyText,
       confidenceScore: 95,
     });
   } catch (error) {
     console.error('Error in /api/mentor-chat:', error);
-    res.status(500).json({
-      error: 'Failed to generate mentor response',
-      reply: "Take a breath! You're stronger than you think. Keep taking it step by step.",
-    });
+    res.json(contextualCoachResponse(req.body.message || 'I need some guidance'));
   }
 });
 

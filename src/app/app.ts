@@ -660,7 +660,10 @@ export class App {
     const {content, type, tagInput} = this.newPostForm.value;
     if (!content) return;
 
-    this.dataService.addCommunityPost(type || 'win', content, tagInput || '');
+    if (!this.dataService.addCommunityPost(type || 'win', content, tagInput || '')) {
+      this.themeService.announce('Sign in to publish a post to Hype Wall');
+      return;
+    }
     this.newPostForm.reset({
       type: 'win',
       tagInput: '#YouthWins #Lyftd'

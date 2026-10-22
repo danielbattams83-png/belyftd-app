@@ -1248,12 +1248,18 @@
               <div>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
+                    @if (post.authorAvatar) {
                     <img
                       [src]="post.authorAvatar"
                       [alt]="post.authorName"
                       class="w-10 h-10 rounded-2xl object-cover border border-slate-200 dark:border-slate-700"
                       referrerpolicy="no-referrer"
                     />
+                    } @else {
+                      <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-indigo-100 font-bold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-200" [attr.aria-label]="post.authorName">
+                        {{ post.authorName.charAt(0).toUpperCase() }}
+                      </span>
+                    }
                     <div>
                       <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 font-display">
                         {{ post.authorName }}

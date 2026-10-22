@@ -1,3 +1,4 @@
+import {contextualCoachResponse} from './coach-response';
 import {Injectable, signal} from '@angular/core';
 import {ChatMessage} from '../models/app.models';
 
@@ -17,7 +18,7 @@ export class AiMentorService {
       id: 'c1',
       sender: 'coach-spark',
       senderName: 'Coach Spark (AI Mentor)',
-      text: 'Hey Jordan! 👋 I\'m Coach Spark, your 24/7 youth uplift companion. Whether you need an instant pep talk before a test, resume tips, or advice on handling stress, I\'m here for you. How are you feeling today?',
+      text: 'Hey there! 👋 I\'m Coach Spark, your 24/7 youth uplift companion. Whether you need an instant pep talk before a test, resume tips, or advice on handling stress, I\'m here for you. How are you feeling today?',
       timestamp: 'Today at 8:00 AM',
     }
   ]);
@@ -26,57 +27,38 @@ export class AiMentorService {
   readonly currentPepTalk = signal<GeneratedPepTalk | null>(null);
 
   async askCoach(userMessage: string, youthName: string, focusArea?: string, personality?: string): Promise<string> {
-    const userMsgObj: ChatMessage = {
-      id: `u-${Date.now()}`,
-      sender: 'user',
-      senderName: youthName,
-      text: userMessage,
-      timestamp: 'Just now'
-    };
-
-    this.coachMessages.update(msgs => [...msgs, userMsgObj]);
+    const message = userMessage.trim();
+    if (!message) return '';
+    this.coachMessages.update(msgs => [...msgs, {
+      id: `u-${crypto.randomUUID()}`, sender: 'user', senderName: youthName,
+      text: message, timestamp: 'Just now',
+    }]);
     this.isGenerating.set(true);
-
+    let response = contextualCoachResponse(message);
     try {
       const res = await fetch('/api/mentor-chat', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          message: userMessage,
-          youthName,
+        signal: AbortSignal.timeout(15000),
+        body: JSON.stringify({message, youthName,
           focusArea: focusArea || 'Mindset & Confidence',
-          mentorPersonality: personality || 'Supportive & Inspiring'
-        })
+          mentorPersonality: personality || 'Supportive & Inspiring'}),
       });
-
+      if (!res.ok) throw new Error('Coach endpoint unavailable');
       const data = await res.json();
-      const reply = data.reply || "Believe in yourself! Every step counts.";
-
-      const botMsgObj: ChatMessage = {
-        id: `bot-${Date.now()}`,
-        sender: 'coach-spark',
-        senderName: 'Coach Spark (AI Mentor)',
-        text: reply,
-        timestamp: 'Just now',
-        actionPrompt: data.actionStep
-      };
-
-      this.coachMessages.update(msgs => [...msgs, botMsgObj]);
-      this.isGenerating.set(false);
-      return reply;
+      if (typeof data.reply !== 'string' || !data.reply.trim()) throw new Error('Empty coach response');
+      response = {reply: data.reply.trim(), actionStep: typeof data.actionStep === 'string' ? data.actionStep : ''};
     } catch {
-      const fallback = "You're capable of doing hard things. Take one deep breath and tackle the very next 5 minutes with full focus.";
-      const botMsgObj: ChatMessage = {
-        id: `bot-${Date.now()}`,
-        sender: 'coach-spark',
-        senderName: 'Coach Spark (AI Mentor)',
-        text: fallback,
-        timestamp: 'Just now'
-      };
-      this.coachMessages.update(msgs => [...msgs, botMsgObj]);
+      // Firebase static hosting and network/model failures use the same topic parser.
+    } finally {
+      this.coachMessages.update(msgs => [...msgs, {
+        id: `bot-${crypto.randomUUID()}`, sender: 'coach-spark',
+        senderName: 'Coach Spark (AI Mentor)', text: response.reply,
+        actionPrompt: response.actionStep, timestamp: 'Just now',
+      }]);
       this.isGenerating.set(false);
-      return fallback;
     }
+    return response.reply;
   }
 
   async generateCustomPepTalk(topic: string, mood: string, youthName: string): Promise<GeneratedPepTalk> {

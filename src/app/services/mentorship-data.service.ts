@@ -377,13 +377,18 @@ export class MentorshipDataService {
     }));
   }
 
-  addCommunityPost(type: CommunityPost['type'], content: string, tagInput: string): void {
+  addCommunityPost(type: CommunityPost['type'], content: string, tagInput: string): boolean {
+    const user = this.firebaseService.currentUser();
+    if (!user || !content.trim()) return false;
+    const loadedProfile = this.firebaseService.userProfile();
+    const profile = loadedProfile?.id === user.uid || loadedProfile?.uid === user.uid ? loadedProfile : null;
     const tags = tagInput.split(' ').filter(t => t.startsWith('#') || t.length > 0).map(t => t.startsWith('#') ? t : `#${t}`);
     const newPost: CommunityPost = {
-      id: `post-${Date.now()}`,
-      authorName: this.userProfile().name,
-      authorGrade: this.userProfile().gradeOrAge.split('•')[0].trim(),
-      authorAvatar: this.userProfile().avatar,
+      id: `post-${crypto.randomUUID()}`,
+      authorId: user.uid,
+      authorName: profile?.displayName?.trim() || user.displayName?.trim() || profile?.firstName?.trim() || 'Community member',
+      authorGrade: profile?.grade?.trim() || profile?.role || 'Member',
+      authorAvatar: profile?.photoURL?.trim() || profile?.avatarUrl?.trim() || user.photoURL?.trim() || '',
       type,
       content,
       timestamp: 'Just now',
@@ -393,6 +398,7 @@ export class MentorshipDataService {
     };
 
     this.communityPosts.update(posts => [newPost, ...posts]);
+    return true;
   }
 
   private _syncInitialCourseCompletions(): void {

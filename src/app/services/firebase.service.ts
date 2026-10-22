@@ -61,6 +61,9 @@ export interface UserProfileDocument {
   uid?: string;
   displayName: string;
   fullName?: string;
+  firstName?: string;
+  photoURL?: string | null;
+  grade?: string;
   avatarUrl?: string | null;
   email: string;
   phoneNumber: string;

@@ -84,6 +84,7 @@ export interface GoalQuest {
 
 export interface CommunityPost {
   id: string;
+  authorId?: string;
   authorName: string;
   authorGrade: string;
   authorAvatar: string;
