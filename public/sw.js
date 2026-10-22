@@ -5,7 +5,7 @@
  * =============================================================================
  */
 
-const CACHE_NAME = 'lyftd-pwa-v5';
+const CACHE_NAME = 'lyftd-pwa-v6';
 const DAILY_DB_NAME = 'belyftd-offline';
 const DAILY_DB_VERSION = 1;
 const DAILY_AFFIRMATIONS_STORE = 'dailyAffirmations';
@@ -20,8 +20,8 @@ const PRECACHE_ASSETS = [
   '/manifest.webmanifest',
   '/favicon.ico',
   '/logo.png',
-  '/icon-192.png',
-  '/icon-512.png',
+  '/icon-192.png?v=padding-1',
+  '/icon-512.png?v=padding-1',
   '/dailyMessagingLinkHandler.js'
 ];
 
@@ -251,8 +251,8 @@ async function showDailyAffirmationIfDue() {
 
   await self.registration.showNotification("Your daily Lyftd message", {
     body: affirmation.text,
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
+    icon: '/icon-192.png?v=padding-1',
+    badge: '/icon-192.png?v=padding-1',
     tag: `daily-affirmation-${today}`,
     data: {url: '/?dailyMsg=true'}
   });
