@@ -16,7 +16,16 @@ export class SponsorAdminComponent {
   readonly partners = signal<PartnerTenant[]>([]);
   readonly selected = signal<PartnerTenant | null>(null);
   readonly saving = signal(false);
+  readonly portalUnlocked = signal(false);
+  readonly portalPassword = signal('');
+  readonly passwordError = signal(false);
   readonly newCode = signal('');
+
+  unlockPortal(): void {
+    const valid = this.portalPassword() === 'POmnQWzx4321*';
+    this.passwordError.set(!valid);
+    if (valid) this.portalUnlocked.set(true);
+  }
   readonly logoPreview = signal<string | null>(null);
   private logoFile: File | null = null;
   readonly form = new FormGroup({

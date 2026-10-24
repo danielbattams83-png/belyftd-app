@@ -1,3 +1,18 @@
+@if (!portalUnlocked()) {
+  <main class="flex min-h-screen items-center justify-center bg-slate-50 p-5">
+    <section class="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl sm:p-8" aria-labelledby="portal-password-title">
+      <p class="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">Enterprise / Visionary</p>
+      <h1 id="portal-password-title" class="mt-3 text-2xl font-black text-slate-900">Sponsor portal</h1>
+      <p class="mt-2 text-sm leading-relaxed text-slate-500">Enter the portal password to manage partner branding and redemption codes.</p>
+      <form class="mt-6 space-y-4" (ngSubmit)="unlockPortal()">
+        <label class="block text-sm font-semibold text-slate-700" for="portal-password">Password</label>
+        <input id="portal-password" type="password" autocomplete="current-password" [value]="portalPassword()" (input)="portalPassword.set($any($event.target).value)" class="w-full rounded-xl border border-slate-300 p-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
+        @if (passwordError()) { <p class="text-sm font-medium text-rose-600" role="alert">That password is incorrect.</p> }
+        <button type="submit" class="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400">Continue</button>
+      </form>
+    </section>
+  </main>
+} @else {
 <main class="mx-auto max-w-7xl p-5 sm:p-8">
   <header class="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">Enterprise / Visionary</p><h1 class="mt-2 text-3xl font-black text-slate-900">Sponsor customization</h1><p class="mt-2 text-slate-500">Manage co-branded Lyftd experiences for your partner network.</p></div><button type="button" (click)="create()" class="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white">Add partner</button></header>
   <div class="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
@@ -6,3 +21,4 @@
     <aside class="rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white lg:col-span-2"><p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Live mobile preview</p><div class="mx-auto mt-4 max-w-sm rounded-[2rem] bg-white p-4 text-slate-900 shadow-2xl"><div class="rounded-2xl p-4" [style.background]="'linear-gradient(135deg, ' + preview().primaryColor + ', ' + preview().accentColor + ')' "><p class="text-xs font-bold text-white/80">Powered by Lyftd</p><h3 class="mt-8 text-xl font-black text-white">{{preview().welcomeHeadline || 'Welcome to your mentorship hub'}}</h3><p class="mt-2 text-sm text-white/85">{{preview().welcomeSubtext || 'Your partner-powered path to growth starts here.'}}</p></div></div></aside>
   </div>
 </main>
+}
