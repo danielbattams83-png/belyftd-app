@@ -43,7 +43,20 @@ export class SponsorAdminComponent implements OnInit {
   readonly status = signal<string | null>(null);
 
   ngOnInit(): void {
-    void this.loadPartner();
+    void this.initializePortal();
+  }
+
+  private async initializePortal(): Promise<void> {
+    try {
+      await this.firebase.waitForAuthStateReady();
+      if (!this.firebase.currentUser()) {
+        await this.firebase.signInAsGuest();
+      }
+      await this.loadPartner();
+    } catch (error) {
+      console.error('[SponsorAdmin] Unable to initialize admin portal:', error);
+      this.status.set('Could not load the partner settings. Check your Firebase connection.');
+    }
   }
 
   private clone(value: Tier4PartnerDocument): Tier4PartnerDocument {
@@ -133,10 +146,10 @@ export class SponsorAdminComponent implements OnInit {
     this.status.set(null);
     try {
       await this.firebase.saveTier4Partner(this.partner());
-      this.status.set('Changes saved to Firestore.');
-    } catch (error) {
-      console.error('[SponsorAdmin] Unable to save partner:', error);
-      this.status.set('Could not save changes. Check your Firebase connection and permissions.');
+      this.status.set('Customizations saved successfully to Firestore!');
+    } catch (err) {
+      console.error('Detailed save error:', err);
+      this.status.set('Could not save changes to Firestore. Check your Firebase connection and permissions.');
     } finally {
       this.saving.set(false);
     }
