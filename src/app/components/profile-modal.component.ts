@@ -149,6 +149,22 @@ import {FirebaseService} from '../services/firebase.service';
           }
         </section>
 
+        @if (isTierFour()) {
+          <section class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900/60 dark:bg-indigo-950/30" aria-labelledby="sponsor-portal-title">
+            <div class="flex items-start gap-3">
+              <mat-icon class="text-indigo-600 dark:text-indigo-400" aria-hidden="true">business_center</mat-icon>
+              <div class="min-w-0 flex-1">
+                <h4 id="sponsor-portal-title" class="text-sm font-bold text-slate-900 dark:text-slate-100">Sponsor portal</h4>
+                <p class="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-300">Manage your partner branding, welcome message, and redemption codes.</p>
+                <a href="/admin/sponsors" class="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-700 focus-accessible dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                  Open sponsor admin
+                  <mat-icon class="text-sm" aria-hidden="true">arrow_forward</mat-icon>
+                </a>
+              </div>
+            </div>
+          </section>
+        }
+
         <!-- Accessibility & UI Preferences -->
         <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
           <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
@@ -282,6 +298,7 @@ export class ProfileModalComponent {
   });
 
   readonly connectedMentors = computed(() => this.activeProfile().selectedMentors);
+  readonly isTierFour = computed(() => this.firebaseService.subscriptionTier() === 4 || this.firebaseService.userProfile()?.subscriptionTier === 4);
   readonly earnedBadges = computed(() => {
     const profile = this.firebaseService.userProfile();
     if (!profile) return [];
