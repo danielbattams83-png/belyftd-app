@@ -3,6 +3,7 @@ import {ChangeDetectionStrategy, Component, OnInit, inject, signal} from '@angul
 import {FormsModule} from '@angular/forms';
 import {FirebaseService} from '../../../services/firebase.service';
 import {Tier4PartnerDocument} from '../../../models/firestore.models';
+import {ColorTheme, THEME_PRESETS} from '../../../models/theme-presets';
 
 const DEFAULT_PARTNER: Tier4PartnerDocument = {
   id: 'summit-fc',
@@ -12,6 +13,7 @@ const DEFAULT_PARTNER: Tier4PartnerDocument = {
   active: true,
   branding: {
     logoUrl: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=200&auto=format&fit=crop&q=80',
+    themeId: 'ocean-summit',
     primaryColor: '#0EA5E9',
     accentColor: '#F59E0B',
     backgroundColor: '#1E293B',
@@ -35,6 +37,7 @@ const DEFAULT_PARTNER: Tier4PartnerDocument = {
 export class SponsorAdminComponent implements OnInit {
   private readonly firebase = inject(FirebaseService);
   readonly partner = signal<Tier4PartnerDocument>(this.clone(DEFAULT_PARTNER));
+  readonly themePresets = THEME_PRESETS;
   readonly newCode = signal('');
   readonly saving = signal(false);
   readonly status = signal<string | null>(null);
@@ -58,6 +61,55 @@ export class SponsorAdminComponent implements OnInit {
 
   updateBranding(key: keyof Tier4PartnerDocument['branding'], value: string): void {
     this.partner.update(current => ({...current, branding: {...current.branding, [key]: value}}));
+  }
+
+  selectTheme(theme: ColorTheme): void {
+    this.partner.update(current => ({
+      ...current,
+      branding: {
+        ...current.branding,
+        themeId: theme.id,
+        primaryColor: theme.primary,
+        accentColor: theme.accent,
+        backgroundColor: theme.heroBg,
+        surfaceColor: theme.surface,
+        textOnHeroColor: theme.textOnHero,
+      },
+    }));
+  }
+
+  selectedThemeId(): string {
+    return this.partner().branding.themeId || this.themePresets.find(theme =>
+      theme.primary.toLowerCase() === this.partner().branding.primaryColor.toLowerCase() &&
+      theme.accent.toLowerCase() === this.partner().branding.accentColor.toLowerCase() &&
+      theme.heroBg.toLowerCase() === this.partner().branding.backgroundColor.toLowerCase(),
+    )?.id || '';
+  }
+
+  handleLogoUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.status.set('Please choose a PNG, JPEG, WebP, or SVG image.');
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        this.updateBranding('logoUrl', reader.result);
+        this.status.set(`${file.name} selected. Save changes to publish the new logo.`);
+      }
+      input.value = '';
+    };
+    reader.onerror = () => {
+      this.status.set('Could not read that image. Please try another file.');
+      input.value = '';
+    };
+    reader.readAsDataURL(file);
   }
 
   addCode(): void {

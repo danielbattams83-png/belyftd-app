@@ -26,6 +26,9 @@ export class TenantService {
       root.style.setProperty('--primary-brand', tenant?.branding.primaryColor || '#4f46e5');
       root.style.setProperty('--accent-highlight', tenant?.branding.accentColor || '#f59e0b');
       root.style.setProperty('--hero-background', tenant?.branding.backgroundColor || '#f8fafc');
+      root.style.setProperty('--surface-card', tenant?.branding.surfaceColor || '#ffffff');
+      root.style.setProperty('--hero-text-color', tenant?.branding.textOnHeroColor || '#ffffff');
+      root.style.setProperty('--theme-id', tenant?.branding.themeId || '');
     });
   }
 
