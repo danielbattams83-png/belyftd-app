@@ -64,7 +64,9 @@
   gap: .75rem;
   min-width: 0;
 }
-.summary-card-heading > button, .summary-card-footer > button { flex-shrink: 0; }
+.summary-card-heading > button, .summary-card-footer > button {
+  --tenant-primary: var(--primary-brand, #4f46e5);
+  --tenant-accent: var(--accent-highlight, #f59e0b); flex-shrink: 0; }
 @media (max-width: 1023.98px) {
   .courses-hero-summary { grid-template-columns: minmax(0, 1fr); }
 }

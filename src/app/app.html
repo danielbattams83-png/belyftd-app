@@ -24,8 +24,13 @@
         class="app-header-brand cursor-pointer focus-accessible rounded-xl group"
         aria-label="Lyftd Home"
       >
-        <img src="/logo.png" alt="Lyftd" width="130" height="67" class="app-header-logo" />
-        <img src="/icon-192.png" alt="Lyftd" width="44" height="44" class="app-header-mark" />
+@if (tenantService.activeTenant(); as tenant) {
+    <img [src]="tenant.branding.logoUrl" [alt]="tenant.organizationName" width="130" height="67" class="app-header-logo object-contain" />
+    <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Powered by Lyftd</span>
+  } @else {
+    <img src="/logo.png" alt="Lyftd" width="130" height="67" class="app-header-logo" />
+    <img src="/icon-192.png" alt="Lyftd" width="44" height="44" class="app-header-mark" />
+  }
       </a>
 
       <!-- Desktop Nav Links (Hidden on small mobile, visible on tablet/desktop) -->
@@ -288,8 +293,8 @@
             <div class="w-full max-w-3xl text-center">
               <div class="flex justify-center">
               <div class="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-700 dark:bg-slate-900/40 dark:text-amber-300">
-                <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/60"></span>
-                Safe space + fresh start
+                <span class="h-2.5 w-2.5 rounded-full bg-[var(--primary-brand)] shadow-sm"></span>
+                {{ tenantService.activeTenant()?.branding?.sponsorBadgeText || 'Safe space + fresh start' }}
               </div>
               </div>
 
@@ -299,11 +304,11 @@
                 </h2>
               } @else {
                 <h2 class="mt-4 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
-                  A new day full of potential. Welcome to Lyftd.
+                  {{ tenantService.activeTenant()?.branding?.welcomeHeadline || 'A new day full of potential. Welcome to Lyftd.' }}
                 </h2>
               }
               <p class="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                Whatever yesterday looked like, today is a fresh step forward. We’re right here with you.
+                {{ tenantService.activeTenant()?.branding?.welcomeSubtext || 'Whatever yesterday looked like, today is a fresh step forward. We’re right here with you.' }}
               </p>
 
               <div class="mt-5 flex flex-wrap items-center justify-center gap-3">

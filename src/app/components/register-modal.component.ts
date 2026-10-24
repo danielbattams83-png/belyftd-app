@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, output, signal} fr
 import {CommonModule} from '@angular/common';
 import {ReactiveFormsModule, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
+import {TenantService} from '../services/tenant.service';
 import {FirebaseService, COUNTRY_OPTIONS} from '../services/firebase.service';
 import {MentorshipDataService} from '../services/mentorship-data.service';
 
@@ -393,6 +394,8 @@ export class RegisterModalComponent {
     password: new FormControl('', [Validators.required, Validators.minLength(6)])
   });
 
+  private readonly tenantService = inject(TenantService);
+
   constructor() {
     this.detectCountryFromTimeZone();
   }
@@ -494,8 +497,9 @@ export class RegisterModalComponent {
     const countryCode = val.countryCode || '+1';
     const password = val.password || 'Leader2026!';
 
-    const result = await this.firebaseService.registerUser({
-      fullName,
+  const result = await this.firebaseService.registerUser({
+  partnerId: this.tenantService.activeTenant()?.id,
+  fullName,
       email,
       phoneNumber: phone,
       country,

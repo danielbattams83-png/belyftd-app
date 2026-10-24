@@ -20,6 +20,7 @@ import {AiMentorService} from './services/ai-mentor.service';
 import {FirebaseService} from './services/firebase.service';
 import {PwaInstallService} from './services/pwa-install.service';
 import {DailyMessageSchedulerService} from './services/daily-message-scheduler.service';
+import {TenantService} from './services/tenant.service';
 import {AudioTrack, Mentor, GoalQuest, CommunityPost, VoiceJournal} from './models/app.models';
 
 interface HopeUnit {
@@ -82,6 +83,7 @@ export class App {
   readonly themeService = inject(ThemeAccessibilityService);
   readonly aiService = inject(AiMentorService);
   readonly firebaseService = inject(FirebaseService);
+  readonly tenantService = inject(TenantService);
   private readonly router = inject(Router);
   readonly pwaService = inject(PwaInstallService);
   readonly hopeVideoUrl = signal<string | null>(null);
