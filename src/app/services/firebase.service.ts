@@ -583,6 +583,13 @@ export class FirebaseService {
     return snapshot.docs.map(partnerDoc => ({ ...partnerDoc.data(), id: partnerDoc.id } as PartnershipDocument));
   }
 
+  async listTier4Partners(): Promise<Tier4PartnerDocument[]> {
+    const snapshot = await getDocs(collection(this._requireFirestore(), 'partners'));
+    return snapshot.docs
+      .map(partnerDoc => ({...partnerDoc.data(), id: partnerDoc.id} as Tier4PartnerDocument))
+      .sort((a, b) => (a.organizationName || a.id).localeCompare(b.organizationName || b.id));
+  }
+
   async getTier4Partner(id: string): Promise<Tier4PartnerDocument | null> {
     try {
       const snapshot = await getDoc(doc(this._requireFirestore(), 'partners', id));

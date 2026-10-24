@@ -1,29 +1,29 @@
 import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, Component, OnInit, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit, computed, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {FirebaseService} from '../../../services/firebase.service';
 import {Tier4PartnerDocument} from '../../../models/firestore.models';
 import {ColorTheme, THEME_PRESETS} from '../../../models/theme-presets';
 
-const DEFAULT_PARTNER: Tier4PartnerDocument = {
-  id: 'summit-fc',
-  organizationName: 'Summit FC Youth Academy',
-  contactEmail: 'director@summitfc.org',
+const BLANK_PARTNER: Tier4PartnerDocument = {
+  id: '',
+  organizationName: '',
+  contactEmail: '',
   subscriptionTier: 4,
   active: true,
   branding: {
-    logoUrl: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=200&auto=format&fit=crop&q=80',
-    themeId: 'ocean-summit',
-    primaryColor: '#0EA5E9',
-    accentColor: '#F59E0B',
-    backgroundColor: '#1E293B',
-    welcomeHeadline: 'Welcome to Summit FC Academy Hub',
-    welcomeSubtext: 'Sharpen your mindset, build matchday grit, and unlock your true potential on and off the pitch.',
-    sponsorBadgeText: 'Official Development Partner',
-    customPartnerTabName: 'Academy Hub',
+    logoUrl: '',
+    themeId: '',
+    primaryColor: '#475569',
+    accentColor: '#38bdf8',
+    backgroundColor: '#0f172a',
+    welcomeHeadline: '',
+    welcomeSubtext: '',
+    sponsorBadgeText: '',
+    customPartnerTabName: '',
   },
-  redemptionCodes: ['SUMMIT2026', 'SUMMIT-FALL'],
-  analytics: {totalRedemptions: 48, activeMentees: 42, lessonsCompleted: 156},
+  redemptionCodes: [],
+  analytics: {totalRedemptions: 0, activeMentees: 0, lessonsCompleted: 0},
 };
 
 @Component({
@@ -36,11 +36,15 @@ const DEFAULT_PARTNER: Tier4PartnerDocument = {
 })
 export class SponsorAdminComponent implements OnInit {
   private readonly firebase = inject(FirebaseService);
-  readonly partner = signal<Tier4PartnerDocument>(this.clone(DEFAULT_PARTNER));
+  readonly partner = signal<Tier4PartnerDocument>(this.clone(BLANK_PARTNER));
+  readonly partners = signal<Tier4PartnerDocument[]>([]);
+  readonly selectedPartnerId = signal('');
+  readonly loadingPartners = signal(true);
   readonly themePresets = THEME_PRESETS;
   readonly newCode = signal('');
   readonly saving = signal(false);
   readonly status = signal<string | null>(null);
+  readonly hasPartner = computed(() => this.selectedPartnerId() !== '');
 
   ngOnInit(): void {
     void this.initializePortal();
@@ -52,20 +56,51 @@ export class SponsorAdminComponent implements OnInit {
       if (!this.firebase.currentUser()) {
         await this.firebase.signInAsGuest();
       }
-      await this.loadPartner();
     } catch (error) {
-      console.error('[SponsorAdmin] Unable to initialize admin portal:', error);
-      this.status.set('Could not load the partner settings. Check your Firebase connection.');
+      console.error('[SponsorAdmin] Guest sign-in failed:', error);
     }
+    await this.loadPartners();
   }
 
   private clone(value: Tier4PartnerDocument): Tier4PartnerDocument {
     return JSON.parse(JSON.stringify(value)) as Tier4PartnerDocument;
   }
 
-  private async loadPartner(): Promise<void> {
-    const saved = await this.firebase.getTier4Partner('summit-fc');
-    if (saved) this.partner.set({...this.clone(DEFAULT_PARTNER), ...saved, branding: {...DEFAULT_PARTNER.branding, ...saved.branding}});
+  private normalize(saved: Tier4PartnerDocument): Tier4PartnerDocument {
+    return {
+      ...this.clone(BLANK_PARTNER),
+      ...saved,
+      branding: {...BLANK_PARTNER.branding, ...saved.branding},
+      analytics: {...BLANK_PARTNER.analytics, ...saved.analytics},
+      redemptionCodes: saved.redemptionCodes ?? [],
+    };
+  }
+
+  private async loadPartners(preferredId?: string): Promise<void> {
+    this.loadingPartners.set(true);
+    try {
+      const partners = (await this.firebase.listTier4Partners()).map(item => this.normalize(item));
+      this.partners.set(partners);
+      const next = partners.find(item => item.id === (preferredId ?? this.selectedPartnerId())) ?? partners[0];
+      this.applySelection(next);
+      if (!partners.length) this.status.set('No partners found in Firestore yet.');
+    } catch (error) {
+      console.error('[SponsorAdmin] Unable to load partners:', error);
+      this.status.set('Could not load partners from Firestore. Check your Firebase connection.');
+    } finally {
+      this.loadingPartners.set(false);
+    }
+  }
+
+  private applySelection(selected: Tier4PartnerDocument | undefined): void {
+    this.selectedPartnerId.set(selected?.id ?? '');
+    this.partner.set(this.clone(selected ?? BLANK_PARTNER));
+    this.newCode.set('');
+  }
+
+  selectPartner(id: string): void {
+    this.status.set(null);
+    this.applySelection(this.partners().find(item => item.id === id));
   }
 
   update<K extends keyof Tier4PartnerDocument>(key: K, value: Tier4PartnerDocument[K]): void {
@@ -137,15 +172,21 @@ export class SponsorAdminComponent implements OnInit {
   }
 
   resetDefaults(): void {
-    this.partner.set(this.clone(DEFAULT_PARTNER));
-    this.status.set('Defaults restored locally. Save changes to publish them.');
+    this.applySelection(this.partners().find(item => item.id === this.selectedPartnerId()));
+    this.status.set('Unsaved edits discarded. Showing the last saved Firestore version.');
   }
 
   async saveChanges(): Promise<void> {
+    const id = this.partner().id.trim().toLowerCase();
+    if (!id) {
+      this.status.set('Add a slug / URL key before saving.');
+      return;
+    }
     this.saving.set(true);
     this.status.set(null);
     try {
-      await this.firebase.saveTier4Partner(this.partner());
+      await this.firebase.saveTier4Partner({...this.partner(), id});
+      await this.loadPartners(id);
       this.status.set('Customizations saved successfully to Firestore!');
     } catch (err) {
       console.error('Detailed save error:', err);
@@ -156,6 +197,8 @@ export class SponsorAdminComponent implements OnInit {
   }
 
   openPreview(): void {
-    window.open('http://localhost:4200/?partner=summit-fc', '_blank', 'noopener,noreferrer');
+    const id = this.selectedPartnerId();
+    if (!id) return;
+    window.open(`${window.location.origin}/?p=${encodeURIComponent(id)}`, '_blank', 'noopener,noreferrer');
   }
 }
