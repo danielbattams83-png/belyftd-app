@@ -2,6 +2,7 @@ import {Routes} from '@angular/router';
 import {CourseUnitComponent} from './components/course-unit.component';
 import {JoinComponent} from './components/join.component';
 import {tierAccessGuard} from './guards/tier-access.guard';
+import {LegalPageComponent} from './components/legal-page.component';
 
 export const routes: Routes = [
   {path: '', pathMatch: 'full', children: []},
@@ -14,6 +15,8 @@ export const routes: Routes = [
   {path: 'partners', pathMatch: 'full', children: []},
   {path: 'profile', pathMatch: 'full', children: []},
   {path: 'settings', pathMatch: 'full', children: []},
+  {path: 'privacy', component: LegalPageComponent, data: {page: 'privacy'}},
+  {path: 'terms', component: LegalPageComponent, data: {page: 'terms'}},
 
   {path: 'join', component: JoinComponent},
   {
