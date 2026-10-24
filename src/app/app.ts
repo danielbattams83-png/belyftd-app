@@ -40,6 +40,7 @@ import {PartnerWithUsComponent} from './components/partner-page.component';
 import {PostAuthOnboardingWizardComponent} from './components/post-auth-onboarding-wizard.component';
 import {FeatureWalkthroughComponent} from './components/feature-walkthrough.component';
 import {Course} from './models/app.models';
+import {TenantService} from './services/tenant.service';
 
 export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-spark' | 'community' | 'partners' | 'profile';
 
@@ -82,6 +83,7 @@ export class App {
   readonly themeService = inject(ThemeAccessibilityService);
   readonly aiService = inject(AiMentorService);
   readonly firebaseService = inject(FirebaseService);
+  readonly tenantService = inject(TenantService);
   private readonly router = inject(Router);
   readonly pwaService = inject(PwaInstallService);
   readonly hopeVideoUrl = signal<string | null>(null);

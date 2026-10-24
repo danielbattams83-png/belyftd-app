@@ -34,7 +34,7 @@ import {
   Auth,
   User
 } from 'firebase/auth';
-import { getStorage, ref, getDownloadURL, listAll, FirebaseStorage, StorageReference } from 'firebase/storage';
+import { getStorage, ref, getDownloadURL, listAll, uploadBytes, FirebaseStorage, StorageReference } from 'firebase/storage';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { environment } from '../../environments/environment';
 import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDocument, ModuleUnitDocument, PartnershipDocument, SubscriptionTier } from '../models/firestore.models';
@@ -569,6 +569,17 @@ export class FirebaseService {
   async getPartners(): Promise<PartnershipDocument[]> {
     const snapshot = await getDocs(collection(this._requireFirestore(), 'partnerships'));
     return snapshot.docs.map(partnerDoc => ({ ...partnerDoc.data(), id: partnerDoc.id } as PartnershipDocument));
+  }
+
+  getFirestore(): Firestore {
+    return this._requireFirestore();
+  }
+
+  async uploadPartnerLogo(partnerId: string, file: File): Promise<string> {
+    if (!this.storage) throw new Error('Firebase Storage is unavailable.');
+    const logo = ref(this.storage, `partners/${partnerId}/logo.png`);
+    await uploadBytes(logo, file, {contentType: file.type});
+    return getDownloadURL(logo);
   }
 
   private _requireFirestore(): Firestore {
