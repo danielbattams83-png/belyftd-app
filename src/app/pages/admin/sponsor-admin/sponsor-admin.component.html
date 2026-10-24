@@ -7,10 +7,29 @@
     </div>
     <div class="header-actions">
       <span class="tier-pill">Tier 4 partner</span>
-      <button class="preview-button" type="button" (click)="openPreview()">Open Full Preview <span aria-hidden="true">↗</span></button>
+      <button class="preview-button" type="button" [disabled]="!hasPartner()" (click)="openPreview()">Open Full Preview <span aria-hidden="true">↗</span></button>
     </div>
   </header>
 
+  <div class="partner-switcher">
+    <label for="partner-select">
+      <span class="eyebrow">ACTIVE PARTNER</span>
+      <select id="partner-select" [disabled]="loadingPartners() || !partners().length" [ngModel]="selectedPartnerId()" (ngModelChange)="selectPartner($event)">
+        @if (loadingPartners()) { <option value="">Loading partners…</option> }
+        @else if (!partners().length) { <option value="">No partners in Firestore</option> }
+        @for (item of partners(); track item.id) {
+          <option [value]="item.id">{{ item.organizationName || item.id }} ({{ item.id }})</option>
+        }
+      </select>
+    </label>
+    <span class="partner-count">{{ partners().length }} {{ partners().length === 1 ? 'partner' : 'partners' }} in Firestore</span>
+  </div>
+
+  @if (!loadingPartners() && !hasPartner()) {
+    <p class="empty-state" role="status">{{ status() || 'No partners found in Firestore yet.' }}</p>
+  }
+
+  @if (hasPartner()) {
   <main class="portal-grid">
     <section class="control-panel" aria-labelledby="settings-title">
       <div class="section-heading"><div><p class="eyebrow">CONFIGURATION</p><h2 id="settings-title">Customization settings</h2></div><span class="live-dot">Live editing</span></div>
@@ -64,7 +83,7 @@
         <div class="code-entry"><input aria-label="New redemption code" [ngModel]="newCode()" (ngModelChange)="newCode.set($event)" (keyup.enter)="addCode()" placeholder="Add redemption code" /><button type="button" (click)="addCode()">Add code</button></div>
       </div>
 
-      <div class="form-actions"><button class="reset-button" type="button" (click)="resetDefaults()">Reset Defaults</button><button class="save-button" type="button" [disabled]="saving()" (click)="saveChanges()">{{ saving() ? 'Saving…' : 'Save Changes' }}</button></div>
+      <div class="form-actions"><button class="reset-button" type="button" (click)="resetDefaults()">Discard Changes</button><button class="save-button" type="button" [disabled]="saving()" (click)="saveChanges()">{{ saving() ? 'Saving…' : 'Save Changes' }}</button></div>
       @if (status()) { <p class="status" role="status">{{ status() }}</p> }
     </section>
 
@@ -73,9 +92,10 @@
       <div class="phone-wrap"><div class="phone"><div class="phone-notch"></div><div class="phone-screen" [style.--brand]="partner().branding.primaryColor" [style.--accent]="partner().branding.accentColor" [style.--hero]="partner().branding.backgroundColor">
         <div class="mock-nav"><img [src]="partner().branding.logoUrl" alt="Partner logo" /><span>Powered by <b>Lyftd</b></span><span class="menu-icon">•••</span></div>
         <div class="mock-hero"><span class="mock-badge">{{ partner().branding.sponsorBadgeText }}</span><h3>{{ partner().branding.welcomeHeadline }}</h3><p>{{ partner().branding.welcomeSubtext }}</p><button type="button">Enter {{ partner().branding.customPartnerTabName }}</button></div>
-        <div class="mock-progress"><div><span>Academy progress</span><b>68%</b></div><div class="progress-track"><i></i></div><div class="mock-stats"><span><strong>42</strong> active mentees</span><span><strong>156</strong> lessons done</span></div></div>
+        <div class="mock-progress"><div><span>Academy progress</span><b>68%</b></div><div class="progress-track"><i></i></div><div class="mock-stats"><span><strong>{{ partner().analytics.activeMentees }}</strong> active mentees</span><span><strong>{{ partner().analytics.lessonsCompleted }}</strong> lessons done</span></div></div>
       </div></div></div>
       <div class="preview-note"><span class="pulse"></span><p><strong>Live preview</strong><br>Updates as you edit. Save when you&apos;re ready to publish.</p></div>
     </aside>
   </main>
+  }
 </div>
