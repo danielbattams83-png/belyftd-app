@@ -60,6 +60,32 @@ export class SponsorAdminComponent implements OnInit {
     this.partner.update(current => ({...current, branding: {...current.branding, [key]: value}}));
   }
 
+  handleLogoUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.status.set('Please choose a PNG, JPEG, WebP, or SVG image.');
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        this.updateBranding('logoUrl', reader.result);
+        this.status.set(`${file.name} selected. Save changes to publish the new logo.`);
+      }
+      input.value = '';
+    };
+    reader.onerror = () => {
+      this.status.set('Could not read that image. Please try another file.');
+      input.value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
   addCode(): void {
     const code = this.newCode().trim().toUpperCase();
     if (!code || this.partner().redemptionCodes.includes(code)) return;
