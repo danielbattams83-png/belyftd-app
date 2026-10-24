@@ -1,0 +1,66 @@
+<div class="admin-portal">
+  <header class="portal-header">
+    <div>
+      <p class="eyebrow">PARTNER OPERATIONS / TIER 4</p>
+      <h1>Admin Portal</h1>
+      <p class="header-copy">Shape the Academy Hub experience and see every change before it goes live.</p>
+    </div>
+    <div class="header-actions">
+      <span class="tier-pill">Tier 4 partner</span>
+      <button class="preview-button" type="button" (click)="openPreview()">Open Full Preview <span aria-hidden="true">↗</span></button>
+    </div>
+  </header>
+
+  <main class="portal-grid">
+    <section class="control-panel" aria-labelledby="settings-title">
+      <div class="section-heading"><div><p class="eyebrow">CONFIGURATION</p><h2 id="settings-title">Customization settings</h2></div><span class="live-dot">Live editing</span></div>
+
+      <div class="form-section">
+        <h3>Organization info</h3>
+        <div class="field-grid">
+          <label>Organization name<input [ngModel]="partner().organizationName" (ngModelChange)="update('organizationName', $event)" /></label>
+          <label>Slug / URL key<input [ngModel]="partner().id" (ngModelChange)="update('id', $event)" /></label>
+          <label class="full-field">Contact email<input type="email" [ngModel]="partner().contactEmail" (ngModelChange)="update('contactEmail', $event)" /></label>
+        </div>
+        <label class="toggle-row"><span><strong>Partner active</strong><small>Allow members to access this experience</small></span><input class="toggle" type="checkbox" [ngModel]="partner().active" (ngModelChange)="update('active', $event)" /></label>
+      </div>
+
+      <div class="form-section">
+        <h3>Visual branding</h3>
+        <label>Logo URL<input [ngModel]="partner().branding.logoUrl" (ngModelChange)="updateBranding('logoUrl', $event)" placeholder="https://..." /></label>
+        <div class="logo-row"><img [src]="partner().branding.logoUrl" alt="Partner logo preview" /><span>Logo preview<br><small>Use a square image for best results.</small></span></div>
+        <div class="color-grid">
+          <label>Primary brand<input type="color" [ngModel]="partner().branding.primaryColor" (ngModelChange)="updateBranding('primaryColor', $event)" /><code>{{ partner().branding.primaryColor }}</code></label>
+          <label>Accent highlight<input type="color" [ngModel]="partner().branding.accentColor" (ngModelChange)="updateBranding('accentColor', $event)" /><code>{{ partner().branding.accentColor }}</code></label>
+          <label>Hero background<input type="color" [ngModel]="partner().branding.backgroundColor" (ngModelChange)="updateBranding('backgroundColor', $event)" /><code>{{ partner().branding.backgroundColor }}</code></label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Text copy</h3>
+        <label>Welcome headline<input [ngModel]="partner().branding.welcomeHeadline" (ngModelChange)="updateBranding('welcomeHeadline', $event)" /></label>
+        <label>Welcome subtext<textarea rows="3" [ngModel]="partner().branding.welcomeSubtext" (ngModelChange)="updateBranding('welcomeSubtext', $event)"></textarea></label>
+        <label>Sponsor badge label<input [ngModel]="partner().branding.sponsorBadgeText" (ngModelChange)="updateBranding('sponsorBadgeText', $event)" /></label>
+      </div>
+
+      <div class="form-section">
+        <h3>Access &amp; codes</h3>
+        <div class="chips">@for (code of partner().redemptionCodes; track code) { <button type="button" class="chip" (click)="removeCode(code)">{{ code }} <span aria-hidden="true">×</span></button> }</div>
+        <div class="code-entry"><input aria-label="New redemption code" [ngModel]="newCode()" (ngModelChange)="newCode.set($event)" (keyup.enter)="addCode()" placeholder="Add redemption code" /><button type="button" (click)="addCode()">Add code</button></div>
+      </div>
+
+      <div class="form-actions"><button class="reset-button" type="button" (click)="resetDefaults()">Reset Defaults</button><button class="save-button" type="button" [disabled]="saving()" (click)="saveChanges()">{{ saving() ? 'Saving…' : 'Save Changes' }}</button></div>
+      @if (status()) { <p class="status" role="status">{{ status() }}</p> }
+    </section>
+
+    <aside class="preview-panel" aria-labelledby="preview-title">
+      <div class="section-heading"><div><p class="eyebrow">EXPERIENCE PREVIEW</p><h2 id="preview-title">Mobile view</h2></div><span class="preview-size">360 × 720</span></div>
+      <div class="phone-wrap"><div class="phone"><div class="phone-notch"></div><div class="phone-screen" [style.--brand]="partner().branding.primaryColor" [style.--accent]="partner().branding.accentColor" [style.--hero]="partner().branding.backgroundColor">
+        <div class="mock-nav"><img [src]="partner().branding.logoUrl" alt="Partner logo" /><span>Powered by <b>Lyftd</b></span><span class="menu-icon">•••</span></div>
+        <div class="mock-hero"><span class="mock-badge">{{ partner().branding.sponsorBadgeText }}</span><h3>{{ partner().branding.welcomeHeadline }}</h3><p>{{ partner().branding.welcomeSubtext }}</p><button type="button">Enter {{ partner().branding.customPartnerTabName }}</button></div>
+        <div class="mock-progress"><div><span>Academy progress</span><b>68%</b></div><div class="progress-track"><i></i></div><div class="mock-stats"><span><strong>42</strong> active mentees</span><span><strong>156</strong> lessons done</span></div></div>
+      </div></div></div>
+      <div class="preview-note"><span class="pulse"></span><p><strong>Live preview</strong><br>Updates as you edit. Save when you&apos;re ready to publish.</p></div>
+    </aside>
+  </main>
+</div>
