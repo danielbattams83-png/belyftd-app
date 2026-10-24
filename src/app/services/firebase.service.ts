@@ -41,6 +41,7 @@ import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDoc
 import {buildCourseMediaStoragePath, CourseMediaType} from './course-assets';
 
 export interface UserRegistrationData {
+  partnerId?: string;
   email: string;
   password?: string;
   displayName?: string;
@@ -63,6 +64,7 @@ export interface UserProfileDocument {
   fullName?: string;
   firstName?: string;
   photoURL?: string | null;
+  partnerId?: string;
   grade?: string;
   avatarUrl?: string | null;
   email: string;
@@ -207,6 +209,16 @@ export class FirebaseService {
   async getSponsorProfile(uid: string): Promise<SponsorProfileDocument | null> {
     const profile = await getDoc(doc(this._requireFirestore(), 'sponsorProfiles', uid));
     return profile.exists() ? profile.data() as SponsorProfileDocument : null;
+  }
+
+  async getPartner(partnerId: string): Promise<Tier4PartnerDocument | null> {
+    try {
+      const partner = await getDoc(doc(this._requireFirestore(), 'partners', partnerId.trim().toLowerCase()));
+      return partner.exists() ? {...partner.data(), id: partner.id} as Tier4PartnerDocument : null;
+    } catch (error) {
+      console.warn('[FirebaseService] Unable to load partner branding:', error);
+      return null;
+    }
   }
 
   async getCourseMediaUrl(
@@ -826,6 +838,8 @@ export class FirebaseService {
         streakDays: data.streak ?? 1,
         completedCourses: this._getLocalStorageCompletedCourses(),
         role: 'student',
+        subscriptionTier: data.partnerId ? 4 : undefined,
+        partnerId: data.partnerId,
         createdAt: serverTimestamp(),
         createdDate: data.createdDate || new Date(),
         updatedAt: serverTimestamp()
