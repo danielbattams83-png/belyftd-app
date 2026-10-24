@@ -36,9 +36,12 @@ export type MentorDocument = Mentor & {
 
 export interface Tier4PartnerBranding {
   logoUrl: string;
+  themeId?: string;
   primaryColor: string;
   accentColor: string;
   backgroundColor: string;
+  surfaceColor?: string;
+  textOnHeroColor?: string;
   welcomeHeadline: string;
   welcomeSubtext: string;
   sponsorBadgeText: string;
