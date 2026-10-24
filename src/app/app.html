@@ -1,3 +1,6 @@
+@if (isAdminPortal()) {
+  <router-outlet />
+} @else {
 <!-- Screen Reader Live Region Announcement -->
 <app-smart-search #smartSearch />
 <div class="sr-only" aria-live="polite" aria-atomic="true">
@@ -761,9 +764,10 @@
               <p class="text-[11px] text-slate-500 dark:text-slate-400">
                 +{{ completedCoursesCount() * 100 }} XP earned
               </p>
-            </div>
-          </div>
-          }
+    </div>
+  </div>
+}
+
         </header>
 
         @if (isLoggedIn()) {
@@ -1773,3 +1777,4 @@
 </div>
 
 <app-upgrade-modal />
+}

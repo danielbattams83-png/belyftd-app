@@ -3,6 +3,7 @@ import {CourseUnitComponent} from './components/course-unit.component';
 import {JoinComponent} from './components/join.component';
 import {tierAccessGuard} from './guards/tier-access.guard';
 import {LegalPageComponent} from './components/legal-page.component';
+import {SponsorAdminComponent} from './pages/admin/sponsor-admin/sponsor-admin.component';
 
 export const routes: Routes = [
   {path: '', pathMatch: 'full', children: []},
@@ -18,6 +19,7 @@ export const routes: Routes = [
   {path: 'privacy', component: LegalPageComponent, data: {page: 'privacy'}},
   {path: 'terms', component: LegalPageComponent, data: {page: 'terms'}},
 
+  {path: 'admin/sponsors', component: SponsorAdminComponent},
   {path: 'join', component: JoinComponent},
   {
     path: 'courses/:moduleId/units/:unitId',

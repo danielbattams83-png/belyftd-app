@@ -37,7 +37,7 @@ import {
 import { getStorage, ref, getDownloadURL, listAll, FirebaseStorage, StorageReference } from 'firebase/storage';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { environment } from '../../environments/environment';
-import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDocument, ModuleUnitDocument, PartnershipDocument, SubscriptionTier } from '../models/firestore.models';
+import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDocument, ModuleUnitDocument, PartnershipDocument, SubscriptionTier, Tier4PartnerDocument } from '../models/firestore.models';
 import {buildCourseMediaStoragePath, CourseMediaType} from './course-assets';
 
 export interface UserRegistrationData {
@@ -569,6 +569,20 @@ export class FirebaseService {
   async getPartners(): Promise<PartnershipDocument[]> {
     const snapshot = await getDocs(collection(this._requireFirestore(), 'partnerships'));
     return snapshot.docs.map(partnerDoc => ({ ...partnerDoc.data(), id: partnerDoc.id } as PartnershipDocument));
+  }
+
+  async getTier4Partner(id: string): Promise<Tier4PartnerDocument | null> {
+    try {
+      const snapshot = await getDoc(doc(this._requireFirestore(), 'partners', id));
+      return snapshot.exists() ? ({...snapshot.data(), id: snapshot.id} as Tier4PartnerDocument) : null;
+    } catch (error) {
+      console.warn('[FirebaseService] Unable to load partner:', error);
+      return null;
+    }
+  }
+
+  async saveTier4Partner(partner: Tier4PartnerDocument): Promise<void> {
+    await setDoc(doc(this._requireFirestore(), 'partners', partner.id), partner, {merge: true});
   }
 
   private _requireFirestore(): Firestore {

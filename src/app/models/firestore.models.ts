@@ -34,6 +34,28 @@ export type MentorDocument = Mentor & {
   ageBrackets: string[];
 };
 
+export interface Tier4PartnerBranding {
+  logoUrl: string;
+  primaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  welcomeHeadline: string;
+  welcomeSubtext: string;
+  sponsorBadgeText: string;
+  customPartnerTabName: string;
+}
+
+export interface Tier4PartnerDocument {
+  id: string;
+  organizationName: string;
+  contactEmail: string;
+  subscriptionTier: 4;
+  active: boolean;
+  branding: Tier4PartnerBranding;
+  redemptionCodes: string[];
+  analytics: {totalRedemptions: number; activeMentees: number; lessonsCompleted: number};
+}
+
 export interface PartnershipDocument {
   subscriptionTier?: SubscriptionTier;
   active?: boolean;

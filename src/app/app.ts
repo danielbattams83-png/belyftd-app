@@ -91,6 +91,7 @@ export class App {
 
   readonly navigation = inject(NavigationService);
   readonly isDashboard = signal(true);
+  readonly isAdminPortal = signal(false);
 
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');
@@ -195,6 +196,7 @@ export class App {
         '': 'daily-lyft', dashboard: 'daily-lyft', courses: 'courses', mentors: 'mentors',
         quests: 'quests', 'coach-spark': 'coach-spark', community: 'community', partners: 'partners',
       };
+      this.isAdminPortal.set(path === 'admin/sponsors');
       this.isDashboard.set(path === '' || path === 'dashboard');
       this.activeTab.set(tabs[path] ?? 'daily-lyft');
       this.showProfileModal.set(path === 'profile' || path === 'settings');
