@@ -61,5 +61,14 @@ service cloud.firestore {
     match /partnerships/{partnershipId} {
       allow read: if true;
     }
+
+    function isAdmin() {
+      return isAuthenticated() && (request.auth.token.isAdmin == true || request.auth.token.role == 'admin');
+    }
+
+    match /partners/{partnerId} {
+      allow read: if resource.data.active == true || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
   }
 }
