@@ -4,10 +4,16 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgId: 'test-org', sponsorName: 'Test sponsor'}} = {}) {
+function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgId: 'test-org', sponsorName: 'Test sponsor'}, partners = []} = {}) {
   const writes = [];
   const reads = [];
   const claims = [];
+  const partnerQuery = code => ({limit: () => ({get: async () => {
+    const docs = partners
+      .filter(partner => partner.redemptionCodes.includes(code))
+      .map(partner => ({id: partner.id, data: () => partner}));
+    return {empty: docs.length === 0, docs};
+  }})});
   const modules = {
     'firebase-admin/app': {initializeApp() {}},
     'firebase-admin/auth': {getAuth: () => ({
@@ -16,10 +22,13 @@ function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgI
     })},
     'firebase-admin/firestore': {
       FieldValue: {serverTimestamp: () => 'timestamp'},
-      getFirestore: () => ({collection: collection => ({doc: id => ({
-        get: async () => { reads.push({collection, id}); return {exists, data: () => invite}; },
-        set: async data => writes.push({collection, id, data}),
-      })})}),
+      getFirestore: () => ({collection: collection => ({
+        doc: id => ({
+          get: async () => { reads.push({collection, id}); return {exists, data: () => invite}; },
+          set: async data => writes.push({collection, id, data}),
+        }),
+        where: (_field, _op, code) => partnerQuery(code),
+      })}),
     },
     'firebase-admin/storage': {getStorage() {}},
     'firebase-functions/v2/https': {
@@ -69,4 +78,15 @@ test('redemption still requires authentication and revalidates before granting a
   assert.equal(app.writes[0].id, 'member');
   assert.equal(app.writes[0].data.codeId, 'PHOENIX100');
   await assert.rejects(setup({exists: false}).redeemSponsorCode({auth: {uid: 'member'}, data: {code: 'PHOENIX100'}}), error => error.code === 'not-found');
+});
+
+test('accepts codes managed on partner documents, including hyphenated codes', async () => {
+  const partners = [{id: 'harbour-city-rowing', organizationName: 'Harbour City Rowing Club', subscriptionTier: 4, active: true, redemptionCodes: ['HARBOUR2026', 'HCRC-SQUAD']}];
+  const app = setup({exists: false, partners});
+  assert.equal((await app.checkSponsorCode({data: {code: 'hcrc-squad'}})).valid, true);
+  const result = await app.redeemSponsorCode({auth: {uid: 'member'}, data: {code: 'HARBOUR2026'}});
+  assert.equal(result.orgId, 'harbour-city-rowing');
+  assert.equal(result.sponsorName, 'Harbour City Rowing Club');
+  assert.equal(app.writes[0].data.codeId, 'HARBOUR2026');
+  await assert.rejects(setup({exists: false, partners: [{...partners[0], active: false}]}).checkSponsorCode({data: {code: 'HARBOUR2026'}}), error => error.code === 'failed-precondition');
 });
