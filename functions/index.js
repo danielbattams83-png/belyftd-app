@@ -55,12 +55,13 @@ async function getValidSponsorInvite(value) {
 }
 
 // orgId is safe to return pre-auth: partner documents (design only) are already public-read.
-exports.checkSponsorCode = onCall({maxInstances: 5}, async (request) => {
+// invoker: 'public' only opens the Cloud Run network layer; Firebase Auth is still checked in-handler.
+exports.checkSponsorCode = onCall({maxInstances: 5, invoker: 'public'}, async (request) => {
   const {invite} = await getValidSponsorInvite(request.data?.code);
   return {valid: true, orgId: invite.orgId};
 });
 
-exports.redeemSponsorCode = onCall(async (request) => {
+exports.redeemSponsorCode = onCall({invoker: 'public'}, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Sign in before redeeming a sponsor code.');
   }
