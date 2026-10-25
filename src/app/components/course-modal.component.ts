@@ -15,11 +15,11 @@ import {AudioPlayerService} from '../services/audio-player.service';
   styles: [`.unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
   template: `
     @if (course(); as c) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+      <div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
         
         <div
           id="course-content-screen-container"
-          class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-3xl rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] my-auto"
+          class="dialog-panel bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-3xl rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] my-auto"
         >
           <!-- Top Back-Button Navigation Bar -->
           <header class="flex items-center justify-between px-3 sm:px-6 py-3 border-b border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-20">
@@ -71,7 +71,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
 
             <!-- Clean Text Reader Area (Markdown) -->
             <article class="prose prose-slate dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200 font-sans space-y-4 pt-2">
-              <div class="unit-content-body bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 whitespace-pre-line leading-loose space-y-3 font-sans shadow-xs">
+              <div class="card unit-content-body bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 whitespace-pre-line leading-loose space-y-3 font-sans shadow-xs">
                 {{ cleanContent(c.textContent) }}
               </div>
             </article>
@@ -113,8 +113,8 @@ import {AudioPlayerService} from '../services/audio-player.service';
 
         <!-- Success Toast Confirmation Modal -->
         @if (showSuccessConfirmation()) {
-          <div class="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200">
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl max-w-sm w-full text-center space-y-4 shadow-2xl">
+          <div class="modal-backdrop fixed inset-0 z-60 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-200">
+            <div class="dialog-panel card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl max-w-sm w-full text-center space-y-4 shadow-2xl">
               <div class="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center">
                 <mat-icon class="text-3xl">emoji_events</mat-icon>
               </div>

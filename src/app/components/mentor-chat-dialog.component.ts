@@ -11,10 +11,10 @@ import {AudioPlayerService} from '../services/audio-player.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, MatIconModule],
   template: `
-    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
+    <div class="modal-backdrop fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
       <div
         id="mentor-chat-dialog"
-        class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 h-[88vh] sm:h-[650px] shadow-2xl flex flex-col overflow-hidden"
+        class="dialog-panel bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 h-[88vh] sm:h-[650px] shadow-2xl flex flex-col overflow-hidden"
       >
         <!-- Header -->
         <div class="p-4 sm:p-5 bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
@@ -84,7 +84,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
             <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
               Select 1-on-1 Mentorship Check-in Slot
             </h4>
-            <div class="grid grid-cols-2 gap-2.5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               <button
                 type="button"
                 (click)="selectedSlot.set('Today 4:30 PM (20m Zoom/Voice)')"

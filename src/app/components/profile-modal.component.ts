@@ -11,13 +11,13 @@ import {FirebaseService} from '../services/firebase.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BackButtonComponent, CommonModule, MatIconModule],
   template: `
-    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
+    <div class="modal-backdrop fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
       <div
         id="user-profile-dialog"
-        class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-7 shadow-2xl max-h-[90vh] overflow-y-auto space-y-6"
+        class="dialog-panel card bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-7 shadow-2xl max-h-[90vh] overflow-y-auto space-y-6"
       >
         <!-- Header -->
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2">
           <app-back-button />
           <h3 class="text-base font-bold font-display">My Lyft'd Profile & Settings</h3>
           <button
@@ -31,7 +31,7 @@ import {FirebaseService} from '../services/firebase.service';
         </div>
 
         <!-- User Identity Card -->
-        <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800">
+        <div class="card flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800">
           @if (activeProfile().avatarUrl || !firebaseService.hasActiveSession()) {
             <img
               [src]="activeProfile().avatarUrl || dataService.userProfile().avatar"
@@ -109,7 +109,7 @@ import {FirebaseService} from '../services/firebase.service';
             Earned Growth Badges
           </h4>
           @if (earnedBadges().length) {
-            <div class="grid grid-cols-2 gap-2.5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               @for (badge of earnedBadges(); track badge.id) {
                 <div class="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-xs dark:border-slate-800 dark:bg-slate-850">
                   <mat-icon class="text-2xl text-amber-500">{{ badge.icon }}</mat-icon>
@@ -133,7 +133,7 @@ import {FirebaseService} from '../services/firebase.service';
             <button type="button" (click)="editOnboarding.emit()" class="text-[11px] font-semibold text-indigo-600 hover:underline dark:text-indigo-400">Update</button>
           </div>
           @if (connectedMentors().length) {
-            <div class="grid gap-2 sm:grid-cols-2">
+            <div class="grid gap-2 md:grid-cols-2">
               @for (mentor of connectedMentors(); track mentor.id) {
                 <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-850">
                   <img [src]="mentor.avatar" [alt]="mentor.name" class="h-11 w-11 rounded-xl object-cover" referrerpolicy="no-referrer" />

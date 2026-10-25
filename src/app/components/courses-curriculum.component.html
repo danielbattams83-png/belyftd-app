@@ -2,7 +2,7 @@
   @if (curriculum.loading()) { <p role="status">Loading curriculum...</p> }
   @if (curriculum.usingSnapshot()) { <p class="catalog-note" role="status">Showing the saved course catalog. Live updates are temporarily unavailable.</p> }
   @for (module of visibleModules(); track module.id) {
-    <details class="module-accordion" [open]="isExpanded(module.id)" (toggle)="onToggle(module.id, $event)">
+    <details class="module-card module-accordion" [open]="isExpanded(module.id)" (toggle)="onToggle(module.id, $event)">
       <summary>
         <span class="module-title">@if (module.supplemental) { {{ module.title }} } @else { Module {{ module.id.split('-')[1] }}@if (module.title) {<span>: {{ module.title }}</span>} }</span>
         <span class="module-stats">{{ module.allUnitCount }} Units &middot; {{ module.percent }}% Completed</span>
@@ -11,7 +11,7 @@
       </summary>
       <ol class="unit-list">
         @for (unit of module.units; track unit.id) {
-          <li class="unit-card">
+          <li class="card unit-card">
             <div class="unit-description">
               <span class="unit-number">Unit {{ unit.id.split('-')[1] }}</span>
               <h3>{{ unit.title }}</h3>

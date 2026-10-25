@@ -1,9 +1,9 @@
 :host { display: block; }
-.paywall { color: #fff; background: #333333; padding: clamp(16px, 3vw, 28px); border: 1px solid #666; border-radius: 16px; }
+.paywall { color: #fff; background: #333333; padding: var(--card-padding); border: 1px solid #666; border-radius: 16px; }
 .billing-note { color: #ddd; margin: 0 0 20px; }
 .pricing-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-.plan { display: flex; flex-direction: column; padding: 20px; min-width: 0; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; background: #333333; border: 1px solid #777; border-radius: 10px; scroll-margin-top: 100px; }
-.plan.popular, .plan.selected { border: 2px solid #1a9bef; padding: 19px; }
+.plan { display: flex; flex-direction: column; padding: var(--card-padding); min-width: 0; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; background: #333333; border: 1px solid #777; border-radius: 16px; scroll-margin-top: 100px; }
+.plan.popular, .plan.selected { border: 2px solid #1a9bef; padding: calc(var(--card-padding) - 1px); }
 .plan.selected { outline: 2px solid #fff; outline-offset: 3px; }
 .badge-slot:empty { display: none; }
 .badge { display: inline-block; background: #1a9bef; color: #071c29; padding: 5px 9px; font-size: 12px; font-weight: 800; border-radius: 5px; }
@@ -17,9 +17,8 @@ button { background: #1a9bef; color: #071c29; font-weight: 700; padding: 12px; b
 button:hover { background: #63bfff; }
 button:disabled { opacity: .6; cursor: wait; }
 button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-@media (min-width: 768px) { .pricing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1200px) { .pricing-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 768px) { .pricing-grid { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); } }
 
-.checkout-overlay { position: fixed; inset: 0; z-index: 120; display: flex; align-items: center; justify-content: center; padding: 20px; background: #000b; }
-.checkout-dialog { background: #333; color: white; border: 1px solid #1a9bef; border-radius: 12px; padding: 28px; max-width: 480px; max-height: 90dvh; overflow: auto; }
+.checkout-overlay { position: fixed; inset: 0; z-index: var(--z-dialog); display: flex; align-items: center; justify-content: center; background: #000b; }
+.checkout-dialog { background: #333; color: white; border: 1px solid #1a9bef; border-radius: 16px; padding: var(--card-padding); max-width: 480px; max-height: 90dvh; overflow: auto; }
 .checkout-dialog p { margin: 16px 0; }

@@ -10,10 +10,10 @@ import {VoiceJournal} from '../models/app.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, MatIconModule],
   template: `
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div
         id="voice-recorder-dialog"
-        class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-md rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5"
+        class="dialog-panel card bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-md rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5"
       >
         <!-- Header -->
         <div class="flex items-center justify-between">
@@ -39,7 +39,7 @@ import {VoiceJournal} from '../models/app.models';
         </div>
 
         <!-- Prompt Card -->
-        <div class="p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 rounded-2xl">
+        <div class="card p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 rounded-2xl">
           <p class="text-xs font-semibold text-indigo-700 dark:text-indigo-400 flex items-center gap-1">
             <mat-icon class="text-sm">lightbulb</mat-icon> Reflection Prompt
           </p>

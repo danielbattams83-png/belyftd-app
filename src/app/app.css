@@ -1,7 +1,8 @@
 
 :host { display: block; width: 100%; min-width: 0; }
 .app-shell, .app-main { width: 100%; min-width: 0; }
-.app-main { padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px)); }
+.has-audio-player .app-main { padding-bottom: calc(4.5rem + var(--safe-bottom) + 18rem); }
+
 .home-hero { min-height: 350px; overflow-wrap: anywhere; }
 .partner-experience { background-color: var(--surface-card); }
 .partner-experience .home-hero { background: var(--hero-background); border-color: var(--primary-brand); color: var(--hero-text-color); }
@@ -12,32 +13,23 @@
 .partner-experience .app-header-logo { display: block; max-width: 100%; min-width: 0; object-fit: contain; }
 .mentor-grid, .mentor-grid > article { width: 100%; min-width: 0; overflow-wrap: anywhere; }
 .mentor-grid img { flex-shrink: 0; }
-#mobile-bottom-dock { padding-bottom: env(safe-area-inset-bottom, 0px); }
-.mobile-dock-items { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.mobile-dock-items button { min-width: 0; min-height: 44px; padding-inline: 2px; }
-@media (max-width: 767px) {
-  .app-header-actions { flex-wrap: wrap; justify-content: flex-end; max-width: calc(100% - 64px); }
-  .app-header-actions > button { flex-shrink: 0; }
-  .mentor-grid { grid-template-columns: minmax(0, 1fr); }
-}
-
-/* Keep the brand legible; switch to the existing app symbol before squeezing it. */
-.app-header-layout { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.app-header-brand { container-type: inline-size; display: block; flex: 1 1 48px; min-width: 48px; max-width: 160px; }
-.app-header-logo { display: block; width: 130px; min-width: 130px; height: auto; }
-#brand-home-btn > img.app-header-logo:nth-of-type(1) { margin-top: 10px; width: 140px; height: 77.25px; }
+/* The header stays fluid while account actions wrap on narrow phones. */
+.app-header { padding: calc(.5rem + var(--safe-top)) max(1rem, var(--safe-right)) .5rem max(1rem, var(--safe-left)); }
+.app-header-layout { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; max-width: 1168px; margin-inline: auto; }
+.app-header-brand { container-type: inline-size; display: block; flex: 1 1 44px; min-width: 44px; max-width: 140px; }
+.app-header-logo { display: block; width: 140px; height: auto; min-width: 0; object-fit: contain; }
 .app-header-mark { display: none; width: 44px; height: 44px; border-radius: 10px; }
-.app-header-actions { flex-shrink: 0; margin-left: auto; }
-.app-header-nav { order: 3; width: 100%; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 0 4px; }
-.header-signin-short { display: none; }
+.app-header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; margin-left: auto; max-width: calc(100% - 60px); }
+.app-header-actions > button { flex-shrink: 0; }
+.app-header-nav { display: none; order: 3; width: 100%; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.header-signin-full { display: none; }
+.header-signin-short { display: inline; }
 @container (max-width: 129px) {
-  .app-header-logo { display: none; }
+  .app-header-logo, .tenant-powered { display: none; }
   .app-header-mark { display: block; }
 }
-@media (max-width: 379px) {
-  .header-signin-full { display: none; }
-  .header-signin-short { display: inline; }
-}
+@media (min-width: 400px) { .header-signin-full { display: inline; } .header-signin-short { display: none; } }
+@media (min-width: 1024px) { .app-header-nav { display: flex; } .app-header-actions { max-width: none; } }
 
 /* Courses: keep summary widgets below the title, with intrinsic card heights. */
 .courses-page-header {
@@ -52,7 +44,7 @@
 .courses-page-header > div:first-child { flex: 1 1 260px; min-width: 0; }
 .courses-hero-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.5rem;
   align-items: stretch;
   width: 100%;
@@ -69,7 +61,7 @@
   height: auto;
   overflow: hidden;
   overflow-wrap: anywhere;
-  padding: 1.25rem;
+  padding: var(--card-padding);
 }
 .courses-hero-summary .reflections-card { justify-content: flex-start; }
 .summary-card-heading, .summary-card-footer {
@@ -90,6 +82,8 @@
 .summary-card-heading > button, .summary-card-footer > button {
   --tenant-primary: var(--primary-brand, #4f46e5);
   --tenant-accent: var(--accent-highlight, #f59e0b); flex-shrink: 0; }
-@media (max-width: 1023.98px) {
-  .courses-hero-summary { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 768px) {
+  .courses-hero-summary { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
 }
+
+#daily-message-card { height: auto; min-height: 350px; }

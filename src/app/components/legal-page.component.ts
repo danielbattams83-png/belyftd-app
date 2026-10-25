@@ -8,9 +8,9 @@ import {RouterLink} from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="fixed inset-0 z-[60] overflow-y-auto bg-slate-50 dark:bg-slate-950" aria-labelledby="legal-title">
-      <div class="mx-auto min-h-full w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
-        <header class="mb-8 flex items-start justify-between gap-4">
+    <section class="fullscreen-page fixed inset-0 z-[60] overflow-y-auto bg-slate-50 dark:bg-slate-950" aria-labelledby="legal-title">
+      <div class="page-container min-h-full">
+        <header class="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p class="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-indigo-600 dark:text-indigo-400">Lyftd Mentorship &amp; Lessons</p>
             <h1 id="legal-title" class="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">{{ page() === 'privacy' ? 'Privacy Policy' : 'Terms of Service' }}</h1>
@@ -20,7 +20,7 @@ import {RouterLink} from '@angular/router';
         </header>
 
         @if (page() === 'privacy') {
-          <article class="space-y-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          <article class="card space-y-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
             <section><h2>1. Introduction &amp; Safeguarding Commitment</h2><p>Lyftd respects the privacy of our users, especially young people, students, and community members. This Privacy Policy explains how we collect, store, process, and protect information in accordance with the Australian Privacy Principles, COPPA, GDPR/UK GDPR, and applicable global youth privacy frameworks.</p></section>
             <section><h2>2. Information We Collect</h2><h3>Information you provide</h3><p>Account data such as name, email, password hash, avatar, and grade or role; optional voice reflections; Hype Wall posts and reactions; Coach Spark prompts; and sponsor or partner details.</p><h3>Technical information</h3><p>We collect operating system, browser, screen resolution, IP address, general region, lesson progress, audio playback time, streaks, and cache state.</p></section>
             <section><h2>3. How We Use Information</h2><p>We use information to deliver personalized lessons, track progress, provide daily motivation, generate AI responses and audio, moderate community content, provide aggregated sponsor reporting, process subscriptions, and verify redemption codes.</p><p>Sponsors receive anonymized, aggregated cohort analytics only. We do not share private reflections, diary entries, or chat logs with institutional sponsors.</p></section>
@@ -31,7 +31,7 @@ import {RouterLink} from '@angular/router';
             <section><h2>8. Updates</h2><p>We may update these policies as the Platform, AI features, or legal frameworks evolve. We will revise the effective date and notify active users through the Platform.</p></section>
           </article>
         } @else {
-          <article class="space-y-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          <article class="card space-y-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
             <section><h2>1. Acceptance &amp; Eligibility</h2><p>By accessing, installing, browsing, or using Lyftd, you agree to these Terms. Users under 13, or under 16 where required, may use Lyftd only with verifiable parent or guardian consent or through an authorized institutional partner. Parents and guardians are responsible for supervising permitted use.</p></section>
             <section><h2>2. Service &amp; Non-Clinical Disclaimer</h2><p>Lyftd provides educational, motivational, personal-development, modular curriculum, mentor media, community features, and Coach Spark. Lyftd is not a healthcare provider, psychotherapy practice, crisis counseling center, or psychiatric service.</p><p><strong>Do not use Lyftd for emergencies or severe mental distress.</strong> Contact local emergency services or an appropriate crisis hotline immediately.</p></section>
             <section><h2>3. AI Features</h2><p>Coach Spark, automated pep talks, and simulated mentor avatars use generative AI, neural speech, and language models. Outputs may be inaccurate or incomplete and are not professional legal, financial, medical, psychological, or career advice. Do not enter government IDs, payment card details, passwords, or other sensitive information into AI prompts.</p></section>

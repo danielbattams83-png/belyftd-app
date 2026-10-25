@@ -39,13 +39,13 @@ const FOCUS_AREAS = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatIconModule],
   template: `
-    <div class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-3 backdrop-blur-sm sm:p-5" role="presentation">
+    <div class="modal-backdrop fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-3 backdrop-blur-sm sm:p-5" role="presentation">
       <section
         id="post-auth-onboarding-wizard"
         role="dialog"
         aria-modal="true"
         aria-labelledby="onboarding-title"
-        class="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden border border-slate-200 bg-white text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
+        class="dialog-panel flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden border border-slate-200 bg-white text-slate-900 shadow-2xl dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
       >
         <header class="border-b border-slate-200 px-5 py-4 dark:border-slate-800 sm:px-7">
           <div class="mb-3 flex items-center justify-between gap-3">
@@ -78,7 +78,7 @@ const FOCUS_AREAS = [
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Personalize the support and opportunities you see.</p>
               </div>
 
-              <div class="grid gap-4 sm:grid-cols-2">
+              <div class="grid gap-4 md:grid-cols-2">
                 <label class="space-y-1.5 text-xs font-semibold">
                   <span>Age bracket</span>
                   <select [value]="ageBracket()" (change)="setAgeBracket(readValue($event))" aria-required="true" [attr.aria-invalid]="statusMessage() && !ageBracket() ? 'true' : null" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-800">
@@ -107,7 +107,7 @@ const FOCUS_AREAS = [
 
               <fieldset class="space-y-2">
                 <legend class="text-xs font-bold">Choose your avatar <span class="text-rose-600">(required)</span></legend>
-                <div class="grid grid-cols-4 gap-2 sm:grid-cols-7">
+                <div class="grid grid-cols-3 gap-2 md:grid-cols-6">
                   @if (socialAvatarUrl()) {
                     <button type="button" (click)="avatarUrl.set(socialAvatarUrl()!)" [attr.aria-pressed]="avatarUrl() === socialAvatarUrl()" class="flex flex-col items-center gap-1.5 rounded-xl border p-2 text-[10px] font-semibold transition focus-accessible" [class.border-indigo-500]="avatarUrl() === socialAvatarUrl()" [class.bg-indigo-50]="avatarUrl() === socialAvatarUrl()" [class.dark:bg-indigo-950]="avatarUrl() === socialAvatarUrl()">
                       <img [src]="socialAvatarUrl()" alt="" class="h-12 w-12 rounded-full object-cover" />
@@ -143,7 +143,7 @@ const FOCUS_AREAS = [
                 <h2 class="text-base font-bold">Choose your mentors</h2>
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Pick one or two mentors to follow. Recommendations are ordered by your focus areas.</p>
               </div>
-              <div class="grid gap-3 sm:grid-cols-2">
+              <div class="grid gap-3 md:grid-cols-2">
                 @for (item of recommendedMentors(); track item.mentor.id) {
                   <button
                     type="button"

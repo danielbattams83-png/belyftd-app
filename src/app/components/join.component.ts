@@ -12,8 +12,8 @@ import {FirebaseService} from '../services/firebase.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BackButtonComponent, CommonModule, FormsModule, MatIconModule, RegisterModalComponent],
   template: `
-    <section class="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-4 backdrop-blur-sm">
-      <div class="w-full max-w-lg space-y-6 rounded-3xl border border-slate-200 bg-white p-7 shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:p-9">
+    <section class="modal-backdrop fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-4 backdrop-blur-sm">
+      <div class="dialog-panel card w-full max-w-lg space-y-6 rounded-3xl border border-slate-200 bg-white p-7 shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:p-9">
         <app-back-button />
         <div class="space-y-3 text-center">
           <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
@@ -25,7 +25,7 @@ import {FirebaseService} from '../services/firebase.service';
         </div>
 
         @if (!firebaseService.isLoggedIn()) {
-          <div class="space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          <div class="card space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
             <p>Sign in or create an account before redeeming your code.</p>
             <button type="button" (click)="showAuth.set(true)" class="w-full rounded-xl bg-indigo-600 px-4 py-3 font-bold text-white hover:bg-indigo-700">
               Sign in or create account

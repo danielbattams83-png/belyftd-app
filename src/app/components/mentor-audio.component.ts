@@ -9,7 +9,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (selectedTrack()) {
-    <section class="space-y-4 rounded-3xl border border-slate-700 bg-[#333333] p-5 text-white shadow-xl" aria-label="Mentor audio player">
+    <section class="card space-y-4 rounded-3xl border border-slate-700 bg-[#333333] p-5 text-white shadow-xl" aria-label="Mentor audio player">
       @if (selectedTrack(); as track) {
         <label class="block space-y-2 text-sm font-semibold">
           <span>Mentor recording</span>

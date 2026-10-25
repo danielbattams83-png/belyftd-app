@@ -9,10 +9,11 @@ import {AudioPlayerService} from '../services/audio-player.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatIconModule],
   host: {'(document:keydown.escape)': 'player.close()'},
+  styles: `.mini-audio-player { bottom: calc(var(--mobile-nav-space) + 1rem); left: max(1rem, var(--safe-left)); right: max(1rem, var(--safe-right)); z-index: var(--z-player); max-height: calc(100dvh - var(--mobile-nav-space) - var(--safe-top) - 2rem); overflow-y: auto; }`,
   template: `
     @if (player.hasPlayableMedia()) {
       <section id="mini-audio-player" aria-label="Audio player"
-        class="fixed bottom-20 md:bottom-6 left-3 right-3 max-w-lg mx-auto z-[60] space-y-3 rounded-3xl border border-slate-700 bg-[#333333] p-4 text-white shadow-2xl">
+        class="card mini-audio-player fixed bottom-20 lg:bottom-6 left-4 right-4 max-w-lg mx-auto z-[60] space-y-3 rounded-3xl border border-slate-700 bg-[#333333] p-4 text-white shadow-2xl">
         <div class="flex items-start gap-3">
           <button type="button" (click)="player.toggleFullPlayer()" aria-label="Open full audio player"
             class="flex min-w-0 flex-1 items-center gap-3 text-left focus-accessible rounded-xl">
@@ -49,10 +50,10 @@ import {AudioPlayerService} from '../services/audio-player.service';
 
       <!-- Expanded Full Audio Sheet / Modal -->
       @if (player.showFullPlayer()) {
-        <div class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-sm p-0 sm:p-4">
+        <div class="modal-backdrop fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-sm p-0 sm:p-4">
           <div
             id="full-audio-sheet"
-            class="bg-[#333333] text-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-700 p-6 sm:p-8 shadow-2xl max-h-[92vh] overflow-y-auto flex flex-col animate-in fade-in slide-in-from-bottom duration-200"
+            class="dialog-panel card bg-[#333333] text-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-700 p-6 sm:p-8 shadow-2xl max-h-[92vh] overflow-y-auto flex flex-col animate-in fade-in slide-in-from-bottom duration-200"
           >
             <!-- Header Bar -->
             <div class="sticky top-0 z-10 flex items-center justify-between gap-2 bg-[#333333] pb-4 border-b border-slate-700">
@@ -201,7 +202,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
             }
             <!-- Transcript Drawer / Live Script Area -->
             @if (player.showTranscript()) {
-              <div class="mt-2 p-4 bg-slate-800 rounded-2xl border border-slate-700 overflow-y-auto max-h-44 text-sm leading-relaxed text-slate-200">
+              <div class="card mt-2 p-4 bg-slate-800 rounded-2xl border border-slate-700 overflow-y-auto max-h-44 text-sm leading-relaxed text-slate-200">
                 <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-700">
                   <span class="text-xs font-bold uppercase tracking-wider text-[#1A9BEF]">
                     Spoken Transcript

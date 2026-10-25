@@ -7,11 +7,11 @@
   {{ themeService.screenReaderMessage() }}
 </div>
 
-<div class="app-shell min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans text-lg transition-colors duration-200" [class.partner-experience]="!!tenantService.activeTenant()">
+<div class="app-shell min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans text-lg transition-colors duration-200" [class.partner-experience]="!!tenantService.activeTenant()" [class.has-audio-player]="audioPlayer.hasPlayableMedia()">
   
   <!-- Top App Header / Navigation Bar -->
-  <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-safe px-3 sm:px-6 py-2 shadow-sm">
-    <div class="app-header-layout max-w-4xl mx-auto">
+  <header class="app-header sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-safe px-3 sm:px-6 py-2 shadow-sm">
+    <div class="app-header-layout">
       
       @if (!isDashboard()) {
         <app-back-button />
@@ -26,7 +26,7 @@
       >
 @if (tenantService.activeTenant(); as tenant) {
     <img [src]="tenant.branding.logoUrl" [alt]="tenant.organizationName" width="130" height="67" class="app-header-logo object-contain" />
-    <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Powered by Lyftd</span>
+    <span class="tenant-powered text-[10px] font-semibold text-slate-500 dark:text-slate-400">Powered by Lyftd</span>
   } @else {
     <img src="/logo.png" alt="Lyftd" width="130" height="67" class="app-header-logo" />
     <img src="/icon-192.png" alt="Lyftd" width="44" height="44" class="app-header-mark" />
@@ -34,7 +34,7 @@
       </a>
 
       <!-- Desktop Nav Links (Hidden on small mobile, visible on tablet/desktop) -->
-      <nav class="app-header-nav hidden md:flex items-center text-sm font-medium">
+      <nav class="app-header-nav hidden lg:flex items-center text-sm font-medium">
         <button
           type="button"
           (click)="selectTab('daily-lyft')"
@@ -246,7 +246,7 @@
   }
 
   <!-- Main Scrollable Content Container -->
-  <main class="app-main flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-0 pb-28">
+  <main class="app-main page-container flex-1">
     <router-outlet />
 
     <!-- ========================================== -->
@@ -275,7 +275,7 @@
   }
 
         <!-- Welcome Header / Hopeful Sunrise Hero -->
-        <div class="home-hero order-2 relative overflow-hidden rounded-[24px] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
+        <div class="card home-hero order-2 relative overflow-hidden rounded-[24px] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
           <div class="absolute -top-12 right-8 h-32 w-32 rounded-full bg-amber-300/40 blur-2xl"></div>
           <div class="absolute bottom-4 left-8 h-24 w-24 rounded-full bg-indigo-400/20 blur-2xl"></div>
 
@@ -341,7 +341,7 @@
 
         @if (isLoggedIn()) {
           <!-- Quick Mood Check-in Carousel -->
-          <section id="daily-mood-checkin" class="order-6 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+          <section id="daily-mood-checkin" class="card order-6 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
@@ -374,7 +374,7 @@
 
             <!-- Mood Response Banner if clicked -->
             @if (activeMoodPrompt()) {
-              <div class="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 animate-in slide-in-from-top-2 duration-150">
+              <div class="card p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 animate-in slide-in-from-top-2 duration-150">
                 <div class="flex items-start justify-between gap-3">
                   <div>
                     <p class="text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-1">
@@ -399,7 +399,7 @@
         }
 
   <!-- 'Daily Message' Card with 'Start Today's Lesson' Direct CTA -->
-        <div id="daily-message-card" class="order-4 relative overflow-hidden rounded-3xl border p-7 shadow-sm" style="background-color: transparent; background-image: linear-gradient(to right bottom, oklab(0.769 0.0640531 0.176752 / 0.1) 0%, oklab(0.645 0.235944 0.0696166 / 0.1) 50%, oklab(0.511 0.0317755 -0.260066 / 0.1) 100%); height: 350px; border-color: oklab(0.924 -0.0120142 0.119397 / 0.6);">
+        <div id="daily-message-card" class="card order-4 relative overflow-hidden rounded-3xl border p-7 shadow-sm" style="background-color: transparent; background-image: linear-gradient(to right bottom, oklab(0.769 0.0640531 0.176752 / 0.1) 0%, oklab(0.645 0.235944 0.0696166 / 0.1) 50%, oklab(0.511 0.0317755 -0.260066 / 0.1) 100%); border-color: oklab(0.924 -0.0120142 0.119397 / 0.6);">
           <div class="absolute inset-0 hidden bg-gradient-to-r from-amber-100/80 via-rose-50/80 to-indigo-50/80 dark:from-amber-950/20 dark:via-rose-950/10 dark:to-indigo-950/20" style="border-color: oklab(0.924 -0.0120142 0.119397 / 0.6);"></div>
   <div class="relative z-10 space-y-4 text-center">
   <div class="flex items-center justify-center gap-4 flex-wrap">
@@ -451,7 +451,7 @@
                 </div>
                 <span class="text-xs text-slate-500 dark:text-slate-400">{{ hopeUnits().length }} units</span>
               </div>
-              <div class="mx-auto grid max-w-2xl gap-2 text-left sm:grid-cols-2">
+              <div class="mx-auto grid max-w-2xl gap-2 text-left md:grid-cols-2">
                 @for (unit of hopeUnits(); track unit.id) {
                   <button type="button" (click)="playHopeUnit(unit)" class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 text-left shadow-sm transition hover:bg-white focus-accessible dark:border-slate-700 dark:bg-slate-900/60 dark:hover:bg-slate-900">
                     <img [src]="unit.avatar" [alt]="unit.mentor" class="h-11 w-11 shrink-0 rounded-xl object-cover" referrerpolicy="no-referrer" />
@@ -471,7 +471,7 @@
         </div>
 
 <!-- Short Courses: Featured Audio Lessons -->
-  <section class="hidden order-5 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+  <section class="card hidden order-5 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
               <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -505,13 +505,13 @@
           </div>
 
           <!-- Tracks List -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+          <div class="responsive-grid gap-3 pt-1">
             @if (dataService.audioCatalogLoading()) { <p role="status" class="text-sm text-slate-500">Loading mentor recordings...</p> }
             @if (dataService.audioCatalogError()) { <p role="alert" class="text-sm text-rose-500">{{ dataService.audioCatalogError() }}</p> }
             @if (!dataService.audioCatalogLoading() && !filteredTracks().length) { <p class="text-sm text-slate-500">No mentor recordings are available for your current access.</p> }
             @for (track of filteredTracks(); track track.id) {
               <div
-                class="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750 hover:border-slate-300 dark:hover:border-slate-700 transition flex items-center justify-between gap-3 group"
+                class="card p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750 hover:border-slate-300 dark:hover:border-slate-700 transition flex items-center justify-between gap-3 group"
               >
                 <button
                   type="button"
@@ -559,7 +559,7 @@
 
         @if (isLoggedIn()) {
         <!-- Quick Progress Bar Showing Completed Courses -->
-        <div id="quick-courses-progress-box" class="hidden bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-3">
+        <div id="quick-courses-progress-box" class="card hidden bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-3">
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
@@ -601,9 +601,9 @@
         </div>
 
         <!-- Clean Bento 2-Column Progress & Upcoming Session -->
-        <div class="hidden grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Bento Box 1: Upcoming Mentorship & Action Step -->
-          <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+          <div class="card bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-4">
                 <h4 class="text-slate-900 dark:text-slate-100 font-bold text-base">Upcoming Session</h4>
@@ -632,7 +632,7 @@
           </div>
 
           <!-- Bento Box 2: Weekly Progress -->
-          <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+          <div class="card bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-4">
                 <h4 class="text-slate-900 dark:text-slate-100 font-bold text-base">Weekly Growth Progress</h4>
@@ -666,7 +666,7 @@
 
         @if (isLoggedIn()) {
         <!-- Voice Reflections Section -->
-        <section class="hidden bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
+        <section class="card hidden bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
               <div class="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center">
@@ -687,9 +687,9 @@
             </button>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="responsive-grid gap-3">
             @for (journal of dataService.voiceJournals(); track journal.id) {
-              <div class="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750 flex flex-col justify-between">
+              <div class="card p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750 flex flex-col justify-between">
                 <div>
                   <div class="flex items-center justify-between gap-1 text-[11px] text-slate-400 mb-1.5">
                     <span>{{ journal.date }}</span>
@@ -822,7 +822,7 @@
               </div>
               <div class="grid min-w-0 grid-cols-1 gap-3">
                 @for (journal of dataService.voiceJournals(); track journal.id) {
-                  <div class="min-w-0 p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750">
+                  <div class="card min-w-0 p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750">
                     <div class="summary-card-heading text-[11px] text-slate-400">
                       <span>{{ journal.date }}</span><span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ journal.mood }}</span>
                     </div>
@@ -841,7 +841,7 @@
 
 
         @if (isLoggedIn()) {
-        <section id="course-progress-card" class="space-y-3 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900" aria-labelledby="course-progress-heading">
+        <section id="course-progress-card" class="card space-y-3 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900" aria-labelledby="course-progress-heading">
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
               <mat-icon class="text-indigo-400">auto_stories</mat-icon>
@@ -901,9 +901,9 @@
       <section id="tab-mentors-content" class="space-y-6 py-6">
         <h2 id="mentors-tour-anchor" class="text-3xl font-bold">Meet Your Mentors</h2>
         <p class="text-sm text-slate-500 dark:text-slate-300">Explore course recordings from our four production mentors.</p>
-        <div class="mentor-grid grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div class="mentor-grid responsive-grid">
           @for (mentor of dataService.mentors(); track mentor.id) {
-            <article class="space-y-4 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-[#333333]">
+            <article class="card space-y-4 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-[#333333]">
               <div class="flex items-center gap-4">
                 <img [src]="mentor.avatar" [alt]="mentor.name" class="h-20 w-20 rounded-2xl object-cover" />
                 <div><h3 class="text-xl font-bold">{{ mentor.name }}</h3>
@@ -947,7 +947,7 @@
         </div>
 
         <!-- Progress XP Card -->
-        <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+        <div class="card p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base">
@@ -979,7 +979,7 @@
         <div class="space-y-4">
           @for (quest of dataService.goalQuests(); track quest.id) {
             <div
-              class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 space-y-4 shadow-sm"
+              class="card rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 space-y-4 shadow-sm"
             >
               <div class="flex items-start justify-between gap-3">
                 <div>
@@ -1095,7 +1095,7 @@
         </div>
 
         <!-- Chat Conversation Area -->
-        <div class="space-y-4 min-h-[380px] p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+        <div class="card space-y-4 min-h-[380px] p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
           @for (msg of aiService.coachMessages(); track msg.id) {
             <div
               [class]="msg.sender === 'user' ? 'flex justify-end' : 'flex justify-start'"
@@ -1185,7 +1185,7 @@
         </div>
 
         <!-- Post Creator Box -->
-        <form [formGroup]="newPostForm" (ngSubmit)="submitCommunityPost()" class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 space-y-4 shadow-sm">
+        <form [formGroup]="newPostForm" (ngSubmit)="submitCommunityPost()" class="card p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 space-y-4 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider font-display">
               ✨ Share a Win or Drop Some Hype
@@ -1245,9 +1245,9 @@
         </div>
 
         <!-- Community Posts Feed -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="responsive-grid gap-4">
           @for (post of filteredCommunityPosts(); track post.id) {
-            <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 space-y-3.5 shadow-sm flex flex-col justify-between">
+            <div class="card p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 space-y-3.5 shadow-sm flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
@@ -1343,7 +1343,7 @@
     rel="noopener noreferrer"
     aria-label="Contact Lyftd support on WhatsApp"
     [style.bottom]="audioPlayer.activeTrack() ? 'calc(env(safe-area-inset-bottom) + 19rem)' : null"
-    class="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg shadow-green-500/30 ring-4 ring-white/60 transition hover:scale-105 hover:bg-green-600 focus-accessible"
+    class="support-button fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg shadow-green-500/30 ring-4 ring-white/60 transition hover:scale-105 hover:bg-green-600 focus-accessible"
     title="WhatsApp Support"
   >
     <mat-icon class="text-2xl">chat</mat-icon>
@@ -1354,7 +1354,7 @@
   <!-- ========================================== -->
   <nav
     id="mobile-bottom-dock"
-    class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-safe shadow-md"
+    class="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-safe shadow-md"
     aria-label="Bottom Navigation"
   >
     <div class="mobile-dock-items max-w-xl mx-auto flex items-center justify-around py-2 px-1">
@@ -1481,8 +1481,8 @@
 
   <!-- Streak Celebration Modal -->
   @if (showStreakModal()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-      <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-sm rounded-3xl border border-slate-100 dark:border-slate-800 p-8 shadow-2xl text-center space-y-4">
+    <div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+      <div class="dialog-panel card bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-sm rounded-3xl border border-slate-100 dark:border-slate-800 p-8 shadow-2xl text-center space-y-4">
         <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 mx-auto flex items-center justify-center text-3xl">
           🔥
         </div>
@@ -1506,8 +1506,8 @@
 
   <!-- New Quest Modal -->
   @if (showNewQuestModal()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-      <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-md rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-4">
+    <div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+      <div class="dialog-panel card bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-md rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-base font-bold font-display">Create Youth Goal Quest</h3>
           <button
@@ -1531,7 +1531,7 @@
             />
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label for="new-quest-category-select" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Category</label>
               <select
@@ -1620,7 +1620,7 @@
   @if (streakNotificationToast(); as toast) {
     <div
       id="streak-update-toast-banner"
-      class="fixed top-20 right-4 z-50 max-w-sm w-full bg-amber-500 dark:bg-amber-600 text-slate-950 p-4 rounded-2xl shadow-2xl border-2 border-amber-300 flex items-center justify-between gap-3 animate-in slide-in-from-top-4 duration-300"
+      class="card app-toast fixed top-20 right-4 z-50 max-w-sm w-full bg-amber-500 dark:bg-amber-600 text-slate-950 p-4 rounded-2xl shadow-2xl border-2 border-amber-300 flex items-center justify-between gap-3 animate-in slide-in-from-top-4 duration-300"
     >
       <div class="flex items-center gap-3">
         <span class="text-3xl">🔥</span>
@@ -1651,7 +1651,7 @@
   @if (isDevWidgetVisible()) {
     <aside
       id="dev-testing-widget-container"
-      class="fixed bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-auto sm:max-w-md z-40 bg-slate-900/95 dark:bg-slate-950/95 text-slate-100 border border-indigo-500/40 rounded-2xl shadow-2xl backdrop-blur-md overflow-hidden transition-all duration-250 font-sans"
+      class="dev-widget fixed bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-auto sm:max-w-md z-40 bg-slate-900/95 dark:bg-slate-950/95 text-slate-100 border border-indigo-500/40 rounded-2xl shadow-2xl backdrop-blur-md overflow-hidden transition-all duration-250 font-sans"
       aria-label="Developer Testing Widget for Daily Messaging & Deep Linking"
     >
       <!-- Dev Widget Header -->

@@ -11,10 +11,10 @@ import {MentorshipDataService} from '../services/mentorship-data.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, MatIconModule],
   template: `
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div
         id="custom-pep-talk-dialog"
-        class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-md rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5"
+        class="dialog-panel card bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-md rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-7 shadow-2xl space-y-5"
       >
         <!-- Header -->
         <div class="flex items-center justify-between">
@@ -45,7 +45,7 @@ import {MentorshipDataService} from '../services/mentorship-data.service';
             <span class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
               What do you need confidence for right now?
             </span>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
               @for (topic of topics; track topic.id) {
                 <button
                   type="button"

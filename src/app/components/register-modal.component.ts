@@ -37,10 +37,10 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, MatIconModule],
   template: `
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div
         id="user-registration-dialog"
-        class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto"
+        class="dialog-panel card bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto"
       >
         <!-- Header -->
         <div class="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -69,11 +69,11 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
           </button>
         </div>
 
-        <section aria-labelledby="redemption-code-label" class="flex flex-col gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-100">
+        <section aria-labelledby="redemption-code-label" class="card flex flex-col gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-100">
           <label id="redemption-code-label" for="auth-redemption-code" class="text-center font-display text-xl font-bold uppercase tracking-wide">Redemption Code</label>
           <p id="redemption-help" class="text-center text-sm leading-relaxed">Enter and check your community code to unlock sign-in or registration.</p>
           <form (submit)="$event.preventDefault(); checkRedemptionCode()" class="flex items-center gap-2 rounded-xl border border-emerald-300 bg-white p-2 shadow-sm dark:border-emerald-700 dark:bg-slate-900">
-            <input id="auth-redemption-code" name="redemptionCode" type="text" [value]="redemptionCode()" (input)="updateRedemptionCode($event)" [disabled]="isCheckingCode() || isSubmitting()" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="redemption-help redemption-status" [attr.aria-invalid]="codeError()" placeholder="Enter your code" class="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-2 text-center font-display text-2xl font-bold uppercase tracking-wide text-emerald-700 placeholder:text-slate-400 focus-accessible dark:text-emerald-300" />
+            <input id="auth-redemption-code" name="redemptionCode" type="text" [value]="redemptionCode()" (input)="updateRedemptionCode($event)" [disabled]="isCheckingCode() || isSubmitting()" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="redemption-help redemption-status" [attr.aria-invalid]="codeError()" placeholder="Partner code" class="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-2 text-center font-display text-2xl font-bold uppercase tracking-wide text-emerald-700 placeholder:text-slate-400 focus-accessible dark:text-emerald-300" />
             <button type="submit" [disabled]="!redemptionCode().trim() || isCheckingCode() || isSubmitting()" class="shrink-0 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-bold uppercase text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 focus-accessible">{{ isCheckingCode() ? 'Checking…' : codeVerified() ? 'Checked' : 'Check' }}</button>
           </form>
           <p id="redemption-status" role="status" aria-live="polite" class="text-center text-sm font-semibold" [class.text-rose-700]="codeError()" [class.dark:text-rose-300]="codeError()">{{ codeMessage() }}</p>

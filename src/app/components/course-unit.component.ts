@@ -20,8 +20,8 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
   imports: [MentorAudioComponent, BackButtonComponent, CommonModule, MatIconModule],
   styles: [`.unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
   template: `
-    <section class="fixed inset-0 z-50 overflow-y-auto bg-slate-50 p-4 dark:bg-slate-950 sm:p-8">
-      <div class="mx-auto max-w-3xl space-y-6">
+    <section class="fullscreen-page fixed inset-0 z-50 overflow-y-auto bg-slate-50 dark:bg-slate-950">
+      <div class="page-container space-y-6">
         <app-back-button fallback="/courses" />
 
         @if (loading()) {
@@ -29,7 +29,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
         } @else if (errorMessage()) {
           <p class="rounded-2xl bg-white p-6 text-rose-700 shadow-sm dark:bg-slate-900 dark:text-rose-300" role="alert">{{ errorMessage() }}</p>
         } @else if (unit(); as lesson) {
-          <article class="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          <article class="card space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
             @if (sponsor(); as activeSponsor) {
               <aside class="flex items-center gap-3 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-violet-50 p-4 dark:border-indigo-900 dark:from-indigo-950/60 dark:to-violet-950/40">
                 <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white">

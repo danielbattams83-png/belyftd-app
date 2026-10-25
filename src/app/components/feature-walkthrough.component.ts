@@ -20,7 +20,7 @@ interface WalkthroughStep {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [A11yModule, MatIconModule],
   template: `
-    <div class="fixed inset-0 z-[80]" role="presentation" aria-hidden="true">
+    <div class="tour-backdrop fixed inset-0 z-[80]" role="presentation" aria-hidden="true">
       @if (targetRect(); as target) {
         <div
           class="pointer-events-none absolute border border-white ring-2 ring-indigo-400/80 shadow-[0_0_0_100vmax_rgba(15,23,42,0.65)] transition-[top,left,width,height,border-radius] duration-300 motion-reduce:transition-none"

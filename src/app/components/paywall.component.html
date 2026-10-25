@@ -2,7 +2,7 @@
   <p class="billing-note">Monthly subscriptions &middot; All prices in USD</p>
   <div class="pricing-grid">
     @for (plan of plans; track plan.tier) {
-      <article class="plan" [class.popular]="plan.tier === 3" [class.selected]="selectedTier() === plan.tier" [id]="'partner-tier-' + plan.tier">
+      <article class="card plan" [class.popular]="plan.tier === 3" [class.selected]="selectedTier() === plan.tier" [id]="'partner-tier-' + plan.tier">
         <div class="badge-slot">@if (plan.badge) { <span class="badge">{{ plan.badge }}</span> }</div>
         <p class="tier">Tier {{ plan.tier }}</p>
         <h2>{{ plan.name }}</h2>
@@ -15,8 +15,8 @@
 </section>
 
 @if (checkoutPlan(); as plan) {
-  <div class="checkout-overlay">
-    <section class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (keydown.escape)="checkoutPlan.set(null)">
+  <div class="modal-backdrop checkout-overlay">
+    <section class="dialog-panel checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (keydown.escape)="checkoutPlan.set(null)">
       <h2 id="checkout-title">Checkout - {{ plan.name }}</h2>
       <p>{{ plan.price | currency:'USD':'symbol':'1.2-2' }} USD per month</p>
       <p class="checkout-access">Includes all units in Modules 1-{{ plan.moduleAccess }}{{ plan.tier >= 3 ? ' and supplemental reading' : '' }}.</p>
