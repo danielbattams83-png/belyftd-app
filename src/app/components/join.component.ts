@@ -6,6 +6,7 @@ import {Router} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
 import {RegisterModalComponent} from './register-modal.component';
 import {FirebaseService} from '../services/firebase.service';
+import {TenantService} from '../services/tenant.service';
 
 @Component({
   selector: 'app-join',
@@ -69,6 +70,7 @@ import {FirebaseService} from '../services/firebase.service';
 export class JoinComponent {
   readonly firebaseService = inject(FirebaseService);
   private readonly router = inject(Router);
+  private readonly tenantService = inject(TenantService);
   code = '';
   readonly isSubmitting = signal(false);
   readonly message = signal<string | null>(null);
@@ -88,6 +90,7 @@ export class JoinComponent {
     this.hasError.set(false);
     try {
       await this.firebaseService.redeemSponsorCode(this.code);
+      await this.tenantService.refresh();
       await this.router.navigate(['/courses', 'module-2', 'units', 'unit-1']);
     } catch (error: unknown) {
       console.error('[JoinComponent] Sponsor code redemption failed:', error);

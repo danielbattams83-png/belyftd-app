@@ -1,3 +1,4 @@
+import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {Router, provideRouter} from '@angular/router';
 import {FirebaseService} from './firebase.service';
@@ -6,28 +7,60 @@ import {partnerFixture} from '../testing/partner.fixture';
 
 describe('TenantService', () => {
   const getPartner = vi.fn();
+  const getSponsorProfile = vi.fn();
+  let currentUser: ReturnType<typeof signal<{uid: string} | null>>;
+
+  const flush = async () => {
+    TestBed.tick();
+    for (let i = 0; i < 5; i++) await Promise.resolve();
+    TestBed.tick();
+  };
 
   beforeEach(() => {
     localStorage.clear();
-    window.history.replaceState({}, '', '/');
     getPartner.mockReset();
+    getSponsorProfile.mockReset();
+    currentUser = signal<{uid: string} | null>(null);
     TestBed.configureTestingModule({providers: [
       provideRouter([{path: '', children: []}, {path: 'p/:slug', children: []}]),
-      {provide: FirebaseService, useValue: {getPartner}},
+      {provide: FirebaseService, useValue: {getPartner, getSponsorProfile, currentUser}},
     ]});
   });
 
   afterEach(() => {
     TestBed.resetTestingModule();
     localStorage.clear();
-    window.history.replaceState({}, '', '/');
   });
 
-  it('applies all five theme colors and persists the tenant selected in admin', () => {
+  it('uses the default design for signed-out visitors, even on partner links', async () => {
+    localStorage.setItem('lyftd_active_tenant', 'harbour-city');
+    getPartner.mockResolvedValue(partnerFixture());
     const tenant = TestBed.inject(TenantService);
-    tenant.activateTenant(partnerFixture());
-    TestBed.tick();
-    expect(localStorage.getItem('lyftd_active_tenant')).toBe('harbour-city');
+    await TestBed.inject(Router).navigateByUrl('/p/harbour-city?p=harbour-city');
+    await flush();
+    expect(tenant.activeTenant()).toBeNull();
+    expect(getPartner).not.toHaveBeenCalled();
+    expect(localStorage.getItem('lyftd_active_tenant')).toBeNull();
+    expect(document.documentElement.style.getPropertyValue('--primary-brand')).toBe('');
+  });
+
+  it('uses the default design for signed-in users who have not redeemed a code', async () => {
+    getSponsorProfile.mockResolvedValue(null);
+    const tenant = TestBed.inject(TenantService);
+    currentUser.set({uid: 'user-1'});
+    await flush();
+    expect(getSponsorProfile).toHaveBeenCalledWith('user-1');
+    expect(getPartner).not.toHaveBeenCalled();
+    expect(tenant.activeTenant()).toBeNull();
+  });
+
+  it('applies the partner design from a redeemed code', async () => {
+    getSponsorProfile.mockResolvedValue({orgId: 'harbour-city'});
+    getPartner.mockResolvedValue(partnerFixture());
+    const tenant = TestBed.inject(TenantService);
+    currentUser.set({uid: 'user-1'});
+    await flush();
+    expect(getPartner).toHaveBeenCalledWith('harbour-city');
     expect(tenant.activeTenant()?.branding.welcomeHeadline).toBe('Welcome to Harbour City');
     const style = document.documentElement.style;
     expect(style.getPropertyValue('--primary-brand')).toBe('#0369a1');
@@ -37,47 +70,32 @@ describe('TenantService', () => {
     expect(style.getPropertyValue('--hero-text-color')).toBe('#ffffff');
   });
 
-  it('loads query-string and partner-hub tenants on navigation', async () => {
-    const tenant = TestBed.inject(TenantService);
-    const router = TestBed.inject(Router);
-    getPartner.mockImplementation(async (id: string) => partnerFixture(id));
-    await router.navigateByUrl('/?p=first');
-    expect(tenant.activeTenant()?.id).toBe('first');
-    await router.navigateByUrl('/p/second');
-    expect(getPartner).toHaveBeenLastCalledWith('second');
-    expect(tenant.activeTenant()?.id).toBe('second');
-    expect(localStorage.getItem('lyftd_active_tenant')).toBe('second');
-  });
-
-  it('restores the tenant from storage on refresh', async () => {
-    localStorage.setItem('lyftd_active_tenant', 'harbour-city');
+  it('removes the partner design when the user signs out', async () => {
+    getSponsorProfile.mockResolvedValue({orgId: 'harbour-city'});
     getPartner.mockResolvedValue(partnerFixture());
     const tenant = TestBed.inject(TenantService);
-    await Promise.resolve();
-    expect(getPartner).toHaveBeenCalledWith('harbour-city');
-    expect(tenant.activeTenant()?.id).toBe('harbour-city');
+    currentUser.set({uid: 'user-1'});
+    await flush();
+    expect(tenant.activeTenant()).not.toBeNull();
+    currentUser.set(null);
+    await flush();
+    expect(tenant.activeTenant()).toBeNull();
+    expect(document.documentElement.style.getPropertyValue('--primary-brand')).toBe('');
   });
 
-  it('clears branding for an inactive partner', async () => {
+  it('ignores inactive partners', async () => {
+    getSponsorProfile.mockResolvedValue({orgId: 'harbour-city'});
+    getPartner.mockResolvedValue({...partnerFixture(), active: false});
+    const tenant = TestBed.inject(TenantService);
+    currentUser.set({uid: 'user-1'});
+    await flush();
+    expect(tenant.activeTenant()).toBeNull();
+  });
+
+  it('keeps admin previews in memory only', () => {
     const tenant = TestBed.inject(TenantService);
     tenant.activateTenant(partnerFixture());
-    getPartner.mockResolvedValue({...partnerFixture(), active: false});
-    await TestBed.inject(Router).navigateByUrl('/?p=harbour-city');
-    TestBed.tick();
-    expect(tenant.activeTenant()).toBeNull();
-    expect(localStorage.getItem('lyftd_active_tenant')).toBeNull();
-    expect(document.documentElement.style.getPropertyValue('--primary-brand')).toBe('#4f46e5');
-  });
-
-  it('ignores pending loads after the tenant is cleared', async () => {
-    let resolve!: (partner: ReturnType<typeof partnerFixture>) => void;
-    getPartner.mockReturnValue(new Promise(result => { resolve = result; }));
-    const tenant = TestBed.inject(TenantService);
-    await TestBed.inject(Router).navigateByUrl('/?p=harbour-city');
-    tenant.clearTenant();
-    resolve(partnerFixture());
-    await Promise.resolve();
-    expect(tenant.activeTenant()).toBeNull();
+    expect(tenant.activeTenant()?.id).toBe('harbour-city');
     expect(localStorage.getItem('lyftd_active_tenant')).toBeNull();
   });
 });
