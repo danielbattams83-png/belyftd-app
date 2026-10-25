@@ -69,17 +69,7 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
           </button>
         </div>
 
-        <section aria-labelledby="redemption-code-label" class="card flex flex-col gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-100">
-          <label id="redemption-code-label" for="auth-redemption-code" class="text-center font-display text-xl font-bold uppercase tracking-wide">Redemption Code</label>
-          <p id="redemption-help" class="text-center text-sm leading-relaxed">Enter and check your community code to unlock sign-in or registration.</p>
-          <form (submit)="$event.preventDefault(); checkRedemptionCode()" class="flex items-center gap-2 rounded-xl border border-emerald-300 bg-white p-2 shadow-sm dark:border-emerald-700 dark:bg-slate-900">
-            <input id="auth-redemption-code" name="redemptionCode" type="text" [value]="redemptionCode()" (input)="updateRedemptionCode($event)" [disabled]="isCheckingCode() || isSubmitting()" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="redemption-help redemption-status" [attr.aria-invalid]="codeError()" placeholder="Partner code" class="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-2 text-center font-display text-2xl font-bold uppercase tracking-wide text-emerald-700 placeholder:text-slate-400 focus-accessible dark:text-emerald-300" />
-            <button type="submit" [disabled]="!redemptionCode().trim() || isCheckingCode() || isSubmitting()" class="shrink-0 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-bold uppercase text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 focus-accessible">{{ isCheckingCode() ? 'Checking…' : codeVerified() ? 'Checked' : 'Check' }}</button>
-          </form>
-          <p id="redemption-status" role="status" aria-live="polite" class="text-center text-sm font-semibold" [class.text-rose-700]="codeError()" [class.dark:text-rose-300]="codeError()">{{ codeMessage() }}</p>
-        </section>
-
-        <fieldset [disabled]="!codeVerified() || isSubmitting()" [attr.inert]="!codeVerified() || isSubmitting() ? '' : null" [attr.aria-busy]="isSubmitting()" [class.opacity-40]="!codeVerified()" class="m-0 flex min-w-0 flex-col gap-5 border-0 p-0 transition-opacity">
+        <fieldset [disabled]="isSubmitting()" [attr.aria-busy]="isSubmitting()" class="m-0 flex min-w-0 flex-col gap-5 border-0 p-0">
         <legend class="sr-only">{{ isLoginMode() ? 'Sign-in details' : 'Registration details' }}</legend>
         <button
           id="google-auth-btn"
@@ -365,56 +355,8 @@ export class RegisterModalComponent {
   readonly isLoginMode = signal<boolean>(true);
   readonly statusMessage = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
-  readonly redemptionCode = signal('');
-  private readonly verifiedCode = signal('');
-  readonly codeVerified = computed(() => !!this.verifiedCode() && this.verifiedCode() === this.redemptionCode().trim().toUpperCase());
-  readonly isCheckingCode = signal(false);
-  readonly codeError = signal(false);
-  readonly codeMessage = signal('Check your code before continuing.');
   readonly showLoginPassword = signal(false);
   readonly showRegistrationPassword = signal(false);
-
-  updateRedemptionCode(event: Event): void {
-    this.redemptionCode.set((event.target as HTMLInputElement).value);
-    this.verifiedCode.set('');
-    this.codeError.set(false);
-    this.codeMessage.set('Check your code before continuing.');
-    this.showLoginPassword.set(false);
-    this.showRegistrationPassword.set(false);
-    this.isCountryDropdownOpen.set(false);
-    this.statusMessage.set(null);
-  }
-
-  async checkRedemptionCode(): Promise<void> {
-    if (this.isCheckingCode() || this.isSubmitting()) return;
-    const code = this.redemptionCode().trim().toUpperCase();
-    this.verifiedCode.set('');
-    this.codeError.set(false);
-    if (!/^[A-Z0-9]{6,32}$/.test(code)) {
-      this.codeError.set(true);
-      this.codeMessage.set('Enter a valid community code (6–32 letters or numbers).');
-      return;
-    }
-    this.isCheckingCode.set(true);
-    this.codeMessage.set('Checking your redemption code…');
-    try {
-      const valid = await this.firebaseService.checkSponsorCode(code);
-      if (code !== this.redemptionCode().trim().toUpperCase()) return;
-      if (!valid) throw new Error('Invalid code');
-      this.verifiedCode.set(code);
-      this.codeMessage.set('Code verified. You can now sign in or register.');
-    } catch {
-      this.codeError.set(true);
-      this.codeMessage.set('We could not verify that code. Check it and try again, or contact your community leader.');
-    } finally {
-      this.isCheckingCode.set(false);
-    }
-  }
-
-  private async completeSponsorAccess(): Promise<void> {
-    await this.firebaseService.redeemSponsorCode(this.verifiedCode());
-    this.closeModal.emit();
-  }
 
   readonly loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -480,7 +422,7 @@ export class RegisterModalComponent {
   }
 
   async handleLogin(): Promise<void> {
-    if (!this.codeVerified() || this.isSubmitting()) return;
+    if (this.isSubmitting()) return;
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -493,31 +435,31 @@ export class RegisterModalComponent {
       const password = this.loginForm.value.password || '';
       const result = await this.firebaseService.signInUser(email, password);
       this.statusMessage.set(result.message);
-      if (result.success) await this.completeSponsorAccess();
+      if (result.success) this.closeModal.emit();
     } catch {
-      this.statusMessage.set('Sign-in or code redemption could not be completed. Please try signing in again.');
+      this.statusMessage.set('Sign-in could not be completed. Please try again.');
     } finally {
       this.isSubmitting.set(false);
     }
   }
 
   async handleGoogleLogin(): Promise<void> {
-    if (!this.codeVerified() || this.isSubmitting()) return;
+    if (this.isSubmitting()) return;
     this.isSubmitting.set(true);
     this.statusMessage.set('Connecting to Google...');
     try {
       const result = await this.firebaseService.loginWithGoogle();
       this.statusMessage.set(result.message);
-      if (result.success) await this.completeSponsorAccess();
+      if (result.success) this.closeModal.emit();
     } catch {
-      this.statusMessage.set('Google sign-in or code redemption could not be completed. Please try again.');
+      this.statusMessage.set('Google sign-in could not be completed. Please try again.');
     } finally {
       this.isSubmitting.set(false);
     }
   }
 
   async handleRegister(): Promise<void> {
-    if (!this.codeVerified() || this.isSubmitting()) return;
+    if (this.isSubmitting()) return;
     if (this.regForm.invalid) {
       this.regForm.markAllAsTouched();
       return;
@@ -525,7 +467,6 @@ export class RegisterModalComponent {
 
     this.isSubmitting.set(true);
     this.statusMessage.set('Saving your profile...');
-    let accountCreated = false;
     try {
       const val = this.regForm.value;
       const fullName = val.displayName?.trim() || 'Youth Leader';
@@ -547,20 +488,14 @@ export class RegisterModalComponent {
       });
       this.statusMessage.set(result.message || 'Registration complete! Welcome to Lyftd.');
       if (!result.success) return;
-      accountCreated = true;
 
       // Update in-memory user profile in mentorship data service
       this.dataService.userProfile.update(p => ({
         ...p, name: fullName, email, phone: `${countryCode} ${phone}`, country
       }));
-      await this.completeSponsorAccess();
+      this.closeModal.emit();
     } catch {
-      if (accountCreated) {
-        this.setLoginMode(true);
-        this.statusMessage.set('Your account was created, but code redemption could not finish. Sign in to retry.');
-      } else {
-        this.statusMessage.set('Registration could not be completed. Please try again.');
-      }
+      this.statusMessage.set('Registration could not be completed. Please try again.');
     } finally {
       this.isSubmitting.set(false);
     }

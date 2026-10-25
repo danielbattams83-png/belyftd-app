@@ -8,19 +8,40 @@ initializeApp();
 
 const db = getFirestore();
 
+async function findInviteCode(code) {
+  const snapshot = await db.collection('inviteCodes').doc(code).get();
+  return snapshot.exists ? snapshot.data() : null;
+}
+
+// Codes managed in the Sponsor Admin are stored on partners/{id}.redemptionCodes.
+async function findPartnerRedemptionCode(code) {
+  const snapshot = await db.collection('partners')
+    .where('redemptionCodes', 'array-contains', code)
+    .limit(1)
+    .get();
+  if (snapshot.empty) return null;
+  const partnerDoc = snapshot.docs[0];
+  const partner = partnerDoc.data();
+  return {
+    active: partner.active,
+    subscriptionTier: partner.subscriptionTier,
+    orgId: partnerDoc.id,
+    sponsorName: partner.organizationName,
+  };
+}
+
 async function getValidSponsorInvite(value) {
   const code = typeof value === 'string'
     ? value.trim().toUpperCase()
     : '';
-  if (!/^[A-Z0-9]{6,32}$/.test(code)) {
+  if (!/^[A-Z0-9-]{6,32}$/.test(code)) {
     throw new HttpsError('invalid-argument', 'Enter a valid sponsor code.');
   }
 
-  const codeSnapshot = await db.collection('inviteCodes').doc(code).get();
-  if (!codeSnapshot.exists) {
+  const invite = await findInviteCode(code) ?? await findPartnerRedemptionCode(code);
+  if (!invite) {
     throw new HttpsError('not-found', 'This sponsor code is not recognized.');
   }
-  const invite = codeSnapshot.data();
   if (
     invite.active !== true ||
     ![1, 2, 3, 4].includes(invite.subscriptionTier) ||
