@@ -29,3 +29,23 @@ input { min-width: 0; flex: 1; background: #242424; color: #fff; border: 1px sol
 .checkout-dialog p { margin: 16px 0; }
 
 .auth-overlay { position: fixed; inset: 0; z-index: 140; }
+
+:host-context(app-partner-with-us) {
+  #partner-plans { display: flex; flex-direction: column; justify-content: flex-start; gap: 0; height: 1750px; min-height: max-content; padding-top: 0; }
+  #partner-plans > .pricing-grid { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; height: 1600px; flex-shrink: 0; padding-bottom: 5px; }
+  #partner-tier-2, #partner-tier-3, #partner-tier-4 { width: 500px; max-width: 100%; }
+  #partner-tier-4 { justify-content: center; margin-bottom: 20px; }
+  #partner-tier-1 > h2, #partner-tier-2 > h2, #partner-tier-3 > h2, #partner-tier-4 > h2 { font-size: 30px; }
+  #partner-tier-1 > .price, #partner-tier-2 > .price, #partner-tier-3 > .price, #partner-tier-4 > .price { margin-top: 0; }
+  #partner-tier-4 > .price { font-size: 36px; }
+  #partner-tier-3 > .tier, #partner-tier-4 > .tier { margin-top: 5px; }
+  #partner-tier-4 > h2 { margin-top: 10px; margin-bottom: 0; }
+  #partner-tier-4 > ul > li:nth-of-type(4) { margin-bottom: 0; }
+  #partner-tier-1 > button, #partner-tier-2 > button, #partner-tier-3 > button, #partner-tier-4 > button { display: flex; flex-direction: column; align-items: stretch; justify-content: center; width: 450px; max-width: 100%; }
+  #partner-tier-4 > button { justify-content: space-evenly; margin-left: 20px; margin-right: 20px; }
+  @media (max-width: 600px) {
+    #partner-plans { height: auto; }
+    #partner-plans > .pricing-grid { height: auto; min-height: 1600px; }
+    #partner-tier-4 > button { max-width: calc(100% - 40px); }
+  }
+}

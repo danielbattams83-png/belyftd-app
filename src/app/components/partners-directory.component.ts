@@ -49,6 +49,9 @@ import {SubscriptionTier} from '../models/tier.model';
     .partner { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; border: 1px solid #777; border-radius: 10px; background: #333; color: white; text-align: center; }
     img { height: 64px; max-width: 100%; object-fit: contain; } .enterprise img { height: 112px; } .enterprise .partner { border-color: #1a9bef; min-height: 220px; }
     a { color: #78caff; text-decoration: underline; } a:focus-visible { outline: 3px solid #1a9bef; outline-offset: 4px; } .invitation { margin-top: 24px; }
+    :host-context(app-partner-with-us) > section { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; margin-top: 20px; gap: 0; }
+    :host-context(app-partner-with-us) #our-partners-title { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 4px; }
+    :host-context(app-partner-with-us) .partner.invitation { justify-content: center; align-items: stretch; gap: 11px; margin-top: 11px; padding-top: 0; width: 500px; max-width: 100%; }
   `,
 })
 export class PartnersDirectoryComponent {

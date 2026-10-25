@@ -17,6 +17,12 @@
   .header-signin-short { display: inline; }
 }
 
+:host > div.min-h-screen:has(main > app-partner-with-us) { justify-content: space-between; }
+main:has(> app-partner-with-us) { align-items: stretch; justify-content: space-between; gap: 0; height: 2600px; min-height: max-content; }
+@media (max-width: 600px) {
+  main:has(> app-partner-with-us) { height: auto; min-height: 2600px; }
+}
+
 /* Courses: keep summary widgets below the title, with intrinsic card heights. */
 .courses-page-header {
   display: flex;
