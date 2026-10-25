@@ -192,6 +192,15 @@ export class FirebaseService {
     return this.authStateReady;
   }
 
+  async checkSponsorCode(code: string): Promise<boolean> {
+    if (!this.app) throw new Error('Code verification is temporarily unavailable.');
+    const check = httpsCallable<{code: string}, {valid: boolean}>(
+      getFunctions(this.app, 'us-central1'), 'checkSponsorCode'
+    );
+    const result = await check({code: code.trim().toUpperCase()});
+    return result.data.valid === true;
+  }
+
   async redeemSponsorCode(code: string): Promise<SponsorProfileDocument> {
     const user = this.currentUser();
     if (!user) throw new Error('Sign in before redeeming a sponsor code.');

@@ -8,13 +8,9 @@ initializeApp();
 
 const db = getFirestore();
 
-exports.redeemSponsorCode = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'Sign in before redeeming a sponsor code.');
-  }
-
-  const code = typeof request.data?.code === 'string'
-    ? request.data.code.trim().toUpperCase()
+async function getValidSponsorInvite(value) {
+  const code = typeof value === 'string'
+    ? value.trim().toUpperCase()
     : '';
   if (!/^[A-Z0-9]{6,32}$/.test(code)) {
     throw new HttpsError('invalid-argument', 'Enter a valid sponsor code.');
@@ -34,6 +30,19 @@ exports.redeemSponsorCode = onCall(async (request) => {
     throw new HttpsError('failed-precondition', 'This sponsor code is not currently available.');
   }
 
+  return {code, invite};
+}
+
+exports.checkSponsorCode = onCall({maxInstances: 5}, async (request) => {
+  await getValidSponsorInvite(request.data?.code);
+  return {valid: true};
+});
+
+exports.redeemSponsorCode = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Sign in before redeeming a sponsor code.');
+  }
+  const {code, invite} = await getValidSponsorInvite(request.data?.code);
   const auth = getAuth();
   const user = await auth.getUser(request.auth.uid);
   await auth.setCustomUserClaims(request.auth.uid, {

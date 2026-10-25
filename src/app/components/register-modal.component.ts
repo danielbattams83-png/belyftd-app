@@ -50,10 +50,10 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
             </div>
             <div>
               <h2 class="text-xl font-bold font-display text-slate-900 dark:text-slate-100">
-                {{ isLoginMode() ? 'Welcome back' : 'Youth Leader Onboarding' }}
+                {{ isLoginMode() ? 'Welcome, Sign In' : 'Welcome, Register Your Details' }}
               </h2>
               <p class="text-xs text-slate-500 dark:text-slate-400">
-                {{ isLoginMode() ? 'Sign in to sync your Lyftd profile and progress' : 'Register profile to personalize daily mentorship & sync course progress' }}
+                {{ isLoginMode() ? 'Sign in to sync your profile and progress' : 'Register to sync your profile and progress' }}
               </p>
             </div>
           </div>
@@ -69,23 +69,18 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
           </button>
         </div>
 
-        <!-- Connection Status Banner -->
-        <div class="p-3 rounded-2xl flex items-center justify-between text-xs border"
-          [class]="firebaseService.isConnected() 
-            ? 'bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-300' 
-            : 'bg-amber-50/60 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300'"
-        >
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full animate-pulse" [class]="firebaseService.isConnected() ? 'bg-emerald-500' : 'bg-amber-500'"></span>
-            <span class="font-semibold">
-              {{ firebaseService.isConnected() ? 'Firebase Web SDK v10+ Live' : 'LocalStorage Offline Fallback Ready' }}
-            </span>
-          </div>
-          <span class="text-[11px] opacity-80">
-            {{ firebaseService.isConnected() ? 'Firestore Cloud Sync' : 'Local Persistence' }}
-          </span>
-        </div>
+        <section aria-labelledby="redemption-code-label" class="flex flex-col gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-100">
+          <label id="redemption-code-label" for="auth-redemption-code" class="text-center font-display text-xl font-bold uppercase tracking-wide">Redemption Code</label>
+          <p id="redemption-help" class="text-center text-sm leading-relaxed">Enter and check your community code to unlock sign-in or registration.</p>
+          <form (submit)="$event.preventDefault(); checkRedemptionCode()" class="flex items-center gap-2 rounded-xl border border-emerald-300 bg-white p-2 shadow-sm dark:border-emerald-700 dark:bg-slate-900">
+            <input id="auth-redemption-code" name="redemptionCode" type="text" [value]="redemptionCode()" (input)="updateRedemptionCode($event)" [disabled]="isCheckingCode() || isSubmitting()" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="redemption-help redemption-status" [attr.aria-invalid]="codeError()" placeholder="Enter your code" class="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-2 text-center font-display text-2xl font-bold uppercase tracking-wide text-emerald-700 placeholder:text-slate-400 focus-accessible dark:text-emerald-300" />
+            <button type="submit" [disabled]="!redemptionCode().trim() || isCheckingCode() || isSubmitting()" class="shrink-0 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-bold uppercase text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 focus-accessible">{{ isCheckingCode() ? 'Checking…' : codeVerified() ? 'Checked' : 'Check' }}</button>
+          </form>
+          <p id="redemption-status" role="status" aria-live="polite" class="text-center text-sm font-semibold" [class.text-rose-700]="codeError()" [class.dark:text-rose-300]="codeError()">{{ codeMessage() }}</p>
+        </section>
 
+        <fieldset [disabled]="!codeVerified() || isSubmitting()" [attr.inert]="!codeVerified() || isSubmitting() ? '' : null" [attr.aria-busy]="isSubmitting()" [class.opacity-40]="!codeVerified()" class="m-0 flex min-w-0 flex-col gap-5 border-0 p-0 transition-opacity">
+        <legend class="sr-only">{{ isLoginMode() ? 'Sign-in details' : 'Registration details' }}</legend>
         <button
           id="google-auth-btn"
           type="button"
@@ -112,13 +107,16 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
             </div>
             <div class="space-y-1">
               <label for="login-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300">Password</label>
-              <input
-                id="login-password"
-                type="password"
-                formControlName="password"
-                autocomplete="current-password"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 transition focus-accessible"
-              />
+              <div class="relative">
+                <input
+                  id="login-password"
+                  [type]="showLoginPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  autocomplete="current-password"
+                  class="w-full pl-3.5 pr-12 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 transition focus-accessible"
+                />
+                <button type="button" (click)="showLoginPassword.set(!showLoginPassword())" [attr.aria-label]="showLoginPassword() ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showLoginPassword()" aria-controls="login-password" class="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-slate-500 focus-accessible dark:text-slate-400"><mat-icon aria-hidden="true">{{ showLoginPassword() ? 'visibility_off' : 'visibility' }}</mat-icon></button>
+              </div>
             </div>
             @if (statusMessage()) {
               <p role="status" class="text-xs font-medium text-indigo-700 dark:text-indigo-300">{{ statusMessage() }}</p>
@@ -201,6 +199,7 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
                 <option value="Under 18">Under 18</option>
                 <option value="18-24">18-24</option>
                 <option value="25-34">25-34</option>
+                <option value="35+">35+</option>
               </select>
             </div>
           </div>
@@ -298,11 +297,13 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
               </span>
               <input
                 id="reg-password"
-                type="password"
+                [type]="showRegistrationPassword() ? 'text' : 'password'"
                 formControlName="password"
+                autocomplete="new-password"
                 placeholder="••••••••"
-                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 transition focus-accessible"
+                class="w-full pl-10 pr-12 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 transition focus-accessible"
               />
+              <button type="button" (click)="showRegistrationPassword.set(!showRegistrationPassword())" [attr.aria-label]="showRegistrationPassword() ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showRegistrationPassword()" aria-controls="reg-password" class="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-slate-500 focus-accessible dark:text-slate-400"><mat-icon aria-hidden="true">{{ showRegistrationPassword() ? 'visibility_off' : 'visibility' }}</mat-icon></button>
             </div>
           </div>
 
@@ -317,15 +318,6 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
           <!-- Actions -->
           <div class="pt-2 flex items-center gap-3">
             <button
-              id="btn-fill-demo-user"
-              type="button"
-              (click)="fillDemoData()"
-              class="px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400 transition cursor-pointer focus-accessible"
-            >
-              Demo Fill
-            </button>
-
-            <button
               id="btn-submit-registration"
               type="submit"
               [disabled]="regForm.invalid || isSubmitting()"
@@ -336,7 +328,7 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
                 <span>Saving Profile...</span>
               } @else {
                 <mat-icon class="text-base">how_to_reg</mat-icon>
-                <span>Complete Registration & Enter</span>
+                <span>Complete Registration</span>
               }
             </button>
           </div>
@@ -345,6 +337,7 @@ const TIME_ZONE_COUNTRY_CODES: Record<string, string> = {
           Already have an account? Sign in
         </button>
         }
+        </fieldset>
 
       </div>
     </div>
@@ -372,6 +365,56 @@ export class RegisterModalComponent {
   readonly isLoginMode = signal<boolean>(true);
   readonly statusMessage = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
+  readonly redemptionCode = signal('');
+  private readonly verifiedCode = signal('');
+  readonly codeVerified = computed(() => !!this.verifiedCode() && this.verifiedCode() === this.redemptionCode().trim().toUpperCase());
+  readonly isCheckingCode = signal(false);
+  readonly codeError = signal(false);
+  readonly codeMessage = signal('Check your code before continuing.');
+  readonly showLoginPassword = signal(false);
+  readonly showRegistrationPassword = signal(false);
+
+  updateRedemptionCode(event: Event): void {
+    this.redemptionCode.set((event.target as HTMLInputElement).value);
+    this.verifiedCode.set('');
+    this.codeError.set(false);
+    this.codeMessage.set('Check your code before continuing.');
+    this.showLoginPassword.set(false);
+    this.showRegistrationPassword.set(false);
+    this.isCountryDropdownOpen.set(false);
+    this.statusMessage.set(null);
+  }
+
+  async checkRedemptionCode(): Promise<void> {
+    if (this.isCheckingCode() || this.isSubmitting()) return;
+    const code = this.redemptionCode().trim().toUpperCase();
+    this.verifiedCode.set('');
+    this.codeError.set(false);
+    if (!/^[A-Z0-9]{6,32}$/.test(code)) {
+      this.codeError.set(true);
+      this.codeMessage.set('Enter a valid community code (6–32 letters or numbers).');
+      return;
+    }
+    this.isCheckingCode.set(true);
+    this.codeMessage.set('Checking your redemption code…');
+    try {
+      const valid = await this.firebaseService.checkSponsorCode(code);
+      if (code !== this.redemptionCode().trim().toUpperCase()) return;
+      if (!valid) throw new Error('Invalid code');
+      this.verifiedCode.set(code);
+      this.codeMessage.set('Code verified. You can now sign in or register.');
+    } catch {
+      this.codeError.set(true);
+      this.codeMessage.set('We could not verify that code. Check it and try again, or contact your community leader.');
+    } finally {
+      this.isCheckingCode.set(false);
+    }
+  }
+
+  private async completeSponsorAccess(): Promise<void> {
+    await this.firebaseService.redeemSponsorCode(this.verifiedCode());
+    this.closeModal.emit();
+  }
 
   readonly loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -431,25 +474,13 @@ export class RegisterModalComponent {
     this.isCountryDropdownOpen.set(false);
   }
 
-  fillDemoData(): void {
-    this.regForm.patchValue({
-      displayName: 'Alex Carter',
-      email: 'alex.carter@belyftd.org',
-      ageBracket: '25-34',
-      phoneNumber: '(555) 876-5432',
-      countryCode: '+1',
-      password: 'BeLyftdLeader2026!'
-    });
-    const unitedStates = this.countries.find(country => country.code === 'US');
-    if (unitedStates) this.selectCountry(unitedStates);
-  }
-
   setLoginMode(loginMode: boolean): void {
     this.isLoginMode.set(loginMode);
     this.statusMessage.set(null);
   }
 
   async handleLogin(): Promise<void> {
+    if (!this.codeVerified() || this.isSubmitting()) return;
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -457,73 +488,81 @@ export class RegisterModalComponent {
 
     this.isSubmitting.set(true);
     this.statusMessage.set('Signing in...');
-    const email = this.loginForm.value.email?.trim() || '';
-    const password = this.loginForm.value.password || '';
-    const result = await this.firebaseService.signInUser(email, password);
-    this.isSubmitting.set(false);
-    this.statusMessage.set(result.message);
-
-    if (result.success) {
-      this.closeModal.emit();
+    try {
+      const email = this.loginForm.value.email?.trim() || '';
+      const password = this.loginForm.value.password || '';
+      const result = await this.firebaseService.signInUser(email, password);
+      this.statusMessage.set(result.message);
+      if (result.success) await this.completeSponsorAccess();
+    } catch {
+      this.statusMessage.set('Sign-in or code redemption could not be completed. Please try signing in again.');
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
 
   async handleGoogleLogin(): Promise<void> {
+    if (!this.codeVerified() || this.isSubmitting()) return;
     this.isSubmitting.set(true);
     this.statusMessage.set('Connecting to Google...');
     try {
       const result = await this.firebaseService.loginWithGoogle();
       this.statusMessage.set(result.message);
-      if (result.success) this.closeModal.emit();
+      if (result.success) await this.completeSponsorAccess();
+    } catch {
+      this.statusMessage.set('Google sign-in or code redemption could not be completed. Please try again.');
     } finally {
       this.isSubmitting.set(false);
     }
   }
 
   async handleRegister(): Promise<void> {
+    if (!this.codeVerified() || this.isSubmitting()) return;
     if (this.regForm.invalid) {
       this.regForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting.set(true);
-    this.statusMessage.set('Saving profile and synchronizing progress...');
+    this.statusMessage.set('Saving your profile...');
+    let accountCreated = false;
+    try {
+      const val = this.regForm.value;
+      const fullName = val.displayName?.trim() || 'Youth Leader';
+      const email = val.email?.trim() || '';
+      const phone = val.phoneNumber?.trim() || '';
+      const country = this.selectedCountryName();
+      const countryCode = val.countryCode || '+1';
+      const result = await this.firebaseService.registerUser({
+        partnerId: this.tenantService.activeTenant()?.id,
+        fullName,
+        email,
+        phoneNumber: phone,
+        country,
+        countryCode,
+        ageBracket: val.ageBracket || undefined,
+        streak: 1,
+        createdDate: new Date(),
+        password: val.password || ''
+      });
+      this.statusMessage.set(result.message || 'Registration complete! Welcome to Lyftd.');
+      if (!result.success) return;
+      accountCreated = true;
 
-    const val = this.regForm.value;
-    const fullName = val.displayName?.trim() || 'Youth Leader';
-    const email = val.email?.trim() || '';
-    const phone = val.phoneNumber?.trim() || '';
-    const country = this.selectedCountryName();
-    const countryCode = val.countryCode || '+1';
-    const password = val.password || 'Leader2026!';
-
-  const result = await this.firebaseService.registerUser({
-  partnerId: this.tenantService.activeTenant()?.id,
-  fullName,
-      email,
-      phoneNumber: phone,
-      country,
-      countryCode,
-      ageBracket: val.ageBracket || undefined,
-      streak: 1,
-      createdDate: new Date(),
-      password
-    });
-
-    // Update in-memory user profile in mentorship data service
-    this.dataService.userProfile.update(p => ({
-      ...p,
-      name: fullName,
-      email,
-      phone: `${countryCode} ${phone}`,
-      country
-    }));
-
-    this.isSubmitting.set(false);
-    this.statusMessage.set(result.message || 'Registration complete! Welcome to Lyftd.');
-
-    if (result.success) {
-      setTimeout(() => this.closeModal.emit(), 1000);
+      // Update in-memory user profile in mentorship data service
+      this.dataService.userProfile.update(p => ({
+        ...p, name: fullName, email, phone: `${countryCode} ${phone}`, country
+      }));
+      await this.completeSponsorAccess();
+    } catch {
+      if (accountCreated) {
+        this.setLoginMode(true);
+        this.statusMessage.set('Your account was created, but code redemption could not finish. Sign in to retry.');
+      } else {
+        this.statusMessage.set('Registration could not be completed. Please try again.');
+      }
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
 }
