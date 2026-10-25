@@ -1,4 +1,26 @@
 
+:host { display: block; width: 100%; min-width: 0; }
+.app-shell, .app-main { width: 100%; min-width: 0; }
+.app-main { padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px)); }
+.home-hero { min-height: 350px; overflow-wrap: anywhere; }
+.partner-experience { background-color: var(--surface-card); }
+.partner-experience .home-hero { background: var(--hero-background); border-color: var(--primary-brand); color: var(--hero-text-color); }
+.partner-experience .home-hero h2, .partner-experience .home-hero p { color: inherit; }
+.partner-experience .hero-badge { background: var(--accent-highlight); border-color: var(--accent-highlight); color: var(--hero-background); }
+.partner-experience #quick-record-voice-btn { background: var(--primary-brand); color: var(--hero-text-color); border-color: var(--primary-brand); }
+.partner-experience .app-header-brand { overflow-wrap: anywhere; }
+.partner-experience .app-header-logo { display: block; max-width: 100%; min-width: 0; object-fit: contain; }
+.mentor-grid, .mentor-grid > article { width: 100%; min-width: 0; overflow-wrap: anywhere; }
+.mentor-grid img { flex-shrink: 0; }
+#mobile-bottom-dock { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.mobile-dock-items { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.mobile-dock-items button { min-width: 0; min-height: 44px; padding-inline: 2px; }
+@media (max-width: 767px) {
+  .app-header-actions { flex-wrap: wrap; justify-content: flex-end; max-width: calc(100% - 64px); }
+  .app-header-actions > button { flex-shrink: 0; }
+  .mentor-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Keep the brand legible; switch to the existing app symbol before squeezing it. */
 .app-header-layout { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .app-header-brand { container-type: inline-size; display: block; flex: 1 1 48px; min-width: 48px; max-width: 160px; }

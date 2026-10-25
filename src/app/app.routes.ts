@@ -14,6 +14,7 @@ export const routes: Routes = [
   {path: 'coach-spark', pathMatch: 'full', children: []},
   {path: 'community', pathMatch: 'full', children: []},
   {path: 'partners', pathMatch: 'full', children: []},
+  {path: 'p/:slug', children: []},
   {path: 'profile', pathMatch: 'full', children: []},
   {path: 'settings', pathMatch: 'full', children: []},
   {path: 'privacy', component: LegalPageComponent, data: {page: 'privacy'}},

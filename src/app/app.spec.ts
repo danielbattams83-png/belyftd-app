@@ -1,6 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {Router, provideRouter} from '@angular/router';
 import {App} from './app';
+import type {User} from 'firebase/auth';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -26,6 +27,16 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
+  });
+
+  it('keeps the homepage visible after the admin portal creates a guest session', () => {
+    const app = TestBed.createComponent(App).componentInstance;
+    app.firebaseService.currentUser.set({uid: 'guest-admin', isAnonymous: true} as User);
+    app.firebaseService.authLoading.set(false);
+    app.showPostAuthOnboarding.set(true);
+    TestBed.tick();
+    expect(app.showPostAuthOnboarding()).toBe(false);
+    expect(app.showFeatureWalkthrough()).toBe(false);
   });
   it('keeps verified mentor recordings visible before the signed-in catalog loads', () => {
     const app = TestBed.createComponent(App).componentInstance;

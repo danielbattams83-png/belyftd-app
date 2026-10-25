@@ -1,5 +1,5 @@
-:host { display: block; min-width: 0; }
-.module-list { display: grid; gap: 1rem; }
+:host { display: block; width: 100%; min-width: 0; }
+.module-list { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; gap: 1rem; }
 .module-accordion { min-width: 0; border: 1px solid #6b7280; border-radius: 16px; overflow: hidden; }
 summary { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; padding: 1.25rem; cursor: pointer; list-style: none; background: #333; color: white; }
 summary::-webkit-details-marker { display: none; }
@@ -17,4 +17,4 @@ button { display: inline-flex; align-items: center; justify-content: center; gap
 .complete-button { background: transparent; color: inherit; border: 1px solid #6b7280; }
 button:focus-visible, summary:focus-visible { outline: 3px solid #1a9bef; outline-offset: -3px; }
 .catalog-note { font-size: 12px; }
-@media (max-width: 600px) { .unit-actions { width: 100%; } .unit-actions button { flex: 1; } }
+@media (max-width: 767px) { .unit-list { padding: .75rem; } .unit-actions { width: 100%; } .unit-actions button { flex: 1 1 100%; } }

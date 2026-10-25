@@ -12,17 +12,7 @@
       </article>
     }
   </div>
-  <p role="status">{{ checkoutMessage() }}</p>
-  <form class="redemption" (ngSubmit)="redeem()">
-    <label for="partner-redemption-code">Have a Partner Redemption Code? Enter here</label>
-    <div class="code-row">
-      <input id="partner-redemption-code" name="partnerCode" [(ngModel)]="code" placeholder="Enter partner code" autocomplete="off" autocapitalize="characters" required [disabled]="submitting()" />
-      <button type="submit" [disabled]="!code.trim() || submitting()">{{ submitting() ? 'Verifying...' : 'Redeem code' }}</button>
-    </div>
-    <p role="status">{{ redemptionMessage() }}</p>
-  </form>
 </section>
-@if (showAuth()) { <div class="auth-overlay"><app-register-modal (closeModal)="showAuth.set(false)" /></div> }
 
 @if (checkoutPlan(); as plan) {
   <div class="checkout-overlay">
@@ -31,7 +21,6 @@
       <p>{{ plan.price | currency:'USD':'symbol':'1.2-2' }} USD per month</p>
       <p class="checkout-access">Includes all units in Modules 1-{{ plan.moduleAccess }}{{ plan.tier >= 3 ? ' and supplemental reading' : '' }}.</p>
       <p>Secure checkout is coming soon. This demo does not collect payment or activate a subscription.</p>
-      <p>Have a sponsor code? Close this window and redeem it below the plans.</p>
       <button type="button" (click)="checkoutPlan.set(null)">Back to plans</button>
     </section>
   </div>

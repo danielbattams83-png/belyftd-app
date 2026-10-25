@@ -199,7 +199,7 @@ export class App {
         quests: 'quests', 'coach-spark': 'coach-spark', community: 'community', partners: 'partners',
       };
       this.isAdminPortal.set(path === 'admin/sponsors');
-      this.isDashboard.set(path === '' || path === 'dashboard');
+      this.isDashboard.set(path === '' || path === 'dashboard' || path.startsWith('p/'));
       this.activeTab.set(tabs[path] ?? 'daily-lyft');
       this.showProfileModal.set(path === 'profile' || path === 'settings');
     };
@@ -245,7 +245,7 @@ export class App {
       const profile = this.firebaseService.userProfile();
       const registerModalOpen = this.showRegisterModal();
       if (typeof window === 'undefined' || authLoading || !this.hasResolvedInitialAuth()) return;
-      if (!currentUser) {
+      if (!currentUser || currentUser.isAnonymous) {
         this.showPostAuthOnboarding.set(false);
         this.showFeatureWalkthrough.set(false);
         this.showStreakModal.set(false);

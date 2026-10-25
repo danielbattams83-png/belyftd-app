@@ -1,7 +1,8 @@
-import {CommonModule} from '@angular/common';
 import {ChangeDetectionStrategy, Component, OnInit, computed, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {Router} from '@angular/router';
 import {FirebaseService} from '../../../services/firebase.service';
+import {TenantService} from '../../../services/tenant.service';
 import {Tier4PartnerDocument} from '../../../models/firestore.models';
 import {ColorTheme, THEME_PRESETS} from '../../../models/theme-presets';
 
@@ -9,6 +10,7 @@ const BLANK_PARTNER: Tier4PartnerDocument = {
   id: '',
   organizationName: '',
   contactEmail: '',
+  websiteUrl: '',
   subscriptionTier: 4,
   active: true,
   branding: {
@@ -29,13 +31,15 @@ const BLANK_PARTNER: Tier4PartnerDocument = {
 @Component({
   selector: 'app-sponsor-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sponsor-admin.component.html',
   styleUrl: './sponsor-admin.component.css',
 })
 export class SponsorAdminComponent implements OnInit {
   private readonly firebase = inject(FirebaseService);
+  private readonly router = inject(Router);
+  private readonly tenant = inject(TenantService);
   readonly partner = signal<Tier4PartnerDocument>(this.clone(BLANK_PARTNER));
   readonly partners = signal<Tier4PartnerDocument[]>([]);
   readonly selectedPartnerId = signal('');
@@ -176,24 +180,48 @@ export class SponsorAdminComponent implements OnInit {
     this.status.set('Unsaved edits discarded. Showing the last saved Firestore version.');
   }
 
-  async saveChanges(): Promise<void> {
+  async saveChanges(): Promise<boolean> {
+    if (this.saving()) return false;
     const id = this.partner().id.trim().toLowerCase();
     if (!id) {
       this.status.set('Add a slug / URL key before saving.');
-      return;
+      return false;
+    }
+    const websiteUrl = this.partner().websiteUrl?.trim() || '';
+    if (websiteUrl) {
+      try {
+        const website = new URL(websiteUrl);
+        if (!['https:', 'http:'].includes(website.protocol)) throw new Error('Invalid protocol');
+      } catch {
+        this.status.set('Enter a valid Website URL starting with https:// or http://.');
+        return false;
+      }
     }
     this.saving.set(true);
     this.status.set(null);
     try {
-      await this.firebase.saveTier4Partner({...this.partner(), id});
-      await this.loadPartners(id);
+      const saved = {...this.partner(), id, websiteUrl};
+      await this.firebase.saveTier4Partner(saved);
+      this.partners.update(partners => [...partners.filter(partner => partner.id !== id), saved]
+        .sort((a, b) => (a.organizationName || a.id).localeCompare(b.organizationName || b.id)));
+      this.applySelection(saved);
       this.status.set('Customizations saved successfully to Firestore!');
+      return true;
     } catch (err) {
       console.error('Detailed save error:', err);
       this.status.set('Could not save changes to Firestore. Check your Firebase connection and permissions.');
+      return false;
     } finally {
       this.saving.set(false);
     }
+  }
+
+  async takeMeHome(): Promise<void> {
+    if (!this.hasPartner() || this.saving()) return;
+    if (!(await this.saveChanges())) return;
+    const partner = this.partner();
+    this.tenant.activateTenant(partner);
+    await this.router.navigate(['/'], {queryParams: {p: partner.id}});
   }
 
   openPreview(): void {

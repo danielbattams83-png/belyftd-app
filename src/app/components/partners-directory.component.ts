@@ -1,9 +1,6 @@
-import demoPartners from '../models/demo-partners.json';
-import {environment} from '../../environments/environment';
-import {ChangeDetectionStrategy, Component, computed, inject, output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {FirebaseService} from '../services/firebase.service';
-import {PartnershipDocument} from '../models/firestore.models';
-import {SubscriptionTier} from '../models/tier.model';
+import {Tier4PartnerDocument} from '../models/firestore.models';
 
 @Component({
   selector: 'app-partners-directory',
@@ -12,74 +9,68 @@ import {SubscriptionTier} from '../models/tier.model';
   template: `
     <section aria-labelledby="our-partners-title">
       <h2 id="our-partners-title">Our Partners</h2>
-      <p>Lyft'd, together with the organizations powering community mentorship.</p>
-      @if (loading()) { <p role="status">Loading partners?</p> }
-      @else if (error()) { <p role="alert">Partner listings are temporarily unavailable.</p> }
+      <p class="intro">Together with the organizations powering community mentorship.</p>
+      @if (loading()) { <p role="status">Loading partners&hellip;</p> }
+      @else if (error()) { <p role="alert">Partner listings are temporarily unavailable. <button type="button" (click)="loadPartners()">Try again</button></p> }
       @else {
-        @for (group of groups(); track group.tier) {
-          @if (group.partners.length) {
-            <h3>{{ group.name }}</h3>
-            <div class="logos" [class.enterprise]="group.tier === 4">
-              @for (partner of group.partners; track partner.id) {
-                <article class="partner">
-                  @if (partner.logoUrl) { <img [src]="partner.logoUrl" [alt]="partner.name + ' logo'" loading="lazy" /> }
-                  <strong>{{ partner.name }}</strong>
-                  @if (partner.description) { <p>{{ partner.description }}</p> }
-                  @if (safeWebsite(partner.websiteUrl); as website) {
-                    <a [href]="website" target="_blank" rel="noopener noreferrer">Visit {{ partner.name }}</a>
-                  }
-                </article>
+        <div class="partner-grid">
+          @for (partner of partners(); track partner.id) {
+            <a class="partner-card" [href]="partnerLink(partner)" target="_blank" rel="noopener noreferrer" [attr.aria-label]="(partner.organizationName || partner.id) + ' (opens in a new tab)'">
+              @if (partner.branding.logoUrl) {
+                <img [src]="partner.branding.logoUrl" alt="" loading="lazy" />
               }
-            </div>
-          }
-        }
+              <h3>{{ partner.organizationName || partner.id }}</h3>
+              @if (partner.branding.sponsorBadgeText) { <span class="partner-badge">{{ partner.branding.sponsorBadgeText }}</span> }
+              <span class="visit">Visit partner <span aria-hidden="true">&nearr;</span></span>
+            </a>
+          } @empty { <p>No active partners to display yet.</p> }
+        </div>
       }
-      <article class="partner invitation">
-        <h3>Become a Partner Sponsor &rarr;</h3>
-        <p>Build your brand's impact with an Impact Leader or Enterprise Sponsor subscription.</p>
-        <a href="#partner-tier-3" (click)="sponsorSelected.emit(3)">Explore Impact Leader &rarr;</a>
-        <a href="#partner-tier-4" (click)="sponsorSelected.emit(4)">Explore Enterprise Sponsor &rarr;</a>
-      </article>
     </section>
   `,
   styles: `
-    :host { display: block; } h2 { font-size: 28px; font-weight: 800; } h3 { font-size: 20px; font-weight: 700; margin: 20px 0 12px; }
-    .logos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 16px; }
-    .enterprise { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
-    .partner { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; border: 1px solid #777; border-radius: 10px; background: #333; color: white; text-align: center; }
-    img { height: 64px; max-width: 100%; object-fit: contain; } .enterprise img { height: 112px; } .enterprise .partner { border-color: #1a9bef; min-height: 220px; }
-    a { color: #78caff; text-decoration: underline; } a:focus-visible { outline: 3px solid #1a9bef; outline-offset: 4px; } .invitation { margin-top: 24px; }
+    :host { display: block; width: 100%; min-width: 0; }
+    h2 { font-size: 28px; font-weight: 800; }
+    .intro { margin: 8px 0 24px; }
+    .partner-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .partner-card { display: flex; flex-direction: column; align-items: center; gap: 16px; min-width: 0; padding: 24px; border: 1px solid #64748b; border-radius: 16px; background: #333; color: white; text-align: center; text-decoration: none; overflow-wrap: anywhere; transition: border-color .2s; }
+    .partner-card:hover { border-color: #78caff; }
+    .partner-card:focus-visible, button:focus-visible { outline: 3px solid #1a9bef; outline-offset: 4px; }
+    img { width: 100%; max-width: 200px; height: 96px; object-fit: contain; }
+    h3 { font-size: 20px; font-weight: 700; }
+    .partner-badge { padding: 8px 12px; border-radius: 999px; background: #1a9bef26; color: #a4dcff; font-size: 12px; font-weight: 700; }
+    .visit { margin-top: auto; color: #78caff; font-size: 14px; }
+    button { padding: 8px 12px; text-decoration: underline; cursor: pointer; }
+    @media (min-width: 768px) { .partner-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   `,
 })
 export class PartnersDirectoryComponent {
   private readonly firebase = inject(FirebaseService);
-  readonly sponsorSelected = output<SubscriptionTier>();
-  readonly partners = signal<PartnershipDocument[]>([]);
+  readonly partners = signal<Tier4PartnerDocument[]>([]);
   readonly loading = signal(true);
   readonly error = signal(false);
-  readonly groups = computed(() => [
-    {tier: 4, name: 'Enterprise Sponsors', partners: this.partners().filter(p => p.active === true && p.subscriptionTier === 4)},
-    {tier: 3, name: 'Impact Leaders', partners: this.partners().filter(p => p.active === true && p.subscriptionTier === 3)},
-  ]);
 
   constructor() { void this.loadPartners(); }
 
-  safeWebsite(value?: string): string | null {
-    if (!value) return null;
-    try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) ? url.href : null; }
-    catch { return null; }
+  partnerLink(partner: Tier4PartnerDocument): string {
+    if (partner.websiteUrl) {
+      try {
+        const url = new URL(partner.websiteUrl);
+        if (['https:', 'http:'].includes(url.protocol)) return url.href;
+      } catch { /* Fall back to the partner hub for missing or invalid websites. */ }
+    }
+    return `/p/${encodeURIComponent(partner.id)}`;
   }
 
   async loadPartners(): Promise<void> {
+    this.loading.set(true);
+    this.error.set(false);
     try {
-      const partners = await this.firebase.getPartners();
-      this.partners.set(!environment.production && !partners.some(p => p.active && (p.subscriptionTier === 3 || p.subscriptionTier === 4))
-        ? demoPartners as PartnershipDocument[] : partners);
+      this.partners.set((await this.firebase.getPartners()).filter(partner => partner.active === true));
+    } catch {
+      this.error.set(true);
+    } finally {
+      this.loading.set(false);
     }
-    catch {
-      if (!environment.production) this.partners.set(demoPartners as PartnershipDocument[]);
-      else this.error.set(true);
-    }
-    finally { this.loading.set(false); }
   }
 }

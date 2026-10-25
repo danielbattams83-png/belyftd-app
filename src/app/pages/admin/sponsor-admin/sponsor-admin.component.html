@@ -7,14 +7,13 @@
     </div>
     <div class="header-actions">
       <span class="tier-pill">Tier 4 partner</span>
-      <button class="preview-button" type="button" [disabled]="!hasPartner()" (click)="openPreview()">Open Full Preview <span aria-hidden="true">↗</span></button>
     </div>
   </header>
 
   <div class="partner-switcher">
     <label for="partner-select">
       <span class="eyebrow">ACTIVE PARTNER</span>
-      <select id="partner-select" [disabled]="loadingPartners() || !partners().length" [ngModel]="selectedPartnerId()" (ngModelChange)="selectPartner($event)">
+      <select id="partner-select" [disabled]="loadingPartners() || saving() || !partners().length" [ngModel]="selectedPartnerId()" (ngModelChange)="selectPartner($event)">
         @if (loadingPartners()) { <option value="">Loading partners…</option> }
         @else if (!partners().length) { <option value="">No partners in Firestore</option> }
         @for (item of partners(); track item.id) {
@@ -40,8 +39,16 @@
           <label>Organization name<input [ngModel]="partner().organizationName" (ngModelChange)="update('organizationName', $event)" /></label>
           <label>Slug / URL key<input [ngModel]="partner().id" (ngModelChange)="update('id', $event)" /></label>
           <label class="full-field">Contact email<input type="email" [ngModel]="partner().contactEmail" (ngModelChange)="update('contactEmail', $event)" /></label>
+          <label class="full-field">Website URL<input type="url" inputmode="url" placeholder="https://harbourcityrowing.org" [ngModel]="partner().websiteUrl" (ngModelChange)="update('websiteUrl', $event)" /></label>
         </div>
-        <label class="toggle-row"><span><strong>Partner active</strong><small>Allow members to access this experience</small></span><input class="toggle" type="checkbox" [ngModel]="partner().active" (ngModelChange)="update('active', $event)" /></label>
+        <label class="toggle-row" for="partner-active">
+          <span><strong>Partner active</strong><small>Allow members to access this experience</small></span>
+          <span class="toggle-control">
+            <input id="partner-active" class="toggle-input" type="checkbox" role="switch" [attr.aria-checked]="partner().active" [ngModel]="partner().active" (ngModelChange)="update('active', $event)" />
+            <span class="toggle-track" aria-hidden="true"></span>
+            <span class="toggle-status">{{ partner().active ? 'Active' : 'Inactive' }}</span>
+          </span>
+        </label>
       </div>
 
       <div class="form-section">
@@ -53,13 +60,13 @@
         </div>
         <div class="logo-row"><img [src]="partner().branding.logoUrl" alt="Partner logo preview" /><span>Logo preview<br><small>{{ partner().branding.logoUrl ? 'Ready to use in the partner experience.' : 'No logo selected yet.' }}</small></span></div>
         <div class="theme-selector" role="radiogroup" aria-label="Colour themes">
+          @for (theme of themePresets; track theme.id) {
           <button
             type="button"
             class="theme-card"
             [class.selected]="selectedThemeId() === theme.id"
             [attr.aria-checked]="selectedThemeId() === theme.id"
             role="radio"
-            *ngFor="let theme of themePresets"
             (click)="selectTheme(theme)">
             <span class="theme-card-heading"><strong>{{ theme.name }}</strong><span class="theme-check" aria-hidden="true">{{ selectedThemeId() === theme.id ? '✓' : '' }}</span></span>
             <span class="theme-swatches" aria-hidden="true">
@@ -67,6 +74,7 @@
             </span>
             <small>{{ theme.primary }} · {{ theme.accent }}</small>
           </button>
+          }
         </div>
       </div>
 
@@ -79,17 +87,24 @@
 
       <div class="form-section">
         <h3>Access &amp; codes</h3>
-        <div class="chips">@for (code of partner().redemptionCodes; track code) { <button type="button" class="chip" (click)="removeCode(code)">{{ code }} <span aria-hidden="true">×</span></button> }</div>
-        <div class="code-entry"><input aria-label="New redemption code" [ngModel]="newCode()" (ngModelChange)="newCode.set($event)" (keyup.enter)="addCode()" placeholder="Add redemption code" /><button type="button" (click)="addCode()">Add code</button></div>
+        <p class="field-help" id="codes-help">Codes for mentee self-registration via /p/:slug</p>
+        <div class="chips">@for (code of partner().redemptionCodes; track code) { <span class="chip"><span>{{ code }}</span><button type="button" [attr.aria-label]="'Remove code ' + code" (click)="removeCode(code)"><span aria-hidden="true">×</span></button></span> }</div>
+        <div class="code-entry"><input aria-label="New redemption code" aria-describedby="codes-help" [ngModel]="newCode()" (ngModelChange)="newCode.set($event)" (keyup.enter)="addCode()" placeholder="Add redemption code" /><button type="button" (click)="addCode()">Add code</button></div>
       </div>
 
-      <div class="form-actions"><button class="reset-button" type="button" (click)="resetDefaults()">Discard Changes</button><button class="save-button" type="button" [disabled]="saving()" (click)="saveChanges()">{{ saving() ? 'Saving…' : 'Save Changes' }}</button></div>
+      <div class="form-actions">
+        <button class="reset-button" type="button" [disabled]="saving()" (click)="resetDefaults()">Discard Changes</button>
+        <button class="save-button" type="button" [disabled]="saving()" (click)="saveChanges()">{{ saving() ? 'Saving…' : 'Save Changes' }}</button>
+        <button class="preview-button" type="button" [disabled]="saving()" (click)="openPreview()">Open Full Preview <span aria-hidden="true">↗</span></button>
+        <button class="home-button" type="button" [disabled]="saving()" (click)="takeMeHome()">Take me home 🚀</button>
+      </div>
+      <p class="field-help home-help">Take me home saves your changes and opens your partner homepage.</p>
       @if (status()) { <p class="status" role="status">{{ status() }}</p> }
     </section>
 
     <aside class="preview-panel" aria-labelledby="preview-title">
       <div class="section-heading"><div><p class="eyebrow">EXPERIENCE PREVIEW</p><h2 id="preview-title">Mobile view</h2></div><span class="preview-size">360 × 720</span></div>
-      <div class="phone-wrap"><div class="phone"><div class="phone-notch"></div><div class="phone-screen" [style.--brand]="partner().branding.primaryColor" [style.--accent]="partner().branding.accentColor" [style.--hero]="partner().branding.backgroundColor">
+      <div class="phone-wrap"><div class="phone"><div class="phone-notch"></div><div class="phone-screen" [style.--brand]="partner().branding.primaryColor" [style.--accent]="partner().branding.accentColor" [style.--hero]="partner().branding.backgroundColor" [style.--surface]="partner().branding.surfaceColor || '#ffffff'" [style.--hero-text]="partner().branding.textOnHeroColor || '#ffffff'">
         <div class="mock-nav"><img [src]="partner().branding.logoUrl" alt="Partner logo" /><span>Powered by <b>Lyftd</b></span><span class="menu-icon">•••</span></div>
         <div class="mock-hero"><span class="mock-badge">{{ partner().branding.sponsorBadgeText }}</span><h3>{{ partner().branding.welcomeHeadline }}</h3><p>{{ partner().branding.welcomeSubtext }}</p><button type="button">Enter {{ partner().branding.customPartnerTabName }}</button></div>
         <div class="mock-progress"><div><span>Academy progress</span><b>68%</b></div><div class="progress-track"><i></i></div><div class="mock-stats"><span><strong>{{ partner().analytics.activeMentees }}</strong> active mentees</span><span><strong>{{ partner().analytics.lessonsCompleted }}</strong> lessons done</span></div></div>

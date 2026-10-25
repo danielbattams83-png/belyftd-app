@@ -37,7 +37,7 @@ import {
 import { getStorage, ref, getDownloadURL, listAll, FirebaseStorage, StorageReference } from 'firebase/storage';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { environment } from '../../environments/environment';
-import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDocument, ModuleUnitDocument, PartnershipDocument, SubscriptionTier, Tier4PartnerDocument } from '../models/firestore.models';
+import { CourseDocument, CourseUnitDocument, DailyAffirmationDocument, MentorDocument, ModuleUnitDocument, SubscriptionTier, Tier4PartnerDocument } from '../models/firestore.models';
 import {buildCourseMediaStoragePath, CourseMediaType} from './course-assets';
 
 export interface UserRegistrationData {
@@ -284,13 +284,13 @@ export class FirebaseService {
     return null;
   }
 
-  async listStorageFiles(prefix: string): Promise<Array<{name: string; path: string; url: string}>> {
+  async listStorageFiles(prefix: string): Promise<{name: string; path: string; url: string}[]> {
     try {
       if (!this.storage && this.app) {
         this.storage = getStorage(this.app, `gs://${environment.firebase.storageBucket}`);
       }
       if (!this.storage) return [];
-      const results: Array<{name: string; path: string; url: string}> = [];
+      const results: {name: string; path: string; url: string}[] = [];
       const visit = async (folder: StorageReference): Promise<void> => {
         const listing = await listAll(folder);
         for (const item of listing.items) {
@@ -436,7 +436,7 @@ export class FirebaseService {
       updatedAt: now
     };
 
-    const {createdAt, createdDate, updatedAt, ...profileFields} = updatedProfile;
+    const {createdAt, createdDate, ...profileFields} = updatedProfile;
     await setDoc(doc(this.db, 'users', user.uid), {
       ...profileFields,
       createdAt: createdAt || serverTimestamp(),
@@ -587,9 +587,11 @@ export class FirebaseService {
       .map(mentor => ({...mentor, ageBrackets: mentor.ageBrackets ?? []}));
   }
 
-  async getPartners(): Promise<PartnershipDocument[]> {
-    const snapshot = await getDocs(collection(this._requireFirestore(), 'partnerships'));
-    return snapshot.docs.map(partnerDoc => ({ ...partnerDoc.data(), id: partnerDoc.id } as PartnershipDocument));
+  async getPartners(): Promise<Tier4PartnerDocument[]> {
+    const snapshot = await getDocs(query(collection(this._requireFirestore(), 'partners'), where('active', '==', true)));
+    return snapshot.docs
+      .map(partnerDoc => ({...partnerDoc.data(), id: partnerDoc.id} as Tier4PartnerDocument))
+      .sort((a, b) => (a.organizationName || a.id).localeCompare(b.organizationName || b.id));
   }
 
   async listTier4Partners(): Promise<Tier4PartnerDocument[]> {

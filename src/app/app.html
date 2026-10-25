@@ -7,7 +7,7 @@
   {{ themeService.screenReaderMessage() }}
 </div>
 
-<div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans text-lg transition-colors duration-200">
+<div class="app-shell min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans text-lg transition-colors duration-200" [class.partner-experience]="!!tenantService.activeTenant()">
   
   <!-- Top App Header / Navigation Bar -->
   <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-safe px-3 sm:px-6 py-2 shadow-sm">
@@ -246,7 +246,7 @@
   }
 
   <!-- Main Scrollable Content Container -->
-  <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-0 pb-28">
+  <main class="app-main flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-0 pb-28">
     <router-outlet />
 
     <!-- ========================================== -->
@@ -275,20 +275,20 @@
   }
 
         <!-- Welcome Header / Hopeful Sunrise Hero -->
-        <div class="order-2 relative overflow-hidden rounded-[24px] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5" style="height: 350px;">
+        <div class="home-hero order-2 relative overflow-hidden rounded-[24px] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
           <div class="absolute -top-12 right-8 h-32 w-32 rounded-full bg-amber-300/40 blur-2xl"></div>
           <div class="absolute bottom-4 left-8 h-24 w-24 rounded-full bg-indigo-400/20 blur-2xl"></div>
 
           <div class="relative z-10 flex flex-col items-center gap-5 text-center">
             <div class="w-full max-w-3xl text-center">
               <div class="flex justify-center">
-              <div class="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-700 dark:bg-slate-900/40 dark:text-amber-300">
+              <div class="hero-badge inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-700 dark:bg-slate-900/40 dark:text-amber-300">
                 <span class="h-2.5 w-2.5 rounded-full bg-[var(--primary-brand)] shadow-sm"></span>
                 {{ tenantService.activeTenant()?.branding?.sponsorBadgeText || 'Safe space + fresh start' }}
               </div>
               </div>
 
-              @if (isLoggedIn()) {
+              @if (isLoggedIn() && !tenantService.activeTenant()?.branding?.welcomeHeadline) {
                 <h2 class="mt-4 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
                   A new day full of potential, {{ userFirstName() }}.
                 </h2>
@@ -901,7 +901,7 @@
       <section id="tab-mentors-content" class="space-y-6 py-6">
         <h2 id="mentors-tour-anchor" class="text-3xl font-bold">Meet Your Mentors</h2>
         <p class="text-sm text-slate-500 dark:text-slate-300">Explore course recordings from our four production mentors.</p>
-        <div class="grid gap-6 sm:grid-cols-2">
+        <div class="mentor-grid grid grid-cols-1 gap-6 md:grid-cols-2">
           @for (mentor of dataService.mentors(); track mentor.id) {
             <article class="space-y-4 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-[#333333]">
               <div class="flex items-center gap-4">
@@ -1357,7 +1357,7 @@
     class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-safe shadow-md"
     aria-label="Bottom Navigation"
   >
-    <div class="max-w-xl mx-auto flex items-center justify-around py-2 px-1">
+    <div class="mobile-dock-items max-w-xl mx-auto flex items-center justify-around py-2 px-1">
       
       <!-- Tab 1: Home (Daily Message / Focus) -->
       <button

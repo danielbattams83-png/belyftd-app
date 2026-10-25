@@ -1,7 +1,6 @@
-import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {PaywallComponent} from './paywall.component';
 import {PartnersDirectoryComponent} from './partners-directory.component';
-import {SubscriptionTier} from '../models/tier.model';
 
 @Component({
   selector: 'app-partner-with-us',
@@ -14,11 +13,9 @@ import {SubscriptionTier} from '../models/tier.model';
         <h1 id="partner-title" class="text-3xl font-black">Partner With Us</h1>
         <p>Choose your access. Support mentorship. Grow your community's impact.</p>
       </header>
-      <app-paywall [selectedTier]="selectedTier()" />
-      <app-partners-directory (sponsorSelected)="selectedTier.set($event)" />
+      <app-paywall />
+      <app-partners-directory />
     </section>
   `,
 })
-export class PartnerWithUsComponent {
-  readonly selectedTier = signal<SubscriptionTier | null>(null);
-}
+export class PartnerWithUsComponent {}

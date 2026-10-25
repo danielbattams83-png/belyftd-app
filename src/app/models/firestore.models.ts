@@ -51,6 +51,7 @@ export interface Tier4PartnerBranding {
 export interface Tier4PartnerDocument {
   id: string;
   organizationName: string;
+  websiteUrl?: string;
   contactEmail: string;
   subscriptionTier: 4;
   active: boolean;
