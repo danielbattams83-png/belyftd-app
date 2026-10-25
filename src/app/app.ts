@@ -97,13 +97,14 @@ export class App {
   readonly isDashboard = signal(true);
   readonly isAdminPortal = signal(false);
   private readonly isJoinRoute = signal(false);
-  /** Every visitor must redeem a partner code before using the app; signed-in partner users skip it. */
+  /** Every new visitor must redeem a partner code; partner users and pre-launch Lyft'd members skip it. */
   readonly showRedemptionGate = computed(() =>
     !this.isAdminPortal() &&
     !this.isJoinRoute() &&
     !this.firebaseService.authLoading() &&
     this.tenantService.isResolved() &&
-    !this.tenantService.activeTenant()
+    !this.tenantService.activeTenant() &&
+    !this.tenantService.isLegacyMember()
   );
 
   // Active Tab navigation

@@ -4,6 +4,11 @@ import {FirebaseService} from './firebase.service';
 
 // Older builds persisted the partner chosen from a link; partner designs now come only from a redeemed code.
 const LEGACY_TENANT_STORAGE_KEY = 'lyftd_active_tenant';
+/**
+ * Accounts created before the redemption gate launched stay on the core Lyft'd design and skip the gate.
+ * Set this to the moment the gate is deployed to production.
+ */
+export const REDEMPTION_GATE_LAUNCHED_AT = Date.parse('2026-10-25T00:00:00Z');
 const THEME_PROPERTIES = ['--primary-brand', '--accent-highlight', '--hero-background', '--surface-card', '--hero-text-color', '--theme-id'];
 
 @Injectable({providedIn: 'root'})
@@ -14,6 +19,13 @@ export class TenantService {
   readonly pendingTenant = signal<Tier4PartnerDocument | null>(null);
   /** True once the signed-in user's sponsor profile lookup has settled. */
   readonly isResolved = signal(false);
+  /** Existing members from before the gate launched are connected to the core Lyft'd app without a code. */
+  readonly isLegacyMember = computed(() => {
+    const user = this.firebase.currentUser();
+    if (!user || user.isAnonymous) return false;
+    const createdAt = Date.parse(user.metadata.creationTime ?? '');
+    return Number.isFinite(createdAt) && createdAt < REDEMPTION_GATE_LAUNCHED_AT;
+  });
   private readonly themeTenant = computed(() => this.activeTenant() ?? this.pendingTenant());
   private readonly firebase = inject(FirebaseService);
   private requestId = 0;
