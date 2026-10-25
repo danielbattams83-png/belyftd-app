@@ -192,13 +192,14 @@ export class FirebaseService {
     return this.authStateReady;
   }
 
-  async checkSponsorCode(code: string): Promise<boolean> {
+  /** Validates a code before sign-in and returns the partner it is locked to (null if invalid). */
+  async checkSponsorCode(code: string): Promise<string | null> {
     if (!this.app) throw new Error('Code verification is temporarily unavailable.');
-    const check = httpsCallable<{code: string}, {valid: boolean}>(
+    const check = httpsCallable<{code: string}, {valid: boolean; orgId?: string}>(
       getFunctions(this.app, 'us-central1'), 'checkSponsorCode'
     );
     const result = await check({code: code.trim().toUpperCase()});
-    return result.data.valid === true;
+    return result.data.valid === true && typeof result.data.orgId === 'string' ? result.data.orgId : null;
   }
 
   async redeemSponsorCode(code: string): Promise<SponsorProfileDocument> {

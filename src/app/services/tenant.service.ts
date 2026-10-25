@@ -1,4 +1,4 @@
-import {Injectable, effect, inject, signal} from '@angular/core';
+import {Injectable, computed, effect, inject, signal} from '@angular/core';
 import {Tier4PartnerDocument} from '../models/firestore.models';
 import {FirebaseService} from './firebase.service';
 
@@ -10,6 +10,11 @@ const THEME_PROPERTIES = ['--primary-brand', '--accent-highlight', '--hero-backg
 export class TenantService {
   readonly activeTenant = signal<Tier4PartnerDocument | null>(null);
   readonly activeTenant$ = this.activeTenant;
+  /** Partner matched by a validated (not yet redeemed) code; it only styles the redemption gate. */
+  readonly pendingTenant = signal<Tier4PartnerDocument | null>(null);
+  /** True once the signed-in user's sponsor profile lookup has settled. */
+  readonly isResolved = signal(false);
+  private readonly themeTenant = computed(() => this.activeTenant() ?? this.pendingTenant());
   private readonly firebase = inject(FirebaseService);
   private requestId = 0;
 
@@ -22,7 +27,7 @@ export class TenantService {
     });
 
     effect(() => {
-      const tenant = this.activeTenant();
+      const tenant = this.themeTenant();
       if (typeof document === 'undefined') return;
       const root = document.documentElement;
       if (!tenant) {
@@ -47,8 +52,10 @@ export class TenantService {
     const requestId = ++this.requestId;
     if (!uid || typeof window === 'undefined') {
       this.activeTenant.set(null);
+      this.isResolved.set(true);
       return;
     }
+    this.isResolved.set(false);
     try {
       const profile = await this.firebase.getSponsorProfile(uid);
       const tenant = profile?.orgId ? await this.firebase.getPartner(profile.orgId) : null;
@@ -57,13 +64,20 @@ export class TenantService {
     } catch (error) {
       console.warn('[TenantService] Unable to load redeemed partner design:', error);
       if (requestId === this.requestId) this.activeTenant.set(null);
+    } finally {
+      if (requestId === this.requestId) this.isResolved.set(true);
     }
+  }
+
+  previewPendingTenant(tenant: Tier4PartnerDocument | null): void {
+    this.pendingTenant.set(tenant?.active ? tenant : null);
   }
 
   /** Temporary in-memory preview for admins; it is not saved and resets on sign-in changes. */
   activateTenant(tenant: Tier4PartnerDocument): void {
     ++this.requestId;
     this.activeTenant.set(tenant.active ? tenant : null);
+    this.isResolved.set(true);
   }
 
   clearTenant(): void {

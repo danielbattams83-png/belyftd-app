@@ -475,7 +475,7 @@ export class RegisterModalComponent {
       const country = this.selectedCountryName();
       const countryCode = val.countryCode || '+1';
       const result = await this.firebaseService.registerUser({
-        partnerId: this.tenantService.activeTenant()?.id,
+        partnerId: (this.tenantService.activeTenant() ?? this.tenantService.pendingTenant())?.id,
         fullName,
         email,
         phoneNumber: phone,

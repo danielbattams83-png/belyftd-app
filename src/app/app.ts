@@ -37,6 +37,7 @@ import {CustomPepTalkModalComponent} from './components/custom-pep-talk-modal.co
 import {ProfileModalComponent} from './components/profile-modal.component';
 import {CourseModalComponent} from './components/course-modal.component';
 import {RegisterModalComponent} from './components/register-modal.component';
+import {RedemptionGateComponent} from './components/redemption-gate.component';
 import {PartnerWithUsComponent} from './components/partner-page.component';
 import {PostAuthOnboardingWizardComponent} from './components/post-auth-onboarding-wizard.component';
 import {FeatureWalkthroughComponent} from './components/feature-walkthrough.component';
@@ -66,6 +67,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     ProfileModalComponent,
     CourseModalComponent,
     RegisterModalComponent,
+    RedemptionGateComponent,
     PartnerWithUsComponent,
     PostAuthOnboardingWizardComponent,
     FeatureWalkthroughComponent,
@@ -94,6 +96,15 @@ export class App {
   readonly navigation = inject(NavigationService);
   readonly isDashboard = signal(true);
   readonly isAdminPortal = signal(false);
+  private readonly isJoinRoute = signal(false);
+  /** Every visitor must redeem a partner code before using the app; signed-in partner users skip it. */
+  readonly showRedemptionGate = computed(() =>
+    !this.isAdminPortal() &&
+    !this.isJoinRoute() &&
+    !this.firebaseService.authLoading() &&
+    this.tenantService.isResolved() &&
+    !this.tenantService.activeTenant()
+  );
 
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');
@@ -199,6 +210,7 @@ export class App {
         quests: 'quests', 'coach-spark': 'coach-spark', community: 'community', partners: 'partners',
       };
       this.isAdminPortal.set(path === 'admin/sponsors');
+      this.isJoinRoute.set(path === 'join');
       this.isDashboard.set(path === '' || path === 'dashboard' || path.startsWith('p/'));
       this.activeTab.set(tabs[path] ?? 'daily-lyft');
       this.showProfileModal.set(path === 'profile' || path === 'settings');
@@ -244,6 +256,7 @@ export class App {
       const currentUser = this.firebaseService.currentUser();
       const profile = this.firebaseService.userProfile();
       const registerModalOpen = this.showRegisterModal();
+      const redemptionPending = this.showRedemptionGate();
       if (typeof window === 'undefined' || authLoading || !this.hasResolvedInitialAuth()) return;
       if (!currentUser || currentUser.isAnonymous) {
         this.showPostAuthOnboarding.set(false);
@@ -256,7 +269,11 @@ export class App {
         this.courseFilter.set('all');
         return;
       }
-      if (registerModalOpen) return;
+      if (registerModalOpen || redemptionPending) {
+        this.showPostAuthOnboarding.set(false);
+        this.showFeatureWalkthrough.set(false);
+        return;
+      }
 
       const needsOnboarding = !profile?.ageBracket ||
         !profile.country ||

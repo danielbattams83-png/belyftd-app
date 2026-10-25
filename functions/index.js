@@ -54,16 +54,28 @@ async function getValidSponsorInvite(value) {
   return {code, invite};
 }
 
+// orgId is safe to return pre-auth: partner documents (design only) are already public-read.
 exports.checkSponsorCode = onCall({maxInstances: 5}, async (request) => {
-  await getValidSponsorInvite(request.data?.code);
-  return {valid: true};
+  const {invite} = await getValidSponsorInvite(request.data?.code);
+  return {valid: true, orgId: invite.orgId};
 });
 
 exports.redeemSponsorCode = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Sign in before redeeming a sponsor code.');
   }
+  if (request.auth.token?.firebase?.sign_in_provider === 'anonymous') {
+    throw new HttpsError('unauthenticated', 'Create an account before redeeming a sponsor code.');
+  }
   const {code, invite} = await getValidSponsorInvite(request.data?.code);
+
+  // An account belongs to exactly one partner template; another partner's code cannot move it.
+  const profileRef = db.collection('sponsorProfiles').doc(request.auth.uid);
+  const existing = await profileRef.get();
+  if (existing.exists && existing.data().orgId !== invite.orgId) {
+    throw new HttpsError('permission-denied', 'This account is already connected to another partner.');
+  }
+
   const auth = getAuth();
   const user = await auth.getUser(request.auth.uid);
   await auth.setCustomUserClaims(request.auth.uid, {
@@ -72,7 +84,7 @@ exports.redeemSponsorCode = onCall(async (request) => {
     orgId: invite.orgId,
   });
 
-  await db.collection('sponsorProfiles').doc(request.auth.uid).set({
+  await profileRef.set({
     orgId: invite.orgId,
     sponsorName: invite.sponsorName,
     subscriptionTier: invite.subscriptionTier,

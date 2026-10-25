@@ -1602,7 +1602,9 @@
   }
 
   <!-- Registration & Profile Modal -->
-  @if (showRegisterModal()) {
+  @if (showRedemptionGate()) {
+    <app-redemption-gate />
+  } @else if (showRegisterModal()) {
     <app-register-modal (closeModal)="showRegisterModal.set(false)"></app-register-modal>
   }
 

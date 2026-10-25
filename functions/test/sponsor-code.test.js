@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgId: 'test-org', sponsorName: 'Test sponsor'}, partners = []} = {}) {
+function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgId: 'test-org', sponsorName: 'Test sponsor'}, partners = [], sponsorProfile = null} = {}) {
   const writes = [];
   const reads = [];
   const claims = [];
@@ -24,7 +24,11 @@ function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgI
       FieldValue: {serverTimestamp: () => 'timestamp'},
       getFirestore: () => ({collection: collection => ({
         doc: id => ({
-          get: async () => { reads.push({collection, id}); return {exists, data: () => invite}; },
+          get: async () => {
+            if (collection === 'sponsorProfiles') return {exists: sponsorProfile !== null, data: () => sponsorProfile};
+            reads.push({collection, id});
+            return {exists, data: () => invite};
+          },
           set: async data => writes.push({collection, id, data}),
         }),
         where: (_field, _op, code) => partnerQuery(code),
@@ -41,11 +45,12 @@ function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgI
   return {...exports, writes, reads, claims};
 }
 
-test('pre-auth check normalizes codes, exposes no private invite data, and grants nothing', async () => {
+test('pre-auth check normalizes codes, exposes only the public partner id, and grants nothing', async () => {
   const app = setup();
   const result = await app.checkSponsorCode({data: {code: ' phoenix100 '}});
+  assert.deepEqual(Object.keys(result), ['valid', 'orgId']);
   assert.equal(result.valid, true);
-  assert.deepEqual(Object.keys(result), ['valid']);
+  assert.equal(result.orgId, 'test-org');
   assert.deepEqual(app.reads, [{collection: 'inviteCodes', id: 'PHOENIX100'}]);
   assert.equal(app.writes.length, 0);
   assert.equal(app.claims.length, 0);
@@ -89,4 +94,22 @@ test('accepts codes managed on partner documents, including hyphenated codes', a
   assert.equal(result.sponsorName, 'Harbour City Rowing Club');
   assert.equal(app.writes[0].data.codeId, 'HARBOUR2026');
   await assert.rejects(setup({exists: false, partners: [{...partners[0], active: false}]}).checkSponsorCode({data: {code: 'HARBOUR2026'}}), error => error.code === 'failed-precondition');
+});
+
+test('locks an account to the partner it first redeemed with', async () => {
+  const locked = setup({sponsorProfile: {orgId: 'other-org'}});
+  await assert.rejects(locked.redeemSponsorCode({auth: {uid: 'member'}, data: {code: 'PHOENIX100'}}), error => error.code === 'permission-denied');
+  assert.equal(locked.claims.length, 0);
+  assert.equal(locked.writes.length, 0);
+
+  const same = setup({sponsorProfile: {orgId: 'test-org'}});
+  await same.redeemSponsorCode({auth: {uid: 'member'}, data: {code: 'PHOENIX100'}});
+  assert.equal(same.claims[0].values.orgId, 'test-org');
+});
+
+test('anonymous guest sessions cannot redeem codes', async () => {
+  const app = setup();
+  const auth = {uid: 'guest', token: {firebase: {sign_in_provider: 'anonymous'}}};
+  await assert.rejects(app.redeemSponsorCode({auth, data: {code: 'PHOENIX100'}}), error => error.code === 'unauthenticated');
+  assert.equal(app.claims.length, 0);
 });
