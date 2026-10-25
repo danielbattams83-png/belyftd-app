@@ -6,7 +6,7 @@
 #brand-home-btn > img.app-header-logo:nth-of-type(1) { margin-top: 10px; width: 140px; height: 77.25px; }
 .app-header-mark { display: none; width: 44px; height: 44px; border-radius: 10px; }
 .app-header-actions { flex-shrink: 0; margin-left: auto; }
-.app-header-nav { order: 3; width: 100%; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 0 4px; }
+.app-header-nav { order: 3; width: 100%; justify-content: space-evenly; gap: 16px; flex-wrap: wrap; padding: 8px 0 4px; }
 .header-signin-short { display: none; }
 @container (max-width: 129px) {
   .app-header-logo { display: none; }
