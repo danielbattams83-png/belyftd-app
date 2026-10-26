@@ -75,7 +75,8 @@ export class TenantService {
       this.isResolved.set(true);
       return;
     }
-    this.isResolved.set(false);
+    // Keep the previous resolved state while re-checking so the gate (and any sign-in modal inside it)
+    // isn't torn down mid-login when the auth state changes.
     try {
       const profile = await this.firebase.getSponsorProfile(uid);
       const tenant = profile?.orgId ? await this.firebase.getPartner(profile.orgId) : null;

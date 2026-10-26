@@ -648,14 +648,21 @@ export class FirebaseService {
       return {success: false, message: 'Firebase is unavailable. Check your connection and try again.'};
     }
 
+    let user: User;
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({prompt: 'select_account'});
-      const result = await signInWithPopup(this.auth, provider);
-      const user = result.user;
-      this.currentUser.set(user);
-      await this._persistActiveSession(user);
+      user = (await signInWithPopup(this.auth, provider)).user;
+    } catch (err: unknown) {
+      // The popup can report closed/cancelled after Google has already signed the user in.
+      const signedInUser = this.auth.currentUser;
+      if (!signedInUser || signedInUser.isAnonymous) return this._googleSignInFailure(err);
+      user = signedInUser;
+    }
 
+    this.currentUser.set(user);
+    await this._persistActiveSession(user);
+    try {
       const userRef = doc(this.db, 'users', user.uid);
       const userSnapshot = await getDoc(userRef);
       let profile: UserProfileDocument;
@@ -713,22 +720,26 @@ export class FirebaseService {
       if (typeof window !== 'undefined') {
         localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
       }
-      return {success: true, message: 'Signed in with Google.'};
-    } catch (err: unknown) {
-      console.error('[FirebaseService] Google sign-in failed:', err);
-      const code = typeof err === 'object' && err !== null && 'code' in err
-        ? String((err as {code: unknown}).code)
-        : '';
-      const message = code === 'auth/popup-closed-by-user'
-        ? 'Google sign-in was cancelled.'
-        : code === 'auth/unauthorized-domain'
-          ? 'This domain is not authorized for Google sign-in in Firebase Authentication.'
-          : code === 'permission-denied' || code === 'firestore/permission-denied'
-            ? 'Google sign-in worked, but Firestore denied access to the users profile.'
-            : 'Google sign-in could not be completed. Check your connection and try again.';
-      this.errorMessage.set(message);
-      return {success: false, message};
+    } catch (error) {
+      // Signed in already; the auth listener will retry the profile load, so don't bounce back to sign-in.
+      console.warn('[FirebaseService] Google profile sync deferred:', error);
+      void this._fetchUserProfile(user.uid);
     }
+    return {success: true, message: 'Signed in with Google.'};
+  }
+
+  private _googleSignInFailure(err: unknown): {success: false; message: string} {
+    console.error('[FirebaseService] Google sign-in failed:', err);
+    const code = typeof err === 'object' && err !== null && 'code' in err
+      ? String((err as {code: unknown}).code)
+      : '';
+    const message = code === 'auth/popup-closed-by-user'
+      ? 'Google sign-in was cancelled.'
+      : code === 'auth/unauthorized-domain'
+        ? 'This domain is not authorized for Google sign-in in Firebase Authentication.'
+        : 'Google sign-in could not be completed. Check your connection and try again.';
+    this.errorMessage.set(message);
+    return {success: false, message};
   }
 
   private async _persistActiveSession(user: User): Promise<void> {
