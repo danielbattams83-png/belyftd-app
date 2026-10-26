@@ -25,8 +25,8 @@
 .app-header-layout { display: flex; align-items: stretch; justify-content: flex-start; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 1168px; margin: 0 5px 0 0; }
 .app-header-brand { container-type: inline-size; display: block; flex: 1 1 64px; min-width: 64px; max-width: 140px; }
 .app-header-logo { display: block; width: 140px; height: auto; min-height: 64px; min-width: 0; object-fit: contain; }
-.app-header-mark { display: none; box-sizing: content-box; width: 92px; height: 92px; min-height: 92px; padding-left: 10px; border-radius: 12px; object-fit: contain; text-align: left; }
-.app-header-layout > app-back-button { align-self: center; }
+.app-header-mark { display: none; box-sizing: content-box; width: 45px; height: 90px; min-height: 90px; padding-left: 20px; border-radius: 12px; object-fit: cover; align-items: stretch; justify-content: center; text-align: left; }
+.app-header-layout > app-back-button { display: flex; align-self: center; justify-content: flex-start; margin-left: 0; text-align: left; }
 .app-header-layout > app-back-button ::ng-deep button { display: block; width: 25px; min-width: 25px; margin-top: 0; text-align: left; }
 .app-header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-content: center; gap: .375rem; flex: 0 1 200px; min-width: 0; margin-left: auto; max-width: calc(100% - 60px); text-align: right; }
 .partner-experience .app-header-actions { height: 80px; }
@@ -44,7 +44,8 @@
 .header-signin-short { display: inline; }
 /* On phones the Lyftd brand collapses to the 80px mark and hugs it, so the back arrow sits right beside it. */
 @media (max-width: 479px) {
-  .app-header-brand { flex: 0 0 auto; min-width: 0; max-width: none; container-type: normal; }
+  .app-header { height: 92px; padding-top: calc(5px + var(--safe-top)); padding-left: max(5px, var(--safe-left)); }
+  .app-header-brand { flex: 0 0 auto; width: 55px; height: 88px; min-width: 0; max-width: none; container-type: normal; align-items: stretch; text-align: right; font-size: 14px; }
   .app-header-logo { display: none; }
   .app-header-mark { display: block; }
 }
