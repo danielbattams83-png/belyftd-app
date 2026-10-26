@@ -16,5 +16,6 @@ export const THEME_PRESETS: ColorTheme[] = [
   { id: 'crimson-grit', name: 'Crimson Grit (Resilience)', primary: '#e11d48', accent: '#fb7185', heroBg: '#1e293b', surface: '#ffffff', textOnHero: '#ffffff' },
   { id: 'pacific-cyan', name: 'Pacific Cyan (Modern Tech)', primary: '#06b6d4', accent: '#3b82f6', heroBg: '#164e63', surface: '#ffffff', textOnHero: '#ecfeff' },
   { id: 'slate-minimalist', name: 'Slate Minimal (Corporate)', primary: '#475569', accent: '#38bdf8', heroBg: '#0f172a', surface: '#f8fafc', textOnHero: '#ffffff' },
+  { id: 'phoenix-ember', name: 'Phoenix Ember (Industrial Design)', primary: '#e65100', accent: '#f59e0b', heroBg: '#1e293b', surface: '#fdfbf7', textOnHero: '#fdfbf7' },
   { id: 'golden-horizon', name: 'Golden Horizon (Inspiration)', primary: '#d97706', accent: '#6366f1', heroBg: '#1c1917', surface: '#ffffff', textOnHero: '#fef3c7' },
 ];
