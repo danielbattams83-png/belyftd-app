@@ -30,6 +30,7 @@
 /* The back button takes ~44px on inner pages; reserve it so the actions don't wrap under the logo. */
 .app-header-layout:has(> app-back-button) .app-header-actions { max-width: calc(100% - 110px); }
 .app-header-actions > button { flex-shrink: 0; }
+.header-icon-20 { width: 20px; height: 20px; font-size: 20px; line-height: 20px; }
 .app-header-nav { display: none; order: 3; width: 100%; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
 .header-signin-full { display: none; }
 .header-signin-short { display: inline; }
