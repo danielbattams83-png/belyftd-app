@@ -44,6 +44,7 @@ export class TenantService {
       const tenant = this.themeTenant();
       if (typeof document === 'undefined') return;
       const root = document.documentElement;
+      root.classList.toggle('partner-theme', !!tenant);
       if (!tenant) {
         for (const name of THEME_PROPERTIES) root.style.removeProperty(name);
         return;
