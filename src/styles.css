@@ -23,6 +23,33 @@
   --z-toast: 1400;
 }
 :root.dark { --card-border: #334155; }
+
+/* Indigo/violet are the app's brand palette; partners retint every use of it from their primary colour. */
+:root.partner-theme {
+  --partner-50: color-mix(in oklab, var(--primary-brand) 7%, #fff);
+  --partner-100: color-mix(in oklab, var(--primary-brand) 14%, #fff);
+  --partner-200: color-mix(in oklab, var(--primary-brand) 28%, #fff);
+  --partner-300: color-mix(in oklab, var(--primary-brand) 48%, #fff);
+  --partner-400: color-mix(in oklab, var(--primary-brand) 70%, #fff);
+  --partner-500: color-mix(in oklab, var(--primary-brand) 88%, #fff);
+  --partner-600: var(--primary-brand);
+  --partner-700: color-mix(in oklab, var(--primary-brand) 82%, #000);
+  --partner-800: color-mix(in oklab, var(--primary-brand) 65%, #000);
+  --partner-900: color-mix(in oklab, var(--primary-brand) 48%, #000);
+  --partner-950: color-mix(in oklab, var(--primary-brand) 30%, #000);
+  --color-indigo-50: var(--partner-50);   --color-violet-50: var(--partner-50);
+  --color-indigo-100: var(--partner-100); --color-violet-100: var(--partner-100);
+  --color-indigo-200: var(--partner-200); --color-violet-200: var(--partner-200);
+  --color-indigo-300: var(--partner-300); --color-violet-300: var(--partner-300);
+  --color-indigo-400: var(--partner-400); --color-violet-400: var(--partner-400);
+  --color-indigo-500: var(--partner-500); --color-violet-500: var(--partner-500);
+  --color-indigo-600: var(--partner-600); --color-violet-600: var(--partner-600);
+  --color-indigo-700: var(--partner-700); --color-violet-700: var(--partner-700);
+  --color-indigo-800: var(--partner-800); --color-violet-800: var(--partner-800);
+  --color-indigo-900: var(--partner-900); --color-violet-900: var(--partner-900);
+  --color-indigo-950: var(--partner-950); --color-violet-950: var(--partner-950);
+  --color-purple-600: var(--partner-600);
+}
 *, *::before, *::after { box-sizing: border-box; }
 html, body {
   width: 100%;

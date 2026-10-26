@@ -5,6 +5,7 @@
 
 .home-hero { min-height: 350px; overflow-wrap: anywhere; }
 .partner-experience { background-color: var(--surface-card); }
+:host-context(.dark) .partner-experience { background-color: color-mix(in oklab, var(--primary-brand) 6%, #020617); }
 .partner-experience .home-hero { background: var(--hero-background); border-color: var(--primary-brand); color: var(--hero-text-color); }
 .partner-experience .home-hero h2, .partner-experience .home-hero p { color: inherit; }
 .partner-experience .hero-badge { background: var(--accent-highlight); border-color: var(--accent-highlight); color: var(--hero-background); }
