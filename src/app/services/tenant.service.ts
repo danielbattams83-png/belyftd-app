@@ -17,6 +17,8 @@ export class TenantService {
   readonly activeTenant$ = this.activeTenant;
   /** Partner matched by a validated (not yet redeemed) code; it only styles the redemption gate. */
   readonly pendingTenant = signal<Tier4PartnerDocument | null>(null);
+  /** Survives the gate re-mounting while auth state settles after sign-up. */
+  readonly pendingCode = signal('');
   /** True once the signed-in user's sponsor profile lookup has settled. */
   readonly isResolved = signal(false);
   /** Existing members from before the gate launched are connected to the core Lyft'd app without a code. */
@@ -81,8 +83,10 @@ export class TenantService {
     }
   }
 
-  previewPendingTenant(tenant: Tier4PartnerDocument | null): void {
-    this.pendingTenant.set(tenant?.active ? tenant : null);
+  previewPendingTenant(tenant: Tier4PartnerDocument | null, code = ''): void {
+    const active = tenant?.active ? tenant : null;
+    this.pendingTenant.set(active);
+    this.pendingCode.set(active ? code : '');
   }
 
   /** Temporary in-memory preview for admins; it is not saved and resets on sign-in changes. */

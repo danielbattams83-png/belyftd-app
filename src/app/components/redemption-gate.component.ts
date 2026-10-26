@@ -99,6 +99,15 @@ export class RedemptionGateComponent {
     return !!user && !user.isAnonymous;
   });
 
+  constructor() {
+    const savedCode = this.tenantService.pendingCode();
+    if (!savedCode || !this.partner()) return;
+    this.code = savedCode;
+    this.verifiedCode = savedCode;
+    this.step.set('preview');
+    if (this.hasAccount()) void this.connect();
+  }
+
   async verify(): Promise<void> {
     const code = this.code.trim().toUpperCase();
     if (!code || this.isBusy()) return;
@@ -109,7 +118,7 @@ export class RedemptionGateComponent {
       const partner = orgId ? await this.firebase.getPartner(orgId) : null;
       if (!partner?.active) throw new Error('Inactive or missing partner');
       this.verifiedCode = code;
-      this.tenantService.previewPendingTenant(partner);
+      this.tenantService.previewPendingTenant(partner, code);
       this.step.set('preview');
     } catch {
       this.error.set('That code is not valid. Check it with your partner and try again.');
