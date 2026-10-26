@@ -10,19 +10,19 @@ button { cursor: pointer; font: inherit; }
 .search-label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: 8px; }
 input { width: 100%; border: 1px solid #888; border-radius: 14px; padding: 14px; background: #252525; color: #fff; font-size: 1rem; }
 input::placeholder { color: #b8bec5; }
-:is(input, button):focus-visible { outline: 3px solid #1A9BEF; outline-offset: 3px; }
+:is(input, button):focus-visible { outline: 3px solid var(--brand-accent); outline-offset: 3px; }
 .intents { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
 .intents button { border: 1px solid #777; border-radius: 999px; padding: 10px 12px; background: #414141; color: #fff; font-size: .8rem; min-height: 44px; }
-.intents button[aria-pressed=true], .intents button:hover { border-color: #1A9BEF; background: #0d5789; }
+.intents button[aria-pressed=true], .intents button:hover { border-color: var(--brand-accent); background: var(--brand-accent-deep); }
 .status { margin-bottom: 10px; }
-.status button { color: #7dcdff; text-decoration: underline; }
+.status button { color: var(--brand-accent-soft); text-decoration: underline; }
 ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
 .result { width: 100%; display: grid; gap: 5px; text-align: left; border: 1px solid #626262; border-radius: 16px; padding: 16px; color: #fff; background: #ffffff08; }
-.result:hover { border-color: #1A9BEF; background: #1a9bef18; }
+.result:hover { border-color: var(--brand-accent); background: color-mix(in oklab, var(--brand-accent) 9%, transparent); }
 .result:disabled { opacity: .6; cursor: wait; }
 .module { color: #d1d5db; font-size: .75rem; }
 .media { color: #d1d5db; font-size: .8rem; line-height: 1.6; }
-.open-lesson { color: #7dcdff; font-size: .85rem; font-weight: 600; }
+.open-lesson { color: var(--brand-accent-soft); font-size: .85rem; font-weight: 600; }
 .empty { padding: 24px 4px; font-size: .95rem; line-height: 1.6; color: #d1d5db; }
 .error { color: #ffcccc; padding: 12px 0; font-size: .9rem; }
 .hint { margin-top: 18px; }

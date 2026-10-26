@@ -21,8 +21,8 @@ import {AudioPlayerService} from '../services/audio-player.service';
           </select>
         </label>
         <div class="flex items-center justify-between gap-3">
-          <span class="text-sm font-bold text-[#1A9BEF]">{{ track.speaker }}</span>
-          <button type="button" (click)="togglePlay()" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#1A9BEF] text-white hover:bg-[#1689d4] focus-accessible"
+          <span class="text-sm font-bold text-(--brand-accent)">{{ track.speaker }}</span>
+          <button type="button" (click)="togglePlay()" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-(--brand-accent) text-white hover:bg-(--brand-accent-hover) focus-accessible"
             [attr.aria-label]="isCurrent() && player.isLoading() ? 'Cancel loading' : isCurrent() && player.isPlaying() ? 'Pause audio' : 'Play audio'">
             <mat-icon>{{ isCurrent() && player.isLoading() ? 'hourglass_top' : isCurrent() && player.isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
           </button>
@@ -30,7 +30,7 @@ import {AudioPlayerService} from '../services/audio-player.service';
         <input type="range" min="0" step="0.1" [max]="isCurrent() ? player.duration() : 0"
           [value]="isCurrent() ? player.currentTime() : 0" [disabled]="!isCurrent() || !player.duration()"
           (input)="seek($event)" aria-label="Seek mentor recording"
-          class="h-2 w-full cursor-pointer appearance-none rounded-full accent-[#1A9BEF] focus-accessible"
+          class="h-2 w-full cursor-pointer appearance-none rounded-full accent-(--brand-accent) focus-accessible"
           [style.background]="progressBackground()" />
         <div class="flex justify-between text-xs text-slate-300">
           <span>{{ player.formatTime(isCurrent() ? player.currentTime() : 0) }}</span>
@@ -51,7 +51,7 @@ export class MentorAudioComponent {
   readonly isCurrent = computed(() => !!this.selectedTrack() && this.player.activeTrack()?.id === this.selectedTrack()?.id);
   readonly progressBackground = computed(() => {
     const percent = this.isCurrent() ? this.player.progressPercent() : 0;
-    return `linear-gradient(to right, #1A9BEF ${percent}%, #475569 ${percent}%)`;
+    return `linear-gradient(to right, var(--brand-accent) ${percent}%, #475569 ${percent}%)`;
   });
 
   selectTrack(event: Event): void {

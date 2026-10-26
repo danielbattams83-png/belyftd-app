@@ -43,7 +43,7 @@ const MODULE_TITLES: Record<string, string> = {
           }
         </div>
         <button type="button" (click)="playSelected()" [attr.aria-label]="'Play ' + track.title + ' in ' + track.language"
-          class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A9BEF] px-4 py-3 text-sm font-semibold text-white hover:bg-[#1689d4] focus-accessible">
+          class="flex w-full items-center justify-center gap-2 rounded-xl bg-(--brand-accent) px-4 py-3 text-sm font-semibold text-white hover:bg-(--brand-accent-hover) focus-accessible">
           <mat-icon>play_arrow</mat-icon><span>Play lesson</span>
           @if (!showLanguageSelector()) { <span class="text-xs font-normal">({{ track.language }})</span> }
         </button>
