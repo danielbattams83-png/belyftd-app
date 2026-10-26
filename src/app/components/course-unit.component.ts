@@ -6,7 +6,8 @@ import {productionMentorForLabel} from '../services/production-mentors';
 import {MentorAudioComponent} from './mentor-audio.component';
 import {AudioTrack} from '../models/app.models';
 import {parseMentorLabel, isProductionMentorVariant} from '../services/course-assets';
-import {BackButtonComponent} from './back-button.component';
+import {NavigationService} from '../services/navigation.service';
+import {TenantService} from '../services/tenant.service';
 import {ChangeDetectionStrategy, Component, ElementRef, OnInit, OnDestroy, computed, effect, inject, signal, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
@@ -17,12 +18,24 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
 @Component({
   selector: 'app-course-unit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MentorAudioComponent, BackButtonComponent, CommonModule, MatIconModule],
-  styles: [`.unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
+  imports: [MentorAudioComponent, CommonModule, MatIconModule],
+  styles: [`.unit-modal-header { padding-top: calc(.5rem + var(--safe-top, 0px)); } .unit-modal-logo { display: block; width: 140px; height: auto; min-height: 64px; object-fit: contain; } .unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
   template: `
-    <section class="fullscreen-page fixed inset-0 z-50 overflow-y-auto bg-slate-50 dark:bg-slate-950">
+    <section class="fullscreen-page fixed inset-0 z-50 overflow-y-auto bg-slate-50 dark:bg-slate-950" role="dialog" aria-modal="true" aria-label="Course unit">
+      <header class="unit-modal-header sticky top-0 z-10 flex items-center justify-between gap-4 border-b-2 border-(--brand-accent) bg-slate-100/95 px-4 pb-2 shadow-sm backdrop-blur-md dark:bg-slate-900/95">
+        @if (tenantService.activeTenant(); as tenant) {
+          <img [src]="tenant.branding.logoUrl" [alt]="tenant.organizationName" width="140" height="72" class="unit-modal-logo" />
+        } @else {
+          <img src="/logo.png" alt="Lyftd" width="140" height="72" class="unit-modal-logo" />
+        }
+        <button type="button" (click)="close()" aria-label="Close lesson" title="Close lesson"
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-700 transition hover:bg-slate-200 hover:text-(--brand-accent) dark:text-slate-200 dark:hover:bg-slate-800 focus-accessible">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
       <div class="page-container space-y-6">
-        <app-back-button fallback="/courses" />
 
         @if (loading()) {
           <p class="rounded-2xl bg-white p-6 text-slate-600 shadow-sm dark:bg-slate-900 dark:text-slate-300" role="status">Loading lesson…</p>
@@ -109,6 +122,12 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
   readonly moduleId = inject(ActivatedRoute).snapshot.paramMap.get('moduleId') ?? '';
   readonly unitId = inject(ActivatedRoute).snapshot.paramMap.get('unitId') ?? '';
   private readonly route = inject(ActivatedRoute);
+  private readonly navigation = inject(NavigationService);
+  readonly tenantService = inject(TenantService);
+
+  close(): void {
+    this.navigation.goBack('/courses');
+  }
   private readonly firebaseService = inject(FirebaseService);
 
   private readonly audioPlayer = inject(AudioPlayerService);
