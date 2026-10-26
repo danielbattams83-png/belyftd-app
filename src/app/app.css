@@ -11,8 +11,13 @@
 .partner-experience .hero-badge { background: var(--accent-highlight); border-color: var(--accent-highlight); color: var(--hero-background); }
 .partner-experience #quick-record-voice-btn { background: var(--primary-brand); color: var(--hero-text-color); border-color: var(--primary-brand); }
 .partner-experience .app-header-brand { overflow-wrap: anywhere; }
-.partner-experience .app-header-brand { flex: 0 0 auto; min-width: 0; }
-.partner-experience .app-header-logo { display: block; width: auto; height: 44px; max-width: 140px; min-width: 0; object-fit: contain; }
+/* Partner logos size from their height, so they skip the Lyftd container query that swaps in the small mark. */
+.partner-experience .app-header-brand { flex: 0 0 auto; min-width: 0; max-width: none; container-type: normal; }
+.partner-experience .app-header-logo { display: block; width: auto; height: 88px; max-width: 220px; min-width: 0; object-fit: contain; }
+.partner-experience .app-header,
+:host-context(.dark) .partner-experience .app-header { background-color: var(--primary-brand); border-color: color-mix(in oklab, var(--primary-brand) 70%, #000); color: var(--hero-text-color); }
+.partner-experience .app-header-nav button { color: color-mix(in oklab, var(--hero-text-color) 80%, transparent); border-color: var(--hero-text-color); }
+.partner-experience .app-header-nav button:hover { color: var(--hero-text-color); }
 .mentor-grid, .mentor-grid > article { width: 100%; min-width: 0; overflow-wrap: anywhere; }
 .mentor-grid img { flex-shrink: 0; }
 /* The header stays fluid while account actions wrap on narrow phones. */

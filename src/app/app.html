@@ -142,20 +142,6 @@
           </mat-icon>
         </button>
 
-        @if (isLoggedIn()) {
-        <button
-          id="daily-message-reminder-toggle"
-          type="button"
-          (click)="dailyMessageScheduler.toggleNotifications()"
-          [attr.aria-label]="dailyMessageScheduler.notificationsEnabled() ? 'Disable daily 8 AM message reminders' : 'Enable daily 8 AM message reminders'"
-          [attr.aria-pressed]="dailyMessageScheduler.notificationsEnabled()"
-          [title]="dailyMessageScheduler.notificationStatus() || (dailyMessageScheduler.notificationsEnabled() ? 'Daily reminders on' : 'Enable daily 8 AM reminders')"
-          class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white flex items-center justify-center cursor-pointer transition focus-accessible"
-        >
-          <mat-icon class="text-base">{{ dailyMessageScheduler.notificationsEnabled() ? 'notifications_active' : 'notifications_none' }}</mat-icon>
-        </button>
-        }
-
         <!-- User Profile Avatar Button -->
         @if (isLoggedIn()) {
         <button
