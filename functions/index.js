@@ -9,115 +9,151 @@ initializeApp();
 
 const db = getFirestore();
 
-async function findInviteCode(code) {
-  const snapshot = await db.collection('inviteCodes').doc(code).get();
-  return snapshot.exists ? snapshot.data() : null;
-}
+const VALID_TIERS = [1, 2, 3, 4];
 
-// Codes managed in the Sponsor Admin are stored on partners/{id}.redemptionCodes.
-async function findPartnerRedemptionCode(code) {
-  const snapshot = await db.collection('partners')
+async function findByRedemptionCode(collectionName, code) {
+  const snapshot = await db.collection(collectionName)
     .where('redemptionCodes', 'array-contains', code)
     .limit(1)
     .get();
-  if (snapshot.empty) return null;
-  const partnerDoc = snapshot.docs[0];
-  const partner = partnerDoc.data();
+  return snapshot.empty ? null : snapshot.docs[0];
+}
+
+function standardGroup(source, groupDoc) {
+  const data = groupDoc.data();
   return {
-    active: partner.active,
-    subscriptionTier: partner.subscriptionTier,
-    orgId: partnerDoc.id,
-    sponsorName: partner.organizationName,
+    source,
+    ref: groupDoc.ref,
+    groupId: groupDoc.id,
+    orgId: null,
+    active: data.active,
+    subscriptionTier: data.subscriptionTier,
+    sponsorName: data.organizationName ?? data.sponsorName,
+    role: typeof data.role === 'string' ? data.role : null,
   };
 }
 
+/**
+ * Resolves a code in priority order:
+ * 1. inviteCodes/{CODE} legacy partner codes
+ * 2. inviteCodes/* Lyft'd internal access (lyftd-admin, lyftd-guest) via redemptionCodes
+ * 3. subscribers/* standard-theme subscriber groups via redemptionCodes
+ * 4. partners/* custom-theme partners via redemptionCodes (managed in the Sponsor Admin)
+ */
+async function resolveAccessCode(code) {
+  const legacy = await db.collection('inviteCodes').doc(code).get();
+  if (legacy.exists && typeof legacy.data().orgId === 'string') {
+    const data = legacy.data();
+    return {source: 'partner', ref: legacy.ref, groupId: data.orgId, orgId: data.orgId, active: data.active,
+      subscriptionTier: data.subscriptionTier, sponsorName: data.sponsorName, role: null};
+  }
+  const internal = await findByRedemptionCode('inviteCodes', code);
+  if (internal) return standardGroup('lyftd', internal);
+  const subscriber = await findByRedemptionCode('subscribers', code);
+  if (subscriber) return standardGroup('subscriber', subscriber);
+  const partnerDoc = await findByRedemptionCode('partners', code);
+  if (!partnerDoc) return null;
+  const partner = partnerDoc.data();
+  return {source: 'partner', ref: partnerDoc.ref, groupId: partnerDoc.id, orgId: partnerDoc.id, active: partner.active,
+    subscriptionTier: partner.subscriptionTier, sponsorName: partner.organizationName, role: null};
+}
+
 async function getValidSponsorInvite(value) {
-  const code = typeof value === 'string'
-    ? value.trim().toUpperCase()
-    : '';
-  if (!/^[A-Z0-9-]{6,32}$/.test(code)) {
-    throw new HttpsError('invalid-argument', 'Enter a valid sponsor code.');
+  const code = typeof value === 'string' ? value.trim().toUpperCase() : '';
+  if (!/^[A-Z0-9_-]{6,32}$/.test(code)) {
+    throw new HttpsError('invalid-argument', 'Enter a valid access code.');
   }
 
-  const invite = await findInviteCode(code) ?? await findPartnerRedemptionCode(code);
+  const invite = await resolveAccessCode(code);
   if (!invite) {
-    throw new HttpsError('not-found', 'This sponsor code is not recognized.');
+    throw new HttpsError('not-found', 'This access code is not recognized.');
   }
-  // Members always inherit the partner's current tier, even for legacy inviteCodes entries.
-  if (typeof invite.orgId === 'string') {
+  // Partner members always inherit the partner's current tier, even for legacy inviteCodes entries.
+  if (invite.orgId) {
     const partner = await db.collection('partners').doc(invite.orgId).get();
-    if (partner.exists && [1, 2, 3, 4].includes(partner.data().subscriptionTier)) {
+    if (partner.exists && VALID_TIERS.includes(partner.data().subscriptionTier)) {
       invite.subscriptionTier = partner.data().subscriptionTier;
     }
   }
   if (
     invite.active !== true ||
-    ![1, 2, 3, 4].includes(invite.subscriptionTier) ||
-    typeof invite.orgId !== 'string' ||
-    typeof invite.sponsorName !== 'string'
+    !VALID_TIERS.includes(invite.subscriptionTier) ||
+    typeof invite.groupId !== 'string' ||
+    typeof invite.sponsorName !== 'string' ||
+    !invite.sponsorName.trim()
   ) {
-    throw new HttpsError('failed-precondition', 'This sponsor code is not currently available.');
+    throw new HttpsError('failed-precondition', 'This access code is not currently available.');
   }
 
   return {code, invite};
 }
 
-// orgId is safe to return pre-auth: partner documents (design only) are already public-read.
+// orgId and the group name are safe to return pre-auth: they only drive the gate's preview styling.
 // invoker: 'public' only opens the Cloud Run network layer; Firebase Auth is still checked in-handler.
 exports.checkSponsorCode = onCall({maxInstances: 5, invoker: 'public'}, async (request) => {
   const {invite} = await getValidSponsorInvite(request.data?.code);
-  return {valid: true, orgId: invite.orgId};
+  return {valid: true, orgId: invite.orgId, groupName: invite.sponsorName, groupType: invite.source};
 });
 
 exports.redeemSponsorCode = onCall({invoker: 'public'}, async (request) => {
   if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'Sign in before redeeming a sponsor code.');
+    throw new HttpsError('unauthenticated', 'Sign in before redeeming an access code.');
   }
   if (request.auth.token?.firebase?.sign_in_provider === 'anonymous') {
-    throw new HttpsError('unauthenticated', 'Create an account before redeeming a sponsor code.');
+    throw new HttpsError('unauthenticated', 'Create an account before redeeming an access code.');
   }
   const {code, invite} = await getValidSponsorInvite(request.data?.code);
 
-  // An account belongs to exactly one partner template; another partner's code cannot move it.
+  // An account belongs to exactly one partner or subscriber group; another group's code cannot move it.
   const profileRef = db.collection('sponsorProfiles').doc(request.auth.uid);
   const existing = await profileRef.get();
-  if (existing.exists && existing.data().orgId !== invite.orgId) {
-    throw new HttpsError('permission-denied', 'This account is already connected to another partner.');
+  if (existing.exists) {
+    const current = existing.data();
+    if ((current.groupId ?? current.orgId) !== invite.groupId) {
+      throw new HttpsError('permission-denied', 'This account is already connected to another group.');
+    }
   }
 
   const auth = getAuth();
   const user = await auth.getUser(request.auth.uid);
-  await auth.setCustomUserClaims(request.auth.uid, {
-    ...user.customClaims,
-    subscriptionTier: invite.subscriptionTier,
-    orgId: invite.orgId,
-  });
+  const claims = {...user.customClaims, subscriptionTier: invite.subscriptionTier, accessGroup: invite.groupId};
+  if (invite.orgId) claims.orgId = invite.orgId;
+  else delete claims.orgId;
+  if (invite.role) claims.lyftdRole = invite.role;
+  else delete claims.lyftdRole;
+  await auth.setCustomUserClaims(request.auth.uid, claims);
 
-  await profileRef.set({
+  const profile = {
     orgId: invite.orgId,
-    sponsorName: invite.sponsorName,
-    subscriptionTier: invite.subscriptionTier,
-    codeId: code,
-    redeemedAt: FieldValue.serverTimestamp(),
-  });
-
-  return {
-    orgId: invite.orgId,
+    groupId: invite.groupId,
+    groupType: invite.source,
     sponsorName: invite.sponsorName,
     subscriptionTier: invite.subscriptionTier,
     codeId: code,
   };
+  await profileRef.set({
+    ...profile,
+    role: invite.role,
+    redeemedAt: existing.exists ? existing.data().redeemedAt ?? FieldValue.serverTimestamp() : FieldValue.serverTimestamp(),
+  });
+
+  if (!existing.exists) {
+    await invite.ref.update({'analytics.totalRedemptions': FieldValue.increment(1)})
+      .catch(error => console.warn(`Unable to count redemption for ${invite.ref.path}:`, error));
+  }
+
+  return profile;
 });
 
-async function syncPartnerMemberTiers(partnerId, subscriptionTier) {
+async function syncMemberTiers(groupField, groupId, subscriptionTier) {
   const auth = getAuth();
-  const members = await db.collection('sponsorProfiles').where('orgId', '==', partnerId).get();
+  const members = await db.collection('sponsorProfiles').where(groupField, '==', groupId).get();
   let updated = 0;
   for (const member of members.docs) {
     if (member.data().subscriptionTier === subscriptionTier) continue;
     try {
       const user = await auth.getUser(member.id);
-      await auth.setCustomUserClaims(member.id, {...user.customClaims, subscriptionTier, orgId: partnerId});
+      await auth.setCustomUserClaims(member.id, {...user.customClaims, subscriptionTier});
     } catch (error) {
       if (error?.code !== 'auth/user-not-found') throw error;
     }
@@ -126,15 +162,40 @@ async function syncPartnerMemberTiers(partnerId, subscriptionTier) {
   }
   return updated;
 }
+
+function syncPartnerMemberTiers(partnerId, subscriptionTier) {
+  return syncMemberTiers('orgId', partnerId, subscriptionTier);
+}
 exports.syncPartnerMemberTiers = syncPartnerMemberTiers;
 
-exports.onPartnerTierChanged = onDocumentUpdated('partners/{partnerId}', async (event) => {
+function tierChange(event) {
   const before = event.data?.before.data();
   const after = event.data?.after.data();
   const tier = after?.subscriptionTier;
-  if (!after || before?.subscriptionTier === tier || ![1, 2, 3, 4].includes(tier)) return;
-  const updated = await syncPartnerMemberTiers(event.params.partnerId, tier);
-  console.log(`Partner ${event.params.partnerId} moved to tier ${tier}; updated ${updated} member(s).`);
+  if (!after || before?.subscriptionTier === tier || !VALID_TIERS.includes(tier)) return null;
+  return {after, tier};
+}
+
+exports.onPartnerTierChanged = onDocumentUpdated('partners/{partnerId}', async (event) => {
+  const change = tierChange(event);
+  if (!change) return;
+  const updated = await syncPartnerMemberTiers(event.params.partnerId, change.tier);
+  console.log(`Partner ${event.params.partnerId} moved to tier ${change.tier}; updated ${updated} member(s).`);
+});
+
+exports.onSubscriberTierChanged = onDocumentUpdated('subscribers/{groupId}', async (event) => {
+  const change = tierChange(event);
+  if (!change) return;
+  const updated = await syncMemberTiers('groupId', event.params.groupId, change.tier);
+  console.log(`Subscriber group ${event.params.groupId} moved to tier ${change.tier}; updated ${updated} member(s).`);
+});
+
+// Legacy partner invite codes follow their partner's tier, so only Lyft'd access docs are synced here.
+exports.onLyftdAccessTierChanged = onDocumentUpdated('inviteCodes/{codeId}', async (event) => {
+  const change = tierChange(event);
+  if (!change || typeof change.after.orgId === 'string') return;
+  const updated = await syncMemberTiers('groupId', event.params.codeId, change.tier);
+  console.log(`Lyft'd access ${event.params.codeId} moved to tier ${change.tier}; updated ${updated} member(s).`);
 });
 
 exports.getCourseMediaUrl = onCall({serviceAccount: 'course-media@belyft-d-app.iam.gserviceaccount.com'}, async (request) => {

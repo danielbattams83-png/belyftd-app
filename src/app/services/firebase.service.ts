@@ -100,8 +100,19 @@ export interface UserOnboardingData {
   selectedMentorIds: string[];
 }
 
+export type AccessGroupType = 'partner' | 'subscriber' | 'lyftd';
+
+export interface AccessCodeCheck {
+  /** Partner whose custom theme applies; null for standard Lyft'd groups. */
+  orgId: string | null;
+  groupName: string;
+  groupType: AccessGroupType;
+}
+
 export interface SponsorProfileDocument {
-  orgId: string;
+  orgId: string | null;
+  groupId?: string;
+  groupType?: AccessGroupType;
   sponsorName: string;
   subscriptionTier: SubscriptionTier;
   codeId: string;
@@ -194,14 +205,19 @@ export class FirebaseService {
     return this.authStateReady;
   }
 
-  /** Validates a code before sign-in and returns the partner it is locked to (null if invalid). */
-  async checkSponsorCode(code: string): Promise<string | null> {
+  /** Validates a code before sign-in and returns the group it is locked to (null if invalid). */
+  async checkSponsorCode(code: string): Promise<AccessCodeCheck | null> {
     if (!this.app) throw new Error('Code verification is temporarily unavailable.');
-    const check = httpsCallable<{code: string}, {valid: boolean; orgId?: string}>(
+    const check = httpsCallable<{code: string}, Partial<AccessCodeCheck> & {valid: boolean}>(
       getFunctions(this.app, 'us-central1'), 'checkSponsorCode'
     );
-    const result = await check({code: code.trim().toUpperCase()});
-    return result.data.valid === true && typeof result.data.orgId === 'string' ? result.data.orgId : null;
+    const {data} = await check({code: code.trim().toUpperCase()});
+    if (data.valid !== true || typeof data.groupName !== 'string') return null;
+    return {
+      orgId: typeof data.orgId === 'string' ? data.orgId : null,
+      groupName: data.groupName,
+      groupType: data.groupType ?? (data.orgId ? 'partner' : 'subscriber'),
+    };
   }
 
   async redeemSponsorCode(code: string): Promise<SponsorProfileDocument> {
