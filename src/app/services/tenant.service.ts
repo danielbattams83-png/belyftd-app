@@ -19,6 +19,10 @@ export class TenantService {
   readonly pendingTenant = signal<Tier4PartnerDocument | null>(null);
   /** Survives the gate re-mounting while auth state settles after sign-up. */
   readonly pendingCode = signal('');
+  /** Standard-theme group (subscriber tier or Lyft'd access) matched by a validated code. */
+  readonly pendingGroupName = signal('');
+  /** True when the signed-in user has redeemed a code for an active partner or a standard Lyft'd group. */
+  readonly hasRedeemedAccess = signal(false);
   /** True once the signed-in user's sponsor profile lookup has settled. */
   readonly isResolved = signal(false);
   /** Existing members from before the gate launched are connected to the core Lyft'd app without a code. */
@@ -67,6 +71,7 @@ export class TenantService {
     const requestId = ++this.requestId;
     if (!uid || typeof window === 'undefined') {
       this.activeTenant.set(null);
+      this.hasRedeemedAccess.set(false);
       this.isResolved.set(true);
       return;
     }
@@ -75,19 +80,26 @@ export class TenantService {
       const profile = await this.firebase.getSponsorProfile(uid);
       const tenant = profile?.orgId ? await this.firebase.getPartner(profile.orgId) : null;
       if (requestId !== this.requestId) return;
-      this.activeTenant.set(tenant?.active ? tenant : null);
+      const activeTenant = tenant?.active ? tenant : null;
+      this.activeTenant.set(activeTenant);
+      this.hasRedeemedAccess.set(!!profile && (profile.orgId ? !!activeTenant : true));
     } catch (error) {
       console.warn('[TenantService] Unable to load redeemed partner design:', error);
-      if (requestId === this.requestId) this.activeTenant.set(null);
+      if (requestId === this.requestId) {
+        this.activeTenant.set(null);
+        this.hasRedeemedAccess.set(false);
+      }
     } finally {
       if (requestId === this.requestId) this.isResolved.set(true);
     }
   }
 
-  previewPendingTenant(tenant: Tier4PartnerDocument | null, code = ''): void {
+  previewPendingTenant(tenant: Tier4PartnerDocument | null, code = '', groupName = ''): void {
     const active = tenant?.active ? tenant : null;
+    const standardGroup = active ? '' : groupName;
     this.pendingTenant.set(active);
-    this.pendingCode.set(active ? code : '');
+    this.pendingGroupName.set(standardGroup);
+    this.pendingCode.set(active || standardGroup ? code : '');
   }
 
   /** Temporary in-memory preview for admins; it is not saved and resets on sign-in changes. */

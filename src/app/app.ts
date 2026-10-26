@@ -104,6 +104,7 @@ export class App {
     !this.firebaseService.authLoading() &&
     this.tenantService.isResolved() &&
     !this.tenantService.activeTenant() &&
+    !this.tenantService.hasRedeemedAccess() &&
     !this.tenantService.isLegacyMember()
   );
 
