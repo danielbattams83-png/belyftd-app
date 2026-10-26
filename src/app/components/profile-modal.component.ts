@@ -5,6 +5,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MentorshipDataService} from '../services/mentorship-data.service';
 import {ThemeAccessibilityService} from '../services/theme-accessibility.service';
 import {FirebaseService} from '../services/firebase.service';
+import {DailyMessageSchedulerService} from '../services/daily-message-scheduler.service';
 
 @Component({
   selector: 'app-profile-modal',
@@ -84,6 +85,32 @@ import {FirebaseService} from '../services/firebase.service';
             <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Courses Completed</div>
           </div>
         </div>
+
+        @if (firebaseService.hasActiveSession()) {
+          <section aria-labelledby="profile-notifications-title" class="flex items-center justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-850">
+            <div class="flex min-w-0 items-start gap-3">
+              <mat-icon class="shrink-0 text-indigo-600 dark:text-indigo-400" aria-hidden="true">{{ reminders.notificationsEnabled() ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+              <div class="min-w-0">
+                <h4 id="profile-notifications-title" class="text-sm font-bold text-slate-900 dark:text-slate-100">Daily reminders</h4>
+                <p class="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                  {{ reminders.notificationStatus() || (reminders.notificationsEnabled() ? 'You will get a message at 8 AM each day.' : 'Get a short message at 8 AM each day.') }}
+                </p>
+              </div>
+            </div>
+            <button
+              id="daily-message-reminder-toggle"
+              type="button"
+              role="switch"
+              (click)="reminders.toggleNotifications()"
+              [attr.aria-checked]="reminders.notificationsEnabled()"
+              aria-labelledby="profile-notifications-title"
+              class="relative h-7 w-12 shrink-0 cursor-pointer rounded-full transition focus-accessible"
+              [class]="reminders.notificationsEnabled() ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'"
+            >
+              <span class="absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all" [class]="reminders.notificationsEnabled() ? 'left-6' : 'left-1'"></span>
+            </button>
+          </section>
+        }
 
         <!-- Focus Areas -->
         <div>
@@ -257,6 +284,7 @@ export class ProfileModalComponent {
   readonly dataService = inject(MentorshipDataService);
   readonly themeService = inject(ThemeAccessibilityService);
   readonly firebaseService = inject(FirebaseService);
+  readonly reminders = inject(DailyMessageSchedulerService);
   readonly activeProfile = computed(() => {
     const firestoreProfile = this.firebaseService.userProfile();
     const localProfile = this.dataService.userProfile();
