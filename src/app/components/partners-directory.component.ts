@@ -35,10 +35,10 @@ import {Tier4PartnerDocument} from '../models/firestore.models';
     .partner-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .partner-card { display: flex; flex-direction: column; align-items: center; gap: 16px; min-width: 0; padding: var(--card-padding); border: 1px solid #64748b; border-radius: 16px; background: #333; color: white; text-align: center; text-decoration: none; overflow-wrap: anywhere; transition: border-color .2s; }
     .partner-card:hover { border-color: #78caff; }
-    .partner-card:focus-visible, button:focus-visible { outline: 3px solid #1a9bef; outline-offset: 4px; }
+    .partner-card:focus-visible, button:focus-visible { outline: 3px solid var(--brand-accent); outline-offset: 4px; }
     img { width: 100%; max-width: 200px; height: 96px; object-fit: contain; }
     h3 { font-size: 20px; font-weight: 700; }
-    .partner-badge { padding: 8px 12px; border-radius: 999px; background: #1a9bef26; color: #a4dcff; font-size: 12px; font-weight: 700; }
+    .partner-badge { padding: 8px 12px; border-radius: 999px; background: color-mix(in oklab, var(--brand-accent) 15%, transparent); color: var(--brand-accent-soft); font-size: 12px; font-weight: 700; }
     .visit { margin-top: auto; color: #78caff; font-size: 14px; }
     button { padding: 8px 12px; text-decoration: underline; cursor: pointer; }
     @media (min-width: 768px) { .partner-grid { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); } }

@@ -21,6 +21,11 @@
   --z-dialog: 1200;
   --z-tour: 1300;
   --z-toast: 1400;
+  --brand-accent: #1A9BEF;
+  --brand-accent-hover: #1689d4;
+  --brand-accent-ink: #071c29;
+  --brand-accent-deep: #0d5789;
+  --brand-accent-soft: #a4dcff;
 }
 :root.dark { --card-border: #334155; }
 
@@ -49,6 +54,14 @@
   --color-indigo-900: var(--partner-900); --color-violet-900: var(--partner-900);
   --color-indigo-950: var(--partner-950); --color-violet-950: var(--partner-950);
   --color-purple-600: var(--partner-600);
+  --color-sky-600: var(--partner-600);    --color-blue-600: var(--partner-600);
+  --color-sky-500: var(--partner-500);    --color-blue-500: var(--partner-500);
+  --color-sky-400: var(--partner-400);    --color-blue-400: var(--partner-400);
+  --brand-accent: var(--primary-brand);
+  --brand-accent-hover: var(--partner-700);
+  --brand-accent-ink: var(--hero-text-color, #fff);
+  --brand-accent-deep: var(--partner-800);
+  --brand-accent-soft: var(--partner-300);
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body {
