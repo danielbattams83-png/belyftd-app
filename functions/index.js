@@ -3,6 +3,7 @@ const {getAuth} = require('firebase-admin/auth');
 const {getFirestore, FieldValue} = require('firebase-admin/firestore');
 const {getStorage} = require('firebase-admin/storage');
 const {HttpsError, onCall} = require('firebase-functions/v2/https');
+const {onDocumentUpdated} = require('firebase-functions/v2/firestore');
 
 initializeApp();
 
@@ -41,6 +42,13 @@ async function getValidSponsorInvite(value) {
   const invite = await findInviteCode(code) ?? await findPartnerRedemptionCode(code);
   if (!invite) {
     throw new HttpsError('not-found', 'This sponsor code is not recognized.');
+  }
+  // Members always inherit the partner's current tier, even for legacy inviteCodes entries.
+  if (typeof invite.orgId === 'string') {
+    const partner = await db.collection('partners').doc(invite.orgId).get();
+    if (partner.exists && [1, 2, 3, 4].includes(partner.data().subscriptionTier)) {
+      invite.subscriptionTier = partner.data().subscriptionTier;
+    }
   }
   if (
     invite.active !== true ||
@@ -99,6 +107,34 @@ exports.redeemSponsorCode = onCall({invoker: 'public'}, async (request) => {
     subscriptionTier: invite.subscriptionTier,
     codeId: code,
   };
+});
+
+async function syncPartnerMemberTiers(partnerId, subscriptionTier) {
+  const auth = getAuth();
+  const members = await db.collection('sponsorProfiles').where('orgId', '==', partnerId).get();
+  let updated = 0;
+  for (const member of members.docs) {
+    if (member.data().subscriptionTier === subscriptionTier) continue;
+    try {
+      const user = await auth.getUser(member.id);
+      await auth.setCustomUserClaims(member.id, {...user.customClaims, subscriptionTier, orgId: partnerId});
+    } catch (error) {
+      if (error?.code !== 'auth/user-not-found') throw error;
+    }
+    await member.ref.update({subscriptionTier, tierUpdatedAt: FieldValue.serverTimestamp()});
+    updated += 1;
+  }
+  return updated;
+}
+exports.syncPartnerMemberTiers = syncPartnerMemberTiers;
+
+exports.onPartnerTierChanged = onDocumentUpdated('partners/{partnerId}', async (event) => {
+  const before = event.data?.before.data();
+  const after = event.data?.after.data();
+  const tier = after?.subscriptionTier;
+  if (!after || before?.subscriptionTier === tier || ![1, 2, 3, 4].includes(tier)) return;
+  const updated = await syncPartnerMemberTiers(event.params.partnerId, tier);
+  console.log(`Partner ${event.params.partnerId} moved to tier ${tier}; updated ${updated} member(s).`);
 });
 
 exports.getCourseMediaUrl = onCall({serviceAccount: 'course-media@belyft-d-app.iam.gserviceaccount.com'}, async (request) => {

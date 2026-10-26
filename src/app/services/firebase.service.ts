@@ -18,7 +18,9 @@ import {
   updateDoc,
   arrayUnion,
   Firestore,
-  serverTimestamp
+  serverTimestamp,
+  onSnapshot,
+  Unsubscribe
 } from 'firebase/firestore';
 import {
   getAuth,
@@ -338,6 +340,7 @@ export class FirebaseService {
       // Listen to Auth State
       onAuthStateChanged(this.auth, async (user) => {
         this.currentUser.set(user);
+        this._watchSponsorTier(user);
         if (user) {
           try {
             await this.getCurrentSubscriptionTier();
@@ -954,6 +957,26 @@ export class FirebaseService {
     this._clearActiveSession();
     this.hasRegisteredUser.set(false);
     this.userProfile.set(null);
+  }
+
+  private sponsorTierUnsubscribe: Unsubscribe | null = null;
+
+  // When a partner changes tier, the server updates sponsorProfiles; refresh the token so new claims apply immediately.
+  private _watchSponsorTier(user: User | null): void {
+    this.sponsorTierUnsubscribe?.();
+    this.sponsorTierUnsubscribe = null;
+    if (!user || user.isAnonymous || !this.db) return;
+    this.sponsorTierUnsubscribe = onSnapshot(
+      doc(this.db, 'sponsorProfiles', user.uid),
+      snapshot => {
+        const tier = snapshot.data()?.['subscriptionTier'];
+        if (snapshot.exists() && tier !== this.subscriptionTier() && this.currentUser()?.uid === user.uid) {
+          void this.getCurrentSubscriptionTier(true).catch(error =>
+            console.warn('[FirebaseService] Unable to refresh partner tier:', error));
+        }
+      },
+      error => console.warn('[FirebaseService] Sponsor profile listener stopped:', error),
+    );
   }
 
   private _clearActiveSession(): void {

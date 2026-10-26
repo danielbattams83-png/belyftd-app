@@ -37,6 +37,7 @@ function setup({exists = true, tier = 3, minTier = 3, moduleNumber = 5, unitExis
       HttpsError: class extends Error { constructor(code, message) { super(message); this.code = code; } },
       onCall: (...args) => args.at(-1),
     },
+    'firebase-functions/v2/firestore': {onDocumentUpdated: (...args) => args.at(-1)},
   };
   const exports = {};
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../index.js'), 'utf8'), {
