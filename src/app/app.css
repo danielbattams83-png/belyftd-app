@@ -25,9 +25,9 @@
 .app-header-layout { display: flex; align-items: stretch; justify-content: flex-start; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 1168px; margin: 0 5px 0 0; }
 .app-header-brand { container-type: inline-size; display: block; flex: 1 1 64px; min-width: 64px; max-width: 140px; }
 .app-header-logo { display: block; width: 140px; height: auto; min-height: 64px; min-width: 0; object-fit: contain; }
-.app-header-mark { display: none; width: 80px; height: 80px; min-height: 80px; border-radius: 12px; object-fit: contain; }
+.app-header-mark { display: none; box-sizing: content-box; width: 92px; height: 92px; min-height: 92px; padding-left: 10px; border-radius: 12px; object-fit: contain; text-align: left; }
 .app-header-layout > app-back-button { align-self: center; }
-.app-header-layout > app-back-button ::ng-deep button { margin-top: 0; }
+.app-header-layout > app-back-button ::ng-deep button { display: block; width: 25px; min-width: 25px; margin-top: 0; text-align: left; }
 .app-header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-content: center; gap: .375rem; flex: 0 1 200px; min-width: 0; margin-left: auto; max-width: calc(100% - 60px); text-align: right; }
 .partner-experience .app-header-actions { height: 80px; }
 /* The back button takes ~44px on inner pages; reserve it so the actions don't wrap under the logo. */
