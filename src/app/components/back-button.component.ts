@@ -7,7 +7,7 @@ import {NavigationService} from '../services/navigation.service';
   styles: `:host { display: inline-flex; flex-shrink: 0; }`,
   template: `
     <button type="button" (click)="goBack()" [attr.aria-label]="label()" [title]="label()"
-      class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-[#1A9BEF] dark:text-slate-300 dark:hover:bg-slate-800 focus-accessible">
+      class="inline-flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-[#1A9BEF] dark:text-slate-300 dark:hover:bg-slate-800 focus-accessible">
       <svg aria-hidden="true" [attr.width]="iconSize()" [attr.height]="iconSize()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 10 4 15l5 5M4 15h11a5 5 0 0 0 5-5V4" />
       </svg>
