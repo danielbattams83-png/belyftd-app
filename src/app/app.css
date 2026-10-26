@@ -22,14 +22,18 @@
 .mentor-grid img { flex-shrink: 0; }
 /* The header stays fluid while account actions wrap on narrow phones. */
 .app-header { padding: calc(.5rem + var(--safe-top)) max(1rem, var(--safe-right)) .5rem max(1rem, var(--safe-left)); }
-.app-header-layout { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; max-width: 1168px; margin-inline: auto; }
+.app-header-layout { display: flex; align-items: center; gap: .375rem; flex-wrap: wrap; max-width: 1168px; margin-inline: auto; }
 .app-header-brand { container-type: inline-size; display: block; flex: 1 1 44px; min-width: 44px; max-width: 140px; }
 .app-header-logo { display: block; width: 140px; height: auto; min-width: 0; object-fit: contain; }
 .app-header-mark { display: none; width: 44px; height: 44px; border-radius: 10px; }
-.app-header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; margin-left: auto; max-width: calc(100% - 60px); }
+.app-header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .375rem; margin-left: auto; max-width: calc(100% - 60px); }
 /* The back button takes ~44px on inner pages; reserve it so the actions don't wrap under the logo. */
 .app-header-layout:has(> app-back-button) .app-header-actions { max-width: calc(100% - 110px); }
 .app-header-actions > button { flex-shrink: 0; }
+/* Override the global 44px touch-target minimum so header controls render at their compact sizes. */
+#open-smart-search-btn, #theme-quick-toggle-btn { width: 36px; height: 36px; min-width: 36px; min-height: 36px; border-radius: 10px; }
+#streak-indicator-btn { height: 36px; min-height: 36px; padding-inline: 8px; }
+#open-profile-dialog-btn { width: 28px; height: 28px; min-width: 28px; min-height: 28px; }
 .header-icon-22 { width: 22px; height: 22px; font-size: 22px; line-height: 22px; }
 .app-header-nav { display: none; order: 3; width: 100%; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
 .header-signin-full { display: none; }
