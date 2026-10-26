@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgId: 'test-org', sponsorName: 'Test sponsor'}, partners = [], sponsorProfile = null} = {}) {
+function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgId: 'test-org', sponsorName: 'Test sponsor'}, partners = [], sponsorProfile = null, members = []} = {}) {
   const writes = [];
   const reads = [];
   const claims = [];
@@ -26,12 +26,22 @@ function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgI
         doc: id => ({
           get: async () => {
             if (collection === 'sponsorProfiles') return {exists: sponsorProfile !== null, data: () => sponsorProfile};
+            if (collection === 'partners') {
+              const partner = partners.find(item => item.id === id);
+              return {exists: !!partner, data: () => partner};
+            }
             reads.push({collection, id});
             return {exists, data: () => invite};
           },
           set: async data => writes.push({collection, id, data}),
         }),
-        where: (_field, _op, code) => partnerQuery(code),
+        where: (_field, _op, value) => collection === 'sponsorProfiles'
+          ? {get: async () => ({docs: members.filter(member => member.orgId === value).map(member => ({
+            id: member.uid,
+            data: () => member,
+            ref: {update: async data => writes.push({collection, id: member.uid, data})},
+          }))})}
+          : partnerQuery(value),
       })}),
     },
     'firebase-admin/storage': {getStorage() {}},
@@ -39,6 +49,7 @@ function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgI
       HttpsError: class extends Error {constructor(code, message) { super(message); this.code = code; }},
       onCall: (...args) => args.at(-1),
     },
+    'firebase-functions/v2/firestore': {onDocumentUpdated: (...args) => args.at(-1)},
   };
   const exports = {};
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../index.js'), 'utf8'), {require: name => modules[name], exports, Date});
@@ -112,4 +123,34 @@ test('anonymous guest sessions cannot redeem codes', async () => {
   const auth = {uid: 'guest', token: {firebase: {sign_in_provider: 'anonymous'}}};
   await assert.rejects(app.redeemSponsorCode({auth, data: {code: 'PHOENIX100'}}), error => error.code === 'unauthenticated');
   assert.equal(app.claims.length, 0);
+});
+
+test('legacy invite codes inherit the partner tier, not the code tier', async () => {
+  const app = setup({
+    invite: {active: true, subscriptionTier: 1, orgId: 'phoenix', sponsorName: 'Phoenix'},
+    partners: [{id: 'phoenix', subscriptionTier: 3, redemptionCodes: []}],
+  });
+  await app.redeemSponsorCode({auth: {uid: 'member'}, data: {code: 'PHOENIX100'}});
+  assert.equal(app.claims[0].values.subscriptionTier, 3);
+});
+
+test('a partner tier change cascades to every connected member', async () => {
+  const app = setup({members: [
+    {uid: 'a', orgId: 'phoenix', subscriptionTier: 4},
+    {uid: 'b', orgId: 'phoenix', subscriptionTier: 2},
+    {uid: 'c', orgId: 'other', subscriptionTier: 4},
+  ]});
+  await app.onPartnerTierChanged({
+    params: {partnerId: 'phoenix'},
+    data: {before: {data: () => ({subscriptionTier: 4})}, after: {data: () => ({subscriptionTier: 2})}},
+  });
+  assert.deepEqual(app.claims.map(claim => [claim.uid, claim.values.subscriptionTier, claim.values.orgId]), [['a', 2, 'phoenix']]);
+  assert.deepEqual(app.writes.map(write => [write.id, write.data.subscriptionTier]), [['a', 2]]);
+
+  const unchanged = setup({members: [{uid: 'a', orgId: 'phoenix', subscriptionTier: 4}]});
+  await unchanged.onPartnerTierChanged({
+    params: {partnerId: 'phoenix'},
+    data: {before: {data: () => ({subscriptionTier: 4, active: true})}, after: {data: () => ({subscriptionTier: 4, active: false})}},
+  });
+  assert.equal(unchanged.claims.length, 0);
 });

@@ -25,7 +25,7 @@
 .header-signin-full { display: none; }
 .header-signin-short { display: inline; }
 @container (max-width: 129px) {
-  .app-header-logo, .tenant-powered { display: none; }
+  .app-header-logo { display: none; }
   .app-header-mark { display: block; }
 }
 @media (min-width: 400px) { .header-signin-full { display: inline; } .header-signin-short { display: none; } }
