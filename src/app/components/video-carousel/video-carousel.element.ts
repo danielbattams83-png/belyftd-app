@@ -27,12 +27,9 @@ class VideoCarousel extends HTMLElement {
     super();
     this._videos = []; this._i = 0; this._li = 0; this._loop = false; this._mid = 0; this._base = 0; this._cards = []; this._p = null; this._preview = null; this._player = null;
     this._visible = true; this._eat = false; this._raf = 0; this._wheelLock = 0; this._id = `vc${++uid}`;
-    this._onScroll = () => {
-      if (!this._sraf) this._sraf = requestAnimationFrame(() => { this._sraf = 0; this._layout(); });
-      clearTimeout(this._recT); this._recT = setTimeout(() => this._recenter(), 100); // for browsers without scrollend
-    };
+    // Only attached where `scrollend` is missing (older Safari): a debounce stands in for it. No style work happens here.
+    this._onScroll = () => { clearTimeout(this._recT); this._recT = setTimeout(() => this._settle(), 120); };
     this._onVis = () => this._resume();
-    this._onResize = () => this._layout();
   }
   get videos() { return this._videos; }
   set videos(v) { this._videos = Array.isArray(v) ? v : []; if (this.isConnected) this._render(); }
@@ -51,21 +48,20 @@ class VideoCarousel extends HTMLElement {
     this.setAttribute("aria-roledescription", "carousel");
     if (!this.hasAttribute("aria-label")) this.setAttribute("aria-label", this.getAttribute("label") || "Videos");
     document.addEventListener("visibilitychange", this._onVis);
-    window.addEventListener("resize", this._onResize);
     this._hostIO = new IntersectionObserver((es) => { this._visible = es[es.length - 1].isIntersecting; this._resume(); }, { threshold: 0.25 });
     this._hostIO.observe(this);
     this._render();
   }
   disconnectedCallback() {
     document.removeEventListener("visibilitychange", this._onVis);
-    window.removeEventListener("resize", this._onResize);
-    this._hostIO?.disconnect(); this._lazyIO?.disconnect(); this._sizeRO?.disconnect();
+    clearTimeout(this._recT);
+    this._hostIO?.disconnect(); this._lazyIO?.disconnect(); this._activeIO?.disconnect(); this._sizeRO?.disconnect();
     this._closePlayer(true);
   }
 
   // ---------- render ----------
   _render() {
-    this._lazyIO?.disconnect();
+    this._lazyIO?.disconnect(); this._activeIO?.disconnect();
     const n = this._videos.length;
     // Endless loop: the set is repeated COPIES times and the track re-centres on the middle copy after each swipe.
     this._loop = n > 1; this._mid = this._loop ? 2 : 0; this._base = this._mid * n;
@@ -84,7 +80,6 @@ class VideoCarousel extends HTMLElement {
             <div class="vc-meta"><div class="vc-row"><h3 class="vc-title">${esc(v.title)}</h3><span class="vc-dur">${esc(v.duration || "")}</span></div>
               ${v.caption ? `<p class="vc-cap">${esc(v.caption)}</p>` : ""}</div>
             <div class="vc-prog"><i></i></div>
-            <div class="vc-dim"></div>
           </div></div></div>
           <button class="vc-hit" type="button" tabindex="${real && i === this._li ? 0 : -1}" aria-label="Play ${esc(v.title)}" aria-describedby="${this._id}-hint"></button>
         </div>`).join("")}
@@ -97,7 +92,6 @@ class VideoCarousel extends HTMLElement {
       <div class="vc-sr" aria-live="polite" aria-atomic="true"></div>`;
     this._track = this.querySelector(".vc-track");
     this._cards = [...this.querySelectorAll(".vc-card")];
-    this._cf = this._cards.map((c) => c.querySelector(".vc-cf"));
     this._live = this.querySelector('[aria-live]');
     this._cards.forEach((c, k) => {
       const i = k % n;
@@ -121,8 +115,8 @@ class VideoCarousel extends HTMLElement {
     this._cards.forEach((c) => this._lazyIO.observe(c));
 
     const t = this._track;
-    t.addEventListener("scroll", this._onScroll, { passive: true });
-    t.addEventListener("scrollend", () => this._settle());
+    if ("onscrollend" in window) t.addEventListener("scrollend", () => this._settle());
+    else t.addEventListener("scroll", this._onScroll, { passive: true });
     t.addEventListener("pointerdown", (e) => this._down(e));
     t.addEventListener("pointermove", (e) => this._move(e));
     t.addEventListener("pointerup", (e) => this._up(e));
@@ -143,40 +137,51 @@ class VideoCarousel extends HTMLElement {
     let placed = false;
     this._sizeRO = new ResizeObserver(() => {
       if (!t.clientWidth || !this._cards[0].offsetWidth) return;
-      if (!placed) { placed = true; this.go(this._i, false); this._layout(true); }
-      else if (!this._dragging && !this._player) { this.go(this._i, false); this._layout(); }
+      this._observeActive();
+      if (!placed) { placed = true; this.go(this._i, false); }
+      else if (!this._dragging && !this._player) this.go(this._i, false);
     });
     this._sizeRO.observe(t);
   }
 
-  // ---------- coverflow-lite layout ----------
-  _layout(force) {
-    const t = this._track, cs = this._cards; if (!t || !cs.length) return;
-    // Read phase: every layout read happens before any style write, so the browser flushes layout once per frame
-    // instead of once per card.
-    const mid = t.scrollLeft + t.clientWidth / 2, w = cs[0].offsetWidth;
-    const step = w + (parseFloat(getComputedStyle(t).columnGap) || 14);
-    const flat = this._reduced;
-    const ds = cs.map((c) => (c.offsetLeft + w / 2 - mid) / step);
-    // Write phase
-    let best = 0, bestD = Infinity;
-    ds.forEach((d, i) => {
-      const ad = Math.abs(d);
-      if (ad < bestD) { bestD = ad; best = i; }
-      const k = Math.min(ad, 1), far = Math.max(0, Math.min(ad, 3) - 1);
-      const scale = 1.03 - k * 0.17 - far * 0.05;
-      const rot = flat ? 0 : Math.max(-1.6, Math.min(1.6, d)) * -14;
-      const tx = -Math.sign(d) * (k * 0.06 + far * 0.1) * w;
-      this._cf[i].style.transform = `translate3d(${tx.toFixed(1)}px,0,0) rotateY(${rot.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
-      cs[i].style.setProperty("--dim", (Math.min(ad, 1.4) * 0.4).toFixed(3));
-      cs[i].style.zIndex = String(20 - Math.round(ad * 2));
-    });
-    if (best !== this._i || force) this._setActive(best);
+  // ---------- discrete active state ----------
+  // The root is shrunk to exactly one card-width slot in the middle of the track, so only the centred card can reach
+  // the threshold. Scrolling itself runs untouched on the compositor; JS only flips one class when a card snaps in,
+  // and CSS animates the scale/opacity.
+  _observeActive() {
+    this._activeIO?.disconnect();
+    const t = this._track, w = this._cards[0]?.offsetWidth; if (!t || !w) return;
+    const side = Math.max(0, (t.clientWidth - w) / 2);
+    this._activeIO = new IntersectionObserver((es) => {
+      if (this._jumping) return;
+      let best = null;
+      for (const e of es) if (e.intersectionRatio >= 0.7 && (!best || e.intersectionRatio > best.intersectionRatio)) best = e;
+      if (!best) return;
+      const k = this._cards.indexOf(best.target);
+      if (k > -1 && k !== this._i) this._setActive(k);
+    }, { root: t, rootMargin: `0px ${-side}px 0px ${-side}px`, threshold: 0.7 });
+    this._cards.forEach((c) => this._activeIO.observe(c));
+  }
+  // Apply a state change with card transitions suppressed, for jumps that must not visibly animate.
+  _instant(fn) {
+    const t = this._track;
+    t.classList.add("vc-instant");
+    fn();
+    void t.offsetHeight;
+    t.classList.remove("vc-instant");
+  }
+  // One read at rest, as a safety net in case a fast fling skipped past the observer threshold.
+  _syncNearest() {
+    const t = this._track, c0 = this._cards[0], c1 = this._cards[1]; if (!t || !c0) return;
+    const w = c0.offsetWidth, step = (c1 ? c1.offsetLeft - c0.offsetLeft : w) || w;
+    const k = Math.round((t.scrollLeft + t.clientWidth / 2 - c0.offsetLeft - w / 2) / step);
+    const i = Math.max(0, Math.min(this._cards.length - 1, k));
+    if (i !== this._i) this._setActive(i);
   }
   _setActive(i) {
     const n = this._videos.length, li = n ? i % n : 0;
     const changed = li !== this._li; this._i = i; this._li = li;
-    this._cards.forEach((c, k) => { c.classList.toggle("vc-active", k === i); c.querySelector(".vc-hit").tabIndex = k === this._base + li ? 0 : -1; });
+    this._cards.forEach((c, k) => { c.classList.toggle("vc-card--active", k === i); c.querySelector(".vc-hit").tabIndex = k === this._base + li ? 0 : -1; });
     this.querySelectorAll(".vc-dots button").forEach((b, k) => b.setAttribute("aria-current", String(k === li)));
     this.querySelector(".vc-prev").disabled = !this._loop && i <= 0;
     this.querySelector(".vc-next").disabled = !this._loop && i >= this._cards.length - 1;
@@ -186,7 +191,7 @@ class VideoCarousel extends HTMLElement {
     }
     clearTimeout(this._autoT); this._autoT = setTimeout(() => this._resume(), 140);
   }
-  _settle() { if (!this._dragging) this._track.classList.remove("vc-dragging"); this._layout(); this._recenter(); }
+  _settle() { if (!this._dragging) this._track.classList.remove("vc-dragging"); this._syncNearest(); this._recenter(); }
 
   // Nearest physical card for a logical index, so dots and Home/End take the shortest way round.
   _phys(li) {
@@ -208,21 +213,21 @@ class VideoCarousel extends HTMLElement {
       if (copy === this._mid) return;
       const t = this._track, cs = this._cards;
       const shift = (this._mid - copy) * (cs[n].offsetLeft - cs[0].offsetLeft);
+      const target = this._i + (this._mid - copy) * n;
       const focused = this.contains(document.activeElement) && document.activeElement.classList.contains("vc-hit");
       t.style.scrollSnapType = "none";
-      t.scrollTo({ left: t.scrollLeft + shift, behavior: "auto" });
-      void t.offsetHeight;
+      this._instant(() => { t.scrollTo({ left: t.scrollLeft + shift, behavior: "auto" }); this._setActive(target); });
       t.style.scrollSnapType = "";
-      this._layout();
       if (focused) cs[this._i].querySelector(".vc-hit").focus({ preventScroll: true });
     });
   }
 
   go(i, smooth = true) {
-    const t = this._track, c = this._cards[Math.max(0, Math.min(this._cards.length - 1, i | 0))]; if (!t || !c) return;
+    const k = Math.max(0, Math.min(this._cards.length - 1, i | 0));
+    const t = this._track, c = this._cards[k]; if (!t || !c) return;
     const left = c.offsetLeft + c.offsetWidth / 2 - t.clientWidth / 2;
-    t.scrollTo({ left, behavior: smooth && !this._reduced ? "smooth" : "auto" });
-    if (!smooth) this._layout();
+    if (smooth && !this._reduced) { t.scrollTo({ left, behavior: "smooth" }); return; }
+    this._instant(() => { t.scrollTo({ left, behavior: "auto" }); this._setActive(k); });
   }
   next() { this.go(this._i + 1); }
   prev() { this.go(this._i - 1); }
@@ -241,7 +246,7 @@ class VideoCarousel extends HTMLElement {
   }
   _stop(c, poster = true) {
     const v = c.querySelector("video"); if (!v.paused) v.pause();
-    if (poster && !c.classList.contains("vc-active")) c.classList.remove("vc-playing");
+    if (poster && !c.classList.contains("vc-card--active")) c.classList.remove("vc-playing");
   }
   _resume() {
     if (this._preview || this._player) return;
@@ -270,7 +275,7 @@ class VideoCarousel extends HTMLElement {
   _endPreview(silent) {
     const c = this._preview; if (!c) return;
     this._preview = null; c.classList.remove("vc-preview");
-    if (!c.classList.contains("vc-active") || !this._autoOK) this._stop(c);
+    if (!c.classList.contains("vc-card--active") || !this._autoOK) this._stop(c);
     if (!silent) this._resume();
   }
 
