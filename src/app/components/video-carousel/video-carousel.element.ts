@@ -25,16 +25,19 @@ let uid = 0;
 class VideoCarousel extends HTMLElement {
   constructor() {
     super();
-    this._videos = []; this._i = 0; this._cards = []; this._p = null; this._preview = null; this._player = null;
+    this._videos = []; this._i = 0; this._li = 0; this._loop = false; this._mid = 0; this._base = 0; this._cards = []; this._p = null; this._preview = null; this._player = null;
     this._visible = true; this._eat = false; this._raf = 0; this._wheelLock = 0; this._id = `vc${++uid}`;
-    this._onScroll = () => { if (!this._sraf) this._sraf = requestAnimationFrame(() => { this._sraf = 0; this._layout(); }); };
+    this._onScroll = () => {
+      if (!this._sraf) this._sraf = requestAnimationFrame(() => { this._sraf = 0; this._layout(); });
+      clearTimeout(this._recT); this._recT = setTimeout(() => this._recenter(), 100); // for browsers without scrollend
+    };
     this._onVis = () => this._resume();
     this._onResize = () => this._layout();
   }
   get videos() { return this._videos; }
   set videos(v) { this._videos = Array.isArray(v) ? v : []; if (this.isConnected) this._render(); }
-  get active() { return this._i; }
-  set active(i) { this.go(+i, false); }
+  get active() { return this._li; }
+  set active(i) { this.go(this._phys(+i), false); }
   get holdDelay() { return +(this.getAttribute("hold-delay") || 300); }
   get _reduced() { return !!mq("(prefers-reduced-motion: reduce)")?.matches; }
   get _saveData() { return !!navigator.connection?.saveData; }
@@ -56,7 +59,7 @@ class VideoCarousel extends HTMLElement {
   disconnectedCallback() {
     document.removeEventListener("visibilitychange", this._onVis);
     window.removeEventListener("resize", this._onResize);
-    this._hostIO?.disconnect(); this._lazyIO?.disconnect();
+    this._hostIO?.disconnect(); this._lazyIO?.disconnect(); this._sizeRO?.disconnect();
     this._closePlayer(true);
   }
 
@@ -64,13 +67,17 @@ class VideoCarousel extends HTMLElement {
   _render() {
     this._lazyIO?.disconnect();
     const n = this._videos.length;
+    // Endless loop: the set is repeated COPIES times and the track re-centres on the middle copy after each swipe.
+    this._loop = n > 1; this._mid = this._loop ? 2 : 0; this._base = this._mid * n;
+    const copies = this._loop ? 5 : 1;
+    const cards = Array.from({ length: copies * n }, (_, k) => ({ v: this._videos[k % n], i: k % n, k, real: Math.floor(k / n) === this._mid }));
     this.innerHTML = `
       <p class="vc-sr" id="${this._id}-hint">Swipe or use arrow keys to browse. Press and hold a video to preview it, tap to open the player.</p>
-      <div class="vc-track" tabindex="-1">${this._videos.map((v, i) => `
-        <div class="vc-card" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}: ${esc(v.title)}" data-i="${i}"
+      <div class="vc-track" tabindex="-1">${cards.map(({ v, i, real }) => `
+        <div class="vc-card" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}: ${esc(v.title)}" data-i="${i}"${real ? "" : ' aria-hidden="true"'}
              style="${v.aspect ? `--vc-aspect:${esc(v.aspect)};` : ""}${v.position ? `--vc-pos:${esc(v.position)};` : ""}">
           <div class="vc-cf"><div class="vc-lift"><div class="vc-inner">
-            <img src="${esc(v.poster)}" alt="" draggable="false" loading="${i < 3 ? "eager" : "lazy"}" decoding="async">
+            <img src="${esc(v.poster)}" alt="" draggable="false" loading="${real && i < 3 ? "eager" : "lazy"}" decoding="async">
             <video muted playsinline webkit-playsinline loop preload="none" disablepictureinpicture disableremoteplayback
                    poster="${esc(v.poster)}" data-src="${esc(v.src)}" aria-hidden="true" tabindex="-1"></video>
             <div class="vc-scrim"></div>
@@ -79,7 +86,7 @@ class VideoCarousel extends HTMLElement {
             <div class="vc-prog"><i></i></div>
             <div class="vc-dim"></div>
           </div></div></div>
-          <button class="vc-hit" type="button" tabindex="${i === this._i ? 0 : -1}" aria-label="Play ${esc(v.title)}" aria-describedby="${this._id}-hint"></button>
+          <button class="vc-hit" type="button" tabindex="${real && i === this._li ? 0 : -1}" aria-label="Play ${esc(v.title)}" aria-describedby="${this._id}-hint"></button>
         </div>`).join("")}
       </div>
       <div class="vc-bar">
@@ -91,7 +98,8 @@ class VideoCarousel extends HTMLElement {
     this._track = this.querySelector(".vc-track");
     this._cards = [...this.querySelectorAll(".vc-card")];
     this._live = this.querySelector('[aria-live]');
-    this._cards.forEach((c, i) => {
+    this._cards.forEach((c, k) => {
+      const i = k % n;
       const v = c.querySelector("video");
       v.muted = true; v.defaultMuted = true;
       v.addEventListener("playing", () => { c.classList.add("vc-playing"); this._tick(); });
@@ -103,9 +111,9 @@ class VideoCarousel extends HTMLElement {
       c.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") { clearTimeout(this._hoverT); if (this._preview === c) this._endPreview(); } });
       c.querySelector(".vc-hit").addEventListener("click", (e) => {
         if (this._eat) { e.preventDefault(); return; }
-        this.open(i);
+        this.open(i, c);
       });
-      c.querySelector(".vc-hit").addEventListener("focus", () => { if (i !== this._i && !this._p) this.go(i); });
+      c.querySelector(".vc-hit").addEventListener("focus", () => { if (k !== this._i && !this._p) this.go(k); });
     });
     // lazy-load: attach src only when a card is within ~1 viewport of the track
     this._lazyIO = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && this._load(e.target)), { root: this._track, rootMargin: "0px 110% 0px 110%" });
@@ -125,9 +133,19 @@ class VideoCarousel extends HTMLElement {
     this.addEventListener("keydown", (e) => this._key(e));
     this.querySelector(".vc-prev").addEventListener("click", () => this.go(this._i - 1));
     this.querySelector(".vc-next").addEventListener("click", () => this.go(this._i + 1));
-    this.querySelectorAll(".vc-dots button").forEach((b) => b.addEventListener("click", () => this.go(+b.dataset.i)));
-    this._i = Math.min(this._i, Math.max(0, n - 1));
-    requestAnimationFrame(() => { this.go(this._i, false); this._layout(true); });
+    this.querySelectorAll(".vc-dots button").forEach((b) => b.addEventListener("click", () => this.go(this._phys(+b.dataset.i))));
+    this._li = Math.min(this._li, Math.max(0, n - 1));
+    this._i = this._base + this._li;
+    // The track can be laid out after the first frame (e.g. inside a hidden or not-yet-sized parent), so centre on the
+    // middle copy once it has a real width and keep the active card centred when its size changes.
+    this._sizeRO?.disconnect();
+    let placed = false;
+    this._sizeRO = new ResizeObserver(() => {
+      if (!t.clientWidth || !this._cards[0].offsetWidth) return;
+      if (!placed) { placed = true; this.go(this._i, false); this._layout(true); }
+      else if (!this._dragging && !this._player) { this.go(this._i, false); this._layout(); }
+    });
+    this._sizeRO.observe(t);
   }
 
   // ---------- coverflow-lite layout ----------
@@ -151,18 +169,38 @@ class VideoCarousel extends HTMLElement {
     if (best !== this._i || force) this._setActive(best);
   }
   _setActive(i) {
-    const changed = i !== this._i; this._i = i;
-    this._cards.forEach((c, k) => { c.classList.toggle("vc-active", k === i); c.querySelector(".vc-hit").tabIndex = k === i ? 0 : -1; });
-    this.querySelectorAll(".vc-dots button").forEach((b, k) => b.setAttribute("aria-current", String(k === i)));
-    this.querySelector(".vc-prev").disabled = i <= 0;
-    this.querySelector(".vc-next").disabled = i >= this._cards.length - 1;
+    const n = this._videos.length, li = n ? i % n : 0;
+    const changed = li !== this._li; this._i = i; this._li = li;
+    this._cards.forEach((c, k) => { c.classList.toggle("vc-active", k === i); c.querySelector(".vc-hit").tabIndex = k === this._base + li ? 0 : -1; });
+    this.querySelectorAll(".vc-dots button").forEach((b, k) => b.setAttribute("aria-current", String(k === li)));
+    this.querySelector(".vc-prev").disabled = !this._loop && i <= 0;
+    this.querySelector(".vc-next").disabled = !this._loop && i >= this._cards.length - 1;
     if (changed) {
-      this._live.textContent = `${this._videos[i]?.title ?? ""}, ${i + 1} of ${this._cards.length}`;
-      this.dispatchEvent(new CustomEvent("vc-change", { detail: { index: i, video: this._videos[i] }, bubbles: true }));
+      this._live.textContent = `${this._videos[li]?.title ?? ""}, ${li + 1} of ${n}`;
+      this.dispatchEvent(new CustomEvent("vc-change", { detail: { index: li, video: this._videos[li] }, bubbles: true }));
     }
     clearTimeout(this._autoT); this._autoT = setTimeout(() => this._resume(), 140);
   }
-  _settle() { if (!this._dragging) this._track.classList.remove("vc-dragging"); this._layout(); }
+  _settle() { if (!this._dragging) this._track.classList.remove("vc-dragging"); this._layout(); this._recenter(); }
+
+  // Nearest physical card for a logical index, so dots and Home/End take the shortest way round.
+  _phys(li) {
+    const n = this._videos.length; if (!this._loop) return li;
+    return Math.max(0, Math.min(this._cards.length - 1, li + n * Math.round((this._i - li) / n)));
+  }
+  // Invisible jump back to the middle copy once the track is at rest; the layout is identical so nothing moves.
+  _recenter() {
+    clearTimeout(this._recT);
+    if (!this._loop || this._dragging || this._p || this._player) return;
+    const n = this._videos.length, copy = Math.floor(this._i / n);
+    if (copy === this._mid) return;
+    const t = this._track, cs = this._cards;
+    const shift = (this._mid - copy) * (cs[n].offsetLeft - cs[0].offsetLeft);
+    const focused = this.contains(document.activeElement) && document.activeElement.classList.contains("vc-hit");
+    t.scrollTo({ left: t.scrollLeft + shift, behavior: "auto" });
+    this._layout();
+    if (focused) cs[this._i].querySelector(".vc-hit").focus({ preventScroll: true });
+  }
 
   go(i, smooth = true) {
     const t = this._track, c = this._cards[Math.max(0, Math.min(this._cards.length - 1, i | 0))]; if (!t || !c) return;
@@ -284,7 +322,7 @@ class VideoCarousel extends HTMLElement {
     if (this._player || e.target.closest(".vc-dots")) return;
     const k = e.key; let to = null;
     if (k === "ArrowRight") to = this._i + 1; else if (k === "ArrowLeft") to = this._i - 1;
-    else if (k === "Home") to = 0; else if (k === "End") to = this._cards.length - 1;
+    else if (k === "Home") to = this._phys(0); else if (k === "End") to = this._phys(this._videos.length - 1);
     if (to === null) return;
     e.preventDefault(); to = Math.max(0, Math.min(this._cards.length - 1, to));
     this.go(to);
@@ -292,10 +330,10 @@ class VideoCarousel extends HTMLElement {
   }
 
   // ---------- glass floating player ----------
-  open(i) {
-    const cfg = this._videos[i], card = this._cards[i]; if (!cfg || !card || this._player) return;
+  open(i, tapped) {
+    const cfg = this._videos[i], card = tapped || this._cards[this._phys(i)]; if (!cfg || !card || this._player) return;
     clearTimeout(this._hoverT); this._endPreview(true);
-    if (i !== this._i) this.go(i);
+    if (card !== this._cards[this._i]) this.go(this._cards.indexOf(card));
     const cv = card.querySelector("video"), t0 = cv.currentTime || 0;
     this._cards.forEach((c) => this._stop(c, false));
     const accent = getComputedStyle(this).getPropertyValue("--vc-accent").trim() || "#00baf0";
@@ -444,6 +482,7 @@ class VideoCarousel extends HTMLElement {
       card.classList.remove("vc-hidden");
       if (keepVideo) { el.style.cssText += ";visibility:hidden;pointer-events:none"; } else { v.pause(); el.remove(); }
       this.dispatchEvent(new CustomEvent("vc-close", { detail: { index: P.i }, bubbles: true }));
+      this._recenter();
       this._resume();
     };
     if (!instant) P.returnTo?.focus?.({ preventScroll: true });
