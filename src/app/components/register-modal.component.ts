@@ -337,6 +337,7 @@ export class RegisterModalComponent {
   readonly firebaseService = inject(FirebaseService);
   readonly dataService = inject(MentorshipDataService);
   readonly closeModal = output<void>();
+  readonly signedIn = output<void>();
 
   readonly countries = COUNTRY_OPTIONS;
   readonly selectedCountryDialCode = signal<string>('+1');
@@ -435,7 +436,7 @@ export class RegisterModalComponent {
       const password = this.loginForm.value.password || '';
       const result = await this.firebaseService.signInUser(email, password);
       this.statusMessage.set(result.message);
-      if (result.success) this.closeModal.emit();
+      if (result.success) this.signedIn.emit();
     } catch {
       this.statusMessage.set('Sign-in could not be completed. Please try again.');
     } finally {
@@ -450,7 +451,7 @@ export class RegisterModalComponent {
     try {
       const result = await this.firebaseService.loginWithGoogle();
       this.statusMessage.set(result.message);
-      if (result.success) this.closeModal.emit();
+      if (result.success) this.signedIn.emit();
     } catch {
       this.statusMessage.set('Google sign-in could not be completed. Please try again.');
     } finally {

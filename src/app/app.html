@@ -1584,7 +1584,7 @@
   @if (showRedemptionGate()) {
     <app-redemption-gate />
   } @else if (showRegisterModal()) {
-    <app-register-modal (closeModal)="showRegisterModal.set(false)"></app-register-modal>
+    <app-register-modal (closeModal)="showRegisterModal.set(false)" (signedIn)="handleSignedIn()"></app-register-modal>
   }
 
   @if (showPostAuthOnboarding()) {
