@@ -6,6 +6,8 @@ import {SmartSearchComponent} from './components/smart-search/smart-search.compo
 import {MentorRecordingPickerComponent} from './components/mentor-recording-picker.component';
 import {productionMentorForLabel} from './services/production-mentors';
 import {BackButtonComponent} from './components/back-button.component';
+import {SpotlightBentoComponent} from './components/spotlight-bento/spotlight-bento.component';
+import {DASHBOARD_BENTO_CARDS, mentorBentoCards} from './components/spotlight-bento/spotlight-bento.cards';
 import {NavigationService} from './services/navigation.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {afterNextRender, DestroyRef, ElementRef, viewChild, ChangeDetectionStrategy, Component, computed, inject, signal, effect} from '@angular/core';
@@ -54,6 +56,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     SmartSearchComponent,
     MentorRecordingPickerComponent,
     BackButtonComponent,
+    SpotlightBentoComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -86,6 +89,8 @@ export class App {
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(mentor => ({...mentor, initials: mentor.name.slice(0, 2).toUpperCase()}));
   });
+  readonly dashboardBentoCards = DASHBOARD_BENTO_CARDS;
+  readonly mentorBentoCards = computed(() => mentorBentoCards(this.dataService.mentors()));
   readonly curriculum = inject(CurriculumService);
   readonly themeService = inject(ThemeAccessibilityService);
   readonly aiService = inject(AiMentorService);
