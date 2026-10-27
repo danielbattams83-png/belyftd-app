@@ -52,14 +52,18 @@ const firstSentence = (text: string): string => {
 
 /** One spotlight card per mentor, built from the live mentor data. */
 export function mentorBentoCards(mentors: Mentor[]): BentoCard[] {
-  return mentors.map((mentor) => ({
-    tag: mentor.languages.join(' / '),
-    heading: mentor.name,
-    image: mentor.avatar,
-    alt: `Portrait of ${mentor.name}`,
-    position: '50% 25%',
-    text: firstSentence(mentor.bio),
-    detail: mentor.bio,
-    chips: [...mentor.languages, ...(mentor.specialties ?? []).slice(0, 3)],
-  }));
+  return mentors.map((mentor) => {
+    const text = firstSentence(mentor.bio);
+    return {
+      tag: mentor.languages.join(' / '),
+      heading: mentor.name,
+      image: mentor.avatar,
+      alt: `Portrait of ${mentor.name}`,
+      position: '50% 25%',
+      text,
+      // Skip the expanded paragraph when the bio is a single sentence, otherwise it repeats the summary line.
+      detail: mentor.bio.trim() === text ? undefined : mentor.bio,
+      chips: [...mentor.languages, ...(mentor.specialties ?? []).slice(0, 3)],
+    };
+  });
 }
