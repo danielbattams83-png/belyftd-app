@@ -1,0 +1,201 @@
+/* <video-carousel> — Lyft'd PWA. Dependency-free, offline-safe. Theme via CSS variables. */
+.vc {
+  --vc-bg: #1d232a;
+  --vc-card: #262e37;
+  --vc-fg: #f5f5f7;
+  --vc-muted: rgba(245,245,247,.74);
+  --vc-accent: #00baf0;
+  --vc-radius: 20px;
+  --vc-gap: 14px;
+  --vc-card-w: min(64vw, 270px);
+  --vc-aspect: 9 / 16;
+  --vc-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --vc-spring: linear(0,0.019,0.069,0.141,0.228,0.324,0.423,0.52,0.614,0.7,0.778,0.847,0.906,0.956,0.996,1.027,1.05,1.067,1.077,1.082,1.083,1.081,1.077,1.071,1.063,1.055,1.047,1.039,1.031,1.024,1.017,1.012,1.007,1.003,1,0.997,0.996,0.994,0.993,0.993,1);
+  display: block; position: relative;
+  font-family: var(--vc-font); color: var(--vc-fg);
+  -webkit-tap-highlight-color: transparent;
+}
+@media (min-width: 768px) { .vc { --vc-card-w: 290px; } }
+
+.vc-track {
+  display: flex; gap: var(--vc-gap);
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 28px calc(50% - var(--vc-card-w) / 2) 24px;
+  perspective: 1100px;
+  outline: none;
+}
+.vc-track::-webkit-scrollbar { display: none; }
+.vc-track.vc-dragging { scroll-snap-type: none; cursor: grabbing; }
+@media (hover: hover) and (pointer: fine) { .vc-track { cursor: grab; } }
+
+.vc-card {
+  flex: 0 0 var(--vc-card-w);
+  aspect-ratio: var(--vc-aspect);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  position: relative;
+  touch-action: pan-x pan-y;
+  user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.vc-inner {
+  position: absolute; inset: 0;
+  border-radius: var(--vc-radius);
+  overflow: hidden; isolation: isolate;
+  background: var(--vc-card);
+  transform-origin: 50% 50%;
+  will-change: transform;
+  box-shadow: 0 0 0 1px rgba(0,186,240,.14) inset, 0 18px 40px -22px rgba(0,0,0,.75);
+  transition: box-shadow .35s, filter .35s;
+}
+.vc-card img, .vc-card video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: var(--vc-pos, 50% 50%);
+  display: block; pointer-events: none;
+  -webkit-touch-callout: none; user-select: none; -webkit-user-drag: none;
+}
+.vc-card video { z-index: 0; opacity: 0; transition: opacity .25s; background: transparent; }
+.vc-card.vc-playing video { opacity: 1; }
+.vc-card img { z-index: -1; }
+
+/* lift + glow while previewing (hold on touch, hover on desktop) */
+.vc-lift {
+  position: absolute; inset: 0; z-index: 3;
+  transition: transform .45s var(--vc-spring);
+}
+.vc-card.vc-preview .vc-lift { transform: translateY(-10px) scale(1.045); }
+.vc-card.vc-preview .vc-inner {
+  box-shadow: 0 0 0 1.5px var(--vc-accent) inset, 0 0 0 1px rgba(0,186,240,.35), 0 24px 60px -16px rgba(0,186,240,.55), 0 30px 60px -30px rgba(0,0,0,.9);
+}
+
+/* overlay copy */
+.vc-scrim {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to top, rgba(22,27,33,.97) 0%, rgba(22,27,33,.86) 24%, rgba(22,27,33,.0) 52%);
+}
+.vc-meta { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 0 16px 18px; pointer-events: none; }
+.vc-row { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.vc-title { margin: 0; font-size: 17px; line-height: 1.2; font-weight: 750; letter-spacing: -.01em; text-wrap: balance; }
+.vc-cap {
+  margin: 6px 0 0; font-size: 13px; line-height: 1.38; color: var(--vc-muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.vc-dur {
+  flex: none; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; font-variant-numeric: tabular-nums;
+  padding: 4px 8px; border-radius: 999px;
+  background: rgba(0,186,240,.16); color: #bfefff; box-shadow: 0 0 0 1px rgba(0,186,240,.45) inset;
+}
+.vc-dur:empty { display: none; }
+.vc-prog { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; z-index: 2; background: rgba(255,255,255,.1); pointer-events: none; }
+.vc-prog i { display: block; height: 100%; width: 100%; background: var(--vc-accent); transform-origin: 0 50%; transform: scaleX(var(--p, 0)); box-shadow: 0 0 10px rgba(0,186,240,.8); }
+
+/* the whole card is a button: tap = open, hold = preview */
+.vc-hit { all: unset; position: absolute; inset: 0; z-index: 4; border-radius: var(--vc-radius); cursor: pointer; -webkit-touch-callout: none; }
+.vc-hit:focus-visible { box-shadow: 0 0 0 2px var(--vc-bg), 0 0 0 4px var(--vc-accent); }
+.vc-track.vc-dragging .vc-hit { cursor: grabbing; }
+
+/* desktop nav arrows */
+.vc-nav {
+  all: unset; position: relative; z-index: 5; width: 40px; height: 40px;
+  border-radius: 50%; display: none; place-items: center; cursor: pointer;
+  background: rgba(38,46,55,.72); color: var(--vc-fg);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset, 0 8px 20px -10px rgba(0,0,0,.8);
+  transition: background .2s, opacity .2s;
+}
+.vc-nav:hover { background: rgba(0,186,240,.25); }
+.vc-nav:focus-visible { box-shadow: 0 0 0 2px var(--vc-accent); }
+.vc-nav[disabled] { opacity: .3; cursor: default; }
+.vc-nav svg { width: 20px; height: 20px; }
+.vc-bar { display: flex; align-items: center; justify-content: center; gap: 14px; min-height: 40px; }
+@media (hover: hover) and (pointer: fine), (min-width: 900px) { .vc-nav { display: grid; } }
+
+/* dots */
+.vc-dots { display: flex; justify-content: center; gap: 7px; }
+.vc-dots button { all: unset; width: 7px; height: 7px; border-radius: 99px; background: rgba(245,245,247,.25); cursor: pointer; transition: width .35s var(--vc-spring), background .3s; }
+.vc-dots button[aria-current="true"] { width: 22px; background: var(--vc-accent); }
+.vc-dots button:focus-visible { outline: 2px solid var(--vc-accent); outline-offset: 3px; }
+
+.vc-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ===== Glass floating player ===== */
+.vcp { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; font-family: var(--vc-font, system-ui, sans-serif); color: #f5f5f7; -webkit-tap-highlight-color: transparent; }
+.vcp-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(12,16,20,.5);
+  -webkit-backdrop-filter: blur(8px) saturate(120%); backdrop-filter: blur(8px) saturate(120%);
+}
+.vcp-panel {
+  position: relative;
+  width: var(--vcp-w, 88vw); box-sizing: border-box;
+  padding: 10px 10px 12px;
+  border-radius: 24px;
+  background: linear-gradient(160deg, rgba(60,74,88,.42), rgba(29,35,42,.38));
+  -webkit-backdrop-filter: blur(24px) saturate(170%); backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 0 0 1px rgba(0,186,240,.22) inset, 0 1px 0 rgba(255,255,255,.18) inset, 0 30px 80px -20px rgba(0,0,0,.75), 0 0 60px -20px rgba(0,186,240,.45);
+  transform-origin: 0 0;
+  touch-action: none;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+/* no backdrop-filter support: solid navy panel + darker backdrop */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .vcp-backdrop { background: rgba(12,16,20,.86); }
+  .vcp-panel { background: rgba(33,40,48,.98); }
+  .vc-nav { background: rgba(38,46,55,.95); }
+}
+.vcp-grab { width: 38px; height: 4px; border-radius: 9px; background: rgba(255,255,255,.28); margin: 0 auto 8px; }
+.vcp-media { position: relative; border-radius: 16px; overflow: hidden; background: #11161b; aspect-ratio: var(--vcp-aspect, 9/16); }
+.vcp-media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vcp-close {
+  all: unset; position: absolute; top: 10px; right: 10px; z-index: 2; width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  background: rgba(29,35,42,.5); -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.2) inset;
+}
+.vcp-bigplay {
+  all: unset; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+  opacity: 0; transition: opacity .2s;
+}
+.vcp-bigplay span { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: rgba(29,35,42,.45); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 0 0 1px rgba(255,255,255,.22) inset; }
+.vcp.vcp-paused .vcp-bigplay { opacity: 1; }
+.vcp-info { padding: 12px 6px 2px; }
+.vcp-title { margin: 0; font-size: 17px; font-weight: 750; letter-spacing: -.01em; }
+.vcp-cap { margin: 3px 0 0; font-size: 13px; line-height: 1.38; color: rgba(245,245,247,.72); }
+.vcp-ctrls { display: flex; align-items: center; gap: 6px; padding: 10px 2px 0; }
+.vcp-btn {
+  all: unset; flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  background: rgba(255,255,255,.08); box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset; transition: background .2s;
+}
+.vcp-btn:hover { background: rgba(0,186,240,.22); }
+.vcp-btn:focus-visible, .vcp-close:focus-visible { box-shadow: 0 0 0 2px var(--vc-accent, #00baf0); }
+.vcp-btn svg, .vcp-close svg, .vcp-bigplay svg { width: 18px; height: 18px; fill: currentColor; }
+.vcp-bigplay svg { width: 26px; height: 26px; }
+.vcp-time { flex: none; font-size: 12px; font-variant-numeric: tabular-nums; color: rgba(245,245,247,.75); min-width: 34px; text-align: center; }
+.vcp-scrub { flex: 1; min-width: 40px; height: 28px; margin: 0 4px; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; touch-action: none; --p: 0%; }
+.vcp-scrub::-webkit-slider-runnable-track { height: 5px; border-radius: 9px; background: linear-gradient(to right, #00baf0 var(--p), rgba(255,255,255,.2) var(--p)); }
+.vcp-scrub::-moz-range-track { height: 5px; border-radius: 9px; background: rgba(255,255,255,.2); }
+.vcp-scrub::-moz-range-progress { height: 5px; border-radius: 9px; background: #00baf0; }
+.vcp-scrub::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; margin-top: -5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgba(0,186,240,.45), 0 2px 6px rgba(0,0,0,.4); }
+.vcp-scrub::-moz-range-thumb { width: 15px; height: 15px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgba(0,186,240,.45); }
+.vcp-scrub:focus-visible { outline: 2px solid var(--vc-accent, #00baf0); outline-offset: 2px; border-radius: 9px; }
+html.vcp-lock, html.vcp-lock body { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vc-lift, .vc-dots button { transition: none; }
+}
+
+/* coverflow wrapper (JS sets transform), dim layer */
+.vc-track { position: relative; }
+.vc-cf { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: transform; }
+.vc-dim { position: absolute; inset: 0; z-index: 2; background: #161b21; opacity: var(--dim, 0); pointer-events: none; transition: opacity .2s; }
+.vc-card.vc-preview .vc-dim { opacity: 0; }
+.vc-card.vc-hidden .vc-cf { opacity: 0; }
+.vcp-info { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 60px 16px 14px; pointer-events: none;
+  background: linear-gradient(to top, rgba(22,27,33,.92), rgba(22,27,33,.6) 55%, rgba(22,27,33,0)); transition: opacity .25s; }
+.vcp-grab { display: none; }
+@media (pointer: coarse) { .vcp-grab { display: block; } }

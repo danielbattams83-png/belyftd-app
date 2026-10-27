@@ -7,6 +7,8 @@ import {MentorRecordingPickerComponent} from './components/mentor-recording-pick
 import {productionMentorForLabel} from './services/production-mentors';
 import {BackButtonComponent} from './components/back-button.component';
 import {SpotlightBentoComponent} from './components/spotlight-bento/spotlight-bento.component';
+import {VideoCarouselComponent} from './components/video-carousel/video-carousel.component';
+import {HOME_CAROUSEL_VIDEOS} from './components/video-carousel/video-carousel.videos';
 import {DASHBOARD_BENTO_CARDS, mentorBentoCards} from './components/spotlight-bento/spotlight-bento.cards';
 import {NavigationService} from './services/navigation.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -57,6 +59,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     MentorRecordingPickerComponent,
     BackButtonComponent,
     SpotlightBentoComponent,
+    VideoCarouselComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -99,6 +102,7 @@ export class App {
   private readonly router = inject(Router);
   readonly pwaService = inject(PwaInstallService);
   readonly hopeVideoUrl = signal<string | null>(null);
+  readonly homeCarouselVideos = HOME_CAROUSEL_VIDEOS;
   readonly hopeUnits = signal<HopeUnit[]>([]);
   readonly dailyMessageScheduler = inject(DailyMessageSchedulerService);
   readonly isLoggedIn = computed(() => this.firebaseService.isLoggedIn());
