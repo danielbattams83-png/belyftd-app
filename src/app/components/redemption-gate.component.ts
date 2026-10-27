@@ -24,7 +24,8 @@ type GateStep = 'code' | 'preview' | 'auth' | 'connecting';
           </div>
         } @else {
           <div class="flex flex-col items-center gap-3 px-6 pt-8 text-center">
-            <img src="/logo.png" alt="Lyftd" width="120" height="62" class="h-14 w-auto object-contain" />
+            <img src="/logo-wordmark-dark.png" alt="Lyftd" width="180" height="81" class="block h-20 w-auto max-w-full object-contain dark:hidden" />
+            <img src="/logo-wordmark-light.png" alt="Lyftd" width="180" height="81" class="hidden h-20 w-auto max-w-full object-contain dark:block" />
             @if (groupName()) {
               <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Access confirmed</p>
               <h2 id="redemption-gate-title" class="text-balance text-2xl font-bold font-display">{{ groupName() }}</h2>
