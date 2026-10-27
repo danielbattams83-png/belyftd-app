@@ -19,14 +19,15 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
   selector: 'app-course-unit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MentorAudioComponent, CommonModule, MatIconModule],
-  styles: [`.unit-modal-header { padding-top: calc(.5rem + var(--safe-top, 0px)); } .unit-modal-logo { display: block; width: 140px; height: auto; min-height: 64px; object-fit: contain; } .unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
+  styles: [`.unit-modal-header { padding-top: calc(.5rem + var(--safe-top, 0px)); } .unit-modal-logo { display: block; width: 140px; height: auto; min-height: 64px; object-fit: contain; } .unit-modal-logo.logo-on-dark, :host-context(.dark) .unit-modal-logo.logo-on-light { display: none; } :host-context(.dark) .unit-modal-logo.logo-on-dark { display: block; } .unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
   template: `
     <section class="fullscreen-page fixed inset-0 z-50 overflow-y-auto bg-slate-50 dark:bg-slate-950" role="dialog" aria-modal="true" aria-label="Course unit">
-      <header class="unit-modal-header sticky top-0 z-10 flex items-center justify-between gap-4 border-b-2 border-(--brand-accent) bg-slate-100/95 px-4 pb-2 shadow-sm backdrop-blur-md dark:bg-slate-900/95">
+      <header class="unit-modal-header sticky top-0 z-10 flex items-center justify-between gap-4 border-b-2 border-(--brand-accent) bg-slate-200/95 px-4 pb-2 shadow-sm backdrop-blur-md dark:bg-slate-900/95">
         @if (tenantService.activeTenant(); as tenant) {
           <img [src]="tenant.branding.logoUrl" [alt]="tenant.organizationName" width="140" height="72" class="unit-modal-logo" />
         } @else {
-          <img src="/logo.png" alt="Lyftd" width="140" height="72" class="unit-modal-logo" />
+          <img src="/logo-wordmark-dark.png" alt="Lyftd" width="140" height="70" class="unit-modal-logo logo-on-light" />
+          <img src="/logo-wordmark-light.png" alt="Lyftd" width="140" height="63" class="unit-modal-logo logo-on-dark" />
         }
         <button type="button" (click)="close()" aria-label="Close lesson" title="Close lesson"
           class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-700 transition hover:bg-slate-200 hover:text-(--brand-accent) dark:text-slate-200 dark:hover:bg-slate-800 focus-accessible">
@@ -59,22 +60,22 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
               <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ lesson.title || lesson.id }}</h1>
             </header>
 
-            @if (hasMediaAccess() && videoMedia().length > 0) {
+            @if (hasMediaAccess() && visibleVideoMedia().length > 0) {
               <section class="space-y-3">
                 <div class="flex flex-wrap gap-2" aria-label="Choose video avatar or language">
-                  @for (media of videoMedia(); track media.path) {
+                  @for (media of visibleVideoMedia(); track media.path) {
                     <button
                       type="button"
                       (click)="selectVideo(media)"
-                      [attr.aria-pressed]="selectedVideo()?.url === media.url"
+                      [attr.aria-pressed]="activeVideo()?.url === media.url"
                       class="rounded-full border px-4 py-2 text-sm font-semibold transition"
-                      [class]="selectedVideo()?.url === media.url
+                      [class]="activeVideo()?.url === media.url
                         ? 'border-indigo-600 bg-indigo-600 text-white'
                         : 'border-slate-300 bg-white text-slate-700 hover:border-indigo-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'"
                     >{{ media.key }}</button>
                   }
                 </div>
-                @if (selectedVideo(); as activeVideo) {
+                @if (activeVideo(); as currentVideo) {
                   <div class="relative overflow-hidden rounded-2xl bg-black">
                     <video
                       #videoPlayer
@@ -95,13 +96,13 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
                         <span class="h-10 w-10 animate-spin rounded-full border-4 border-white/35 border-t-white"></span>
                       </div>
                     }
-                    <span class="sr-only">{{ activeVideo.key }}</span>
+                    <span class="sr-only">{{ currentVideo.key }}</span>
                   </div>
                 }
               </section>
             }
 
-            @if (hasMediaAccess() && audioTracks().length) { <app-mentor-audio [tracks]="audioTracks()" /> }
+            @if (hasMediaAccess() && visibleAudioTracks().length) { <app-mentor-audio [tracks]="visibleAudioTracks()" /> }
 
             <div class="unit-content-body whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-200">{{ cleanContent(lesson.textContent) }}</div>
             @if (hasMediaAccess()) {
@@ -148,13 +149,21 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
   readonly audioTracks = signal<AudioTrack[]>([]);
   readonly videoMedia = signal<{key: string; url: string; path: string}[]>([]);
   readonly selectedVideo = signal<{key: string; url: string} | null>(null);
+  private readonly chosenMentorIds = computed(() => this.firebaseService.userProfile()?.selectedMentorIds ?? []);
+  readonly visibleVideoMedia = computed(() => this.filterByChosenMentors(this.videoMedia(), media => media.key));
+  readonly visibleAudioTracks = computed(() => this.filterByChosenMentors(this.audioTracks(), track => track.speaker));
+  readonly activeVideo = computed(() => {
+    const list = this.visibleVideoMedia();
+    const chosen = this.selectedVideo();
+    return list.find(media => media.url === chosen?.url) ?? list[0] ?? null;
+  });
   readonly videoLoading = signal(false);
   readonly videoLoadError = signal(false);
   private readonly videoPlayer = viewChild<ElementRef<HTMLVideoElement>>('videoPlayer');
 
   constructor() {
     effect(() => {
-      const media = this.selectedVideo();
+      const media = this.activeVideo();
       const player = this.videoPlayer()?.nativeElement;
       if (!media || !player) return;
 
@@ -233,8 +242,19 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
     return key;
   }
 
+  // Falls back to every mentor when the user's picks have no recording in this unit, so the lesson never ends up empty.
+  private filterByChosenMentors<T>(items: T[], labelOf: (item: T) => string): T[] {
+    const chosen = this.chosenMentorIds();
+    if (!chosen.length) return items;
+    const matching = items.filter(item => {
+      const mentorId = productionMentorForLabel(labelOf(item))?.id;
+      return mentorId !== undefined && chosen.includes(mentorId);
+    });
+    return matching.length ? matching : items;
+  }
+
   selectVideo(media: {key: string; url: string}): void {
-    if (this.selectedVideo()?.url === media.url) return;
+    if (this.activeVideo()?.url === media.url) return;
     this.videoLoadError.set(false);
     this.videoLoading.set(true);
     this.selectedVideo.set(media);
@@ -242,8 +262,8 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
 
   handleVideoError(): void {
     this.videoLoading.set(false);
-    const failed = this.selectedVideo()?.url;
+    const failed = this.activeVideo()?.url;
     this.videoMedia.update(media => media.filter(item => item.url !== failed));
-    this.selectedVideo.set(this.videoMedia()[0] ?? null);
+    this.selectedVideo.set(this.visibleVideoMedia()[0] ?? null);
   }
 }

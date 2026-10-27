@@ -78,9 +78,14 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
 export class App {
   readonly audioPlayer = inject(AudioPlayerService);
   readonly dataService = inject(MentorshipDataService);
-  readonly homeMentors = computed(() => [...this.dataService.mentors()]
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map(mentor => ({...mentor, initials: mentor.name.slice(0, 2).toUpperCase()})));
+  readonly homeMentors = computed(() => {
+    const chosen = this.firebaseService.userProfile()?.selectedMentorIds ?? [];
+    const all = this.dataService.mentors();
+    const picked = all.filter(mentor => chosen.includes(mentor.id));
+    return [...(picked.length ? picked : all)]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(mentor => ({...mentor, initials: mentor.name.slice(0, 2).toUpperCase()}));
+  });
   readonly curriculum = inject(CurriculumService);
   readonly themeService = inject(ThemeAccessibilityService);
   readonly aiService = inject(AiMentorService);

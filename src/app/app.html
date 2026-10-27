@@ -10,7 +10,7 @@
 <div class="app-shell min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans text-lg transition-colors duration-200" [class.partner-experience]="!!tenantService.activeTenant()" [class.has-audio-player]="audioPlayer.hasPlayableMedia()">
   
   <!-- Top App Header / Navigation Bar -->
-  <header class="app-header sticky top-0 z-30 bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-md border-b-2 border-(--brand-accent) pt-safe px-3 sm:px-6 py-2 shadow-sm">
+  <header class="app-header sticky top-0 z-30 bg-slate-200/95 dark:bg-slate-900/95 backdrop-blur-md border-b-2 border-(--brand-accent) pt-safe px-3 sm:px-6 py-2 shadow-sm">
     <div class="app-header-layout">
       <!-- Brand Logo -->
       <a
@@ -22,7 +22,8 @@
 @if (tenantService.activeTenant(); as tenant) {
     <img [src]="tenant.branding.logoUrl" [alt]="tenant.organizationName" width="130" height="67" class="app-header-logo object-contain" />
   } @else {
-    <img src="/logo.png" alt="Lyftd" width="130" height="67" class="app-header-logo" />
+    <img src="/logo-wordmark-dark.png" alt="Lyftd" width="140" height="70" class="app-header-logo logo-on-light" />
+    <img src="/logo-wordmark-light.png" alt="Lyftd" width="140" height="63" class="app-header-logo logo-on-dark" />
     <img src="/icon-192.png" alt="Lyftd" width="64" height="64" class="app-header-mark" />
   }
       </a>
