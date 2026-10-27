@@ -9,29 +9,39 @@ import {AudioPlayerService} from '../services/audio-player.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatIconModule],
   host: {'(document:keydown.escape)': 'player.close()'},
-  styles: `.mini-audio-player { bottom: calc(var(--mobile-nav-space) + 1rem); left: max(1rem, var(--safe-left)); right: max(1rem, var(--safe-right)); z-index: var(--z-player); max-height: calc(100dvh - var(--mobile-nav-space) - var(--safe-top) - 2rem); overflow-y: auto; }`,
+  styles: `.mini-audio-player { bottom: calc(var(--mobile-nav-space) + 1rem); left: max(1rem, var(--safe-left)); right: max(1rem, var(--safe-right)); z-index: var(--z-player); max-height: calc(100dvh - var(--mobile-nav-space) - var(--safe-top) - 2rem); overflow-y: auto; }
+    @media (min-width: 1024px) {
+      .mini-audio-player { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.5rem; bottom: 1.5rem; left: 50%; right: auto; transform: translateX(-50%); width: calc(100% - 3rem); max-width: 1080px; margin: 0; padding: .75rem 1.25rem; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, .3); }
+      .mini-audio-player > * { margin: 0; }
+      .mini-player-top { display: contents; }
+      .mini-player-title { order: 1; flex: 1 1 220px; }
+      .mini-player-scrub { order: 2; flex: 2 1 240px; }
+      .mini-player-controls { order: 3; flex: 0 0 auto; flex-wrap: nowrap; gap: 1rem; }
+      .mini-player-close { order: 4; }
+      .mini-player-status { order: 5; flex-basis: 100%; }
+    }`,
   template: `
     @if (player.hasPlayableMedia()) {
       <section id="mini-audio-player" aria-label="Audio player"
         class="card mini-audio-player fixed bottom-20 lg:bottom-6 left-4 right-4 max-w-lg mx-auto z-[60] space-y-3 rounded-3xl border border-slate-700 bg-[#333333] p-4 text-white shadow-2xl">
-        <div class="flex items-start gap-3">
+        <div class="mini-player-top flex items-start gap-3">
           <button type="button" (click)="player.toggleFullPlayer()" aria-label="Open full audio player"
-            class="flex min-w-0 flex-1 items-center gap-3 text-left focus-accessible rounded-xl">
+            class="mini-player-title flex min-w-0 flex-1 items-center gap-3 text-left focus-accessible rounded-xl">
             <img [src]="player.activeTrack()?.speakerAvatar" alt="" class="h-11 w-11 shrink-0 rounded-xl object-cover" />
             <span class="min-w-0"><span class="block truncate text-sm font-bold">{{ player.activeTrack()?.title }}</span>
               <span class="block truncate text-xs text-slate-300">{{ player.mentorLanguageLabel() }}</span></span>
           </button>
           <button id="close-mini-player-btn" type="button" (click)="player.close()" aria-label="Close audio player" title="Close and stop audio"
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-200 hover:bg-slate-700 focus-accessible">
+            class="mini-player-close flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-200 hover:bg-slate-700 focus-accessible">
             <mat-icon>close</mat-icon>
           </button>
         </div>
-        @if (player.isLoading()) { <p role="status" class="text-xs text-slate-300">Loading recording...</p> }
+        @if (player.isLoading()) { <p role="status" class="mini-player-status text-xs text-slate-300">Loading recording...</p> }
         @if (player.activeTrack()?.audioUrl) {
           <input type="range" min="0" step="0.1" [max]="player.duration()" [value]="player.currentTime()"
             [disabled]="!player.duration()" (input)="onScrubChange($event)" aria-label="Seek audio track position"
-            class="block h-1.5 w-full cursor-pointer accent-(--brand-accent) focus-accessible" />
-          <div class="flex flex-wrap items-center justify-between gap-2">
+            class="mini-player-scrub block h-1.5 w-full cursor-pointer accent-(--brand-accent) focus-accessible" />
+          <div class="mini-player-controls flex flex-wrap items-center justify-between gap-2">
             <span class="text-xs tabular-nums text-slate-300">{{ player.formatTime(player.currentTime()) }} / {{ player.formatTime(player.duration()) }}</span>
             <div class="flex items-center gap-1">
               <button type="button" (click)="player.skip(-10)" aria-label="Rewind 10 seconds" class="flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-700 focus-accessible"><mat-icon>replay_10</mat-icon></button>

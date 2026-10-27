@@ -19,7 +19,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
   selector: 'app-course-unit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MentorAudioComponent, CommonModule, MatIconModule],
-  styles: [`.unit-modal-header { padding-top: calc(.5rem + var(--safe-top, 0px)); } .unit-modal-logo { display: block; width: 140px; height: auto; min-height: 64px; object-fit: contain; } .unit-modal-logo.logo-on-dark, :host-context(.dark) .unit-modal-logo.logo-on-light { display: none; } :host-context(.dark) .unit-modal-logo.logo-on-dark { display: block; } .unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
+  styles: [`.unit-modal-header { padding-top: calc(.5rem + var(--safe-top, 0px)); } .unit-modal-logo { display: block; width: 140px; height: auto; min-height: 64px; object-fit: contain; } .unit-modal-logo.logo-on-dark, :host-context(.dark) .unit-modal-logo.logo-on-light { display: none; } :host-context(.dark) .unit-modal-logo.logo-on-dark { display: block; } .unit-reading-card { max-width: 820px; margin: 0 auto; } @media (min-width: 768px) { .unit-reading-card { padding: 2rem; } } .unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
   template: `
     <section class="fullscreen-page fixed inset-0 z-50 overflow-y-auto bg-slate-50 dark:bg-slate-950" role="dialog" aria-modal="true" aria-label="Course unit">
       <header class="unit-modal-header sticky top-0 z-10 flex items-center justify-between gap-4 border-b-2 border-(--brand-accent) bg-slate-200/95 px-4 pb-2 shadow-sm backdrop-blur-md dark:bg-slate-900/95">
@@ -43,7 +43,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
         } @else if (errorMessage()) {
           <p class="rounded-2xl bg-white p-6 text-rose-700 shadow-sm dark:bg-slate-900 dark:text-rose-300" role="alert">{{ errorMessage() }}</p>
         } @else if (unit(); as lesson) {
-          <article class="card space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          <article class="unit-reading-card card space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
             @if (sponsor(); as activeSponsor) {
               <aside class="flex items-center gap-3 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-violet-50 p-4 dark:border-indigo-900 dark:from-indigo-950/60 dark:to-violet-950/40">
                 <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white">

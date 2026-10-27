@@ -14,9 +14,10 @@ const MODULE_TITLES: Record<string, string> = {
   selector: 'app-mentor-recording-picker',
   imports: [MatIconModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {class: 'flex flex-1 flex-col'},
   template: `
     @if (selectedTrack(); as track) {
-      <div class="space-y-4">
+      <div class="flex flex-1 flex-col gap-4">
         <div class="grid min-w-0 gap-3">
           <label class="block min-w-0 space-y-1.5 text-xs font-semibold">
             <span>Module</span>
@@ -43,7 +44,7 @@ const MODULE_TITLES: Record<string, string> = {
           }
         </div>
         <button type="button" (click)="playSelected()" [attr.aria-label]="'Play ' + track.title + ' in ' + track.language"
-          class="flex w-full items-center justify-center gap-2 rounded-xl bg-(--brand-accent) px-4 py-3 text-sm font-semibold text-white hover:bg-(--brand-accent-hover) focus-accessible">
+          class="play-btn mt-auto flex w-full items-center justify-center gap-2 rounded-xl bg-(--brand-accent) px-4 py-3 text-sm font-semibold text-white hover:bg-(--brand-accent-hover) focus-accessible">
           <mat-icon>play_arrow</mat-icon><span>Play lesson</span>
           @if (!showLanguageSelector()) { <span class="text-xs font-normal">({{ track.language }})</span> }
         </button>

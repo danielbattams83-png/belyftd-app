@@ -62,7 +62,23 @@
   .app-header-powered { font-size: 12px; }
 }
 @media (min-width: 480px) { .header-signin-full { display: inline; } .header-signin-short { display: none; } }
-@media (min-width: 1024px) { .app-header-nav { display: flex; } .app-header-actions { max-width: none; } }
+@media (min-width: 1024px) {
+  .app-header { padding: calc(.5rem + var(--safe-top)) var(--safe-right) 0 var(--safe-left); }
+  .app-header-layout { align-items: center; flex-wrap: wrap; gap: .25rem 1rem; max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+  .app-header-actions { max-width: none; }
+  .app-header-nav { display: flex; justify-content: flex-start; flex-wrap: nowrap; gap: 1.5rem; margin-top: .25rem; }
+  .app-header-nav button { padding: .5rem 0; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .app-header-nav button.border-b-2 { border-bottom-color: var(--color-indigo-600, #4f46e5); }
+  .partner-experience .app-header-logo { height: 56px; max-width: 180px; }
+  .partner-experience .app-header-actions { height: auto; }
+  .partner-experience .app-header-nav button.border-b-2 { color: var(--hero-text-color, #fff); border-bottom-color: var(--hero-text-color, #fff); }
+}
+
+/* Mentors: four balanced columns on desktop, with the play button pinned to each card's bottom edge. */
+.mentor-grid > article { display: flex; flex-direction: column; height: 100%; }
+@media (min-width: 1024px) {
+  .mentor-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 
 /* Courses: keep summary widgets below the title, with intrinsic card heights. */
 .courses-page-header {
@@ -117,6 +133,10 @@
   --tenant-accent: var(--accent-highlight, #f59e0b); flex-shrink: 0; }
 @media (min-width: 768px) {
   .courses-hero-summary { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+}
+@media (min-width: 1024px) {
+  .courses-hero-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
+  .courses-hero-summary .summary-card { height: 100%; }
 }
 
 #daily-message-card { height: auto; min-height: 350px; }
