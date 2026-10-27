@@ -243,23 +243,10 @@
     <!-- ========================================== -->
     @if (activeTab() === 'daily-lyft') {
   <div id="tab-daily-lyft-content" class="flex flex-col gap-6 animate-in fade-in duration-150">
-  @if (isDashboard() && hopeVideoUrl()) {
-  <section aria-labelledby="message-of-hope-video-title" class="order-1 mt-6 overflow-hidden rounded-3xl bg-black">
-          <h2 id="message-of-hope-video-title" class="sr-only">Message of Hope video</h2>
-          <video
-            #heroVideo
-            [muted]="true"
-            class="block aspect-video w-full object-cover"
-            [src]="hopeVideoUrl() || ''"
-            title="Message of Hope video"
-            preload="metadata"
-            autoplay
-  muted
-  playsinline
-  webkit-playsinline
-  controls
-  (canplay)="playMainVideo($event)"
-  ></video>
+  @if (isDashboard()) {
+  <section aria-labelledby="home-video-carousel-title" class="order-1 -mx-4 mt-2 sm:mx-0">
+          <h2 id="home-video-carousel-title" class="sr-only">Lyft&apos;d videos</h2>
+          <app-video-carousel [videos]="homeCarouselVideos" label="Lyft'd videos" />
         </section>
   }
 
