@@ -45,15 +45,16 @@
 .app-header-nav { display: none; order: 3; width: 100%; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
 .header-signin-full { display: none; }
 .header-signin-short { display: inline; }
-/* On phones the Lyftd brand collapses to the 80px mark and hugs it, so the back arrow sits right beside it. */
+/* On phones the Lyftd wordmark scales with the viewport (48–60px tall) so the icons on the right stay on one row. */
 @media (max-width: 479px) {
-  .app-header { height: 92px; padding-top: calc(5px + var(--safe-top)); padding-left: max(5px, var(--safe-left)); }
-  .app-header-brand { flex: 0 0 auto; width: 55px; height: 88px; min-width: 0; max-width: none; container-type: normal; align-items: stretch; text-align: right; font-size: 14px; }
-  .app-header-logo,
-  :host-context(.dark) .app-header-logo.logo-on-dark { display: none; }
-  .app-header-mark { display: block; }
+  .app-header { height: 92px; padding-top: calc(5px + var(--safe-top)); padding-left: max(10px, var(--safe-left)); padding-right: max(10px, var(--safe-right)); }
+  .app-header-layout { align-items: center; gap: 6px; }
+  .app-header-brand { flex: 0 0 auto; width: auto; min-width: 0; max-width: none; container-type: normal; }
+  .partner-experience .app-header-brand { align-self: center; }
+  .app-header-logo { width: auto; height: clamp(48px, 14vw, 60px); min-height: 48px; }
+  .app-header-actions { flex: 0 1 auto; }
 }
-@media (min-width: 400px) { .header-signin-full { display: inline; } .header-signin-short { display: none; } }
+@media (min-width: 480px) { .header-signin-full { display: inline; } .header-signin-short { display: none; } }
 @media (min-width: 1024px) { .app-header-nav { display: flex; } .app-header-actions { max-width: none; } }
 
 /* Courses: keep summary widgets below the title, with intrinsic card heights. */
