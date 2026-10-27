@@ -97,6 +97,7 @@ class VideoCarousel extends HTMLElement {
       <div class="vc-sr" aria-live="polite" aria-atomic="true"></div>`;
     this._track = this.querySelector(".vc-track");
     this._cards = [...this.querySelectorAll(".vc-card")];
+    this._cf = this._cards.map((c) => c.querySelector(".vc-cf"));
     this._live = this.querySelector('[aria-live]');
     this._cards.forEach((c, k) => {
       const i = k % n;
@@ -150,21 +151,25 @@ class VideoCarousel extends HTMLElement {
 
   // ---------- coverflow-lite layout ----------
   _layout(force) {
-    const t = this._track; if (!t || !this._cards.length) return;
-    const mid = t.scrollLeft + t.clientWidth / 2;
-    const step = this._cards[0].offsetWidth + (parseFloat(getComputedStyle(t).columnGap) || 14);
+    const t = this._track, cs = this._cards; if (!t || !cs.length) return;
+    // Read phase: every layout read happens before any style write, so the browser flushes layout once per frame
+    // instead of once per card.
+    const mid = t.scrollLeft + t.clientWidth / 2, w = cs[0].offsetWidth;
+    const step = w + (parseFloat(getComputedStyle(t).columnGap) || 14);
     const flat = this._reduced;
+    const ds = cs.map((c) => (c.offsetLeft + w / 2 - mid) / step);
+    // Write phase
     let best = 0, bestD = Infinity;
-    this._cards.forEach((c, i) => {
-      const d = (c.offsetLeft + c.offsetWidth / 2 - mid) / step, ad = Math.abs(d);
+    ds.forEach((d, i) => {
+      const ad = Math.abs(d);
       if (ad < bestD) { bestD = ad; best = i; }
       const k = Math.min(ad, 1), far = Math.max(0, Math.min(ad, 3) - 1);
       const scale = 1.03 - k * 0.17 - far * 0.05;
       const rot = flat ? 0 : Math.max(-1.6, Math.min(1.6, d)) * -14;
-      const tx = -Math.sign(d) * (k * 0.06 + far * 0.1) * c.offsetWidth;
-      c.querySelector(".vc-cf").style.transform = `translateX(${tx.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
-      c.style.setProperty("--dim", (Math.min(ad, 1.4) * 0.4).toFixed(3));
-      c.style.zIndex = String(20 - Math.round(ad * 2));
+      const tx = -Math.sign(d) * (k * 0.06 + far * 0.1) * w;
+      this._cf[i].style.transform = `translate3d(${tx.toFixed(1)}px,0,0) rotateY(${rot.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
+      cs[i].style.setProperty("--dim", (Math.min(ad, 1.4) * 0.4).toFixed(3));
+      cs[i].style.zIndex = String(20 - Math.round(ad * 2));
     });
     if (best !== this._i || force) this._setActive(best);
   }
@@ -191,15 +196,26 @@ class VideoCarousel extends HTMLElement {
   // Invisible jump back to the middle copy once the track is at rest; the layout is identical so nothing moves.
   _recenter() {
     clearTimeout(this._recT);
-    if (!this._loop || this._dragging || this._p || this._player) return;
-    const n = this._videos.length, copy = Math.floor(this._i / n);
-    if (copy === this._mid) return;
-    const t = this._track, cs = this._cards;
-    const shift = (this._mid - copy) * (cs[n].offsetLeft - cs[0].offsetLeft);
-    const focused = this.contains(document.activeElement) && document.activeElement.classList.contains("vc-hit");
-    t.scrollTo({ left: t.scrollLeft + shift, behavior: "auto" });
-    this._layout();
-    if (focused) cs[this._i].querySelector(".vc-hit").focus({ preventScroll: true });
+    if (!this._loop || this._dragging || this._p || this._player || this._jumping) return;
+    const n = this._videos.length;
+    if (Math.floor(this._i / n) === this._mid) return;
+    this._jumping = true;
+    // Do the jump on a frame boundary with scroll-snap suspended, so snap never re-resolves mid-jump.
+    requestAnimationFrame(() => {
+      this._jumping = false;
+      if (this._dragging || this._p || this._player) return;
+      const copy = Math.floor(this._i / n);
+      if (copy === this._mid) return;
+      const t = this._track, cs = this._cards;
+      const shift = (this._mid - copy) * (cs[n].offsetLeft - cs[0].offsetLeft);
+      const focused = this.contains(document.activeElement) && document.activeElement.classList.contains("vc-hit");
+      t.style.scrollSnapType = "none";
+      t.scrollTo({ left: t.scrollLeft + shift, behavior: "auto" });
+      void t.offsetHeight;
+      t.style.scrollSnapType = "";
+      this._layout();
+      if (focused) cs[this._i].querySelector(".vc-hit").focus({ preventScroll: true });
+    });
   }
 
   go(i, smooth = true) {
@@ -284,8 +300,12 @@ class VideoCarousel extends HTMLElement {
       }
     }
     if (this._dragging) {
-      this._track.scrollLeft = p.sl - dx;
+      p.dx = dx;
       p.vs.push([performance.now(), e.clientX]); if (p.vs.length > 6) p.vs.shift();
+      if (!this._dragRaf) this._dragRaf = requestAnimationFrame(() => {
+        this._dragRaf = 0;
+        if (this._dragging && this._p) this._track.scrollLeft = this._p.sl - this._p.dx;
+      });
     }
   }
   _up(e) {
@@ -294,6 +314,8 @@ class VideoCarousel extends HTMLElement {
     if (p.held) this._endPreview();
     if (p.held || p.moved) { this._eat = true; setTimeout(() => (this._eat = false), 60); }
     if (this._dragging) {
+      cancelAnimationFrame(this._dragRaf); this._dragRaf = 0;
+      if (p.dx !== undefined) this._track.scrollLeft = p.sl - p.dx;
       this._dragging = false;
       const vs = p.vs, a = vs[0], b = vs[vs.length - 1];
       const vel = a && b && b[0] > a[0] ? (b[1] - a[1]) / (b[0] - a[0]) : 0; // px/ms
@@ -308,6 +330,7 @@ class VideoCarousel extends HTMLElement {
     const p = this._p; if (!p || p.id !== e.pointerId) return;
     clearTimeout(this._holdT); this._p = null;
     if (p.held) this._endPreview();
+    cancelAnimationFrame(this._dragRaf); this._dragRaf = 0;
     this._dragging = false; this._track.classList.remove("vc-dragging");
   }
   _wheel(e) {

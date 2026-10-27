@@ -11,6 +11,7 @@
   --vc-aspect: 9 / 16;
   --vc-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --vc-spring: linear(0,0.019,0.069,0.141,0.228,0.324,0.423,0.52,0.614,0.7,0.778,0.847,0.906,0.956,0.996,1.027,1.05,1.067,1.077,1.082,1.083,1.081,1.077,1.071,1.063,1.055,1.047,1.039,1.031,1.024,1.017,1.012,1.007,1.003,1,0.997,0.996,0.994,0.993,0.993,1);
+  --vc-ease: cubic-bezier(0.22, 1, 0.36, 1);
   display: block; position: relative;
   font-family: var(--vc-font); color: var(--vc-fg);
   -webkit-tap-highlight-color: transparent;
@@ -26,6 +27,7 @@
   scrollbar-width: none;
   padding: 28px calc(50% - var(--vc-card-w) / 2) 24px;
   perspective: 1100px;
+  will-change: scroll-position;
   outline: none;
 }
 .vc-track::-webkit-scrollbar { display: none; }
@@ -37,6 +39,7 @@
   aspect-ratio: var(--vc-aspect);
   scroll-snap-align: center;
   scroll-snap-stop: always;
+  contain: layout style;
   position: relative;
   touch-action: pan-x pan-y;
   user-select: none; -webkit-user-select: none;
@@ -50,7 +53,7 @@
   transform-origin: 50% 50%;
   will-change: transform;
   box-shadow: 0 0 0 1px rgba(0,186,240,.14) inset, 0 18px 40px -22px rgba(0,0,0,.75);
-  transition: box-shadow .35s, filter .35s;
+  transition: box-shadow .45s var(--vc-ease), filter .35s var(--vc-ease);
 }
 .vc-card img, .vc-card video {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -192,7 +195,7 @@ html.vcp-lock, html.vcp-lock body { overflow: hidden; }
 /* coverflow wrapper (JS sets transform), dim layer */
 .vc-track { position: relative; }
 .vc-cf { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: transform; }
-.vc-dim { position: absolute; inset: 0; z-index: 2; background: #161b21; opacity: var(--dim, 0); pointer-events: none; transition: opacity .2s; }
+.vc-dim { position: absolute; inset: 0; z-index: 2; background: #161b21; opacity: var(--dim, 0); pointer-events: none; }
 .vc-card.vc-preview .vc-dim { opacity: 0; }
 .vc-card.vc-hidden .vc-cf { opacity: 0; }
 .vcp-info { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 60px 16px 14px; pointer-events: none;
