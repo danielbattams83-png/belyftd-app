@@ -31,16 +31,17 @@
 .app-header-mark { display: none; box-sizing: content-box; width: 45px; height: 90px; min-height: 90px; padding-left: 20px; border-radius: 12px; object-fit: cover; align-items: stretch; justify-content: center; text-align: left; }
 .app-header-layout > app-back-button { display: flex; align-self: center; justify-content: flex-start; margin-left: 0; text-align: left; }
 .app-header-layout > app-back-button ::ng-deep button { display: block; width: 25px; min-width: 25px; margin-top: 0; text-align: left; }
-.app-header-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-content: center; gap: .375rem; flex: 0 1 200px; min-width: 0; margin-left: auto; max-width: calc(100% - 60px); text-align: right; }
+.app-header-actions { display: grid; grid-template-columns: max-content; justify-content: end; justify-items: end; align-content: center; row-gap: 4px; flex: 0 1 200px; min-width: 0; margin-left: auto; max-width: calc(100% - 60px); text-align: right; }
+.app-header-icons { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .375rem; max-width: 100%; }
 .partner-experience .app-header-actions { height: 80px; }
 /* The back button takes ~44px on inner pages; reserve it so the actions don't wrap under the logo. */
 .app-header-layout:has(> app-back-button) .app-header-actions { max-width: calc(100% - 140px); }
-.app-header-actions > button { flex-shrink: 0; }
+.app-header-icons > button { flex-shrink: 0; }
 /* Override the global 44px touch-target minimum so header controls render at their compact sizes. */
 #open-smart-search-btn, #theme-quick-toggle-btn { width: 36px; height: 36px; min-width: 36px; min-height: 36px; border-radius: 10px; }
 #streak-indicator-btn { height: 36px; min-height: 36px; padding-inline: 8px; }
 #open-profile-dialog-btn { width: 36px; height: 36px; min-width: 36px; min-height: 36px; }
-.app-header-powered { flex-basis: 100%; margin: 0; text-align: right; font-size: 14px; line-height: 1.2; font-weight: 600; opacity: .85; }
+.app-header-powered { margin: 0; white-space: nowrap; text-align: right; font-size: 14px; line-height: 1.2; font-weight: 600; opacity: .85; }
 .header-icon-22 { width: 22px; height: 22px; font-size: 22px; line-height: 22px; }
 .app-header-nav { display: none; order: 3; width: 100%; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
 .header-signin-full { display: none; }
@@ -54,7 +55,11 @@
   .partner-experience .app-header-brand { align-self: center; }
   .app-header-logo { width: auto; max-width: 100%; height: clamp(40px, 14vw, 60px); min-height: 40px; object-fit: contain; }
   .app-header-actions,
-  .app-header-layout:has(> app-back-button) .app-header-actions { flex: 0 0 auto; flex-wrap: nowrap; max-width: none; }
+  .app-header-layout:has(> app-back-button) .app-header-actions { flex: 0 0 auto; max-width: none; }
+  .app-header-icons { flex-wrap: nowrap; }
+  .partner-experience .app-header-logo { height: 56px; max-width: 40vw; }
+  .partner-experience .app-header-actions { height: auto; }
+  .app-header-powered { font-size: 12px; }
 }
 @media (min-width: 480px) { .header-signin-full { display: inline; } .header-signin-short { display: none; } }
 @media (min-width: 1024px) { .app-header-nav { display: flex; } .app-header-actions { max-width: none; } }
