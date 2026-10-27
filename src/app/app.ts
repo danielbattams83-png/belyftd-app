@@ -275,7 +275,12 @@ export class App {
         return;
       }
 
-      const needsOnboarding = !profile?.ageBracket ||
+      if (!profile) {
+        this.showPostAuthOnboarding.set(false);
+        this.showFeatureWalkthrough.set(false);
+        return;
+      }
+      const needsOnboarding = !profile.ageBracket ||
         !profile.country ||
         !profile.preferredLanguage ||
         !profile.avatarUrl ||
@@ -308,6 +313,18 @@ export class App {
         }, 5000);
       }
     });
+  }
+
+  async handleSignedIn(): Promise<void> {
+    const loader = window as Window & {showAppLoader?: () => void; hideAppLoader?: () => void};
+    loader.showAppLoader?.();
+    this.showProfileModal.set(false);
+    try {
+      await this.router.navigateByUrl('/dashboard', {replaceUrl: true});
+    } finally {
+      this.showRegisterModal.set(false);
+      requestAnimationFrame(() => requestAnimationFrame(() => loader.hideAppLoader?.()));
+    }
   }
 
   openRegisterModal(): void {
