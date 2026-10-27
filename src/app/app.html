@@ -95,7 +95,8 @@
       </nav>
 
       <!-- Right Action Items -->
-      <div class="app-header-actions flex items-center gap-1.5">
+      <div class="app-header-actions">
+        <div class="app-header-icons">
         <button type="button" id="open-smart-search-btn" (click)="smartSearch.open()"
           class="w-9 h-9 rounded-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center cursor-pointer focus-accessible shrink-0"
           aria-label="Search lessons and mentors" title="Search lessons and mentors (Ctrl / ⌘ K)">
@@ -159,6 +160,7 @@
           />
         </button>
         }
+        </div>
         @if (tenantService.activeTenant()) {
           <p class="app-header-powered">Powered by Lyft&apos;d</p>
         }
