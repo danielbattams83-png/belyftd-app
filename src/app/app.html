@@ -328,6 +328,11 @@
   and no one is left out.”
   </p>
 
+        <section id="daily-explore-bento" aria-labelledby="daily-explore-title" class="order-7 space-y-3">
+          <h3 id="daily-explore-title" class="text-lg font-bold text-slate-900 dark:text-slate-100 font-display">Explore Lyft'd</h3>
+          <app-spotlight-bento [cards]="dashboardBentoCards" label="Explore Lyft'd" />
+        </section>
+
         @if (isLoggedIn()) {
           <!-- Quick Mood Check-in Carousel -->
           <section id="daily-mood-checkin" class="card order-6 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
@@ -890,6 +895,7 @@
       <section id="tab-mentors-content" class="space-y-6 py-6">
         <h2 id="mentors-tour-anchor" class="text-3xl font-bold">Meet Your Mentors</h2>
         <p class="text-sm text-slate-500 dark:text-slate-300">Explore course recordings from our four production mentors.</p>
+        <app-spotlight-bento [cards]="mentorBentoCards()" label="Mentor spotlight" />
         <div class="mentor-grid responsive-grid">
           @for (mentor of dataService.mentors(); track mentor.id) {
             <article class="card space-y-4 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-[#333333]">
