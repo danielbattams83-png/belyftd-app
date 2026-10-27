@@ -25,6 +25,9 @@
 .app-header-layout { display: flex; align-items: stretch; justify-content: flex-start; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 1168px; margin: 0 5px 0 0; }
 .app-header-brand { container-type: inline-size; display: block; flex: 1 1 64px; min-width: 64px; max-width: 140px; }
 .app-header-logo { display: block; width: 140px; height: auto; min-height: 64px; min-width: 0; object-fit: contain; }
+.app-header-logo.logo-on-dark,
+:host-context(.dark) .app-header-logo.logo-on-light { display: none; }
+:host-context(.dark) .app-header-logo.logo-on-dark { display: block; }
 .app-header-mark { display: none; box-sizing: content-box; width: 45px; height: 90px; min-height: 90px; padding-left: 20px; border-radius: 12px; object-fit: cover; align-items: stretch; justify-content: center; text-align: left; }
 .app-header-layout > app-back-button { display: flex; align-self: center; justify-content: flex-start; margin-left: 0; text-align: left; }
 .app-header-layout > app-back-button ::ng-deep button { display: block; width: 25px; min-width: 25px; margin-top: 0; text-align: left; }
@@ -46,7 +49,8 @@
 @media (max-width: 479px) {
   .app-header { height: 92px; padding-top: calc(5px + var(--safe-top)); padding-left: max(5px, var(--safe-left)); }
   .app-header-brand { flex: 0 0 auto; width: 55px; height: 88px; min-width: 0; max-width: none; container-type: normal; align-items: stretch; text-align: right; font-size: 14px; }
-  .app-header-logo { display: none; }
+  .app-header-logo,
+  :host-context(.dark) .app-header-logo.logo-on-dark { display: none; }
   .app-header-mark { display: block; }
 }
 @media (min-width: 400px) { .header-signin-full { display: inline; } .header-signin-short { display: none; } }

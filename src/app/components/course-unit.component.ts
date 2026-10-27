@@ -19,14 +19,15 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
   selector: 'app-course-unit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MentorAudioComponent, CommonModule, MatIconModule],
-  styles: [`.unit-modal-header { padding-top: calc(.5rem + var(--safe-top, 0px)); } .unit-modal-logo { display: block; width: 140px; height: auto; min-height: 64px; object-fit: contain; } .unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
+  styles: [`.unit-modal-header { padding-top: calc(.5rem + var(--safe-top, 0px)); } .unit-modal-logo { display: block; width: 140px; height: auto; min-height: 64px; object-fit: contain; } .unit-modal-logo.logo-on-dark, :host-context(.dark) .unit-modal-logo.logo-on-light { display: none; } :host-context(.dark) .unit-modal-logo.logo-on-dark { display: block; } .unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
   template: `
     <section class="fullscreen-page fixed inset-0 z-50 overflow-y-auto bg-slate-50 dark:bg-slate-950" role="dialog" aria-modal="true" aria-label="Course unit">
-      <header class="unit-modal-header sticky top-0 z-10 flex items-center justify-between gap-4 border-b-2 border-(--brand-accent) bg-slate-100/95 px-4 pb-2 shadow-sm backdrop-blur-md dark:bg-slate-900/95">
+      <header class="unit-modal-header sticky top-0 z-10 flex items-center justify-between gap-4 border-b-2 border-(--brand-accent) bg-slate-200/95 px-4 pb-2 shadow-sm backdrop-blur-md dark:bg-slate-900/95">
         @if (tenantService.activeTenant(); as tenant) {
           <img [src]="tenant.branding.logoUrl" [alt]="tenant.organizationName" width="140" height="72" class="unit-modal-logo" />
         } @else {
-          <img src="/logo.png" alt="Lyftd" width="140" height="72" class="unit-modal-logo" />
+          <img src="/logo-wordmark-dark.png" alt="Lyftd" width="140" height="70" class="unit-modal-logo logo-on-light" />
+          <img src="/logo-wordmark-light.png" alt="Lyftd" width="140" height="63" class="unit-modal-logo logo-on-dark" />
         }
         <button type="button" (click)="close()" aria-label="Close lesson" title="Close lesson"
           class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-700 transition hover:bg-slate-200 hover:text-(--brand-accent) dark:text-slate-200 dark:hover:bg-slate-800 focus-accessible">
