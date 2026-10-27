@@ -7,9 +7,11 @@ import {AudioPlayerService} from '../services/audio-player.service';
   selector: 'app-mentor-audio',
   imports: [MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {class: 'block max-w-full'},
+  styles: `.mentor-audio-card { max-width: 100%; padding: 1rem; border-radius: 12px; }`,
   template: `
     @if (selectedTrack()) {
-    <section class="card space-y-4 rounded-3xl border border-slate-700 bg-[#333333] p-5 text-white shadow-xl" aria-label="Mentor audio player">
+    <section class="mentor-audio-card card space-y-4 rounded-3xl border border-slate-700 bg-[#333333] p-5 text-white shadow-xl" aria-label="Mentor audio player">
       @if (selectedTrack(); as track) {
         <label class="block space-y-2 text-sm font-semibold">
           <span>Mentor recording</span>
