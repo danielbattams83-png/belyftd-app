@@ -3,20 +3,24 @@
   @if (curriculum.usingSnapshot()) { <p class="catalog-note" role="status">Showing the saved course catalog. Live updates are temporarily unavailable.</p> }
 
   @if (visibleModules().length) {
-    <div class="selector">
+    <div class="module-carousel-container">
       <button type="button" class="track-nav track-nav--prev" aria-label="Scroll modules left" (click)="scrollTrack(-1)">
         <mat-icon aria-hidden="true">chevron_left</mat-icon>
       </button>
       <div #track class="module-track" role="group" aria-label="Choose a module">
-        @for (module of visibleModules(); track module.id) {
+        @for (module of visibleModules(); track module.id; let i = $index) {
           <button
             type="button"
             class="module-card"
+            [attr.data-module-id]="module.id"
             [class.is-active]="module.id === activeModuleId()"
+            [class.is-prev]="i < activeIndex()"
+            [class.is-next]="i > activeIndex()"
             [attr.aria-pressed]="module.id === activeModuleId()"
             aria-controls="unit-drawer"
             (click)="selectModule(module.id, $event)"
           >
+            <span class="module-card__face">
             <span class="module-card__header">
               <span class="module-tag">
                 @if (module.supplemental) { Supplemental } @else { Module {{ moduleNumber(module.id) }} }
@@ -41,8 +45,12 @@
                 <span class="progress-ring__label">{{ module.percent === 100 ? '✓' : module.percent + '%' }}</span>
               </span>
             </span>
-            <span class="module-card__title">{{ module.title }}</span>
-            <span class="module-card__count">{{ module.completedUnits }} / {{ module.totalUnits }} Completed</span>
+            <span class="module-card__body">
+              <span class="module-card__title">{{ module.title }}</span>
+              <span class="module-card__count">{{ module.completedUnits }} / {{ module.totalUnits }} Completed</span>
+            </span>
+            <span class="module-card__status" [attr.data-status]="moduleStatus(module).key">{{ moduleStatus(module).label }}</span>
+            </span>
           </button>
         }
       </div>
