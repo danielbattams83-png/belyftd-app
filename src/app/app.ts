@@ -7,6 +7,7 @@ import {MentorRecordingPickerComponent} from './components/mentor-recording-pick
 import {productionMentorForLabel} from './services/production-mentors';
 import {BackButtonComponent} from './components/back-button.component';
 import {SpotlightBentoComponent} from './components/spotlight-bento/spotlight-bento.component';
+import {ExploreStackComponent} from './components/explore-stack/explore-stack.component';
 import {VideoCarouselComponent} from './components/video-carousel/video-carousel.component';
 import {HOME_CAROUSEL_VIDEOS} from './components/video-carousel/video-carousel.videos';
 import {DASHBOARD_BENTO_CARDS, mentorBentoCards} from './components/spotlight-bento/spotlight-bento.cards';
@@ -59,6 +60,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     MentorRecordingPickerComponent,
     BackButtonComponent,
     SpotlightBentoComponent,
+    ExploreStackComponent,
     VideoCarouselComponent,
     CommonModule,
     FormsModule,

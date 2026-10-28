@@ -1,0 +1,51 @@
+<ul class="explore-stack" role="list" [attr.aria-label]="label()">
+  @for (card of cards(); track card.heading; let i = $index) {
+    @let open = expanded() === i;
+    <li class="explore-card" [class.is-expanded]="open" [style.--card-index]="i">
+      <div class="explore-card__head">
+        <span class="explore-card__tag">{{ card.tag }}</span>
+        <button
+          type="button"
+          class="explore-card__toggle"
+          [attr.aria-expanded]="open"
+          [attr.aria-controls]="'explore-card-panel-' + i"
+          (click)="toggle(i)"
+        >
+          <span class="sr-only">{{ open ? 'Hide details for' : 'Show details for' }} {{ card.heading }}</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
+      </div>
+
+      <h4 class="explore-card__title font-display">{{ card.heading }}</h4>
+      <p class="explore-card__text">{{ card.text }}</p>
+
+      <div class="explore-card__panel" [id]="'explore-card-panel-' + i" [attr.inert]="open ? null : ''">
+        <div class="explore-card__panel-inner">
+          @if (card.detail) {
+            <p class="explore-card__detail">{{ card.detail }}</p>
+          }
+          @if (card.chips?.length) {
+            <ul class="explore-card__chips" role="list">
+              @for (chip of card.chips; track chip) {
+                <li>{{ chip }}</li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+
+      <img
+        class="explore-card__image"
+        [src]="card.image"
+        [alt]="card.alt"
+        [style.object-position]="card.position ?? '50% 0%'"
+        width="640"
+        height="320"
+        loading="lazy"
+        decoding="async"
+      />
+    </li>
+  }
+</ul>
