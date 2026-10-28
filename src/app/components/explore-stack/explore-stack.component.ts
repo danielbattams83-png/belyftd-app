@@ -8,11 +8,13 @@ import {
   input,
   signal,
 } from '@angular/core';
+import {RouterLink} from '@angular/router';
 import type {BentoCard} from '../spotlight-bento/spotlight-bento.element';
 
 /** Sticky stacking deck: cards pin under the app header as the page scrolls, each one tapping open in place. */
 @Component({
   selector: 'app-explore-stack',
+  imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './explore-stack.component.html',
   styleUrl: './explore-stack.component.css',

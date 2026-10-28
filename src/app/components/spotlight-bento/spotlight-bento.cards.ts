@@ -12,6 +12,7 @@ export const DASHBOARD_BENTO_CARDS: BentoCard[] = [
     detail:
       'From Mindset: Reboot Your Thinking to Time & Discipline, Money, Finance & Stewardship, Leadership, Faith, and Digital Life & Social Media Safety. Upcoming sessions, weekly growth progress and your streak sit in one spot.',
     chips: ['21 modules', '142 units', 'Weekly growth', 'Streaks'],
+    href: '/courses',
   },
   {
     tag: 'Mentors',
@@ -22,6 +23,7 @@ export const DASHBOARD_BENTO_CARDS: BentoCard[] = [
     detail:
       'Sophie (English / Chinese), Omari (English / Swahili), Hannah and Steve (English). Pick a module, a lesson and a language, then hit play.',
     chips: ['4 mentors', 'English', 'Chinese', 'Swahili'],
+    href: '/mentors',
   },
   {
     tag: 'Quests',
@@ -32,6 +34,7 @@ export const DASHBOARD_BENTO_CARDS: BentoCard[] = [
     detail:
       'Every quest comes with mentor tips and steps that earn XP: launch a personal portfolio web app, draft scholarship and college essays, or build a 7-day mindful morning routine. Level up as your milestones fill in.',
     chips: ['Mentor tips', 'Earn XP', 'Levels', 'Milestones'],
+    href: '/quests',
   },
   {
     tag: 'Partners',
@@ -42,6 +45,7 @@ export const DASHBOARD_BENTO_CARDS: BentoCard[] = [
     detail:
       'Monthly tiers in USD: Starter Partner $14.99, Community Catalyst $29.99, Impact Leader $49.99 and Enterprise Sponsor $69.99. Higher tiers unlock more modules, the full mentor video library and multilingual audio.',
     chips: ['4 tiers', 'From $14.99/mo', 'Partner directory', 'Redemption codes'],
+    href: '/partners',
   },
 ];
 

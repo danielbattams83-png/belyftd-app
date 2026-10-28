@@ -11,6 +11,8 @@ export interface BentoCard {
   alt?: string;
   /** CSS object-position for the card image, e.g. "88% 45%". */
   position?: string;
+  /** In-app route the explore stack's "Learn More" link points to. */
+  href?: string;
 }
 
 const FALLBACK_EASE = 'cubic-bezier(.34,1.36,.64,1)';
