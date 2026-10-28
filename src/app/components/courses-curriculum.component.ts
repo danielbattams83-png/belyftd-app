@@ -73,14 +73,19 @@ export class CoursesCurriculumComponent {
     return id.split('-')[1];
   }
 
+  private get scrollBehavior(): ScrollBehavior {
+    const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return reduced ? 'auto' : 'smooth';
+  }
+
   selectModule(moduleId: string, event?: Event): void {
     this.selectedModuleId.set(moduleId);
     if (event?.currentTarget) {
-      (event.currentTarget as HTMLElement).scrollIntoView({behavior: 'smooth', inline: 'center', block: 'nearest'});
+      (event.currentTarget as HTMLElement).scrollIntoView({behavior: this.scrollBehavior, inline: 'center', block: 'nearest'});
     }
   }
 
   scrollTrack(direction: -1 | 1): void {
-    this.track()?.nativeElement.scrollBy({left: direction * 330, behavior: 'smooth'});
+    this.track()?.nativeElement.scrollBy({left: direction * 330, behavior: this.scrollBehavior});
   }
 }
