@@ -2,7 +2,7 @@
   @for (card of cards(); track card.heading; let i = $index) {
     @let open = expanded() === i;
     <!-- The button stays the accessible control; its click bubbles up to the card handler. -->
-    <li class="explore-card" [class.is-expanded]="open" [style.--card-index]="i" (click)="onCardClick(i)">
+    <li class="explore-card" [class.is-expanded]="open" [style.--card-index]="i" [attr.data-index]="i" (click)="onCardClick(i)">
       <div class="explore-card__head">
         <span class="explore-card__tag">{{ card.tag }}</span>
         <button
