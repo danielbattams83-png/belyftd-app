@@ -1,36 +1,98 @@
-<section id="foundational-courses-grid" aria-label="Course modules" class="module-list">
+<section id="foundational-courses-grid" aria-label="Course modules" class="curriculum">
   @if (curriculum.loading()) { <p role="status">Loading curriculum...</p> }
   @if (curriculum.usingSnapshot()) { <p class="catalog-note" role="status">Showing the saved course catalog. Live updates are temporarily unavailable.</p> }
-  @for (module of visibleModules(); track module.id) {
-    <details class="module-card module-accordion" [open]="isExpanded(module.id)" (toggle)="onToggle(module.id, $event)">
-      <summary>
-        <span class="module-title">@if (module.supplemental) { {{ module.title }} } @else { Module {{ module.id.split('-')[1] }}@if (module.title) {<span>: {{ module.title }}</span>} }</span>
-        <span class="module-stats">{{ module.allUnitCount }} Units &middot; {{ module.percent }}% Completed</span>
-        @if (!curriculum.canAccess(module.id)) { <mat-icon aria-label="Upgrade required">lock</mat-icon> }
-        <mat-icon class="chevron" aria-hidden="true">expand_more</mat-icon>
-      </summary>
-      <ol class="unit-list">
-        @for (unit of module.units; track unit.id) {
-          <li class="card unit-card">
-            <div class="unit-description">
-              <span class="unit-number">Unit {{ unit.id.split('-')[1] }}</span>
-              <h3>{{ unit.title }}</h3>
-              @if (curriculum.isCompleted(module.id, unit.id)) { <span class="completion-label">Completed</span> }
-            </div>
-            <div class="unit-actions">
-              <button type="button" (click)="curriculum.openUnit(module.id, unit.id)" [attr.aria-label]="(!curriculum.canAccess(module.id) ? 'Upgrade to unlock ' : unit.hasMedia ? 'Read and listen to ' : 'Read ') + unit.title">
-                <mat-icon aria-hidden="true">{{ !curriculum.canAccess(module.id) ? 'lock' : unit.hasMedia ? 'headphones' : 'menu_book' }}</mat-icon>
-                {{ !curriculum.canAccess(module.id) ? 'Upgrade to Unlock' : unit.hasMedia ? 'Read & Listen' : 'Read Unit' }}
-              </button>
-              @if (curriculum.canAccess(module.id) && !curriculum.isCompleted(module.id, unit.id)) {
-                <button class="complete-button" type="button" (click)="curriculum.markCompleted(module.id, unit.id)" [attr.aria-label]="'Mark ' + unit.title + ' completed'">Mark completed</button>
-              }
-            </div>
-          </li>
+
+  @if (visibleModules().length) {
+    <div class="selector">
+      <button type="button" class="track-nav track-nav--prev" aria-label="Scroll modules left" (click)="scrollTrack(-1)">
+        <mat-icon aria-hidden="true">chevron_left</mat-icon>
+      </button>
+      <div #track class="module-track" role="group" aria-label="Choose a module">
+        @for (module of visibleModules(); track module.id) {
+          <button
+            type="button"
+            class="module-card"
+            [class.is-active]="module.id === activeModuleId()"
+            [attr.aria-pressed]="module.id === activeModuleId()"
+            aria-controls="unit-drawer"
+            (click)="selectModule(module.id, $event)"
+          >
+            <span class="module-card__header">
+              <span class="module-tag">
+                @if (module.supplemental) { Supplemental } @else { Module {{ moduleNumber(module.id) }} }
+                @if (!curriculum.canAccess(module.id)) { <mat-icon class="lock-icon" aria-label="Upgrade required">lock</mat-icon> }
+              </span>
+              <span class="progress-ring-wrap">
+                <svg class="progress-ring" width="42" height="42" viewBox="0 0 42 42" aria-hidden="true" focusable="false">
+                  <circle class="progress-ring__circle-bg" stroke="rgba(255, 255, 255, 0.1)" stroke-width="3.5" fill="transparent" r="17" cx="21" cy="21" />
+                  <circle
+                    class="progress-ring__circle"
+                    stroke="var(--tenant-primary, #0ea5e9)"
+                    stroke-width="3.5"
+                    stroke-linecap="round"
+                    fill="transparent"
+                    r="17"
+                    cx="21"
+                    cy="21"
+                    [style.strokeDasharray]="circumference"
+                    [style.strokeDashoffset]="calculateOffset(module.percent)"
+                  />
+                </svg>
+                <span class="progress-ring__label">{{ module.percent === 100 ? '✓' : module.percent + '%' }}</span>
+              </span>
+            </span>
+            <span class="module-card__title">{{ module.title }}</span>
+            <span class="module-card__count">{{ module.completedUnits }} / {{ module.totalUnits }} Completed</span>
+          </button>
         }
-      </ol>
-    </details>
-  } @empty {
+      </div>
+      <button type="button" class="track-nav track-nav--next" aria-label="Scroll modules right" (click)="scrollTrack(1)">
+        <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <div id="unit-drawer" class="unit-drawer" aria-live="polite">
+      @for (module of activeModuleList(); track module.id) {
+        <div class="units-container">
+          <header class="drawer-header">
+            <p class="drawer-eyebrow">@if (module.supplemental) { Supplemental } @else { Module {{ moduleNumber(module.id) }} }</p>
+            <h2>{{ module.title }}</h2>
+            <p class="drawer-meta">{{ module.allUnitCount }} {{ module.allUnitCount === 1 ? 'unit' : 'units' }} &middot; {{ module.percent }}% completed</p>
+          </header>
+          <ol class="unit-list">
+            @for (unit of module.units; track unit.id) {
+              <li class="unit-card">
+                <button
+                  type="button"
+                  class="unit-open"
+                  (click)="curriculum.openUnit(module.id, unit.id)"
+                  [attr.aria-label]="(!curriculum.canAccess(module.id) ? 'Upgrade to unlock ' : unit.hasMedia ? 'Read and listen to ' : 'Read ') + unit.title"
+                >
+                  <span class="unit-index" aria-hidden="true">{{ unitNumber(unit.id) }}</span>
+                  <span class="unit-description">
+                    <span class="unit-title">{{ unit.title }}</span>
+                    @if (unit.hasMedia) {
+                      <span class="audio-badge"><mat-icon aria-hidden="true">headphones</mat-icon>Mentor audio</span>
+                    }
+                  </span>
+                  @if (curriculum.isCompleted(module.id, unit.id)) {
+                    <span class="status-pill status-pill--done"><mat-icon aria-hidden="true">check</mat-icon>Completed</span>
+                  } @else if (!curriculum.canAccess(module.id)) {
+                    <span class="status-pill status-pill--locked"><mat-icon aria-hidden="true">lock</mat-icon>Upgrade to Unlock</span>
+                  } @else {
+                    <span class="status-pill status-pill--start">{{ unit.hasMedia ? 'Read & Listen' : 'Read Unit' }}<mat-icon aria-hidden="true">arrow_forward</mat-icon></span>
+                  }
+                </button>
+                @if (curriculum.canAccess(module.id) && !curriculum.isCompleted(module.id, unit.id)) {
+                  <button class="complete-button" type="button" (click)="curriculum.markCompleted(module.id, unit.id)" [attr.aria-label]="'Mark ' + unit.title + ' completed'">Mark completed</button>
+                }
+              </li>
+            }
+          </ol>
+        </div>
+      }
+    </div>
+  } @else {
     <p>No units match this filter.</p>
   }
 </section>
