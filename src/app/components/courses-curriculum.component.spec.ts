@@ -13,7 +13,11 @@ const modules = [
   {id: 'module-1', title: 'Mindset', units: [unit('unit-10'), unit('unit-2'), unit('unit-1', true)]},
 ];
 
-describe('module curriculum accordions', () => {
+describe('module selector and unit drawer', () => {
+  beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = vi.fn();
+  });
+
   async function setup(tier = 1, completed: string[] = []) {
     const firebase = {
       subscriptionTier: signal(tier), userProfile: signal({completedCourses: completed}),
@@ -29,50 +33,68 @@ describe('module curriculum accordions', () => {
     return {fixture, firebase, component: fixture.componentInstance, element: fixture.nativeElement as HTMLElement};
   }
 
-  it('sorts modules and units numerically and includes text-only and locked lessons', async () => {
+  it('sorts modules and units numerically and lists the active module units in the drawer', async () => {
     const {component, element} = await setup();
     expect(component.visibleModules().map(module => module.id)).toEqual(['module-1', 'module-2', 'module-10']);
     expect(component.visibleModules()[0].units.map(unit => unit.id)).toEqual(['unit-1', 'unit-2', 'unit-10']);
+    expect(element.querySelectorAll('.module-card').length).toBe(3);
+    expect(element.querySelectorAll('.unit-card').length).toBe(3);
     expect(element.textContent).toContain('Read Unit');
     expect(element.textContent).toContain('Read & Listen');
-    expect(element.textContent).toContain('Upgrade to Unlock');
-    expect(element.querySelectorAll('li').length).toBe(5);
-    expect(component.defaultExpanded()).toBe('module-1');
+    expect(component.activeModuleId()).toBe('module-1');
   });
 
-  it('defaults to the first accessible incomplete module and shows completion stats', async () => {
+  it('defaults to the first accessible incomplete module and shows ring stats', async () => {
     const {component, element} = await setup(2, ['module-1/unit-1', 'module-1/unit-2', 'module-1/unit-10']);
-    expect(component.defaultExpanded()).toBe('module-2');
-    expect(element.querySelector('summary')?.textContent).toContain('100% Completed');
-    expect(element.querySelectorAll('details')[0].open).toBe(false);
-    expect(element.querySelectorAll('details')[1].open).toBe(true);
+    expect(component.activeModuleId()).toBe('module-2');
+    const cards = element.querySelectorAll('.module-card');
+    expect(cards[0].querySelector('.progress-ring__label')?.textContent?.trim()).toBe('✓');
+    expect(cards[0].textContent).toContain('3 / 3 Completed');
+    expect(cards[1].classList.contains('is-active')).toBe(true);
+    expect(cards[1].textContent).toContain('0%');
+  });
+
+  it('switches the drawer when a module card is selected', async () => {
+    const {fixture, component, element} = await setup(2);
+    const cards = element.querySelectorAll<HTMLButtonElement>('.module-card');
+    cards[2].click();
+    fixture.detectChanges();
+    expect(component.activeModuleId()).toBe('module-10');
+    expect(element.querySelector('.drawer-header h2')?.textContent).toContain('Advanced');
+    expect(element.querySelectorAll('.unit-card').length).toBe(1);
+  });
+
+  it('maps completion percent to the ring stroke offset', async () => {
+    const {component} = await setup();
+    expect(component.calculateOffset(0)).toBeCloseTo(component.circumference);
+    expect(component.calculateOffset(100)).toBeCloseTo(0);
+    expect(component.calculateOffset(50)).toBeCloseTo(component.circumference / 2);
   });
 
   it('opens an upgrade modal for locked units instead of navigating or requesting media', async () => {
-    const {element} = await setup();
+    const {fixture, element} = await setup();
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
-    const lockedButton = Array.from(element.querySelectorAll('button')).find(button => button.textContent?.includes('Upgrade to Unlock'))!;
-    lockedButton.click();
+    element.querySelectorAll<HTMLButtonElement>('.module-card')[2].click();
+    fixture.detectChanges();
+    expect(element.textContent).toContain('Upgrade to Unlock');
+    element.querySelector<HTMLButtonElement>('.unit-open')!.click();
     expect(TestBed.inject(TierService).requiredUpgrade()).toBe(2);
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('routes text-only units to the reader and preserves manual accordion collapse', async () => {
-    const {element, component} = await setup();
+  it('routes units to the reader when tapped', async () => {
+    const {element} = await setup();
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
-    const read = Array.from(element.querySelectorAll('button')).find(button => button.textContent?.includes('Read Unit'))!;
+    const read = Array.from(element.querySelectorAll<HTMLButtonElement>('.unit-open')).find(button => button.textContent?.includes('Read Unit'))!;
     read.click();
     expect(navigate).toHaveBeenCalledWith(['/courses', 'module-1', 'units', 'unit-2']);
-    const details = element.querySelector('details')!;
-    details.open = false;
-    details.dispatchEvent(new Event('toggle'));
-    expect(component.isExpanded('module-1')).toBe(false);
   });
 
   it('filters by completion without changing summary totals', async () => {
     const {fixture, component} = await setup(1, ['module-1/unit-2']);
     fixture.componentRef.setInput('filter', 'completed');
     fixture.detectChanges();
+    expect(component.visibleModules().length).toBe(1);
     expect(component.visibleModules()[0].units.map(unit => unit.id)).toEqual(['unit-2']);
     expect(component.visibleModules()[0].allUnitCount).toBe(3);
     expect(component.visibleModules()[0].percent).toBe(33);
