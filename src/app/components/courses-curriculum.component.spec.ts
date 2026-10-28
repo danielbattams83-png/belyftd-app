@@ -54,6 +54,17 @@ describe('module selector and unit drawer', () => {
     expect(cards[1].textContent).toContain('0%');
   });
 
+  it('tags cards before and after the active one for the 3D fan and shows a status chip', async () => {
+    const {fixture, component, element} = await setup(2);
+    component.selectModule('module-2');
+    fixture.detectChanges();
+    const cards = Array.from(element.querySelectorAll('.module-card'));
+    expect(cards.map(card => card.classList.contains('is-prev'))).toEqual([true, false, false]);
+    expect(cards.map(card => card.classList.contains('is-active'))).toEqual([false, true, false]);
+    expect(cards.map(card => card.classList.contains('is-next'))).toEqual([false, false, true]);
+    expect(cards[1].querySelector('.module-card__status')?.textContent?.trim()).toBe('Not started');
+  });
+
   it('switches the drawer when a module card is selected', async () => {
     const {fixture, component, element} = await setup(2);
     const cards = element.querySelectorAll<HTMLButtonElement>('.module-card');
