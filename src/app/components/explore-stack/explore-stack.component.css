@@ -156,8 +156,8 @@
   grid-template-rows: 0fr;
   opacity: 0;
   transition:
-    grid-template-rows 0.4s var(--es-ease),
-    opacity 0.3s ease;
+    grid-template-rows 0.35s var(--es-ease),
+    opacity 0.25s ease;
 }
 
 .explore-card.is-expanded .explore-card__panel {
