@@ -1,7 +1,8 @@
 <ul class="explore-stack" role="list" [attr.aria-label]="label()">
   @for (card of cards(); track card.heading; let i = $index) {
     @let open = expanded() === i;
-    <li class="explore-card" [class.is-expanded]="open" [style.--card-index]="i">
+    <!-- The button stays the accessible control; its click bubbles up to the card handler. -->
+    <li class="explore-card" [class.is-expanded]="open" [style.--card-index]="i" (click)="onCardClick(i)">
       <div class="explore-card__head">
         <span class="explore-card__tag">{{ card.tag }}</span>
         <button
@@ -9,7 +10,6 @@
           class="explore-card__toggle"
           [attr.aria-expanded]="open"
           [attr.aria-controls]="'explore-card-panel-' + i"
-          (click)="toggle(i)"
         >
           <span class="sr-only">{{ open ? 'Hide details for' : 'Show details for' }} {{ card.heading }}</span>
           <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round">
