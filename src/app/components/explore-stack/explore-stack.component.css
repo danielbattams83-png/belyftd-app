@@ -1,0 +1,198 @@
+:host {
+  --es-header-h: 92px;
+  --es-card-bg: #1e242b;
+  --es-ink: #f1f5f9;
+  --es-ink-muted: #b6c2cf;
+  --es-accent: #1a9bef;
+  --es-accent-ink: #8fd0fa;
+  --es-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.explore-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  margin: 0;
+  padding: 0 0 3rem;
+  list-style: none;
+}
+
+.explore-card {
+  position: sticky;
+  /* Each card pins a little lower than the last, so the deck's top edges stay visible. */
+  top: calc(var(--es-header-h) + 0.75rem + (var(--card-index, 0) * 12px));
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1rem 0;
+  background: var(--es-card-bg);
+  color: var(--es-ink);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transition:
+    transform 0.3s var(--es-ease),
+    box-shadow 0.3s var(--es-ease);
+  will-change: transform;
+}
+
+/* Lifted, but it keeps its natural stacking order so later cards still slide over it while scrolling. */
+.explore-card.is-expanded {
+  transform: scale(1.01);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+.explore-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.explore-card__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(26, 155, 239, 0.16);
+  border: 1px solid rgba(26, 155, 239, 0.35);
+  color: var(--es-accent-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.explore-card__toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -0.25rem -0.25rem -0.25rem 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--es-ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.explore-card__toggle svg {
+  transition: transform 0.35s var(--es-ease);
+}
+
+.explore-card.is-expanded .explore-card__toggle {
+  background: var(--es-accent);
+  border-color: var(--es-accent);
+  color: #ffffff;
+}
+
+.explore-card.is-expanded .explore-card__toggle svg {
+  transform: rotate(45deg);
+}
+
+.explore-card__toggle:active {
+  transform: scale(0.94);
+}
+
+.explore-card__toggle:focus-visible {
+  outline: 2px solid var(--es-accent-ink);
+  outline-offset: 2px;
+}
+
+.explore-card__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.explore-card__text,
+.explore-card__detail {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--es-ink-muted);
+  text-wrap: pretty;
+}
+
+/* 0fr -> 1fr opens to the content's natural height without measuring it in JS. */
+.explore-card__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.4s var(--es-ease),
+    opacity 0.3s ease;
+}
+
+.explore-card.is-expanded .explore-card__panel {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.explore-card__panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.explore-card__detail {
+  color: var(--es-ink);
+}
+
+.explore-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0 0 0.25rem;
+  list-style: none;
+}
+
+.explore-card__chips li {
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--es-ink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.explore-card__image {
+  display: block;
+  width: calc(100% + 2rem);
+  max-width: none;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  margin: 0.5rem -1rem 0;
+  object-fit: cover;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (min-width: 768px) {
+  .explore-card__image {
+    aspect-ratio: 3 / 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explore-card,
+  .explore-card__toggle,
+  .explore-card__toggle svg,
+  .explore-card__panel {
+    transition: none;
+  }
+}

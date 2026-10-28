@@ -315,9 +315,9 @@
   and no one is left out.”
   </p>
 
-        <section id="daily-explore-bento" aria-labelledby="daily-explore-title" class="order-7 space-y-3">
+        <section id="daily-explore-bento" aria-labelledby="daily-explore-title" class="explore-section order-7 flex flex-col gap-3">
           <h3 id="daily-explore-title" class="text-lg font-bold text-slate-900 dark:text-slate-100 font-display">Explore Lyft'd</h3>
-          <app-spotlight-bento [cards]="dashboardBentoCards" label="Explore Lyft'd" />
+          <app-explore-stack [cards]="dashboardBentoCards" label="Explore Lyft'd" />
         </section>
 
         @if (isLoggedIn()) {
