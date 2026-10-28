@@ -42,6 +42,12 @@ export class ExploreStackComponent {
     });
   }
 
+  onCardClick(index: number): void {
+    // Don't collapse a card while someone is selecting its text to copy.
+    if (window.getSelection()?.toString()) return;
+    this.toggle(index);
+  }
+
   toggle(index: number): void {
     this.expanded.update((current) => (current === index ? null : index));
   }
