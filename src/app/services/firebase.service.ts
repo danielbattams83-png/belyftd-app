@@ -17,6 +17,7 @@ import {
   limit,
   updateDoc,
   arrayUnion,
+  arrayRemove,
   Firestore,
   serverTimestamp,
   onSnapshot,
@@ -1168,6 +1169,41 @@ export class FirebaseService {
       } catch (err) {
         console.warn('[FirebaseService] Cloud sync deferred (Saved to LocalStorage fallback):', err);
       }
+    }
+  }
+
+  /** Reverses recordCourseCompletion for one unit. The streak is left alone because it reflects days of activity. */
+  async removeCourseCompletion(courseId: string): Promise<void> {
+    const remaining = this._getLocalStorageCompletedCourses().filter(id => id !== courseId);
+    this._saveLocalStorageCompletedCourses(remaining);
+
+    const currentProfile = this.userProfile() || this._createDefaultLocalProfile();
+    const wasCompleted = (currentProfile.completedCourses ?? []).includes(courseId);
+    const updatedProfile: UserProfileDocument = {
+      ...currentProfile,
+      totalXp: wasCompleted ? Math.max(0, (currentProfile.totalXp || 0) - 100) : currentProfile.totalXp,
+      completedCourses: remaining,
+      updatedAt: new Date().toISOString()
+    };
+    this.userProfile.set(updatedProfile);
+    this._saveLocalStorageUserProfile(updatedProfile);
+
+    const user = this.currentUser();
+    if (!this.db || !user) return;
+    try {
+      await updateDoc(doc(this.db, 'users', user.uid), {
+        completedCourses: arrayRemove(courseId),
+        updatedAt: serverTimestamp()
+      });
+      await setDoc(doc(this.db, 'users', user.uid, 'progress', encodeURIComponent(courseId)), {
+        userId: user.uid,
+        courseId,
+        isCompleted: false,
+        progressPercent: 0,
+        completedAt: null
+      }, { merge: true });
+    } catch (err) {
+      console.warn('[FirebaseService] Cloud sync deferred (Saved to LocalStorage fallback):', err);
     }
   }
 

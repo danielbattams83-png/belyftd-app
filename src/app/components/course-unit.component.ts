@@ -8,7 +8,7 @@ import {AudioTrack} from '../models/app.models';
 import {parseMentorLabel, isProductionMentorVariant} from '../services/course-assets';
 import {NavigationService} from '../services/navigation.service';
 import {TenantService} from '../services/tenant.service';
-import {ChangeDetectionStrategy, Component, ElementRef, OnInit, OnDestroy, computed, effect, inject, signal, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, OnInit, OnDestroy, afterNextRender, computed, effect, inject, input, output, signal, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
@@ -20,8 +20,9 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MentorAudioComponent, CommonModule, MatIconModule],
   styles: [`.unit-modal-header { padding-top: calc(.5rem + var(--safe-top, 0px)); } .unit-modal-logo { display: block; width: 140px; height: auto; min-height: 64px; object-fit: contain; } .unit-modal-logo.logo-on-dark, :host-context(.dark) .unit-modal-logo.logo-on-light { display: none; } :host-context(.dark) .unit-modal-logo.logo-on-dark { display: block; } .unit-reading-card { max-width: 820px; margin: 0 auto; } @media (min-width: 768px) { .unit-reading-card { padding: 2rem; } } .unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
+  host: {'(document:keydown.escape)': 'onEscape()'},
   template: `
-    <section class="fullscreen-page fixed inset-0 z-50 overflow-y-auto bg-slate-50 dark:bg-slate-950" role="dialog" aria-modal="true" aria-label="Course unit">
+    <section class="fullscreen-page fixed inset-0 z-[70] overflow-y-auto overscroll-contain bg-slate-50 dark:bg-slate-950" role="dialog" aria-modal="true" [attr.aria-label]="unit()?.title || 'Course unit'">
       <header class="unit-modal-header sticky top-0 z-10 flex items-center justify-between gap-4 border-b-2 border-(--brand-accent) bg-slate-200/95 px-4 pb-2 shadow-sm backdrop-blur-md dark:bg-slate-900/95">
         @if (tenantService.activeTenant(); as tenant) {
           <img [src]="tenant.branding.logoUrl" [alt]="tenant.organizationName" width="140" height="72" class="unit-modal-logo" />
@@ -29,7 +30,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
           <img src="/logo-wordmark-dark.png" alt="Lyftd" width="140" height="70" class="unit-modal-logo logo-on-light" />
           <img src="/logo-wordmark-light.png" alt="Lyftd" width="140" height="63" class="unit-modal-logo logo-on-dark" />
         }
-        <button type="button" (click)="close()" aria-label="Close lesson" title="Close lesson"
+        <button #closeButton type="button" (click)="close()" aria-label="Close lesson" title="Close lesson"
           class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-700 transition hover:bg-slate-200 hover:text-(--brand-accent) dark:text-slate-200 dark:hover:bg-slate-800 focus-accessible">
           <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 6 6 18M6 6l12 12" />
@@ -106,9 +107,17 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
 
             <div class="unit-content-body whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-200">{{ cleanContent(lesson.textContent) }}</div>
             @if (hasMediaAccess()) {
-              <button type="button" [disabled]="curriculum.isCompleted(moduleId, unitId)" (click)="curriculum.markCompleted(moduleId, unitId)"
-                class="rounded-xl bg-indigo-400 px-4 py-3 text-sm font-semibold text-slate-950 disabled:opacity-60">
-                {{ curriculum.isCompleted(moduleId, unitId) ? 'Unit completed' : 'Mark unit completed' }}
+              <button type="button" (click)="curriculum.toggleCompleted(moduleId, unitId)"
+                [attr.aria-pressed]="curriculum.isCompleted(moduleId, unitId)"
+                class="inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition focus-accessible"
+                [class]="curriculum.isCompleted(moduleId, unitId)
+                  ? 'border border-emerald-500 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-200'
+                  : 'bg-indigo-400 text-slate-950 hover:bg-indigo-300'">
+                @if (curriculum.isCompleted(moduleId, unitId)) {
+                  <mat-icon aria-hidden="true">check_circle</mat-icon>Completed &middot; tap to undo
+                } @else {
+                  Mark unit completed
+                }
               </button>
             }
           </article>
@@ -120,23 +129,36 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
 export class CourseUnitComponent implements OnInit, OnDestroy {
   readonly cleanContent = cleanContent;
   readonly curriculum = inject(CurriculumService);
-  readonly moduleId = inject(ActivatedRoute).snapshot.paramMap.get('moduleId') ?? '';
-  readonly unitId = inject(ActivatedRoute).snapshot.paramMap.get('unitId') ?? '';
+  /** Set when the reader is shown as an in-place modal; otherwise ids come from the route. */
+  readonly moduleIdInput = input<string | undefined>(undefined, {alias: 'moduleId'});
+  readonly unitIdInput = input<string | undefined>(undefined, {alias: 'unitId'});
+  readonly closed = output<void>();
   private readonly route = inject(ActivatedRoute);
+  get moduleId(): string { return this.moduleIdInput() ?? this.route.snapshot.paramMap.get('moduleId') ?? ''; }
+  get unitId(): string { return this.unitIdInput() ?? this.route.snapshot.paramMap.get('unitId') ?? ''; }
+  private readonly embedded = computed(() => this.moduleIdInput() !== undefined);
   private readonly navigation = inject(NavigationService);
   readonly tenantService = inject(TenantService);
+  private readonly closeButton = viewChild<ElementRef<HTMLButtonElement>>('closeButton');
 
   close(): void {
-    this.navigation.goBack('/courses');
+    if (this.embedded()) this.closed.emit();
+    else this.navigation.goBack('/courses');
+  }
+
+  onEscape(): void {
+    if (this.embedded()) this.closed.emit();
   }
   private readonly firebaseService = inject(FirebaseService);
 
   private readonly audioPlayer = inject(AudioPlayerService);
-  readonly hasMediaAccess = computed(() => canAccessModule(this.firebaseService.subscriptionTier(), this.route.snapshot.paramMap.get('moduleId') ?? ''));
+  readonly hasMediaAccess = computed(() => canAccessModule(this.firebaseService.subscriptionTier(), this.moduleIdInput() ?? this.route.snapshot.paramMap.get('moduleId') ?? ''));
   private destroyed = false;
+  private previousBodyOverflow: string | null = null;
 
   ngOnDestroy(): void {
     this.destroyed = true;
+    if (this.previousBodyOverflow !== null) document.body.style.overflow = this.previousBodyOverflow;
     const video = this.videoPlayer()?.nativeElement;
     if (video) { video.pause(); video.currentTime = 0; video.removeAttribute('src'); video.load(); }
     this.audioPlayer.close();
@@ -162,6 +184,12 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
   private readonly videoPlayer = viewChild<ElementRef<HTMLVideoElement>>('videoPlayer');
 
   constructor() {
+    afterNextRender(() => {
+      if (!this.embedded()) return;
+      this.previousBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      this.closeButton()?.nativeElement.focus();
+    });
     effect(() => {
       const media = this.activeVideo();
       const player = this.videoPlayer()?.nativeElement;
@@ -178,8 +206,8 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
   }
 
   private async loadUnit(): Promise<void> {
-    const moduleId = this.route.snapshot.paramMap.get('moduleId');
-    const unitId = this.route.snapshot.paramMap.get('unitId');
+    const moduleId = this.moduleId;
+    const unitId = this.unitId;
     if (!moduleId || !unitId) {
       this.errorMessage.set('This lesson could not be found.');
       this.loading.set(false);

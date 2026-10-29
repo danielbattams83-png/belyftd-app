@@ -42,4 +42,11 @@ export class CurriculumService {
     if (!this.canAccess(moduleId) || this.isCompleted(moduleId, unitId)) return;
     await this.firebase.recordCourseCompletion(`${moduleId}/${unitId}`);
   }
+  async markIncomplete(moduleId: string, unitId: string): Promise<void> {
+    if (!this.canAccess(moduleId) || !this.isCompleted(moduleId, unitId)) return;
+    await this.firebase.removeCourseCompletion(`${moduleId}/${unitId}`);
+  }
+  toggleCompleted(moduleId: string, unitId: string): Promise<void> {
+    return this.isCompleted(moduleId, unitId) ? this.markIncomplete(moduleId, unitId) : this.markCompleted(moduleId, unitId);
+  }
 }

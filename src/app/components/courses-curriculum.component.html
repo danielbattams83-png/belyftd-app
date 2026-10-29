@@ -69,31 +69,45 @@
           </header>
           <ol class="unit-list">
             @for (unit of module.units; track unit.id) {
-              <li class="unit-card">
-                <button
-                  type="button"
-                  class="unit-open"
-                  (click)="curriculum.openUnit(module.id, unit.id)"
-                  [attr.aria-label]="(!curriculum.canAccess(module.id) ? 'Upgrade to unlock ' : unit.hasMedia ? 'Read and listen to ' : 'Read ') + unit.title"
-                >
-                  <span class="unit-index" aria-hidden="true">{{ unitNumber(unit.id) }}</span>
+              @let done = curriculum.isCompleted(module.id, unit.id);
+              @let unlocked = curriculum.canAccess(module.id);
+              <li class="unit-card" [class.unit-card--done]="done">
+                <button type="button" class="unit-open" tabindex="-1" aria-hidden="true" (click)="openReader(module.id, unit.id)">
+                  <span class="unit-index">{{ unitNumber(unit.id) }}</span>
                   <span class="unit-description">
                     <span class="unit-title">{{ unit.title }}</span>
                     @if (unit.hasMedia) {
                       <span class="audio-badge"><mat-icon aria-hidden="true">headphones</mat-icon>Mentor audio</span>
                     }
                   </span>
-                  @if (curriculum.isCompleted(module.id, unit.id)) {
-                    <span class="status-pill status-pill--done"><mat-icon aria-hidden="true">check</mat-icon>Completed</span>
-                  } @else if (!curriculum.canAccess(module.id)) {
-                    <span class="status-pill status-pill--locked"><mat-icon aria-hidden="true">lock</mat-icon>Upgrade to Unlock</span>
-                  } @else {
-                    <span class="status-pill status-pill--start">{{ unit.hasMedia ? 'Read & Listen' : 'Read Unit' }}<mat-icon aria-hidden="true">arrow_forward</mat-icon></span>
-                  }
                 </button>
-                @if (curriculum.canAccess(module.id) && !curriculum.isCompleted(module.id, unit.id)) {
-                  <button class="complete-button" type="button" (click)="curriculum.markCompleted(module.id, unit.id)" [attr.aria-label]="'Mark ' + unit.title + ' completed'">Mark completed</button>
-                }
+                <div class="unit-actions">
+                  <button
+                    type="button"
+                    class="action-pill action-pill--primary"
+                    [class.action-pill--locked]="!unlocked"
+                    (click)="openReader(module.id, unit.id)"
+                    [attr.aria-label]="(!unlocked ? 'Upgrade to unlock ' : unit.hasMedia ? 'Read and listen to ' : 'Read ') + unit.title"
+                  >
+                    @if (!unlocked) {
+                      <mat-icon aria-hidden="true">lock</mat-icon>Upgrade to Unlock
+                    } @else {
+                      {{ unit.hasMedia ? 'Read & Listen' : 'Read Unit' }}<mat-icon aria-hidden="true">arrow_forward</mat-icon>
+                    }
+                  </button>
+                  @if (unlocked) {
+                    <button
+                      type="button"
+                      class="action-pill action-pill--toggle"
+                      [class.action-pill--done]="done"
+                      [attr.aria-pressed]="done"
+                      (click)="curriculum.toggleCompleted(module.id, unit.id)"
+                      [attr.aria-label]="done ? unit.title + ' is completed. Mark as not completed' : 'Mark ' + unit.title + ' completed'"
+                    >
+                      @if (done) { <mat-icon aria-hidden="true">check</mat-icon>Completed } @else { Mark completed }
+                    </button>
+                  }
+                </div>
               </li>
             }
           </ol>
@@ -102,5 +116,9 @@
     </div>
   } @else {
     <p>No units match this filter.</p>
+  }
+
+  @if (openedUnit(); as opened) {
+    <app-course-unit [moduleId]="opened.moduleId" [unitId]="opened.unitId" (closed)="closeReader()" />
   }
 </section>
