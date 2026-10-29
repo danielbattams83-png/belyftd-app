@@ -44,6 +44,22 @@ describe('module selector and unit drawer', () => {
     expect(component.activeModuleId()).toBe('module-1');
   });
 
+  it('renders every unit open with stack indices and no accordion controls', async () => {
+    const {fixture, element} = await setup();
+    const cards = Array.from(element.querySelectorAll<HTMLElement>('.sticky-deck .unit-card'));
+    expect(cards.map(card => card.style.getPropertyValue('--stack-idx'))).toEqual(['0', '1', '2']);
+    expect(cards.map(card => card.querySelector('.unit-index')?.textContent?.trim())).toEqual(['1', '2', '10']);
+    for (const card of cards) {
+      expect(card.querySelector('.unit-preview-text')?.textContent?.trim()).toBeTruthy();
+      expect(card.querySelector('.action-pill--primary')).not.toBeNull();
+      expect(card.querySelector('.action-pill--toggle')).not.toBeNull();
+      expect(card.querySelector('[inert], [aria-expanded], .unit-expand-content')).toBeNull();
+      card.querySelector<HTMLElement>('.unit-title')!.click();
+    }
+    fixture.detectChanges();
+    expect(element.querySelectorAll('.sticky-deck .unit-card .unit-actions').length).toBe(3);
+  });
+
   it('defaults to the first accessible incomplete module and shows ring stats', async () => {
     const {component, element} = await setup(2, ['module-1/unit-1', 'module-1/unit-2', 'module-1/unit-10']);
     expect(component.activeModuleId()).toBe('module-2');
@@ -87,7 +103,7 @@ describe('module selector and unit drawer', () => {
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
     element.querySelectorAll<HTMLButtonElement>('.module-card')[2].click();
     fixture.detectChanges();
-    expect(element.textContent).toContain('Upgrade to Unlock');
+    expect(element.textContent).toContain('Unlock Unit');
     element.querySelector<HTMLButtonElement>('.action-pill--primary')!.click();
     expect(TestBed.inject(TierService).requiredUpgrade()).toBe(2);
     expect(navigate).not.toHaveBeenCalled();
