@@ -20,7 +20,7 @@
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  perspective: 1000px;
+  perspective: 800px;
   perspective-origin: center center;
   --card-w: min(72vw, 280px);
   /* Half the viewport minus half a card centres the first and last cards on any screen width. */
@@ -66,22 +66,32 @@
   background: linear-gradient(165deg, #252D37 0%, #171C22 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
-  transform: scale(0.88);
-  opacity: 0.55;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-              opacity 0.35s ease,
-              box-shadow 0.35s ease,
-              border-color 0.35s ease;
+  transform-style: preserve-3d;
   will-change: transform, opacity;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.4s ease,
+              box-shadow 0.4s ease,
+              border-color 0.4s ease;
+  transform: scale(0.85);
+  opacity: 0.45;
 
-  .is-prev > & { transform: scale(0.88) rotateY(-10deg); }
-  .is-next > & { transform: scale(0.88) rotateY(10deg); }
+  /* Flanking cards pivot on the edge nearest the active card, so their far edge recedes into the screen. */
+  .is-prev > & {
+    transform-origin: right center;
+    transform: scale(0.85) rotateY(-26deg) translateZ(-30px);
+  }
+
+  .is-next > & {
+    transform-origin: left center;
+    transform: scale(0.85) rotateY(26deg) translateZ(-30px);
+  }
 
   .is-active > & {
-    transform: scale(1) rotateY(0deg);
+    transform-origin: center center;
+    transform: scale(1.02) rotateY(0deg) translateZ(20px);
     opacity: 1;
-    border-color: rgba(14, 165, 233, 0.4);
-    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(14, 165, 233, 0.3);
+    border-color: rgba(14, 165, 233, 0.45);
+    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(14, 165, 233, 0.35);
   }
 
   @media (prefers-reduced-motion: reduce) { transition: none; }
