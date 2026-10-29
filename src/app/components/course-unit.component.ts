@@ -104,6 +104,11 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
             }
 
             @if (hasMediaAccess() && visibleAudioTracks().length) { <app-mentor-audio [tracks]="visibleAudioTracks()" /> }
+            @if (mediaUnavailable()) {
+              <p class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200" role="status">
+                Audio and video for this lesson couldn&apos;t be loaded right now. Please sign out and back in, or try again shortly.
+              </p>
+            }
 
             <div class="unit-content-body whitespace-pre-line leading-relaxed text-slate-700 dark:text-slate-200">{{ cleanContent(lesson.textContent) }}</div>
             @if (hasMediaAccess()) {
@@ -179,6 +184,7 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
     const chosen = this.selectedVideo();
     return list.find(media => media.url === chosen?.url) ?? list[0] ?? null;
   });
+  readonly mediaUnavailable = signal(false);
   readonly videoLoading = signal(false);
   readonly videoLoadError = signal(false);
   private readonly videoPlayer = viewChild<ElementRef<HTMLVideoElement>>('videoPlayer');
@@ -244,6 +250,8 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
         }
         this.unit.set(unit);
 
+        const expectedMedia = Object.keys(unit.audioUrls ?? {}).length + Object.keys(unit.videoUrls ?? {}).length;
+        this.mediaUnavailable.set(this.hasMediaAccess() && expectedMedia > 0 && videoMedia.length + audioMedia.length === 0);
         this.videoMedia.set(videoMedia);
         this.selectedVideo.set(videoMedia[0] ?? null);
         this.videoLoading.set(videoMedia.length > 0);
@@ -266,6 +274,9 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
       const {mentorName, language} = parseMentorLabel(key);
       return {key: `${mentorName} - ${language}${/ 2$/.test(key) ? ' (alternate)' : ''}`, url, path};
     }));
+    results.forEach(result => {
+      if (result.status === 'rejected') console.warn(`[CourseUnit] ${type} unavailable for ${moduleId}/${unitId}:`, result.reason);
+    });
     return results.flatMap(result => result.status === 'fulfilled' && result.value ? [result.value] : []);
   }
 

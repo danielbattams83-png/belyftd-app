@@ -859,11 +859,15 @@
           </button>
           <button
             type="button"
+            [disabled]="completedCoursesCount() === 0"
+            [attr.aria-disabled]="completedCoursesCount() === 0"
             (click)="courseFilter.set('completed')"
-            [class]="courseFilter() === 'completed'
-              ? 'bg-indigo-400 text-white font-semibold shadow-xs'
-              : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
-            class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
+            [class]="completedCoursesCount() === 0
+              ? 'bg-slate-100 text-slate-400 border border-slate-200 opacity-60 cursor-not-allowed pointer-events-none'
+              : courseFilter() === 'completed'
+                ? 'bg-indigo-400 text-white font-semibold shadow-xs cursor-pointer'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 cursor-pointer'"
+            class="px-4 py-2 rounded-2xl transition focus-accessible whitespace-nowrap shrink-0"
           >
             Completed ({{ completedCoursesCount() }})
           </button>
