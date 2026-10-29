@@ -15,6 +15,7 @@ function setup({exists = true, invite = {active: true, subscriptionTier: 4, orgI
     return {empty: docs.length === 0, docs};
   }})});
   const modules = {
+    './super-admin': {},
     'firebase-admin/app': {initializeApp() {}},
     'firebase-admin/auth': {getAuth: () => ({
       getUser: async () => ({customClaims: {existing: true}}),

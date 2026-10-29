@@ -19,6 +19,14 @@ service cloud.firestore {
         && request.auth.token.subscriptionTier >= minTier;
     }
 
+    match /superAdminSessions/{sessionId} {
+      allow read, write: if false;
+    }
+
+    match /superAdminAttempts/{attemptId} {
+      allow read, write: if false;
+    }
+
     // User profile access rules
     match /users/{userId} {
       allow read, write: if isOwner(userId);
@@ -64,7 +72,8 @@ service cloud.firestore {
 
     match /partners/{partnerId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      // Mutations go through superAdminSavePartner; standard app sessions grant no admin rights.
+      allow write: if false;
     }
   }
 }

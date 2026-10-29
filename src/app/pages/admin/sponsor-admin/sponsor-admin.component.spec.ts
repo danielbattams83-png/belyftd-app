@@ -1,6 +1,6 @@
 import {TestBed} from '@angular/core/testing';
 import {Router, provideRouter} from '@angular/router';
-import {FirebaseService} from '../../../services/firebase.service';
+import {AdminAuthService} from '../../../services/admin-auth.service';
 import {TenantService} from '../../../services/tenant.service';
 import {partnerFixture} from '../../../testing/partner.fixture';
 import {SponsorAdminComponent} from './sponsor-admin.component';
@@ -22,7 +22,7 @@ describe('SponsorAdminComponent', () => {
     backend.saveTier4Partner.mockResolvedValue(undefined);
     TestBed.configureTestingModule({providers: [
       provideRouter([{path: '', children: []}]),
-      {provide: FirebaseService, useValue: backend},
+      {provide: AdminAuthService, useValue: backend},
       {provide: TenantService, useValue: {activateTenant}},
     ]});
   });
@@ -33,6 +33,13 @@ describe('SponsorAdminComponent', () => {
     fixture.detectChanges();
     return {fixture, component: fixture.componentInstance, element: fixture.nativeElement as HTMLElement};
   }
+
+  it('loads the portal without accessing student authentication', async () => {
+    await setup();
+    expect(backend.listTier4Partners).toHaveBeenCalledOnce();
+    expect(backend.waitForAuthStateReady).not.toHaveBeenCalled();
+    expect(backend.currentUser).not.toHaveBeenCalled();
+  });
 
   it('saves the selected branding and website before activating and navigating home', async () => {
     const {component} = await setup();

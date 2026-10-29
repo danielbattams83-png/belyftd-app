@@ -1,0 +1,32 @@
+<main class="admin-login">
+  <section class="login-card" aria-labelledby="admin-title">
+    <header>
+      <span class="access-label">Super Admin Access</span>
+      <h1 id="admin-title">Lyft’d Platform Control</h1>
+      <p>A dedicated workspace for the people behind the platform.</p>
+    </header>
+    @if (localLogoutOnly) {
+      <p class="notice" role="status">Signed out of this tab. Server revocation could not be confirmed; the previous token expires automatically within 12 hours.</p>
+    }
+    <form (ngSubmit)="submit()" (keydown)="preventComposingSubmit($event)" [attr.aria-busy]="submitting()">
+      <label for="admin-passkey">Admin passcode</label>
+      <div class="password-field">
+        <input id="admin-passkey" name="passkey" [type]="revealed() ? 'text' : 'password'"
+          [ngModel]="passkey()" (ngModelChange)="passkey.set($event); error.set('')"
+          autocomplete="current-password" autocapitalize="off" spellcheck="false" required maxlength="512"
+          [readOnly]="submitting()" [attr.aria-invalid]="error() ? 'true' : null"
+          [attr.aria-describedby]="error() ? 'admin-error' : 'session-note'" placeholder="Enter your master key" />
+        <button type="button" class="reveal" (click)="revealed.set(!revealed())"
+          [attr.aria-label]="revealed() ? 'Hide passcode' : 'Show passcode'" [attr.aria-pressed]="revealed()">
+          {{ revealed() ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+      @if (error()) { <p id="admin-error" class="error" role="alert">{{ error() }}</p> }
+      <button type="submit" class="unlock" [disabled]="submitting() || !passkey().trim()">
+        {{ submitting() ? 'Verifying access…' : 'Unlock Dashboard →' }}
+      </button>
+    </form>
+    <p id="session-note" class="session-note">Access is limited to this tab, with a 12-hour maximum. Your student account stays separate.</p>
+    <footer><a routerLink="/">Back to Lyft’d</a><span>Restricted access</span></footer>
+  </section>
+</main>

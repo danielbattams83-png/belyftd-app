@@ -1,7 +1,8 @@
 import {ChangeDetectionStrategy, Component, OnInit, computed, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
-import {FirebaseService} from '../../../services/firebase.service';
+import {AdminAuthService} from '../../../services/admin-auth.service';
+import {AdminHeaderComponent} from '../admin-header.component';
 import {TenantService} from '../../../services/tenant.service';
 import {Tier4PartnerDocument} from '../../../models/firestore.models';
 import {ColorTheme, THEME_PRESETS} from '../../../models/theme-presets';
@@ -31,13 +32,13 @@ const BLANK_PARTNER: Tier4PartnerDocument = {
 @Component({
   selector: 'app-sponsor-admin',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, AdminHeaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sponsor-admin.component.html',
   styleUrl: './sponsor-admin.component.css',
 })
 export class SponsorAdminComponent implements OnInit {
-  private readonly firebase = inject(FirebaseService);
+  private readonly adminAuth = inject(AdminAuthService);
   private readonly router = inject(Router);
   private readonly tenant = inject(TenantService);
   readonly partner = signal<Tier4PartnerDocument>(this.clone(BLANK_PARTNER));
@@ -51,19 +52,7 @@ export class SponsorAdminComponent implements OnInit {
   readonly hasPartner = computed(() => this.selectedPartnerId() !== '');
 
   ngOnInit(): void {
-    void this.initializePortal();
-  }
-
-  private async initializePortal(): Promise<void> {
-    try {
-      await this.firebase.waitForAuthStateReady();
-      if (!this.firebase.currentUser()) {
-        await this.firebase.signInAsGuest();
-      }
-    } catch (error) {
-      console.error('[SponsorAdmin] Guest sign-in failed:', error);
-    }
-    await this.loadPartners();
+    void this.loadPartners();
   }
 
   private clone(value: Tier4PartnerDocument): Tier4PartnerDocument {
@@ -83,7 +72,7 @@ export class SponsorAdminComponent implements OnInit {
   private async loadPartners(preferredId?: string): Promise<void> {
     this.loadingPartners.set(true);
     try {
-      const partners = (await this.firebase.listTier4Partners()).map(item => this.normalize(item));
+      const partners = (await this.adminAuth.listTier4Partners()).map(item => this.normalize(item));
       this.partners.set(partners);
       const next = partners.find(item => item.id === (preferredId ?? this.selectedPartnerId())) ?? partners[0];
       this.applySelection(next);
@@ -143,8 +132,8 @@ export class SponsorAdminComponent implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      this.status.set('Please choose a PNG, JPEG, WebP, or SVG image.');
+    if (!['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(file.type) || file.size > 350000) {
+      this.status.set('Please choose a PNG, JPEG, WebP, or GIF image under 350 KB.');
       input.value = '';
       return;
     }
@@ -201,7 +190,7 @@ export class SponsorAdminComponent implements OnInit {
     this.status.set(null);
     try {
       const saved = {...this.partner(), id, websiteUrl};
-      await this.firebase.saveTier4Partner(saved);
+      await this.adminAuth.saveTier4Partner(saved);
       this.partners.update(partners => [...partners.filter(partner => partner.id !== id), saved]
         .sort((a, b) => (a.organizationName || a.id).localeCompare(b.organizationName || b.id)));
       this.applySelection(saved);

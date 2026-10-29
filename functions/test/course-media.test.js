@@ -8,6 +8,7 @@ function setup({exists = true, tier = 3, minTier = 3, moduleNumber = 5, unitExis
   const storagePath = `course-content/module-${moduleNumber}/unit-2/audio/hope-sophie--english.mp3`;
   let signed = false;
   const modules = {
+    './super-admin': {},
     'firebase-admin/app': {initializeApp() {}},
     'firebase-admin/auth': {getAuth() {}},
     'firebase-admin/firestore': {FieldValue: {}, getFirestore: () => ({

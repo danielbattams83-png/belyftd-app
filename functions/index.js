@@ -9,6 +9,8 @@ initializeApp();
 
 const db = getFirestore();
 
+Object.assign(exports, require('./super-admin'));
+
 const VALID_TIERS = [1, 2, 3, 4];
 
 async function findByRedemptionCode(collectionName, code) {
