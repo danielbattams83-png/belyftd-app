@@ -47,7 +47,11 @@
   /* The snap target stays untransformed: scroll-snap measures the transformed box, so tilting the
      button itself would pull tapped cards off-centre. The 3D transform lives on the face instead. */
   scroll-snap-align: center;
-  scroll-snap-stop: always;
+  /* "normal" lets a fast swipe glide past cards instead of halting on each one. */
+  scroll-snap-stop: normal;
+  /* Each card gets its own timeline that tracks its position across the track's scrollport. */
+  view-timeline-name: --card-scroll;
+  view-timeline-axis: inline;
   display: block;
   padding: 0;
   border: none;
@@ -76,29 +80,62 @@
   border-radius: 24px;
   background: linear-gradient(165deg, #252D37 0%, #171C22 100%);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  transform: scale(0.82) rotateY(18deg);
-  opacity: 0.45;
-  filter: blur(0.5px);
+  transform-origin: center center;
   will-change: transform, opacity;
-  transition: transform .4s cubic-bezier(0.22, 1, 0.36, 1),
-              opacity .4s ease,
-              filter .4s ease,
-              box-shadow .4s ease;
+}
 
-  /* Cards to the left of the active card tilt positive, cards to the right tilt negative. */
-  .is-prev > & { transform: scale(0.84) rotateY(16deg) translateZ(-40px); }
-  .is-next > & { transform: scale(0.84) rotateY(-16deg) translateZ(-40px); }
-
-  .module-card:hover:not(.is-active) > & { opacity: 0.7; }
-
-  .is-active > & {
-    transform: scale(1.05) rotateY(0deg) translateZ(30px);
+/* Continuous coverflow: the card's position in the scrollport drives its tilt, so it fans as you drag. */
+@keyframes moduleCard3D {
+  0% {
+    transform: scale(0.82) rotateY(-20deg) translateZ(-50px);
+    opacity: 0.45;
+    filter: blur(0.5px);
+  }
+  50% {
+    transform: scale(1.04) rotateY(0deg) translateZ(30px);
     opacity: 1;
     filter: blur(0);
-    box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.12);
   }
+  100% {
+    transform: scale(0.82) rotateY(20deg) translateZ(-50px);
+    opacity: 0.45;
+    filter: blur(0.5px);
+  }
+}
 
-  @media (prefers-reduced-motion: reduce) { transition: none; }
+@supports (animation-timeline: view()) {
+  .module-card__face {
+    animation: moduleCard3D linear both;
+    /* Must follow the shorthand, which resets animation-timeline. */
+    animation-timeline: --card-scroll;
+    animation-range: entry 0% exit 100%;
+  }
+}
+
+/* Browsers without scroll-driven animations: the observer's prev/active/next classes drive a tween. */
+@supports not (animation-timeline: view()) {
+  .module-card__face {
+    transform: scale(0.82) rotateY(18deg) translateZ(-50px);
+    opacity: 0.45;
+    filter: blur(0.5px);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+
+    .is-prev > & { transform: scale(0.84) rotateY(16deg) translateZ(-40px); opacity: 0.5; }
+    .is-next > & { transform: scale(0.84) rotateY(-16deg) translateZ(-40px); opacity: 0.5; }
+    .module-card:hover:not(.is-active) > & { opacity: 0.7; }
+    .is-active > & {
+      transform: scale(1.04) rotateY(0deg) translateZ(30px);
+      opacity: 1;
+      filter: blur(0);
+      box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    }
+
+    @media (prefers-reduced-motion: reduce) { transition: none; }
+  }
 }
 
 .module-card__body { display: flex; flex-direction: column; gap: .375rem; min-width: 0; }
