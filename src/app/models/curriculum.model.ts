@@ -3,6 +3,7 @@ export interface CurriculumUnit {
   title: string;
   hasText: boolean;
   hasMedia: boolean;
+  description?: string;
 }
 
 export interface CurriculumModule {

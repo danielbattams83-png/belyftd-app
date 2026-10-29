@@ -67,26 +67,52 @@
             <h2>{{ module.title }}</h2>
             <p class="drawer-meta">{{ module.allUnitCount }} {{ module.allUnitCount === 1 ? 'unit' : 'units' }} &middot; {{ module.percent }}% completed</p>
           </header>
-          <ol class="unit-list">
-            @for (unit of module.units; track unit.id) {
+          <ol class="unit-list stacked-deck">
+            @for (unit of module.units; track unit.id; let idx = $index) {
               @let done = curriculum.isCompleted(module.id, unit.id);
               @let unlocked = curriculum.canAccess(module.id);
-              <li class="unit-card" [class.unit-card--done]="done">
-                <button type="button" class="unit-open" tabindex="-1" aria-hidden="true" (click)="openReader(module.id, unit.id)">
+              @let isExpanded = activeUnitKey() === unitKey(module.id, unit.id);
+              <li
+                class="unit-card"
+                [class.unit-card--done]="done"
+                [class.is-expanded]="isExpanded"
+                [style.--card-index]="idx"
+                (click)="toggleUnitExpand(module.id, unit.id)"
+              >
+                <button
+                  type="button"
+                  class="unit-open"
+                  [attr.aria-expanded]="isExpanded"
+                  [attr.aria-controls]="'unit-panel-' + module.id + '-' + unit.id"
+                >
                   <span class="unit-index">{{ unitNumber(unit.id) }}</span>
                   <span class="unit-description">
                     <span class="unit-title">{{ unit.title }}</span>
-                    @if (unit.hasMedia) {
+                    @if (unit.hasMedia && !isExpanded) {
                       <span class="audio-badge"><mat-icon aria-hidden="true">headphones</mat-icon>Mentor audio</span>
                     }
                   </span>
+                  <mat-icon class="expand-indicator" [class.is-rotated]="isExpanded" aria-hidden="true">chevron_right</mat-icon>
                 </button>
+                <div
+                  class="unit-expand-content"
+                  [class.show]="isExpanded"
+                  [id]="'unit-panel-' + module.id + '-' + unit.id"
+                  [attr.inert]="isExpanded ? null : ''"
+                >
+                <div class="unit-expand-inner">
+                <p class="unit-preview-text">
+                  {{ unit.description || 'No matter what we may think of ourselves, there is something unique and different about each of us. Discover your custom growth journey.' }}
+                </p>
+                @if (unit.hasMedia) {
+                  <div class="audio-badge-expanded"><mat-icon aria-hidden="true">headphones</mat-icon>Mentor audio available</div>
+                }
                 <div class="unit-actions">
                   <button
                     type="button"
                     class="action-pill action-pill--primary"
                     [class.action-pill--locked]="!unlocked"
-                    (click)="openReader(module.id, unit.id)"
+                    (click)="openReader(module.id, unit.id); $event.stopPropagation()"
                     [attr.aria-label]="(!unlocked ? 'Upgrade to unlock ' : unit.hasMedia ? 'Read and listen to ' : 'Read ') + unit.title"
                   >
                     @if (!unlocked) {
@@ -101,12 +127,14 @@
                       class="action-pill action-pill--toggle"
                       [class.action-pill--done]="done"
                       [attr.aria-pressed]="done"
-                      (click)="curriculum.toggleCompleted(module.id, unit.id)"
+                      (click)="curriculum.toggleCompleted(module.id, unit.id); $event.stopPropagation()"
                       [attr.aria-label]="done ? unit.title + ' is completed. Mark as not completed' : 'Mark ' + unit.title + ' completed'"
                     >
                       @if (done) { <mat-icon aria-hidden="true">check</mat-icon>Completed } @else { Mark completed }
                     </button>
                   }
+                </div>
+                </div>
                 </div>
               </li>
             }

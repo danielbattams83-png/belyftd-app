@@ -216,12 +216,85 @@
   mat-icon { width: 14px; height: 14px; font-size: 14px; }
 }
 
-/* Both buttons share one row and one height, indented to line up under the unit title. */
+/* Cards overlap like a deck; later cards sit above earlier ones, the open card floats above all. */
+.stacked-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 2rem;
+
+  .unit-card {
+    position: relative;
+    margin-top: -10px;
+    padding-bottom: calc(.625rem + 10px);
+    z-index: calc(var(--card-index) + 1);
+    transform-origin: top center;
+    border-radius: 18px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: margin .3s ease, transform .3s ease, box-shadow .3s ease;
+
+    &:first-child { margin-top: 0; }
+    &:last-child { padding-bottom: .625rem; }
+
+    &.is-expanded {
+      margin-bottom: 12px;
+      padding-bottom: .625rem;
+      z-index: 50;
+      transform: scale(1.01);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--tenant-primary, #0ea5e9);
+    }
+    &.is-expanded + .unit-card { margin-top: 12px; }
+  }
+
+  .unit-open:focus-visible { outline: 3px solid var(--tenant-primary, #0ea5e9); outline-offset: 2px; }
+}
+
+.expand-indicator {
+  flex: none;
+  color: #fff;
+  opacity: .5;
+  transition: transform .25s ease;
+  &.is-rotated { transform: rotate(90deg); }
+}
+
+.unit-expand-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .3s ease-in-out;
+  &.show { grid-template-rows: 1fr; }
+}
+.unit-expand-inner {
+  min-height: 0;
+  overflow: hidden;
+  padding-left: 2.75rem;
+  cursor: default;
+  .show > & { padding-top: .25rem; padding-bottom: .25rem; }
+}
+
+.unit-preview-text {
+  margin: 0 0 .75rem;
+  font-size: .875rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.audio-badge-expanded {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  margin-bottom: .75rem;
+  font-size: .75rem;
+  color: var(--tenant-primary, #0ea5e9);
+  mat-icon { width: 14px; height: 14px; font-size: 14px; }
+}
+
+/* Both buttons share one row and one height. */
 .unit-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: .5rem;
-  padding-left: 2.75rem;
 }
 .action-pill {
   display: inline-flex;
@@ -247,6 +320,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .units-container { animation: none; }
+  .stacked-deck .unit-card, .unit-expand-content, .expand-indicator { transition: none; }
   .progress-ring .progress-ring__circle, .module-card { transition: none; }
 }
 
