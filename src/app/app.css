@@ -80,63 +80,10 @@
   .mentor-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
-/* Courses: keep summary widgets below the title, with intrinsic card heights. */
-.courses-page-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
-  min-width: 0;
-}
-.courses-page-header > div:first-child { flex: 1 1 260px; min-width: 0; }
-.courses-hero-summary {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 1.5rem;
-  align-items: start;
-  width: 100%;
-  min-width: 0;
-}
-.courses-hero-summary .summary-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  height: auto;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  padding: var(--card-padding);
-}
-.courses-hero-summary .reflections-card { justify-content: flex-start; }
-.summary-card-heading, .summary-card-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
-  min-width: 0;
-}
-.summary-card-heading { margin-bottom: 1rem; }
-.summary-session-details, .summary-reflections-heading {
-  display: flex;
-  align-items: flex-start;
-  gap: .75rem;
-  min-width: 0;
-}
-.summary-card-heading > button, .summary-card-footer > button {
-  --tenant-primary: var(--primary-brand, #4f46e5);
-  --tenant-accent: var(--accent-highlight, #f59e0b); flex-shrink: 0; }
-@media (min-width: 768px) {
-  .courses-hero-summary { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
-}
-@media (min-width: 1024px) {
-  .courses-hero-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
-  .courses-hero-summary .summary-card { height: 100%; }
-}
+/* Keep the course tour anchored to the curriculum rather than the personal carousel. */
+.courses-section-heading { max-width: 1092px; margin-inline: auto; padding-inline: 1rem; }
+.courses-section-heading h2 { font-size: 1.5rem; font-weight: 750; letter-spacing: -.025em; }
+.courses-section-heading p { font-size: .875rem; line-height: 1.5; opacity: .65; margin-top: .25rem; }
+@media (min-width: 768px) { .courses-section-heading { padding-inline: 0; } }
 
 #daily-message-card { height: auto; min-height: 350px; }

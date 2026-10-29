@@ -1,0 +1,57 @@
+<section class="overview" aria-labelledby="overview-heading" aria-roledescription="carousel">
+  <header class="overview-heading">
+    <div><p class="eyebrow">YOUR LEARNING SPACE</p><h2 id="overview-heading">Keep your momentum.</h2></div>
+    <span class="position" aria-live="polite" aria-atomic="true">{{ activeIndex() + 1 }} / {{ labels().length }}<span class="sr-only">: {{ labels()[activeIndex()] }}</span></span>
+  </header>
+  <div class="carousel-shell">
+    <div #track class="overview-track" tabindex="0" aria-label="Your growth cards. Use left and right arrow keys to browse." (keydown)="onKeydown($event)">
+      @for (label of labels(); track $index; let i = $index) {
+        <article class="overview-card" [class.is-active]="activeIndex() === i" [class.is-prev]="i < activeIndex()" [class.is-next]="i > activeIndex()" role="group" aria-roledescription="slide" [attr.aria-label]="label + ', ' + (i + 1) + ' of ' + labels().length" (click)="select(i)" (focusin)="select(i)">
+          <div class="card-face">
+            @switch (i) {
+              @case (0) {
+                <div class="card-top"><span class="eyebrow">YOUR NEXT STEP</span><mat-icon aria-hidden="true">event_available</mat-icon></div>
+                <h3>Upcoming Session</h3>
+                <div class="card-body"><h4>Career Pathing &amp; Interview Prep</h4><p>Personal learning time</p><span class="pill">Tomorrow, 4:00 PM</span></div>
+                <footer><p>Daily Step: Complete portfolio check</p><button type="button" (click)="viewQuests.emit()">View Quest <mat-icon aria-hidden="true">arrow_forward</mat-icon></button></footer>
+              }
+              @case (1) {
+                <div class="card-top"><span class="eyebrow">ONE STEP AT A TIME</span><mat-icon aria-hidden="true">trending_up</mat-icon></div>
+                <h3>Weekly Growth Progress</h3>
+                <div class="card-body"><div class="progress-summary"><strong>{{ progress() }}%</strong><p>{{ completedSteps() }} / {{ totalSteps() }}<br>milestones</p></div><progress [value]="progress()" max="100" aria-label="Weekly growth progress"></progress></div>
+                <footer><p>Small steps. Lasting growth.</p><button type="button" (click)="viewQuests.emit()">Keep growing <mat-icon aria-hidden="true">arrow_forward</mat-icon></button></footer>
+              }
+              @case (2) {
+                <div class="card-top"><span class="eyebrow">MAKE SPACE FOR YOU</span><mat-icon aria-hidden="true">mic</mat-icon></div>
+                <h3>My Voice Reflections</h3>
+                <div class="card-body">
+                  @if (currentJournal(); as journal) {
+                    <p class="journal-date">{{ journal.date }}</p><h4 class="journal-title">{{ journal.title }}</h4>
+                    <div class="journal-controls"><button type="button" class="listen" (click)="playJournal.emit(journal)" [attr.aria-label]="'Listen to ' + journal.title"><mat-icon aria-hidden="true">play_arrow</mat-icon> Listen · {{ duration(journal.durationSec) }}</button>
+                      @if (journals().length > 1) {<div class="journal-pager"><button type="button" aria-label="Previous reflection" (click)="changeJournal(-1)"><mat-icon aria-hidden="true">chevron_left</mat-icon></button><button type="button" aria-label="Next reflection" (click)="changeJournal(1)"><mat-icon aria-hidden="true">chevron_right</mat-icon></button></div>}
+                    </div>
+                  } @else {<h4>Your voice. Your journey.</h4><p>Capture a small win, a new idea, or a moment that mattered.</p>}
+                </div>
+                <footer><button type="button" (click)="recordNote.emit()"><mat-icon aria-hidden="true">add</mat-icon> Record Note</button></footer>
+              }
+              @default {
+                @if (chosenMentors()[i - 3]; as mentor) {
+                  <div class="card-top"><span class="eyebrow">YOUR CHOSEN MENTOR</span><mat-icon aria-hidden="true">verified</mat-icon></div>
+                  <div class="mentor-identity"><img [src]="mentor.avatar" alt="" width="80" height="80"><div><h3>{{ mentor.name }}</h3><p>{{ mentor.title }}</p></div></div>
+                  <div class="card-body"><p>{{ mentor.bio }}</p><span class="languages">{{ mentor.languages.join(' · ') }}</span></div>
+                  <footer><button type="button" (click)="mentorSelected.emit(mentor)">Talk to {{ mentor.name }} <mat-icon aria-hidden="true">arrow_forward</mat-icon></button></footer>
+                }
+              }
+            }
+          </div>
+        </article>
+      }
+    </div>
+    <button type="button" class="track-nav prev" aria-label="Previous growth card" [disabled]="activeIndex() === 0" (click)="select(activeIndex() - 1)"><mat-icon aria-hidden="true">chevron_left</mat-icon></button>
+    <button type="button" class="track-nav next" aria-label="Next growth card" [disabled]="activeIndex() === labels().length - 1" (click)="select(activeIndex() + 1)"><mat-icon aria-hidden="true">chevron_right</mat-icon></button>
+  </div>
+  <nav class="carousel-dots" aria-label="Choose a growth card">
+    @for (label of labels(); track $index) {<button type="button" [attr.aria-label]="'Show ' + label" [attr.aria-current]="activeIndex() === $index ? 'true' : null" (click)="select($index)"><span></span></button>}
+  </nav>
+  @if (chosenMentors().length < 2) {<button type="button" class="choose-mentors" (click)="chooseMentors.emit()">Choose your {{ chosenMentors().length ? 'second mentor' : 'mentors' }} <mat-icon aria-hidden="true">arrow_forward</mat-icon></button>}
+</section>
