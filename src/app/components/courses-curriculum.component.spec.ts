@@ -91,6 +91,75 @@ describe('module selector and unit drawer', () => {
     expect(element.querySelectorAll('.unit-card').length).toBe(1);
   });
 
+  it('selects and centres the next module on wheel down, then the previous on wheel up', async () => {
+    const {fixture, component, element} = await setup(2);
+    const track = element.querySelector<HTMLElement>('.module-track')!;
+    const scrollTo = vi.fn();
+    track.scrollTo = scrollTo;
+    const clock = vi.spyOn(performance, 'now').mockReturnValue(1000);
+    try {
+      const down = new WheelEvent('wheel', {deltaY: 100, bubbles: true, cancelable: true});
+      track.querySelector('.module-card')!.dispatchEvent(down);
+      fixture.detectChanges();
+      expect(down.defaultPrevented).toBe(true);
+      expect(component.activeModuleId()).toBe('module-2');
+      expect(element.querySelector('.drawer-header h2')?.textContent).toContain('Identity');
+      expect(scrollTo).toHaveBeenCalled();
+      clock.mockReturnValue(1421);
+      const up = new WheelEvent('wheel', {deltaY: -100, cancelable: true});
+      track.dispatchEvent(up);
+      expect(up.defaultPrevented).toBe(true);
+      expect(component.activeModuleId()).toBe('module-1');
+    } finally {
+      clock.mockRestore();
+    }
+  });
+
+  it('throttles wheel bursts using the video carousel cooldown', async () => {
+    const {component, element} = await setup(2);
+    const track = element.querySelector('.module-track')!;
+    const clock = vi.spyOn(performance, 'now').mockReturnValue(1000);
+    try {
+      track.dispatchEvent(new WheelEvent('wheel', {deltaY: 100, cancelable: true}));
+      clock.mockReturnValue(1100);
+      const burst = new WheelEvent('wheel', {deltaY: 100, cancelable: true});
+      track.dispatchEvent(burst);
+      expect(burst.defaultPrevented).toBe(true);
+      expect(component.activeModuleId()).toBe('module-2');
+      clock.mockReturnValue(1421);
+      track.dispatchEvent(new WheelEvent('wheel', {deltaY: 100, cancelable: true}));
+      expect(component.activeModuleId()).toBe('module-10');
+    } finally {
+      clock.mockRestore();
+    }
+  });
+
+  it('preserves page scrolling at the ends, horizontal gestures and zoom', async () => {
+    const {component, element} = await setup(2);
+    const track = element.querySelector('.module-track')!;
+    for (const init of [{deltaY: -100}, {deltaX: 100, deltaY: 10}, {deltaY: 100, ctrlKey: true}, {deltaY: 0}]) {
+      const event = new WheelEvent('wheel', {...init, cancelable: true});
+      track.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+      expect(component.activeModuleId()).toBe('module-1');
+    }
+    component.selectModule('module-10');
+    const end = new WheelEvent('wheel', {deltaY: 100, cancelable: true});
+    track.dispatchEvent(end);
+    expect(end.defaultPrevented).toBe(false);
+    expect(component.activeModuleId()).toBe('module-10');
+  });
+
+  it('removes the wheel listener when destroyed', async () => {
+    const {fixture, component, element} = await setup();
+    const track = element.querySelector('.module-track')!;
+    fixture.destroy();
+    const event = new WheelEvent('wheel', {deltaY: 100, cancelable: true});
+    track.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
+    expect(component.activeModuleId()).toBe('module-1');
+  });
+
   it('maps completion percent to the ring stroke offset', async () => {
     const {component} = await setup();
     expect(component.calculateOffset(0)).toBeCloseTo(component.circumference);

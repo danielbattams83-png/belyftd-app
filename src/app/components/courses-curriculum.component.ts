@@ -6,6 +6,7 @@ import {CourseUnitComponent} from './course-unit.component';
 const RING_RADIUS = 17;
 const INITIAL_SYNC_MS = 120;
 const PROGRAMMATIC_SCROLL_MS = 400;
+const WHEEL_COOLDOWN_MS = 420;
 
 @Component({
   selector: 'app-courses-curriculum',
@@ -55,6 +56,7 @@ export class CoursesCurriculumComponent {
   /** The unit currently open in the full-screen reader, if any. */
   readonly openedUnit = signal<{moduleId: string; unitId: string} | null>(null);
 
+  private wheelLockedUntil = 0;
   private rafId: number | null = null;
   private isProgrammaticScrolling = false;
   private programmaticTimer?: ReturnType<typeof setTimeout>;
@@ -72,6 +74,7 @@ export class CoursesCurriculumComponent {
       if (!track || typeof requestAnimationFrame === 'undefined') return;
 
       track.addEventListener('scroll', this.onTrackScroll, {passive: true});
+      track.addEventListener('wheel', this.onTrackWheel, {passive: false});
       const initialSync = setTimeout(() => {
         this.centerActive(track);
         this.syncActiveCardFromScroll();
@@ -79,12 +82,27 @@ export class CoursesCurriculumComponent {
 
       onCleanup(() => {
         track.removeEventListener('scroll', this.onTrackScroll);
+        track.removeEventListener('wheel', this.onTrackWheel);
+        this.wheelLockedUntil = 0;
         clearTimeout(initialSync);
         if (this.rafId) cancelAnimationFrame(this.rafId);
         this.rafId = null;
       });
     });
   }
+
+  private onTrackWheel = (event: WheelEvent): void => {
+    // Preserve native horizontal trackpad scrolling and pinch-to-zoom.
+    if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+    const direction = event.deltaY > 0 ? 1 : -1;
+    if (!this.visibleModules()[this.activeIndex() + direction]) return;
+
+    event.preventDefault();
+    const now = performance.now();
+    if (now < this.wheelLockedUntil) return;
+    this.wheelLockedUntil = now + WHEEL_COOLDOWN_MS;
+    this.scrollTrack(direction);
+  };
 
   private onTrackScroll = (): void => {
     if (this.isProgrammaticScrolling) return;
