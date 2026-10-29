@@ -4,9 +4,8 @@ import {CurriculumService} from '../services/curriculum.service';
 import {CourseUnitComponent} from './course-unit.component';
 
 const RING_RADIUS = 17;
-// Matches the homepage carousel: a card counts as centred once 70% of it sits in a one-card-wide slot in the middle.
-const CENTER_THRESHOLD = 0.7;
-const SCROLL_SETTLE_MS = 120;
+const INITIAL_SYNC_MS = 120;
+const PROGRAMMATIC_SCROLL_MS = 400;
 
 @Component({
   selector: 'app-courses-curriculum',
@@ -55,112 +54,76 @@ export class CoursesCurriculumComponent {
   /** The unit currently open in the full-screen reader, if any. */
   readonly openedUnit = signal<{moduleId: string; unitId: string} | null>(null);
 
-  private centerObserver?: IntersectionObserver;
-  private resizeObserver?: ResizeObserver;
-  private settleTimer?: ReturnType<typeof setTimeout>;
-  private scrollTargetId: string | null = null;
-  private scrollTargetTimer?: ReturnType<typeof setTimeout>;
+  private rafId: number | null = null;
+  private isProgrammaticScrolling = false;
+  private programmaticTimer?: ReturnType<typeof setTimeout>;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
-      this.centerObserver?.disconnect();
-      this.resizeObserver?.disconnect();
-      clearTimeout(this.settleTimer);
-      clearTimeout(this.scrollTargetTimer);
+      if (this.rafId) cancelAnimationFrame(this.rafId);
+      clearTimeout(this.programmaticTimer);
     });
 
+    // The track lives inside an @if, so attach to it whenever the viewChild resolves rather than in ngAfterViewInit.
     effect(onCleanup => {
       const track = this.track()?.nativeElement;
       this.visibleModules();
       if (!track || typeof requestAnimationFrame === 'undefined') return;
 
-      const onScrollSettled = () => this.syncNearest(track);
-      // scrollend is exact where supported; older Safari falls back to a short debounce on scroll.
-      const hasScrollEnd = 'onscrollend' in window;
-      const onScroll = () => {
-        clearTimeout(this.settleTimer);
-        this.settleTimer = setTimeout(onScrollSettled, SCROLL_SETTLE_MS);
-      };
-      if (hasScrollEnd) track.addEventListener('scrollend', onScrollSettled);
-      else track.addEventListener('scroll', onScroll, {passive: true});
+      track.addEventListener('scroll', this.onTrackScroll, {passive: true});
+      const initialSync = setTimeout(() => {
+        this.centerActive(track);
+        this.syncActiveCardFromScroll();
+      }, INITIAL_SYNC_MS);
 
-      const frame = requestAnimationFrame(() => this.watchTrack(track));
       onCleanup(() => {
-        cancelAnimationFrame(frame);
-        track.removeEventListener('scrollend', onScrollSettled);
-        track.removeEventListener('scroll', onScroll);
-        clearTimeout(this.settleTimer);
-        this.centerObserver?.disconnect();
-        this.resizeObserver?.disconnect();
+        track.removeEventListener('scroll', this.onTrackScroll);
+        clearTimeout(initialSync);
+        if (this.rafId) cancelAnimationFrame(this.rafId);
+        this.rafId = null;
       });
     });
   }
 
-  /** Centres the active card once the track has a real width, then keeps it centred and observed across resizes. */
-  private watchTrack(track: HTMLElement): void {
-    this.resizeObserver?.disconnect();
-    if (typeof ResizeObserver === 'undefined') {
-      this.observeCenter(track);
-      this.centerActive(track, 'instant');
-      return;
-    }
-    let placed = false;
-    this.resizeObserver = new ResizeObserver(() => {
-      const card = track.querySelector<HTMLElement>('.module-card');
-      if (!track.clientWidth || !card?.offsetWidth) return;
-      this.observeCenter(track);
-      if (!placed || !this.scrollTargetId) this.centerActive(track, 'instant');
-      placed = true;
+  private onTrackScroll = (): void => {
+    if (this.isProgrammaticScrolling) return;
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.syncActiveCardFromScroll();
     });
-    this.resizeObserver.observe(track);
+  };
+
+  private syncActiveCardFromScroll(): void {
+    const track = this.track()?.nativeElement;
+    if (!track) return;
+    const cards = track.querySelectorAll<HTMLElement>('.module-card');
+    if (!cards.length) return;
+
+    const trackRect = track.getBoundingClientRect();
+    const trackCenter = trackRect.left + trackRect.width / 2;
+
+    let closestIndex = 0;
+    let minDistance = Infinity;
+    cards.forEach((card, i) => {
+      const rect = card.getBoundingClientRect();
+      const distance = Math.abs(trackCenter - (rect.left + rect.width / 2));
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestIndex = i;
+      }
+    });
+
+    const currentModules = untracked(() => this.visibleModules());
+    if (closestIndex < currentModules.length && untracked(() => this.activeIndex()) !== closestIndex) {
+      this.selectedModuleId.set(currentModules[closestIndex].id);
+    }
   }
 
-  private centerActive(track: HTMLElement, behavior: ScrollBehavior): void {
+  private centerActive(track: HTMLElement): void {
     const activeId = untracked(() => this.activeModuleId());
     const active = Array.from(track.querySelectorAll<HTMLElement>('.module-card')).find(card => card.dataset['moduleId'] === activeId);
-    if (active) this.scrollTrackTo(track, active, behavior);
-  }
-
-  /** The root is shrunk to one card-width slot in the middle, so only the centred card can reach the threshold. */
-  private observeCenter(track: HTMLElement): void {
-    this.centerObserver?.disconnect();
-    if (typeof IntersectionObserver === 'undefined') return;
-    const cards = Array.from(track.querySelectorAll<HTMLElement>('.module-card'));
-    const cardWidth = cards[0]?.offsetWidth;
-    if (!cardWidth) return;
-    const side = Math.max(0, (track.clientWidth - cardWidth) / 2);
-
-    this.centerObserver = new IntersectionObserver(entries => {
-      let best: IntersectionObserverEntry | undefined;
-      for (const entry of entries) {
-        if (entry.intersectionRatio >= CENTER_THRESHOLD && (!best || entry.intersectionRatio > best.intersectionRatio)) best = entry;
-      }
-      const id = (best?.target as HTMLElement | undefined)?.dataset['moduleId'];
-      if (id) this.activate(id);
-    }, {root: track, rootMargin: `0px ${-side}px 0px ${-side}px`, threshold: CENTER_THRESHOLD});
-    cards.forEach(card => this.centerObserver?.observe(card));
-  }
-
-  /** Safety net for a fast fling that skipped past the observer threshold: read the card nearest the middle at rest. */
-  private syncNearest(track: HTMLElement): void {
-    const middle = track.scrollLeft + track.clientWidth / 2;
-    let nearest: {id: string; distance: number} | undefined;
-    for (const card of track.querySelectorAll<HTMLElement>('.module-card')) {
-      const id = card.dataset['moduleId'];
-      if (!id) continue;
-      const distance = Math.abs(card.offsetLeft + card.offsetWidth / 2 - middle);
-      if (!nearest || distance < nearest.distance) nearest = {id, distance};
-    }
-    if (nearest) this.activate(nearest.id);
-  }
-
-  private activate(moduleId: string): void {
-    // While a tap or arrow is gliding to its target, ignore the cards it passes over.
-    if (this.scrollTargetId) {
-      if (moduleId !== this.scrollTargetId) return;
-      this.scrollTargetId = null;
-    }
-    if (moduleId !== this.activeModuleId()) this.selectedModuleId.set(moduleId);
+    if (active) this.scrollTrackTo(track, active, 'instant');
   }
 
   moduleStatus(module: {id: string; percent: number}): {key: string; label: string} {
@@ -190,11 +153,9 @@ export class CoursesCurriculumComponent {
   selectModule(moduleId: string, event?: Event): void {
     const card = (event?.currentTarget as HTMLElement | null | undefined)
       ?? this.track()?.nativeElement.querySelector<HTMLElement>(`[data-module-id="${moduleId}"]`);
-    if (moduleId !== this.activeModuleId()) {
-      this.scrollTargetId = moduleId;
-      clearTimeout(this.scrollTargetTimer);
-      this.scrollTargetTimer = setTimeout(() => this.scrollTargetId = null, 1200);
-    }
+    this.isProgrammaticScrolling = true;
+    clearTimeout(this.programmaticTimer);
+    this.programmaticTimer = setTimeout(() => this.isProgrammaticScrolling = false, PROGRAMMATIC_SCROLL_MS);
     this.selectedModuleId.set(moduleId);
     const track = this.track()?.nativeElement;
     // Layout offsets ignore the cards' 3D transforms, which scrollIntoView would otherwise centre on.

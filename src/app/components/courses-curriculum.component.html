@@ -13,7 +13,7 @@
             type="button"
             class="module-card"
             [attr.data-module-id]="module.id"
-            [class.is-active]="module.id === activeModuleId()"
+            [class.is-active]="i === activeIndex()"
             [class.is-prev]="i < activeIndex()"
             [class.is-next]="i > activeIndex()"
             [attr.aria-pressed]="module.id === activeModuleId()"
