@@ -29,6 +29,13 @@ export class CurriculumService {
     finally { this.loading.set(false); }
   }
 
+  getUnit(moduleId: string | number, unitId: string | number) {
+    const mId = String(moduleId).trim();
+    const uId = String(unitId).trim();
+    return this.modules().find(module => String(module.id).trim() === mId)
+      ?.units.find(unit => String(unit.id).trim() === uId) ?? null;
+  }
+
   canAccess(moduleId: string): boolean { return canAccessModule(this.firebase.subscriptionTier(), moduleId); }
   isCompleted(moduleId: string, unitId: string): boolean { return this.completedIds().has(`${moduleId}/${unitId}`); }
   completionPercent(module: CurriculumModule): number {

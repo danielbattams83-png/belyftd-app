@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, input, signal, untracked, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, input, output, signal, untracked, viewChild} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {CurriculumService} from '../services/curriculum.service';
 import {CourseUnitComponent} from './course-unit.component';
@@ -18,6 +18,7 @@ const PROGRAMMATIC_SCROLL_MS = 400;
 export class CoursesCurriculumComponent {
   readonly curriculum = inject(CurriculumService);
   readonly filter = input<'all' | 'completed' | 'in-progress'>('all');
+  readonly filterChange = output<'all' | 'completed' | 'in-progress'>();
   readonly circumference = 2 * Math.PI * RING_RADIUS;
   readonly track = viewChild<ElementRef<HTMLElement>>('track');
 
@@ -179,7 +180,14 @@ export class CoursesCurriculumComponent {
       this.curriculum.openUnit(moduleId, unitId);
       return;
     }
-    this.openedUnit.set({moduleId, unitId});
+    this.openedUnit.set({
+      moduleId: String(moduleId).trim(),
+      unitId: String(unitId).trim(),
+    });
+  }
+
+  setFilter(filter: 'all' | 'completed' | 'in-progress'): void {
+    this.filterChange.emit(filter);
   }
 
   closeReader(): void {

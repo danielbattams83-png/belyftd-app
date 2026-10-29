@@ -569,10 +569,19 @@ export class FirebaseService {
 
   async getModuleUnit(moduleId: string, unitId: string): Promise<ModuleUnitDocument | null> {
     if (!this.currentUser()) return null;
-    const unitDoc = await getDoc(doc(this._requireFirestore(), 'modules', moduleId, 'units', unitId));
-    if (!unitDoc.exists()) return null;
-    const textContent = await this.getReadingContent(moduleId, unitId);
-    return {...unitDoc.data(), id: unitDoc.id, textContent} as ModuleUnitDocument;
+  const mId = String(moduleId).trim();
+  const uId = String(unitId).trim();
+  const unitDoc = await getDoc(doc(this._requireFirestore(), 'modules', mId, 'units', uId));
+  if (!unitDoc.exists()) return null;
+  const data = unitDoc.data() as Partial<ModuleUnitDocument>;
+  // The reading-content callable can fail independently (cold start, region, auth); fall back to the stored text instead of failing the whole lesson.
+  let textContent = typeof data.textContent === 'string' ? cleanContent(data.textContent) : '';
+  try {
+    textContent = await this.getReadingContent(mId, uId);
+  } catch (error: unknown) {
+    console.error(`[FirebaseService] getCourseReadingContent failed for ${mId}/${uId}; using stored text.`, error);
+  }
+  return {...data, id: unitDoc.id, textContent} as ModuleUnitDocument;
   }
 
   private async getReadingContent(moduleId: string, unitId: string): Promise<string> {

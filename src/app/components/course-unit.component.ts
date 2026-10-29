@@ -134,8 +134,8 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
   readonly unitIdInput = input<string | undefined>(undefined, {alias: 'unitId'});
   readonly closed = output<void>();
   private readonly route = inject(ActivatedRoute);
-  get moduleId(): string { return this.moduleIdInput() ?? this.route.snapshot.paramMap.get('moduleId') ?? ''; }
-  get unitId(): string { return this.unitIdInput() ?? this.route.snapshot.paramMap.get('unitId') ?? ''; }
+  get moduleId(): string { return String(this.moduleIdInput() ?? this.route.snapshot.paramMap.get('moduleId') ?? '').trim(); }
+  get unitId(): string { return String(this.unitIdInput() ?? this.route.snapshot.paramMap.get('unitId') ?? '').trim(); }
   private readonly embedded = computed(() => this.moduleIdInput() !== undefined);
   private readonly navigation = inject(NavigationService);
   readonly tenantService = inject(TenantService);
@@ -212,6 +212,12 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
       this.errorMessage.set('This lesson could not be found.');
       this.loading.set(false);
       return;
+    }
+
+    if (!this.curriculum.getUnit(moduleId, unitId)) {
+      console.error(`[CourseUnit] Lookup failed for module: "${moduleId}", unit: "${unitId}"`, {
+        availableModules: this.curriculum.modules().map(m => ({id: m.id, units: m.units?.map(u => u.id)})),
+      });
     }
 
     try {
