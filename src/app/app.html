@@ -795,7 +795,16 @@
         </div>
         }
 
-        <app-courses-curriculum [filter]="courseFilter()" (filterChange)="courseFilter.set($event)" />
+        <app-courses-curriculum
+          [filter]="courseFilter()" (filterChange)="courseFilter.set($event)"
+          [mentorAudio]="curriculumMentorAudio()"
+          [streakDays]="firebaseService.userProfile()?.streakDays ?? 0"
+          [signedIn]="isLoggedIn()"
+          [audioLoading]="dataService.audioCatalogLoading()"
+          [audioError]="dataService.audioCatalogError()"
+          (playRecording)="playMentorRecording($event)"
+          (chooseMentors)="requireSignIn() && showPostAuthOnboarding.set(true)"
+        />
 
       </div>
     }

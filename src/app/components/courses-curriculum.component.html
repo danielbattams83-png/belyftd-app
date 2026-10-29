@@ -59,7 +59,8 @@
       </button>
     </div>
 
-    <div id="unit-drawer" class="unit-drawer" aria-live="polite">
+    <div class="curriculum-layout">
+    <div id="unit-drawer" class="unit-drawer curriculum-main-column" aria-live="polite">
       @for (module of activeModuleList(); track module.id) {
         <div class="units-container">
           <header class="drawer-header">
@@ -114,6 +115,36 @@
           </ol>
         </div>
       }
+    </div>
+    <aside class="curriculum-bento-sidebar" aria-label="Learning command center">
+      @if (activeModule(); as module) {
+        <section class="bento-card module-switcher" aria-labelledby="module-switcher-title">
+          <div class="bento-row"><span class="bento-eyebrow">YOUR CURRICULUM</span><span class="bento-badge">{{ module.percent }}% complete</span></div>
+          <h3 id="module-switcher-title">{{ module.title }}</h3>
+          <p>{{ module.completedUnits }} of {{ module.totalUnits }} units completed</p>
+          <label class="sr-only" for="desktop-module-select">Choose a module</label>
+          <select id="desktop-module-select" [value]="activeModuleId()" (change)="selectModule($any($event.target).value)" aria-controls="unit-drawer">
+            @for (option of visibleModules(); track option.id) {
+              <option [value]="option.id">{{ option.supplemental ? 'Supplemental' : 'Module ' + moduleNumber(option.id) }} — {{ option.title }}{{ curriculum.canAccess(option.id) ? '' : ' (Locked)' }}</option>
+            }
+          </select>
+          <div class="bento-row module-controls">
+            <button type="button" aria-label="Previous module" aria-controls="unit-drawer" [disabled]="activeIndex() <= 0" (click)="scrollTrack(-1)"><mat-icon aria-hidden="true">chevron_left</mat-icon>Previous</button>
+            <span>{{ activeIndex() + 1 }} / {{ visibleModules().length }}</span>
+            <button type="button" aria-label="Next module" aria-controls="unit-drawer" [disabled]="activeIndex() >= visibleModules().length - 1" (click)="scrollTrack(1)">Next<mat-icon aria-hidden="true">chevron_right</mat-icon></button>
+          </div>
+        </section>
+      }
+      <app-curriculum-mentor-hub class="bento-card mentor-hub"
+        [options]="mentorAudio()" [loading]="audioLoading()" [error]="audioError()" [signedIn]="signedIn()"
+        (playRecording)="playRecording.emit($event)" (chooseMentors)="chooseMentors.emit()" />
+      <section class="bento-card overall-progress" aria-labelledby="bento-progress-title">
+        <div class="bento-row"><h3 id="bento-progress-title">Overall progress</h3><strong>{{ overallProgress() }}%</strong></div>
+        <p>{{ curriculum.courseModuleCount() }} Modules / {{ curriculum.totalUnits() }} Units</p>
+        <progress max="100" [value]="overallProgress()" aria-label="Overall course completion">{{ overallProgress() }}%</progress>
+        <div class="bento-row"><span>{{ curriculum.completedCount() }} units completed</span><span class="streak-count"><mat-icon aria-hidden="true">local_fire_department</mat-icon>{{ streakDays() }}-day streak</span></div>
+      </section>
+    </aside>
     </div>
   } @else {
     <div class="empty-filter-state" role="status" style="text-align: center; padding: 3.5rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">

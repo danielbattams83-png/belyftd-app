@@ -2,6 +2,8 @@ import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, Elemen
 import {MatIconModule} from '@angular/material/icon';
 import {CurriculumService} from '../services/curriculum.service';
 import {CourseUnitComponent} from './course-unit.component';
+import {CurriculumMentorHubComponent, CurriculumMentorAudio} from './curriculum-mentor-hub.component';
+import {AudioTrack} from '../models/app.models';
 
 const RING_RADIUS = 17;
 const INITIAL_SYNC_MS = 120;
@@ -12,7 +14,7 @@ const WHEEL_COOLDOWN_MS = 420;
   selector: 'app-courses-curriculum',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, CourseUnitComponent],
+  imports: [MatIconModule, CourseUnitComponent, CurriculumMentorHubComponent],
   templateUrl: './courses-curriculum.component.html',
   styleUrl: './courses-curriculum.component.scss',
 })
@@ -20,6 +22,14 @@ export class CoursesCurriculumComponent {
   readonly curriculum = inject(CurriculumService);
   readonly filter = input<'all' | 'completed' | 'in-progress'>('all');
   readonly filterChange = output<'all' | 'completed' | 'in-progress'>();
+  readonly mentorAudio = input<CurriculumMentorAudio[]>([]);
+  readonly streakDays = input(0);
+  readonly signedIn = input(false);
+  readonly audioLoading = input(false);
+  readonly audioError = input<string | null>(null);
+  readonly playRecording = output<AudioTrack>();
+  readonly chooseMentors = output<void>();
+  readonly overallProgress = computed(() => this.curriculum.totalUnits() ? Math.round(this.curriculum.completedCount() / this.curriculum.totalUnits() * 100) : 0);
   readonly circumference = 2 * Math.PI * RING_RADIUS;
   readonly track = viewChild<ElementRef<HTMLElement>>('track');
 
@@ -73,6 +83,9 @@ export class CoursesCurriculumComponent {
       this.visibleModules();
       if (!track || typeof requestAnimationFrame === 'undefined') return;
 
+      const desktop = typeof matchMedia === 'undefined' ? null : matchMedia('(min-width: 1024px)');
+      const restoreMobile = () => { if (!desktop?.matches) this.centerActive(track); };
+      desktop?.addEventListener('change', restoreMobile);
       track.addEventListener('scroll', this.onTrackScroll, {passive: true});
       track.addEventListener('wheel', this.onTrackWheel, {passive: false});
       const initialSync = setTimeout(() => {
@@ -81,6 +94,7 @@ export class CoursesCurriculumComponent {
       }, INITIAL_SYNC_MS);
 
       onCleanup(() => {
+        desktop?.removeEventListener('change', restoreMobile);
         track.removeEventListener('scroll', this.onTrackScroll);
         track.removeEventListener('wheel', this.onTrackWheel);
         this.wheelLockedUntil = 0;
@@ -114,6 +128,7 @@ export class CoursesCurriculumComponent {
   };
 
   private syncActiveCardFromScroll(): void {
+    if (typeof matchMedia !== 'undefined' && matchMedia('(min-width: 1024px)').matches) return;
     const track = this.track()?.nativeElement;
     if (!track) return;
     const cards = track.querySelectorAll<HTMLElement>('.module-card');
@@ -182,6 +197,7 @@ export class CoursesCurriculumComponent {
   }
 
   private scrollTrackTo(track: HTMLElement, card: HTMLElement, behavior: ScrollBehavior): void {
+    if (typeof matchMedia !== 'undefined' && matchMedia('(min-width: 1024px)').matches) return;
     const left = card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2;
     if (typeof track.scrollTo === 'function') track.scrollTo({left, behavior});
     else track.scrollLeft = left;

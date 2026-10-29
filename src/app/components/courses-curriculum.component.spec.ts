@@ -160,6 +160,52 @@ describe('module selector and unit drawer', () => {
     expect(component.activeModuleId()).toBe('module-1');
   });
 
+  it('keeps the desktop switcher, unit deck and mobile selection in sync', async () => {
+    const {fixture, component, element} = await setup(2);
+    const select = element.querySelector<HTMLSelectElement>('#desktop-module-select')!;
+    select.value = 'module-2';
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    expect(component.activeModuleId()).toBe('module-2');
+    expect(element.querySelector('.drawer-header h2')?.textContent).toContain('Identity');
+    expect(element.querySelector('.module-card.is-active')?.getAttribute('data-module-id')).toBe('module-2');
+    element.querySelector<HTMLButtonElement>('[aria-label="Next module"]')!.click();
+    fixture.detectChanges();
+    expect(component.activeModuleId()).toBe('module-10');
+    expect(element.querySelector<HTMLButtonElement>('[aria-label="Next module"]')!.disabled).toBe(true);
+    element.querySelector<HTMLButtonElement>('[aria-label="Previous module"]')!.click();
+    expect(component.activeModuleId()).toBe('module-2');
+  });
+
+  it('uses unfiltered completion totals and the supplied streak in the sidebar', async () => {
+    const {fixture, element, component, firebase} = await setup(1, ['module-1/unit-2']);
+    fixture.componentRef.setInput('streakDays', 7);
+    fixture.componentRef.setInput('filter', 'completed');
+    fixture.detectChanges();
+    expect(component.overallProgress()).toBe(20);
+    expect(element.querySelector('.overall-progress progress')?.getAttribute('value')).toBe('20');
+    expect(element.querySelector('.overall-progress')?.textContent).toContain('3 Modules / 5 Units');
+    expect(element.querySelector('.streak-count')?.textContent).toContain('7-day streak');
+    firebase.userProfile.set({completedCourses: ['module-1/unit-2', 'module-1/unit-1']});
+    fixture.detectChanges();
+    expect(component.overallProgress()).toBe(40);
+    expect(element.querySelector('.overall-progress progress')?.getAttribute('value')).toBe('40');
+  });
+
+  it('does not let a hidden desktop carousel reset the selected module', async () => {
+    const {fixture, component, element} = await setup(2);
+    const original = window.matchMedia;
+    window.matchMedia = vi.fn().mockReturnValue({matches: true});
+    try {
+      component.selectModule('module-10');
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 450));
+      element.querySelector('.module-track')!.dispatchEvent(new Event('scroll'));
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      expect(component.activeModuleId()).toBe('module-10');
+    } finally { window.matchMedia = original; }
+  });
+
   it('maps completion percent to the ring stroke offset', async () => {
     const {component} = await setup();
     expect(component.calculateOffset(0)).toBeCloseTo(component.circumference);
