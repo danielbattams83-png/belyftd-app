@@ -710,115 +710,25 @@
     @if (activeTab() === 'courses') {
       <div id="tab-courses-content" class="space-y-6 pt-6 animate-in fade-in duration-150">
         
-        <!-- The header and summary grid occupy separate rows. -->
-        <header class="courses-page-header">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/40 uppercase tracking-wider">
-                Leadership Curriculum
-              </span>
-              <span class="text-xs text-slate-500 dark:text-slate-400">{{ curriculum.courseModuleCount() }} Modules</span>
-            </div>
-            <h2 id="courses-tour-anchor" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display mt-1">
-              Foundational Courses
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Essential masterclasses to build character, resilience, habits, and unstoppable momentum.
-            </p>
-          </div>
-
         @if (isLoggedIn()) {
-        <!-- Overall Progress Badge -->
-          <div class="bg-white dark:bg-slate-900 px-4 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs flex items-center gap-3 shrink-0">
-            <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs font-mono">
-              {{ coursesProgressPercent() }}%
-            </div>
-            <div>
-              <p class="text-xs font-bold text-slate-900 dark:text-slate-100">
-                {{ completedCoursesCount() }} / {{ totalCoursesCount() }} Finished
-              </p>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                +{{ completedCoursesCount() * 100 }} XP earned
-              </p>
-    </div>
-  </div>
-}
-
-        </header>
-
-        @if (isLoggedIn()) {
-          <div class="courses-hero-summary" aria-label="Personal growth cards">
-            <section class="summary-card bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
-              <div>
-                <div class="summary-card-heading">
-                  <h4 class="text-slate-900 dark:text-slate-100 font-bold text-base">Upcoming Session</h4>
-                  <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 rounded-full">Active</span>
-                </div>
-                <div class="summary-session-details">
-                  <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                    <mat-icon class="text-2xl">event_available</mat-icon>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Career Pathing &amp; Interview Prep</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-2.5">Personal learning time</p>
-                    <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg inline-block">Tomorrow, 4:00 PM</span>
-                  </div>
-                </div>
-              </div>
-              <div class="summary-card-footer mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-                <span class="text-slate-500 dark:text-slate-400">Daily Step: Complete portfolio check</span>
-                <button type="button" (click)="selectTab('quests')" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline cursor-pointer">View Quest &rarr;</button>
-              </div>
-            </section>
-
-            <section class="summary-card bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
-              <div>
-                <div class="summary-card-heading">
-                  <h4 class="text-slate-900 dark:text-slate-100 font-bold text-base">Weekly Growth Progress</h4>
-                  <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 rounded-full">Level 3</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                  <div class="summary-card-heading mb-0">
-                    <span class="text-3xl font-bold text-slate-900 dark:text-slate-100 font-display">{{ growthProgressPercent() }}%</span>
-                    <span class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider">{{ completedStepsCount() }}/{{ totalStepsCount() }} Milestones</span>
-                  </div>
-                  <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-1">
-                    <div class="h-full bg-indigo-400 rounded-full transition-all duration-300" [style.width.%]="growthProgressPercent()"></div>
-                  </div>
-                </div>
-              </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">7-day streak active. 2 days left to complete your weekly reflection.</p>
-            </section>
-
-            <section class="summary-card reflections-card bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
-              <div class="summary-card-heading">
-                <div class="summary-reflections-heading">
-                  <div class="w-9 h-9 shrink-0 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center"><mat-icon class="text-lg">mic</mat-icon></div>
-                  <div class="min-w-0">
-                    <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">My Voice Reflections</h4>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Audio journal entries and personal breakthroughs</p>
-                  </div>
-                </div>
-                <button type="button" (click)="showVoiceRecorder.set(true)" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">+ Record Note</button>
-              </div>
-              <div class="grid min-w-0 grid-cols-1 gap-3">
-                @for (journal of dataService.voiceJournals(); track journal.id) {
-                  <div class="card min-w-0 p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-750">
-                    <div class="summary-card-heading text-[11px] text-slate-400">
-                      <span>{{ journal.date }}</span><span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ journal.mood }}</span>
-                    </div>
-                    <h5 class="text-xs font-bold text-slate-900 dark:text-slate-100 break-words">{{ journal.title }}</h5>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">&quot;{{ journal.prompt }}&quot;</p>
-                    <div class="summary-card-footer mt-3 pt-2.5 border-t border-slate-200/70 dark:border-slate-700">
-                      <span class="text-[11px] text-slate-400 font-mono">0:{{ journal.durationSec }}</span>
-                      <button type="button" (click)="playRecordedJournal(journal)" class="px-3 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-indigo-400 hover:text-white text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1 cursor-pointer transition shadow-xs"><mat-icon class="text-xs">play_arrow</mat-icon><span>Listen</span></button>
-                    </div>
-                  </div>
-                }
-              </div>
-            </section>
-          </div>
+          <app-courses-overview
+            [mentors]="dataService.mentors()"
+            [selectedMentorIds]="firebaseService.userProfile()?.selectedMentorIds ?? []"
+            [journals]="dataService.voiceJournals()"
+            [progress]="growthProgressPercent()"
+            [completedSteps]="completedStepsCount()"
+            [totalSteps]="totalStepsCount()"
+            (viewQuests)="selectTab('quests')"
+            (recordNote)="showVoiceRecorder.set(true)"
+            (playJournal)="playRecordedJournal($event)"
+            (mentorSelected)="openMentorChat($event)"
+            (chooseMentors)="showPostAuthOnboarding.set(true)"
+          />
         }
+        <div id="courses-tour-anchor" class="courses-section-heading">
+          <h2>Modules</h2>
+          <p>Build character, resilience, and habits. One lesson at a time.</p>
+        </div>
 
 
         @if (isLoggedIn()) {

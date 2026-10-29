@@ -1,4 +1,5 @@
 import {CoursesCurriculumComponent} from './components/courses-curriculum.component';
+import {CoursesOverviewComponent} from './components/courses-overview.component';
 import {CurriculumService} from './services/curriculum.service';
 import {canAccessModule} from './services/tier.service';
 import {UpgradeModalComponent} from './components/upgrade-modal.component';
@@ -55,6 +56,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CoursesCurriculumComponent,
+    CoursesOverviewComponent,
     UpgradeModalComponent,
     SmartSearchComponent,
     MentorRecordingPickerComponent,
