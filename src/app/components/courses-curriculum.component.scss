@@ -2,6 +2,72 @@
 .curriculum { width: 100%; min-width: 0; }
 .catalog-note { font-size: 12px; }
 
+/* The wrapper has no layout box below desktop, preserving the existing mobile flow. */
+.curriculum-layout { display: contents; }
+.curriculum-bento-sidebar { display: none; }
+
+@media (min-width: 1024px) {
+  :host {
+    --bento-surface: #182028;
+    --bento-ink: #161c24;
+    --bento-text: #f8fafc;
+    --bento-muted: #94a3b8;
+    --bento-accent: var(--brand-accent, #00baf0);
+  }
+  .curriculum.curriculum { max-width: 1180px; padding: 0; }
+  .module-carousel-container.module-carousel-container { display: none; }
+  .curriculum-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+    box-sizing: border-box;
+    gap: 2rem;
+    align-items: start;
+  }
+  .curriculum-main-column { width: 100%; min-width: 0; }
+  .curriculum-main-column .drawer-header { margin: 0 0 1.25rem; padding: 0; }
+  .curriculum-main-column .drawer-header h2 { font-size: 1.5rem; font-weight: 800; margin: .25rem 0; text-transform: none; }
+  .curriculum-main-column .drawer-meta { font-size: .875rem; margin-top: .25rem; }
+  .curriculum-main-column .sticky-deck { gap: 12px; padding: 0; }
+  .curriculum-main-column .unit-card { padding: 1.25rem 1.5rem; background: var(--bento-surface); color: var(--bento-text); border-radius: 18px; box-shadow: 0 4px 16px color-mix(in srgb, var(--bento-ink) 25%, transparent); }
+  .curriculum-main-column .unit-card:focus-within { border-color: var(--bento-accent); }
+  .curriculum-bento-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: sticky;
+    top: 96px;
+    min-width: 0;
+    max-height: calc(100dvh - 120px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bento-muted) transparent;
+  }
+  .bento-card { min-width: 0; display: flex; flex-direction: column; gap: .75rem; padding: 1.25rem; border-radius: 20px; border: 1px solid color-mix(in srgb, var(--bento-accent) 22%, transparent); background: var(--bento-surface); color: var(--bento-text); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--bento-text) 5%, transparent); }
+  .mentor-hub { background: var(--bento-ink); }
+  .bento-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; }
+  .bento-card h3 { margin: 0; font-size: 1.125rem; font-weight: 750; line-height: 1.4; }
+  .bento-card p { margin: 0; font-size: .875rem; color: var(--bento-muted); line-height: 1.5; }
+  .bento-eyebrow { color: var(--bento-accent); font-weight: 700; letter-spacing: .06em; font-size: .875rem; }
+  .bento-badge { border-radius: 999px; padding: .25rem .625rem; font-size: .875rem; color: var(--bento-accent); background: color-mix(in srgb, var(--bento-accent) 10%, transparent); }
+  .bento-card select { min-width: 0; width: 100%; padding: .625rem; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--bento-text) 20%, transparent); background: var(--bento-ink); color: var(--bento-text); font-size: .875rem; }
+  .module-controls { font-size: .875rem; color: var(--bento-muted); }
+  .module-controls button { display: inline-flex; align-items: center; justify-content: center; gap: .25rem; min-height: 44px; padding-inline: .5rem; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--bento-text) 15%, transparent); color: var(--bento-text); background: transparent; cursor: pointer; }
+  .module-controls button:disabled { opacity: .35; cursor: default; }
+  .bento-card button:focus-visible, .bento-card select:focus-visible { outline: 2px solid var(--bento-accent); outline-offset: 2px; }
+  .overall-progress strong, .streak-count { color: var(--bento-accent); }
+  .overall-progress .bento-row { font-size: .875rem; }
+  .streak-count { display: inline-flex; align-items: center; gap: .25rem; }
+  .streak-count mat-icon { width: 18px; height: 18px; font-size: 18px; }
+  .overall-progress progress { width: 100%; height: 8px; border: 0; border-radius: 999px; overflow: hidden; appearance: none; background: color-mix(in srgb, var(--bento-text) 10%, transparent); }
+  .overall-progress progress::-webkit-progress-bar { background: color-mix(in srgb, var(--bento-text) 10%, transparent); }
+  .overall-progress progress::-webkit-progress-value { background: var(--bento-accent); border-radius: 999px; }
+  .overall-progress progress::-moz-progress-bar { background: var(--bento-accent); border-radius: 999px; }
+}
+
 .module-carousel-container {
   position: relative;
   width: 100%;

@@ -652,6 +652,14 @@ export class App {
     }
   }
 
+  readonly curriculumMentorAudio = computed(() => {
+    const ids = [...new Set(this.firebaseService.userProfile()?.selectedMentorIds ?? [])].slice(0, 2);
+    return ids.flatMap(id => {
+      const mentor = this.dataService.mentors().find(item => item.id === id);
+      return mentor ? [{mentor, tracks: this.mentorRecordings(mentor.name)}] : [];
+    });
+  });
+
   readonly courseRecordingMentor = signal<Mentor | null>(null);
   private courseRecordingTrigger: HTMLElement | null = null;
 
