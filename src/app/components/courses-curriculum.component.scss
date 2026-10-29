@@ -11,6 +11,9 @@
 }
 
 .module-track {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -23,8 +26,8 @@
   perspective: 800px;
   perspective-origin: center center;
   --card-w: min(72vw, 280px);
-  /* Half the viewport minus half a card centres the first and last cards on any screen width. */
-  padding: 1rem calc(50vw - (var(--card-w) / 2));
+  /* Use the carousel width, not the window, to centre the end cards inside the desktop container. */
+  padding: 1rem max(0px, calc(50% - (var(--card-w) / 2)));
   &::-webkit-scrollbar { display: none; }
 
   @media (prefers-reduced-motion: reduce) { scroll-behavior: auto; }
@@ -273,29 +276,66 @@
   .progress-ring .progress-ring__circle, .module-card { transition: none; }
 }
 
-@media (min-width: 1024px) {
-  .selector, .unit-drawer { max-width: 1200px; margin: 0 auto; }
-  .module-track { --card-w: 310px; }
-  .unit-drawer { padding: 0 2.5rem; }
+@media (min-width: 768px) {
+  .curriculum {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
+  }
+
+  .module-carousel-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0;
+  }
+
+  .module-track {
+    --card-w: 320px;
+    gap: 24px;
+    padding-block: 2rem;
+  }
+  .module-card { height: 220px; }
+  .module-card__face { padding: 1.5rem; }
+
+  .unit-drawer { padding: 0; }
+  .drawer-header, .sticky-deck {
+    width: 100%;
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+  .drawer-header {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    padding: 0 .5rem;
+  }
+  .unit-card {
+    padding: 1.5rem 1.75rem;
+    .unit-title { font-size: 1.15rem; }
+    .unit-preview-text { font-size: .95rem; line-height: 1.55; }
+  }
 
   .track-nav {
     position: absolute;
-    top: calc(50% - .375rem);
-    z-index: 1;
+    top: 50%;
+    z-index: 11;
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     transform: translateY(-50%);
     border-radius: 50%;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    background: #1E242B;
+    background: #111827;
     color: #fff;
     cursor: pointer;
-    transition: background-color .2s ease;
-    &:hover { background: #2a323b; }
+    transition: background-color .2s ease, transform .2s ease;
+    &:hover { background: #1f2937; transform: translateY(-50%) scale(1.05); }
     &:focus-visible { outline: 3px solid var(--tenant-primary, #0ea5e9); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { transition: none; }
   }
-  .track-nav--prev { left: 0; }
-  .track-nav--next { right: 0; }
+  .track-nav--prev { left: 12px; }
+  .track-nav--next { right: 12px; }
 }
