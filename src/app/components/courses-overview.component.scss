@@ -22,15 +22,16 @@
   gap: 16px;
   width: 100%;
   box-sizing: border-box;
-  padding: 2rem max(0px, calc(50% - var(--card-w) / 2));
+  padding: 1.5rem max(0px, calc(50% - var(--card-w) / 2)) 1rem;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  perspective: 1000px;
+  perspective: 800px;
   &::-webkit-scrollbar { display: none; }
 }
-.overview-card { flex: 0 0 var(--card-w); width: var(--card-w); height: 360px; scroll-snap-align: center; scroll-snap-stop: always; min-width: 0; }
+.overview-card { position: relative; flex: 0 0 var(--card-w); width: var(--card-w); height: 360px; scroll-snap-align: center; scroll-snap-stop: always; min-width: 0; transform-style: preserve-3d; z-index: 1; }
+.overview-card.is-active { z-index: 2; }
 .card-face {
   display: flex;
   flex-direction: column;
@@ -43,12 +44,13 @@
   color: var(--overview-text);
   border: 1px solid color-mix(in srgb, var(--overview-text) 12%, transparent);
   box-shadow: 0 12px 28px -12px color-mix(in srgb, var(--overview-ink) 65%, transparent);
-  transition: transform .38s ease, opacity .35s ease, border-color .35s ease;
-  transform: scale(.88);
-  opacity: .55;
-  .is-prev & { transform-origin: right center; transform: scale(.88) rotateY(-18deg); }
-  .is-next & { transform-origin: left center; transform: scale(.88) rotateY(18deg); }
-  .is-active & { transform: scale(1); opacity: 1; border-color: var(--overview-accent); }
+  transition: transform .38s cubic-bezier(.22, 1, .36, 1), opacity .35s ease, border-color .35s ease;
+  transform-style: preserve-3d;
+  transform: scale(.85);
+  opacity: .45;
+  .is-prev & { transform-origin: right center; transform: scale(.85) rotateY(-20deg) translateZ(-30px); }
+  .is-next & { transform-origin: left center; transform: scale(.85) rotateY(20deg) translateZ(-30px); }
+  .is-active & { transform-origin: center center; transform: scale(1.02) rotateY(0deg) translateZ(20px); opacity: 1; border-color: color-mix(in srgb, var(--overview-accent) 55%, transparent); }
 }
 .card-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; color: var(--overview-accent); }
 .card-top .eyebrow { font-size: .875rem; letter-spacing: .02em; }
@@ -73,14 +75,37 @@ progress::-moz-progress-bar { background: var(--overview-accent); border-radius:
 .journal-controls { display: flex; align-items: center; justify-content: space-between; gap: .25rem; }
 .journal-pager { display: flex; }
 .journal-pager button { width: 32px; height: 36px; display: grid; place-items: center; color: var(--overview-muted); }
-.mentor-identity { display: flex; align-items: center; gap: .75rem; }
-.mentor-identity img { width: 72px; height: 80px; object-fit: cover; object-position: top; border-radius: 16px; background: var(--overview-surface); }
-.mentor-identity p { margin-top: .25rem; }
-.languages { color: var(--overview-accent); font-size: .875rem; }
+.card-face.card-face--mentor {
+  --overview-ink: #161c24;
+  --overview-surface: #1e242b;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(165deg, var(--overview-surface), var(--overview-ink));
+  box-shadow: 0 12px 32px -6px rgba(0, 0, 0, .5);
+}
+.mentor-hero { position: relative; flex: 0 0 174px; display: flex; flex-direction: column; justify-content: space-between; padding: 1rem; isolation: isolate; }
+.mentor-portrait { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 25%; z-index: -2; }
+.mentor-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, color-mix(in srgb, var(--overview-ink) 65%, transparent), transparent 40%, var(--overview-ink)); z-index: -1; }
+.mentor-badges { display: flex; justify-content: space-between; align-items: center; gap: .5rem; color: var(--overview-accent); }
+.mentor-badges .eyebrow { font-size: .875rem; letter-spacing: .02em; }
+.mentor-badges mat-icon { flex: none; font-size: 20px; width: 20px; height: 20px; }
+.mentor-identity h3 { font-size: 1.75rem; }
+.mentor-identity p { color: var(--overview-text); opacity: .8; }
+.mentor-details { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: .5rem; padding: .5rem 1rem 1rem; }
+.mentor-bio { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.languages { display: flex; flex-wrap: wrap; gap: .375rem; }
+.language-chip { border-radius: 999px; background: color-mix(in srgb, var(--overview-text) 8%, transparent); border: 1px solid color-mix(in srgb, var(--overview-text) 12%, transparent); padding: .25rem .625rem; color: var(--overview-text); font-size: .875rem; line-height: 1.4; backdrop-filter: blur(8px); }
+.mentor-details footer { margin-top: auto; border: 0; padding: 0; }
+footer .action-pill { width: 100%; min-height: 44px; justify-content: center; border-radius: 999px; padding-inline: 1rem; font-weight: 750; box-shadow: 0 6px 16px color-mix(in srgb, var(--overview-accent) 18%, transparent); }
+footer .action-pill--primary { color: var(--overview-ink); background: var(--overview-accent); }
+footer .action-pill:hover { text-decoration: none; filter: brightness(1.08); }
+.action-pill mat-icon { font-size: 20px; width: 20px; height: 20px; }
 .track-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: var(--overview-text); background: var(--overview-ink); border: 1px solid color-mix(in srgb, var(--overview-text) 20%, transparent); z-index: 2; box-shadow: 0 2px 8px color-mix(in srgb, var(--overview-ink) 30%, transparent); }
 .track-nav:disabled { opacity: .3; cursor: default; }
 .prev { left: 0; } .next { right: 0; }
-.carousel-dots { display: flex; justify-content: center; gap: .25rem; }
+.carousel-dots { display: flex; justify-content: center; gap: .25rem; margin-top: .5rem; margin-bottom: .25rem; }
 .carousel-dots button { display: grid; place-items: center; width: 32px; height: 28px; }
 .carousel-dots span { width: 6px; height: 6px; border-radius: 99px; background: currentColor; opacity: .25; transition: width .2s ease; }
 .carousel-dots [aria-current] span { width: 24px; background: var(--overview-accent); opacity: 1; }

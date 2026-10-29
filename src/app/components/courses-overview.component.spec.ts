@@ -33,6 +33,17 @@ describe('courses overview carousel', () => {
     expect(element.textContent).toContain('5 / 10');
   });
 
+  it('renders portrait heroes, verified badges, language chips and named audio buttons', async () => {
+    const {element} = await setup();
+    const cards = element.querySelectorAll('.card-face--mentor');
+    expect(cards).toHaveLength(2);
+    expect(cards[0].querySelector('img')?.getAttribute('src')).toBe('/mentors/sophie.png');
+    expect(cards[0].querySelector('[aria-label="Verified mentor"]')).not.toBeNull();
+    expect([...cards[0].querySelectorAll('.language-chip')].map(chip => chip.textContent?.trim())).toEqual(['English', 'Chinese']);
+    expect(cards[0].querySelector('.action-pill--primary')?.textContent).toContain('Listen to Sophie');
+    expect(cards[1].querySelector('.action-pill--primary')?.textContent).toContain('Listen to Hannah');
+  });
+
   it('never fills missing selections with arbitrary mentors', async () => {
     const {component, element} = await setup(['missing']);
     expect(component.chosenMentors()).toEqual([]);
