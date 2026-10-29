@@ -6,30 +6,25 @@
   position: relative;
   width: 100%;
   min-width: 0;
+  padding: 1.5rem 0 1rem;
   overflow: hidden;
-  padding: 0.5rem 0 1rem;
 }
 
 .module-track {
-  position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  gap: 16px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  /* Perspective lives on the track because the cards are its direct children; a perspective on the
-     outer container would not reach them. */
-  perspective: 1200px;
-  perspective-origin: center;
-  /* Vertical padding leaves room for the scaled-up active card, since overflow-x also clips overflow-y. */
-  --card-width: 240px;
-  --card-overlap: 16px;
-  /* Half a card, plus the negative card margin, so the first and last cards centre exactly. */
-  padding: 1.5rem calc(50% - var(--card-width) / 2 + var(--card-overlap));
+  perspective: 1000px;
+  perspective-origin: center center;
+  --card-w: min(72vw, 280px);
+  /* Half the viewport minus half a card centres the first and last cards on any screen width. */
+  padding: 1rem calc(50vw - (var(--card-w) / 2));
   &::-webkit-scrollbar { display: none; }
 
   @media (prefers-reduced-motion: reduce) { scroll-behavior: auto; }
@@ -37,105 +32,59 @@
 
 .module-card {
   position: relative;
-  flex: 0 0 var(--card-width);
-  width: var(--card-width);
-  min-width: var(--card-width);
-  max-width: var(--card-width);
-  height: 260px;
-  /* Negative margin overlaps neighbours into a layered fan. */
-  margin: 0 calc(var(--card-overlap) * -1);
-  /* The snap target stays untransformed: scroll-snap measures the transformed box, so tilting the
-     button itself would pull tapped cards off-centre. The 3D transform lives on the face instead. */
+  flex: 0 0 var(--card-w);
+  width: var(--card-w);
+  min-width: var(--card-w);
+  height: 250px;
+  margin: 0;
   scroll-snap-align: center;
-  /* "normal" lets a fast swipe glide past cards instead of halting on each one. */
-  scroll-snap-stop: normal;
-  /* Each card gets its own timeline that tracks its position across the track's scrollport. */
-  view-timeline-name: --card-scroll;
-  view-timeline-axis: inline;
+  scroll-snap-stop: always;
   display: block;
-  padding: 0;
   border: none;
-  border-radius: 24px;
   background: transparent;
-  box-shadow: none;
+  padding: 0;
   color: #fff;
   text-align: left;
   cursor: pointer;
   transform-style: preserve-3d;
+  z-index: 1;
 
   &.is-active { z-index: 10; }
 
-  &:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  &:focus-visible { outline: 3px solid #fff; outline-offset: 3px; border-radius: 22px; }
 }
 
 .module-card__face {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   justify-content: space-between;
   gap: .5rem;
   width: 100%;
   height: 100%;
-  padding: 1.5rem;
-  border-radius: 24px;
+  padding: 1.4rem;
+  border-radius: 22px;
   background: linear-gradient(165deg, #252D37 0%, #171C22 100%);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  transform-origin: center center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
+  transform: scale(0.88);
+  opacity: 0.55;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.35s ease,
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
   will-change: transform, opacity;
-}
 
-/* Continuous coverflow: the card's position in the scrollport drives its tilt, so it fans as you drag. */
-@keyframes moduleCard3D {
-  0% {
-    transform: scale(0.82) rotateY(-20deg) translateZ(-50px);
-    opacity: 0.45;
-    filter: blur(0.5px);
-  }
-  50% {
-    transform: scale(1.04) rotateY(0deg) translateZ(30px);
+  .is-prev > & { transform: scale(0.88) rotateY(-10deg); }
+  .is-next > & { transform: scale(0.88) rotateY(10deg); }
+
+  .is-active > & {
+    transform: scale(1) rotateY(0deg);
     opacity: 1;
-    filter: blur(0);
-    box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    border-color: rgba(14, 165, 233, 0.4);
+    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(14, 165, 233, 0.3);
   }
-  100% {
-    transform: scale(0.82) rotateY(20deg) translateZ(-50px);
-    opacity: 0.45;
-    filter: blur(0.5px);
-  }
-}
 
-@supports (animation-timeline: view()) {
-  .module-card__face {
-    animation: moduleCard3D linear both;
-    /* Must follow the shorthand, which resets animation-timeline. */
-    animation-timeline: --card-scroll;
-    animation-range: entry 0% exit 100%;
-  }
-}
-
-/* Browsers without scroll-driven animations: the observer's prev/active/next classes drive a tween. */
-@supports not (animation-timeline: view()) {
-  .module-card__face {
-    transform: scale(0.82) rotateY(18deg) translateZ(-50px);
-    opacity: 0.45;
-    filter: blur(0.5px);
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-                filter 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-                box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-
-    .is-prev > & { transform: scale(0.84) rotateY(16deg) translateZ(-40px); opacity: 0.5; }
-    .is-next > & { transform: scale(0.84) rotateY(-16deg) translateZ(-40px); opacity: 0.5; }
-    .module-card:hover:not(.is-active) > & { opacity: 0.7; }
-    .is-active > & {
-      transform: scale(1.04) rotateY(0deg) translateZ(30px);
-      opacity: 1;
-      filter: blur(0);
-      box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.12);
-    }
-
-    @media (prefers-reduced-motion: reduce) { transition: none; }
-  }
+  @media (prefers-reduced-motion: reduce) { transition: none; }
 }
 
 .module-card__body { display: flex; flex-direction: column; gap: .375rem; min-width: 0; }
@@ -291,7 +240,7 @@
 
 @media (min-width: 1024px) {
   .selector, .unit-drawer { max-width: 1200px; margin: 0 auto; }
-  .module-track { --card-width: 310px; }
+  .module-track { --card-w: 310px; }
   .unit-drawer { padding: 0 2.5rem; }
 
   .track-nav {
