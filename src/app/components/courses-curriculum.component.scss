@@ -177,7 +177,7 @@
   flex-direction: column;
   gap: .5rem;
   min-width: 0;
-  padding: .75rem;
+  padding: .625rem .75rem;
   border-radius: 16px;
   background: #1E242B;
   color: #fff;
@@ -186,17 +186,15 @@
 
 .unit-open {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: .75rem;
   width: 100%;
-  padding: .25rem;
+  padding: 0;
   border-radius: 10px;
   background: transparent;
   color: inherit;
   text-align: left;
   cursor: pointer;
-  &:focus-visible { outline: 3px solid var(--tenant-primary, #0ea5e9); outline-offset: 2px; }
 }
 .unit-index {
   flex: none;
@@ -220,35 +218,34 @@
   mat-icon { width: 14px; height: 14px; font-size: 14px; }
 }
 
-.status-pill {
+/* Both buttons share one row and one height, indented to line up under the unit title. */
+.unit-actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding-left: 2.75rem;
+}
+.action-pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: .25rem;
-  margin-left: auto;
-  padding: .375rem .75rem;
+  min-height: 2.25rem;
+  padding: 0 .875rem;
+  border: 1px solid transparent;
   border-radius: 999px;
   font-size: .8125rem;
   font-weight: 700;
+  line-height: 1;
   white-space: nowrap;
-  mat-icon { width: 16px; height: 16px; font-size: 16px; }
-}
-.status-pill--done { background: rgba(134, 239, 172, 0.15); color: #86efac; }
-.status-pill--locked { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.85); }
-.status-pill--start { background: var(--brand-accent); color: var(--brand-accent-ink); }
-
-.complete-button {
-  align-self: flex-start;
-  margin-left: 3.25rem;
-  padding: .375rem .75rem;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 999px;
-  background: transparent;
-  color: inherit;
-  font-size: .8125rem;
-  font-weight: 600;
   cursor: pointer;
+  mat-icon { width: 16px; height: 16px; font-size: 16px; }
   &:focus-visible { outline: 3px solid var(--tenant-primary, #0ea5e9); outline-offset: 2px; }
 }
+.action-pill--primary { background: var(--brand-accent); color: var(--brand-accent-ink); }
+.action-pill--locked { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.85); }
+.action-pill--toggle { border-color: rgba(255, 255, 255, 0.25); background: transparent; color: inherit; }
+.action-pill--done { border-color: transparent; background: rgba(134, 239, 172, 0.15); color: #86efac; }
 
 @media (prefers-reduced-motion: reduce) {
   .units-container { animation: none; }

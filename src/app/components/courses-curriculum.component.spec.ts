@@ -88,17 +88,34 @@ describe('module selector and unit drawer', () => {
     element.querySelectorAll<HTMLButtonElement>('.module-card')[2].click();
     fixture.detectChanges();
     expect(element.textContent).toContain('Upgrade to Unlock');
-    element.querySelector<HTMLButtonElement>('.unit-open')!.click();
+    element.querySelector<HTMLButtonElement>('.action-pill--primary')!.click();
     expect(TestBed.inject(TierService).requiredUpgrade()).toBe(2);
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('routes units to the reader when tapped', async () => {
-    const {element} = await setup();
+  it('opens the full-screen reader in place when a unit is tapped', async () => {
+    const {component, element} = await setup();
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
-    const read = Array.from(element.querySelectorAll<HTMLButtonElement>('.unit-open')).find(button => button.textContent?.includes('Read Unit'))!;
+    const read = Array.from(element.querySelectorAll<HTMLButtonElement>('.action-pill--primary')).find(button => button.textContent?.includes('Read Unit'))!;
     read.click();
-    expect(navigate).toHaveBeenCalledWith(['/courses', 'module-1', 'units', 'unit-2']);
+    expect(component.openedUnit()).toEqual({moduleId: 'module-1', unitId: 'unit-2'});
+    expect(navigate).not.toHaveBeenCalled();
+    component.closeReader();
+    expect(component.openedUnit()).toBeNull();
+  });
+
+  it('lets a completed unit be marked incomplete again', async () => {
+    const {fixture, firebase, element} = await setup(1, ['module-1/unit-1']);
+    (firebase as unknown as {removeCourseCompletion: unknown}).removeCourseCompletion = vi.fn(async () => undefined);
+    const toggles = element.querySelectorAll<HTMLButtonElement>('.action-pill--toggle');
+    expect(toggles[0].getAttribute('aria-pressed')).toBe('true');
+    expect(toggles[0].textContent).toContain('Completed');
+    expect(toggles[1].getAttribute('aria-pressed')).toBe('false');
+    toggles[0].click();
+    fixture.detectChanges();
+    expect((firebase as unknown as {removeCourseCompletion: ReturnType<typeof vi.fn>}).removeCourseCompletion).toHaveBeenCalledWith('module-1/unit-1');
+    toggles[1].click();
+    expect(firebase.recordCourseCompletion).toHaveBeenCalledWith('module-1/unit-2');
   });
 
   it('filters by completion without changing summary totals', async () => {
