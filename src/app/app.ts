@@ -652,6 +652,24 @@ export class App {
     }
   }
 
+  readonly courseRecordingMentor = signal<Mentor | null>(null);
+  private courseRecordingTrigger: HTMLElement | null = null;
+
+  openCourseMentorRecordings(mentor: Mentor): void {
+    if (!this.requireSignIn()) return;
+    this.courseRecordingTrigger = typeof document !== 'undefined' ? document.activeElement as HTMLElement : null;
+    this.courseRecordingMentor.set(mentor);
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => document.getElementById('course-recordings-heading')?.focus());
+    }
+  }
+
+  closeCourseMentorRecordings(): void {
+    this.courseRecordingMentor.set(null);
+    this.courseRecordingTrigger?.focus({preventScroll: true});
+    this.courseRecordingTrigger = null;
+  }
+
   mentorRecordings(mentorName: string): AudioTrack[] {
     const tier = this.firebaseService.subscriptionTier();
     return this.dataService.availableAudioTracks().filter(track => {

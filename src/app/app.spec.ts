@@ -57,6 +57,28 @@ describe('App', () => {
     expect(play).not.toHaveBeenCalled();
   });
 
+  it('opens the selected mentor recordings instead of chat and restores trigger focus', () => {
+    const app = TestBed.createComponent(App).componentInstance;
+    const mentor = app.dataService.mentors()[0];
+    const signIn = vi.spyOn(app, 'requireSignIn').mockReturnValue(false);
+    const chat = vi.spyOn(app, 'openMentorChat');
+    app.openCourseMentorRecordings(mentor);
+    expect(app.courseRecordingMentor()).toBeNull();
+    signIn.mockReturnValue(true);
+    const button = document.createElement('button');
+    document.body.append(button);
+    button.focus();
+    const focus = vi.spyOn(button, 'focus');
+    try {
+      app.openCourseMentorRecordings(mentor);
+      expect(app.courseRecordingMentor()).toBe(mentor);
+      expect(chat).not.toHaveBeenCalled();
+      app.closeCourseMentorRecordings();
+      expect(app.courseRecordingMentor()).toBeNull();
+      expect(focus).toHaveBeenCalledWith({preventScroll: true});
+    } finally { button.remove(); }
+  });
+
   it('keeps hero autoplay muted on the home route', async () => {
     const app = TestBed.createComponent(App).componentInstance;
     const video = document.createElement('video');

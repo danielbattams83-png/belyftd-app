@@ -708,7 +708,7 @@
     <!-- TAB: FOUNDATIONAL COURSES GRID (10 LEADERSHIP M.) -->
     <!-- ================================================= -->
     @if (activeTab() === 'courses') {
-      <div id="tab-courses-content" class="space-y-6 pt-6 animate-in fade-in duration-150">
+      <div id="tab-courses-content" class="courses-page pt-6 animate-in fade-in duration-150">
         
         @if (isLoggedIn()) {
           <app-courses-overview
@@ -721,9 +721,20 @@
             (viewQuests)="selectTab('quests')"
             (recordNote)="showVoiceRecorder.set(true)"
             (playJournal)="playRecordedJournal($event)"
-            (mentorSelected)="openMentorChat($event)"
+            (mentorSelected)="openCourseMentorRecordings($event)"
             (chooseMentors)="showPostAuthOnboarding.set(true)"
           />
+        }
+        @if (courseRecordingMentor(); as mentor) {
+          <section class="course-recordings card rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900" aria-labelledby="course-recordings-heading">
+            <header class="flex items-center justify-between gap-3">
+              <h3 id="course-recordings-heading" tabindex="-1" class="text-lg font-bold">Listen to {{ mentor.name }}</h3>
+              <button type="button" class="recordings-close" aria-label="Close mentor recordings" (click)="closeCourseMentorRecordings()"><mat-icon aria-hidden="true">close</mat-icon></button>
+            </header>
+            @if (dataService.audioCatalogLoading()) {<p role="status">Loading mentor recordings…</p>}
+            @if (dataService.audioCatalogError()) {<p role="alert">{{ dataService.audioCatalogError() }}</p>}
+            <app-mentor-recording-picker [tracks]="mentorRecordings(mentor.name)" [showLanguageSelector]="mentor.languages.length > 1" (playRecording)="playMentorRecording($event)" />
+          </section>
         }
         <div id="courses-tour-anchor" class="courses-section-heading">
           <h2>Modules</h2>
