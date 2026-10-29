@@ -55,6 +55,18 @@ export class CoursesCurriculumComponent {
   /** The unit currently open in the full-screen reader, if any. */
   readonly openedUnit = signal<{moduleId: string; unitId: string} | null>(null);
 
+  /** Keyed by module and unit because unit ids repeat across modules. */
+  readonly activeUnitKey = signal<string | null>(null);
+
+  unitKey(moduleId: string, unitId: string): string {
+    return `${moduleId}/${unitId}`;
+  }
+
+  toggleUnitExpand(moduleId: string, unitId: string): void {
+    const key = this.unitKey(moduleId, unitId);
+    this.activeUnitKey.update(current => current === key ? null : key);
+  }
+
   private rafId: number | null = null;
   private isProgrammaticScrolling = false;
   private programmaticTimer?: ReturnType<typeof setTimeout>;
