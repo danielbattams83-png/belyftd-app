@@ -1,3 +1,4 @@
+<app-admin-header />
 <div class="admin-portal">
   <header class="portal-header">
     <div>
@@ -56,7 +57,7 @@
         <div class="logo-upload">
           <div><span class="field-label">Partner logo</span><p class="field-help">Upload a square image for the best result.</p></div>
           <label class="upload-button" for="partner-logo-upload">Upload logo <span aria-hidden="true">↑</span></label>
-          <input id="partner-logo-upload" class="sr-only" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" (change)="handleLogoUpload($event)" />
+          <input id="partner-logo-upload" class="sr-only" type="file" accept="image/png,image/jpeg,image/webp,image/gif" (change)="handleLogoUpload($event)" />
         </div>
         <div class="logo-row"><img [src]="partner().branding.logoUrl" alt="Partner logo preview" /><span>Logo preview<br><small>{{ partner().branding.logoUrl ? 'Ready to use in the partner experience.' : 'No logo selected yet.' }}</small></span></div>
         <div class="theme-selector" role="radiogroup" aria-label="Colour themes">

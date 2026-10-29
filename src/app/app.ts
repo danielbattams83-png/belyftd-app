@@ -228,7 +228,7 @@ export class App {
         '': 'daily-lyft', dashboard: 'daily-lyft', courses: 'courses', mentors: 'mentors',
         quests: 'quests', 'coach-spark': 'coach-spark', community: 'community', partners: 'partners',
       };
-      this.isAdminPortal.set(path === 'admin/sponsors');
+      this.isAdminPortal.set(path === 'admin' || path.startsWith('admin/'));
       this.isJoinRoute.set(path === 'join');
       this.isDashboard.set(path === '' || path === 'dashboard' || path.startsWith('p/'));
       this.activeTab.set(tabs[path] ?? 'daily-lyft');
