@@ -292,8 +292,15 @@ export class FirebaseService {
       {moduleId: string; unitId: string; mediaType: CourseMediaType; storagePath: string},
       {url: string}
     >(getFunctions(this.app ?? undefined, 'us-central1'), 'getCourseMediaUrl');
-    const result = await getSignedUrl({moduleId, unitId, mediaType, storagePath: normalizedPath});
-    return result.data.url;
+    const payload = {moduleId, unitId, mediaType: mediaType as CourseMediaType, storagePath: normalizedPath};
+    try {
+      return (await getSignedUrl(payload)).data.url;
+    } catch (error: unknown) {
+      // The server reads the tier from the ID-token claim, which stays stale until the token refreshes after a tier change.
+      if ((error as {code?: string})?.code !== 'functions/permission-denied') throw error;
+      await user.getIdToken(true);
+      return (await getSignedUrl(payload)).data.url;
+    }
   }
 
   async getFirstStorageDownloadUrl(paths: string[]): Promise<string | null> {
