@@ -167,7 +167,8 @@ export class MediaCmsService {
     const progress = type === 'video' ? this.videoProgress : this.audioProgress;
     progress.set(0);
     const extension = type === 'video' ? 'mp4' : 'mp3';
-    const storagePath = `course-content/${type}s/${moduleId}/${unitId}.${extension}`;
+    const folder = type === 'video' ? 'videos' : 'audio';
+    const storagePath = `course-content/${folder}/${moduleId}/${unitId}.${extension}`;
     const task = uploadBytesResumable(ref(this.storage!, storagePath), file, {
       contentType: file.type || (type === 'video' ? 'video/mp4' : 'audio/mpeg'),
       customMetadata: {originalName: file.name},
