@@ -241,26 +241,70 @@
               <img [src]="mentor.avatarUrl || '/logo.png'" [alt]="mentor.name" width="72" height="72" />
               <div><span class="eyebrow">Course mentor</span><h3>{{ mentor.name }}</h3></div>
             </header>
-            <label class="field">
+            <div class="field">
               <span>Portrait avatar URL</span>
-              <input type="url" [ngModel]="mentor.avatarUrl" (ngModelChange)="patchMentor(mentor.id, 'avatarUrl', $event)"
-                [name]="mentor.id + '-avatar'" placeholder="https://cdn.example.com/avatar.png" />
-            </label>
-            <label class="field">
+              <div class="media-input-group">
+                <input type="url" [ngModel]="mentor.avatarUrl" (ngModelChange)="patchMentor(mentor.id, 'avatarUrl', $event)"
+                  [name]="mentor.id + '-avatar'" placeholder="https://cdn.example.com/avatar.png" />
+                <label class="upload-button">
+                  Upload
+                  <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif,image/*"
+                    (change)="onWorkspaceFileSelected($event, 'mentor', mentor.id, 'avatarUrl')" />
+                </label>
+              </div>
+              @if (uploadingWorkspaceKey() === workspaceProgressKey('mentor', mentor.id, 'avatarUrl')) {
+                <div class="inline-upload-progress">
+                  <i [style.width.%]="mediaCms.workspaceProgress(workspaceProgressKey('mentor', mentor.id, 'avatarUrl'))"></i>
+                  <span>{{ mediaCms.workspaceProgress(workspaceProgressKey('mentor', mentor.id, 'avatarUrl')) }}%</span>
+                </div>
+              }
+            </div>
+            <div class="field">
               <span>Greeting video URL</span>
-              <input type="url" [ngModel]="mentor.videoUrl" (ngModelChange)="patchMentor(mentor.id, 'videoUrl', $event)"
-                [name]="mentor.id + '-video'" placeholder="https://cdn.example.com/greeting.mp4" />
-            </label>
+              <div class="media-input-group">
+                <input type="url" [ngModel]="mentor.videoUrl" (ngModelChange)="patchMentor(mentor.id, 'videoUrl', $event)"
+                  [name]="mentor.id + '-video'" placeholder="https://cdn.example.com/greeting.mp4" />
+                <label class="upload-button">
+                  Upload
+                  <input type="file" accept=".mp4,.webm,.mov,video/mp4,video/webm,video/quicktime"
+                    (change)="onWorkspaceFileSelected($event, 'mentor', mentor.id, 'videoUrl')" />
+                </label>
+              </div>
+              @if (uploadingWorkspaceKey() === workspaceProgressKey('mentor', mentor.id, 'videoUrl')) {
+                <div class="inline-upload-progress">
+                  <i [style.width.%]="mediaCms.workspaceProgress(workspaceProgressKey('mentor', mentor.id, 'videoUrl'))"></i>
+                  <span>{{ mediaCms.workspaceProgress(workspaceProgressKey('mentor', mentor.id, 'videoUrl')) }}%</span>
+                </div>
+              }
+            </div>
             @if (mentor.videoUrl) {
-              <video class="media-preview mentor-video" controls playsinline preload="metadata" [src]="mentor.videoUrl"></video>
+              <div class="media-preview-box video-preview">
+                <video controls playsinline preload="metadata" [src]="mentor.videoUrl"></video>
+              </div>
             }
-            <label class="field">
+            <div class="field">
               <span>Voice sample audio URL</span>
-              <input type="url" [ngModel]="mentor.audioUrl" (ngModelChange)="patchMentor(mentor.id, 'audioUrl', $event)"
-                [name]="mentor.id + '-audio'" placeholder="https://cdn.example.com/voice-sample.mp3" />
-            </label>
+              <div class="media-input-group">
+                <input type="url" [ngModel]="mentor.audioUrl" (ngModelChange)="patchMentor(mentor.id, 'audioUrl', $event)"
+                  [name]="mentor.id + '-audio'" placeholder="https://cdn.example.com/voice-sample.mp3" />
+                <label class="upload-button">
+                  Upload
+                  <input type="file" accept=".mp3,.wav,.m4a,.aac,audio/mpeg,audio/wav,audio/mp4,audio/aac"
+                    (change)="onWorkspaceFileSelected($event, 'mentor', mentor.id, 'audioUrl')" />
+                </label>
+              </div>
+              @if (uploadingWorkspaceKey() === workspaceProgressKey('mentor', mentor.id, 'audioUrl')) {
+                <div class="inline-upload-progress">
+                  <i [style.width.%]="mediaCms.workspaceProgress(workspaceProgressKey('mentor', mentor.id, 'audioUrl'))"></i>
+                  <span>{{ mediaCms.workspaceProgress(workspaceProgressKey('mentor', mentor.id, 'audioUrl')) }}%</span>
+                </div>
+              }
+            </div>
             @if (mentor.audioUrl) {
-              <audio class="media-preview audio-preview" controls preload="metadata" [src]="mentor.audioUrl"></audio>
+              <div class="media-preview-box audio-preview">
+                <mat-icon aria-hidden="true">volume_up</mat-icon>
+                <audio controls preload="metadata" [src]="mentor.audioUrl"></audio>
+              </div>
             }
           </article>
         }
@@ -289,13 +333,28 @@
               <h3>{{ asset.label }}</h3>
               <p>{{ asset.description }}</p>
             </div>
-            <label class="field">
+            <div class="field">
               <span>Hosted asset URL</span>
-              <input type="url" [ngModel]="asset.url" (ngModelChange)="patchBrandMedia(asset.id, $event)"
-                [name]="asset.id + '-url'" placeholder="https://cdn.example.com/asset.png" />
-            </label>
+              <div class="media-input-group">
+                <input type="url" [ngModel]="asset.url" (ngModelChange)="patchBrandMedia(asset.id, $event)"
+                  [name]="asset.id + '-url'" placeholder="https://cdn.example.com/asset.png" />
+                <label class="upload-button">
+                  Upload
+                  <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif,image/*"
+                    (change)="onWorkspaceFileSelected($event, 'brand', asset.id, 'url')" />
+                </label>
+              </div>
+              @if (uploadingWorkspaceKey() === workspaceProgressKey('brand', asset.id, 'url')) {
+                <div class="inline-upload-progress">
+                  <i [style.width.%]="mediaCms.workspaceProgress(workspaceProgressKey('brand', asset.id, 'url'))"></i>
+                  <span>{{ mediaCms.workspaceProgress(workspaceProgressKey('brand', asset.id, 'url')) }}%</span>
+                </div>
+              }
+            </div>
             @if (asset.url) {
-              <img class="brand-preview" [src]="asset.url" [alt]="asset.label" />
+              <div class="media-preview-box image-preview">
+                <img [src]="asset.url" [alt]="asset.label" />
+              </div>
             }
           </article>
         }

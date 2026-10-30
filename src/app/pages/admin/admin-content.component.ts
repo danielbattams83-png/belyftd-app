@@ -1,11 +1,13 @@
 import {CommonModule} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, effect, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {MatIconModule} from '@angular/material/icon';
 import {CurriculumModule, CurriculumUnit} from '../../models/curriculum.model';
 import {CurriculumService} from '../../services/curriculum.service';
 import {
   BrandMediaRecord,
   CmsMediaType,
+  CmsWorkspaceAssetType,
   CmsWorkspaceMedia,
   CurriculumUnitUpdate,
   MediaCmsService,
@@ -32,7 +34,7 @@ const DEFAULT_WORKSPACE_MEDIA: CmsWorkspaceMedia = {
 
 @Component({
   selector: 'app-admin-content',
-  imports: [AdminHeaderComponent, CommonModule, FormsModule],
+  imports: [AdminHeaderComponent, CommonModule, FormsModule, MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './admin-content.component.html',
   styleUrl: './admin-content.component.scss',
@@ -54,6 +56,7 @@ export class AdminContentComponent {
   readonly mentors = signal<MentorMediaRecord[]>(DEFAULT_WORKSPACE_MEDIA.mentors);
   readonly brandMedia = signal<BrandMediaRecord[]>(DEFAULT_WORKSPACE_MEDIA.brandMedia);
   readonly savingWorkspace = signal(false);
+  readonly uploadingWorkspaceKey = signal<string | null>(null);
   readonly workspaceMessage = signal('');
   private selectionRequest = 0;
 
@@ -211,6 +214,60 @@ export class AdminContentComponent {
   patchBrandMedia(id: string, value: string): void {
     this.brandMedia.update(items => items.map(item => item.id === id ? {...item, url: value} : item));
     this.workspaceMessage.set('');
+  }
+
+  workspaceProgressKey(scope: 'mentor' | 'brand', id: string, field: string): string {
+    return `${scope}:${id}:${field}`;
+  }
+
+  async onWorkspaceFileSelected(
+    event: Event,
+    scope: 'mentor' | 'brand',
+    id: string,
+    field: 'avatarUrl' | 'videoUrl' | 'audioUrl' | 'url',
+  ): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    const assetType: CmsWorkspaceAssetType = field === 'videoUrl' ? 'video' : field === 'audioUrl' ? 'audio' : 'image';
+    const allowed = assetType === 'image'
+      ? /\.(png|jpe?g|webp|gif)$/i
+      : assetType === 'video'
+        ? /\.(mp4|webm|mov)$/i
+        : /\.(mp3|wav|m4a|aac)$/i;
+    if (!allowed.test(file.name)) {
+      this.workspaceMessage.set(`Choose a supported ${assetType} file.`);
+      return;
+    }
+
+    const key = this.workspaceProgressKey(scope, id, field);
+    this.uploadingWorkspaceKey.set(key);
+    this.workspaceMessage.set('');
+    try {
+      const url = await this.mediaCms.uploadWorkspaceAsset(
+        scope === 'mentor' ? 'mentors' : 'brand',
+        id,
+        assetType,
+        key,
+        file,
+      );
+      if (scope === 'mentor' && field !== 'url') this.patchMentor(id, field, url);
+      else this.patchBrandMedia(id, url);
+      const target = await this.mediaCms.saveWorkspaceMedia({
+        mentors: this.mentors(),
+        brandMedia: this.brandMedia(),
+      });
+      this.workspaceMessage.set(target === 'remote'
+        ? `${assetType[0].toUpperCase()}${assetType.slice(1)} uploaded and saved.`
+        : `${assetType[0].toUpperCase()}${assetType.slice(1)} uploaded; workspace metadata was cached locally.`);
+    } catch (error) {
+      console.warn('[AdminContent] Workspace upload unavailable; manual URL mode remains active.', error);
+      this.workspaceMessage.set('Direct upload is unavailable. Paste a hosted media URL instead.');
+    } finally {
+      this.uploadingWorkspaceKey.set(null);
+    }
   }
 
   async saveWorkspaceMedia(): Promise<void> {

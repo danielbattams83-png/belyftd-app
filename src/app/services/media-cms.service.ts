@@ -8,6 +8,7 @@ import {ModuleUnitDocument} from '../models/firestore.models';
 import {AdminAuthService} from './admin-auth.service';
 
 export type CmsMediaType = 'video' | 'audio';
+export type CmsWorkspaceAssetType = 'image' | 'video' | 'audio';
 export type CmsSaveTarget = 'remote' | 'local';
 
 export interface MentorMediaRecord {
@@ -63,6 +64,7 @@ export class MediaCmsService {
 
   readonly videoProgress = signal(0);
   readonly audioProgress = signal(0);
+  readonly workspaceUploadProgress = signal<Record<string, number>>({});
   readonly remoteAvailable = signal<boolean | null>(null);
 
   private async ensureAdminFirebase(): Promise<boolean> {
@@ -192,6 +194,52 @@ export class MediaCmsService {
     });
   }
 
+  async uploadWorkspaceAsset(
+    scope: 'mentors' | 'brand',
+    ownerId: string,
+    assetType: CmsWorkspaceAssetType,
+    progressKey: string,
+    file: File,
+  ): Promise<string> {
+    if (!await this.ensureAdminFirebase() || !this.storage) throw new RemoteMediaUnavailableError();
+    const safeOwnerId = ownerId.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+    const extension = this.fileExtension(file, assetType);
+    const fileName = assetType === 'image' ? 'artwork' : assetType === 'video' ? 'greeting' : 'voice-sample';
+    const storagePath = `admin-media/${scope}/${safeOwnerId}/${fileName}.${extension}`;
+    this.setWorkspaceProgress(progressKey, 0);
+    const task = uploadBytesResumable(ref(this.storage, storagePath), file, {
+      contentType: file.type || this.defaultContentType(assetType, extension),
+      customMetadata: {originalName: file.name},
+    });
+
+    return new Promise<string>((resolve, reject) => {
+      task.on('state_changed',
+        snapshot => this.setWorkspaceProgress(
+          progressKey,
+          Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100),
+        ),
+        error => {
+          this.setWorkspaceProgress(progressKey, 0);
+          reject(error);
+        },
+        async () => {
+          try {
+            const url = await getDownloadURL(task.snapshot.ref);
+            this.setWorkspaceProgress(progressKey, 100);
+            resolve(url);
+          } catch (error) {
+            this.setWorkspaceProgress(progressKey, 0);
+            reject(error);
+          }
+        },
+      );
+    });
+  }
+
+  workspaceProgress(key: string): number {
+    return this.workspaceUploadProgress()[key] ?? 0;
+  }
+
   private disableRemote(error: unknown): void {
     this.remoteDisabled = true;
     this.authenticated = false;
@@ -220,5 +268,29 @@ export class MediaCmsService {
     } catch (error) {
       console.warn('[MediaCmsService] Local CMS cache could not be written.', error);
     }
+  }
+
+  private setWorkspaceProgress(key: string, progress: number): void {
+    this.workspaceUploadProgress.update(current => ({...current, [key]: progress}));
+  }
+
+  private fileExtension(file: File, assetType: CmsWorkspaceAssetType): string {
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    const allowed = assetType === 'image'
+      ? ['png', 'jpg', 'jpeg', 'webp', 'gif']
+      : assetType === 'video'
+        ? ['mp4', 'webm', 'mov']
+        : ['mp3', 'wav', 'm4a', 'aac'];
+    return extension && allowed.includes(extension)
+      ? extension
+      : assetType === 'image' ? 'png' : assetType === 'video' ? 'mp4' : 'mp3';
+  }
+
+  private defaultContentType(assetType: CmsWorkspaceAssetType, extension: string): string {
+    if (assetType === 'image') return extension === 'jpg' ? 'image/jpeg' : `image/${extension}`;
+    if (assetType === 'video') return extension === 'mov' ? 'video/quicktime' : `video/${extension}`;
+    if (extension === 'mp3') return 'audio/mpeg';
+    if (extension === 'm4a') return 'audio/mp4';
+    return `audio/${extension}`;
   }
 }
