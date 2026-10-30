@@ -159,7 +159,12 @@ export class AdminContentComponent {
     try {
       const url = await this.mediaCms.upload(type, this.activeModuleId(), this.activeUnitId(), file);
       this.patchDraft(type === 'video' ? 'videoUrl' : 'audioUrl', url);
-      this.message.set(`${type === 'video' ? 'Video' : 'Audio'} uploaded. Save changes to publish it.`);
+      const target = await this.save();
+      if (target) {
+        this.message.set(target === 'remote'
+          ? `${type === 'video' ? 'Video' : 'Audio'} uploaded and saved to the unit.`
+          : `${type === 'video' ? 'Video' : 'Audio'} uploaded; unit metadata was cached locally.`);
+      }
     } catch (error) {
       console.warn(`[AdminContent] ${type} upload unavailable; manual URL mode remains active.`, error);
       this.error.set('');
@@ -171,9 +176,9 @@ export class AdminContentComponent {
     }
   }
 
-  async save(): Promise<void> {
+  async save(): Promise<'remote' | 'local' | null> {
     const update = this.draft();
-    if (!update || this.saving()) return;
+    if (!update || this.saving()) return null;
     this.saving.set(true);
     this.error.set('');
     this.message.set('');
@@ -190,8 +195,10 @@ export class AdminContentComponent {
       this.message.set(target === 'remote'
         ? 'Changes saved and available to student views.'
         : 'Saved locally. Manual URL mode is active until Firebase reconnects.');
+      return target;
     } catch (error) {
       this.error.set(this.errorText(error, 'Unable to save this unit.'));
+      return null;
     } finally {
       this.saving.set(false);
     }

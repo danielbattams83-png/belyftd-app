@@ -162,11 +162,18 @@
               </div>
             }
             <div class="field-grid">
-              <label class="field">
+              <div class="field">
                 <span>Manual audio URL override</span>
-                <input type="url" placeholder="https://cdn.example.com/narration.mp3" [ngModel]="draftValue.audioUrl"
-                  (ngModelChange)="patchDraft('audioUrl', $event)" name="audioUrl" />
-              </label>
+                <div class="media-input-group">
+                  <input type="url" placeholder="https://cdn.example.com/narration.mp3" [ngModel]="draftValue.audioUrl"
+                    (ngModelChange)="patchDraft('audioUrl', $event)" name="audioUrl" />
+                  <label class="upload-button">
+                    Upload audio
+                    <input type="file" accept=".mp3,.wav,.aac,.m4a,audio/mpeg,audio/wav,audio/aac,audio/mp4"
+                      (change)="onFileSelected($event, 'audio')" [disabled]="uploading() !== null" />
+                  </label>
+                </div>
+              </div>
               <label class="field">
                 <span>Mentor voice</span>
                 <select [ngModel]="draftValue.mentorName" (ngModelChange)="patchDraft('mentorName', $event)" name="mentorName">
