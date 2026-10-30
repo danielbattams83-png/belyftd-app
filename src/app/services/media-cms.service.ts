@@ -8,6 +8,34 @@ import {ModuleUnitDocument} from '../models/firestore.models';
 import {AdminAuthService} from './admin-auth.service';
 
 export type CmsMediaType = 'video' | 'audio';
+export type CmsSaveTarget = 'remote' | 'local';
+
+export interface MentorMediaRecord {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  videoUrl: string;
+  audioUrl: string;
+}
+
+export interface BrandMediaRecord {
+  id: string;
+  label: string;
+  description: string;
+  url: string;
+}
+
+export interface CmsWorkspaceMedia {
+  mentors: MentorMediaRecord[];
+  brandMedia: BrandMediaRecord[];
+}
+
+export class RemoteMediaUnavailableError extends Error {
+  constructor() {
+    super('Direct upload is unavailable. Add a manual CDN URL instead.');
+    this.name = 'RemoteMediaUnavailableError';
+  }
+}
 
 export interface CurriculumUnitUpdate {
   title: string;
@@ -23,43 +51,108 @@ export interface CurriculumUnitUpdate {
 
 @Injectable({providedIn: 'root'})
 export class MediaCmsService {
+  private readonly unitCachePrefix = 'lyftd-cms-unit:';
+  private readonly workspaceCacheKey = 'lyftd-cms-workspace-media';
   private readonly adminAuth = inject(AdminAuthService);
   private app: FirebaseApp | null = null;
   private auth: Auth | null = null;
   private db: Firestore | null = null;
   private storage: FirebaseStorage | null = null;
   private authenticated = false;
+  private remoteDisabled = false;
 
   readonly videoProgress = signal(0);
   readonly audioProgress = signal(0);
+  readonly remoteAvailable = signal<boolean | null>(null);
 
-  private async ensureAdminFirebase(): Promise<void> {
-    if (!this.app) {
-      const name = 'lyftd-media-cms';
-      this.app = getApps().find(app => app.name === name) ?? initializeApp(environment.firebase, name);
-      this.auth = getAuth(this.app);
-      this.db = getFirestore(this.app);
-      this.storage = getStorage(this.app, `gs://${environment.firebase.storageBucket}`);
+  private async ensureAdminFirebase(): Promise<boolean> {
+    if (this.remoteDisabled) return false;
+    try {
+      if (!environment.firebase.storageBucket?.trim()) {
+        throw new Error('Firebase Storage bucket is not configured.');
+      }
+      if (!this.app) {
+        const name = 'lyftd-media-cms';
+        this.app = getApps().find(app => app.name === name) ?? initializeApp(environment.firebase, name);
+        this.auth = getAuth(this.app);
+        this.db = getFirestore(this.app);
+        this.storage = getStorage(this.app, `gs://${environment.firebase.storageBucket}`);
+      }
+      if (!this.authenticated || !this.auth?.currentUser) {
+        const customToken = await this.adminAuth.getFirebaseToken();
+        await signInWithCustomToken(this.auth!, customToken);
+        this.authenticated = true;
+      }
+      this.remoteAvailable.set(true);
+      return true;
+    } catch (error) {
+      this.disableRemote(error);
+      return false;
     }
-    if (this.authenticated && this.auth?.currentUser) return;
-    const customToken = await this.adminAuth.getFirebaseToken();
-    await signInWithCustomToken(this.auth!, customToken);
-    this.authenticated = true;
   }
 
   async getUnit(moduleId: string, unitId: string): Promise<Partial<ModuleUnitDocument> | null> {
-    await this.ensureAdminFirebase();
-    const snapshot = await getDoc(doc(this.db!, 'modules', moduleId, 'units', unitId));
-    return snapshot.exists() ? snapshot.data() as Partial<ModuleUnitDocument> : null;
+    const cached = this.readLocal<Partial<ModuleUnitDocument>>(this.unitCacheKey(moduleId, unitId));
+    if (!await this.ensureAdminFirebase()) return cached;
+    try {
+      const snapshot = await getDoc(doc(this.db!, 'modules', moduleId, 'units', unitId));
+      const remote = snapshot.exists() ? snapshot.data() as Partial<ModuleUnitDocument> : null;
+      if (remote) this.writeLocal(this.unitCacheKey(moduleId, unitId), remote);
+      return remote ? {...cached, ...remote} : cached;
+    } catch (error) {
+      this.disableRemote(error);
+      return cached;
+    }
   }
 
-  async saveUnit(moduleId: string, unitId: string, update: CurriculumUnitUpdate): Promise<void> {
-    await this.ensureAdminFirebase();
-    await setDoc(doc(this.db!, 'modules', moduleId, 'units', unitId), {
-      ...update,
-      textContent: update.content,
-      updatedAt: serverTimestamp(),
-    }, {merge: true});
+  async saveUnit(moduleId: string, unitId: string, update: CurriculumUnitUpdate): Promise<CmsSaveTarget> {
+    this.writeLocal(this.unitCacheKey(moduleId, unitId), update);
+    if (!await this.ensureAdminFirebase()) return 'local';
+    try {
+      await setDoc(doc(this.db!, 'modules', moduleId, 'units', unitId), {
+        ...update,
+        textContent: update.content,
+        updatedAt: serverTimestamp(),
+      }, {merge: true});
+      return 'remote';
+    } catch (error) {
+      this.disableRemote(error);
+      return 'local';
+    }
+  }
+
+  async loadWorkspaceMedia(fallback: CmsWorkspaceMedia): Promise<CmsWorkspaceMedia> {
+    const cached = this.readLocal<CmsWorkspaceMedia>(this.workspaceCacheKey);
+    const local = cached ?? fallback;
+    if (!await this.ensureAdminFirebase()) return local;
+    try {
+      const snapshot = await getDoc(doc(this.db!, 'adminMedia', 'workspace'));
+      const remote = snapshot.exists() ? snapshot.data() as Partial<CmsWorkspaceMedia> : null;
+      const result = {
+        mentors: remote?.mentors?.length ? remote.mentors : local.mentors,
+        brandMedia: remote?.brandMedia?.length ? remote.brandMedia : local.brandMedia,
+      };
+      this.writeLocal(this.workspaceCacheKey, result);
+      return result;
+    } catch (error) {
+      this.disableRemote(error);
+      return local;
+    }
+  }
+
+  async saveWorkspaceMedia(media: CmsWorkspaceMedia): Promise<CmsSaveTarget> {
+    this.writeLocal(this.workspaceCacheKey, media);
+    if (!await this.ensureAdminFirebase()) return 'local';
+    try {
+      await setDoc(doc(this.db!, 'adminMedia', 'workspace'), {
+        ...media,
+        updatedAt: serverTimestamp(),
+      }, {merge: true});
+      return 'remote';
+    } catch (error) {
+      this.disableRemote(error);
+      return 'local';
+    }
   }
 
   async upload(
@@ -68,7 +161,7 @@ export class MediaCmsService {
     unitId: string,
     file: File,
   ): Promise<string> {
-    await this.ensureAdminFirebase();
+    if (!await this.ensureAdminFirebase() || !this.storage) throw new RemoteMediaUnavailableError();
     const progress = type === 'video' ? this.videoProgress : this.audioProgress;
     progress.set(0);
     const extension = type === 'video' ? 'mp4' : 'mp3';
@@ -97,5 +190,35 @@ export class MediaCmsService {
         },
       );
     });
+  }
+
+  private disableRemote(error: unknown): void {
+    this.remoteDisabled = true;
+    this.authenticated = false;
+    this.remoteAvailable.set(false);
+    console.warn('[MediaCmsService] Remote Firebase media is unavailable; using manual URL and local fallback mode.', error);
+  }
+
+  private unitCacheKey(moduleId: string, unitId: string): string {
+    return `${this.unitCachePrefix}${moduleId}/${unitId}`;
+  }
+
+  private readLocal<T>(key: string): T | null {
+    try {
+      if (typeof localStorage === 'undefined') return null;
+      const value = localStorage.getItem(key);
+      return value ? JSON.parse(value) as T : null;
+    } catch (error) {
+      console.warn('[MediaCmsService] Local CMS cache could not be read.', error);
+      return null;
+    }
+  }
+
+  private writeLocal(key: string, value: unknown): void {
+    try {
+      if (typeof localStorage !== 'undefined') localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.warn('[MediaCmsService] Local CMS cache could not be written.', error);
+    }
   }
 }

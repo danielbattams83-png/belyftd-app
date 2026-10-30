@@ -10,7 +10,23 @@
     <span class="catalog-count">{{ curriculum.modules().length }} modules · {{ curriculum.totalUnits() }} units</span>
   </header>
 
-  <div class="cms-grid">
+  <nav class="workspace-tabs" aria-label="Media CMS workspaces">
+    <button type="button" [class.active]="activeTab() === 'curriculum'" [attr.aria-current]="activeTab() === 'curriculum' ? 'page' : null"
+      (click)="setTab('curriculum')">Course Curriculum</button>
+    <button type="button" [class.active]="activeTab() === 'mentors'" [attr.aria-current]="activeTab() === 'mentors' ? 'page' : null"
+      (click)="setTab('mentors')">Mentors &amp; Voices</button>
+    <button type="button" [class.active]="activeTab() === 'brand'" [attr.aria-current]="activeTab() === 'brand' ? 'page' : null"
+      (click)="setTab('brand')">Global Brand Media</button>
+  </nav>
+
+  @if (mediaCms.remoteAvailable() === false) {
+    <p class="remote-notice" role="status">
+      <strong>Manual URL mode active.</strong> Firebase media is temporarily unavailable; editing and local saves remain available.
+    </p>
+  }
+
+  @if (activeTab() === 'curriculum') {
+    <div class="cms-grid">
     <aside class="catalog-panel" aria-label="Curriculum catalog">
       <div class="panel-title">
         <div>
@@ -60,9 +76,7 @@
     </aside>
 
     <section class="inspector-panel" aria-label="Unit inspector">
-      @if (loadingUnit()) {
-        <div class="loading-state" role="status"><span class="spinner"></span>Loading unit…</div>
-      } @else if (draft(); as draftValue) {
+      @if (draft(); as draftValue) {
         <header class="inspector-header">
           <div>
             <span class="eyebrow">Module {{ moduleNumber() }} · {{ activeUnitId().replace('unit-', 'Unit ') }}</span>
@@ -197,10 +211,95 @@
             </label>
           </section>
         </form>
+      } @else if (loadingUnit()) {
+        <div class="loading-state" role="status"><span class="spinner"></span>Loading unit…</div>
       } @else {
         @if (error()) { <p class="notice error" role="alert">{{ error() }}</p> }
         <div class="loading-state">Select a curriculum unit to begin editing.</div>
       }
     </section>
-  </div>
+    </div>
+  }
+
+  @if (activeTab() === 'mentors') {
+    <section class="workspace-panel" aria-labelledby="mentors-heading">
+      <header class="workspace-toolbar">
+        <div>
+          <span class="eyebrow">Voice library</span>
+          <h2 id="mentors-heading">Mentors &amp; Voices</h2>
+          <p>Manage portraits, greeting videos, and voice samples for the four course mentors.</p>
+        </div>
+        <button class="primary-button" type="button" (click)="saveWorkspaceMedia()" [disabled]="savingWorkspace()">
+          {{ savingWorkspace() ? 'Saving…' : 'Save Mentor Media' }}
+        </button>
+      </header>
+      @if (workspaceMessage()) { <p class="notice success" role="status">{{ workspaceMessage() }}</p> }
+      <div class="mentor-grid">
+        @for (mentor of mentors(); track mentor.id) {
+          <article class="mentor-card">
+            <header>
+              <img [src]="mentor.avatarUrl || '/logo.png'" [alt]="mentor.name" width="72" height="72" />
+              <div><span class="eyebrow">Course mentor</span><h3>{{ mentor.name }}</h3></div>
+            </header>
+            <label class="field">
+              <span>Portrait avatar URL</span>
+              <input type="url" [ngModel]="mentor.avatarUrl" (ngModelChange)="patchMentor(mentor.id, 'avatarUrl', $event)"
+                [name]="mentor.id + '-avatar'" placeholder="https://cdn.example.com/avatar.png" />
+            </label>
+            <label class="field">
+              <span>Greeting video URL</span>
+              <input type="url" [ngModel]="mentor.videoUrl" (ngModelChange)="patchMentor(mentor.id, 'videoUrl', $event)"
+                [name]="mentor.id + '-video'" placeholder="https://cdn.example.com/greeting.mp4" />
+            </label>
+            @if (mentor.videoUrl) {
+              <video class="media-preview mentor-video" controls playsinline preload="metadata" [src]="mentor.videoUrl"></video>
+            }
+            <label class="field">
+              <span>Voice sample audio URL</span>
+              <input type="url" [ngModel]="mentor.audioUrl" (ngModelChange)="patchMentor(mentor.id, 'audioUrl', $event)"
+                [name]="mentor.id + '-audio'" placeholder="https://cdn.example.com/voice-sample.mp3" />
+            </label>
+            @if (mentor.audioUrl) {
+              <audio class="media-preview audio-preview" controls preload="metadata" [src]="mentor.audioUrl"></audio>
+            }
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  @if (activeTab() === 'brand') {
+    <section class="workspace-panel" aria-labelledby="brand-heading">
+      <header class="workspace-toolbar">
+        <div>
+          <span class="eyebrow">Shared asset library</span>
+          <h2 id="brand-heading">Global Brand Media</h2>
+          <p>Link the posters, badges, and hero assets used across the platform.</p>
+        </div>
+        <button class="primary-button" type="button" (click)="saveWorkspaceMedia()" [disabled]="savingWorkspace()">
+          {{ savingWorkspace() ? 'Saving…' : 'Save Brand Media' }}
+        </button>
+      </header>
+      @if (workspaceMessage()) { <p class="notice success" role="status">{{ workspaceMessage() }}</p> }
+      <div class="brand-grid">
+        @for (asset of brandMedia(); track asset.id) {
+          <article class="brand-card">
+            <span class="section-icon">◇</span>
+            <div>
+              <h3>{{ asset.label }}</h3>
+              <p>{{ asset.description }}</p>
+            </div>
+            <label class="field">
+              <span>Hosted asset URL</span>
+              <input type="url" [ngModel]="asset.url" (ngModelChange)="patchBrandMedia(asset.id, $event)"
+                [name]="asset.id + '-url'" placeholder="https://cdn.example.com/asset.png" />
+            </label>
+            @if (asset.url) {
+              <img class="brand-preview" [src]="asset.url" [alt]="asset.label" />
+            }
+          </article>
+        }
+      </div>
+    </section>
+  }
 </main>

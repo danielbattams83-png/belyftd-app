@@ -3,8 +3,32 @@ import {ChangeDetectionStrategy, Component, computed, effect, inject, signal} fr
 import {FormsModule} from '@angular/forms';
 import {CurriculumModule, CurriculumUnit} from '../../models/curriculum.model';
 import {CurriculumService} from '../../services/curriculum.service';
-import {CmsMediaType, CurriculumUnitUpdate, MediaCmsService} from '../../services/media-cms.service';
+import {
+  BrandMediaRecord,
+  CmsMediaType,
+  CmsWorkspaceMedia,
+  CurriculumUnitUpdate,
+  MediaCmsService,
+  MentorMediaRecord,
+  RemoteMediaUnavailableError,
+} from '../../services/media-cms.service';
 import {AdminHeaderComponent} from './admin-header.component';
+
+type WorkspaceTab = 'curriculum' | 'mentors' | 'brand';
+
+const DEFAULT_WORKSPACE_MEDIA: CmsWorkspaceMedia = {
+  mentors: [
+    {id: 'sophie', name: 'Sophie', avatarUrl: '/mentors/sophie.png', videoUrl: '', audioUrl: ''},
+    {id: 'hannah', name: 'Hannah', avatarUrl: '/mentors/hannah.png', videoUrl: '', audioUrl: ''},
+    {id: 'omari', name: 'Omari', avatarUrl: '/mentors/omari.png', videoUrl: '', audioUrl: ''},
+    {id: 'steve', name: 'Steve', avatarUrl: '/mentors/steve.png', videoUrl: '', audioUrl: ''},
+  ],
+  brandMedia: [
+    {id: 'hero', label: 'Primary hero artwork', description: 'Site-wide hero image or video poster.', url: ''},
+    {id: 'poster', label: 'Default media poster', description: 'Fallback poster shown before playback.', url: ''},
+    {id: 'badge', label: 'Achievement badge set', description: 'Badge sheet or hosted asset collection.', url: ''},
+  ],
+};
 
 @Component({
   selector: 'app-admin-content',
@@ -16,6 +40,7 @@ import {AdminHeaderComponent} from './admin-header.component';
 export class AdminContentComponent {
   readonly curriculum = inject(CurriculumService);
   readonly mediaCms = inject(MediaCmsService);
+  readonly activeTab = signal<WorkspaceTab>('curriculum');
   readonly search = signal('');
   readonly expanded = signal(new Set<string>());
   readonly activeModuleId = signal('');
@@ -26,6 +51,10 @@ export class AdminContentComponent {
   readonly uploading = signal<CmsMediaType | null>(null);
   readonly message = signal('');
   readonly error = signal('');
+  readonly mentors = signal<MentorMediaRecord[]>(DEFAULT_WORKSPACE_MEDIA.mentors);
+  readonly brandMedia = signal<BrandMediaRecord[]>(DEFAULT_WORKSPACE_MEDIA.brandMedia);
+  readonly savingWorkspace = signal(false);
+  readonly workspaceMessage = signal('');
   private selectionRequest = 0;
 
   readonly filteredModules = computed(() => {
@@ -45,6 +74,7 @@ export class AdminContentComponent {
   readonly moduleNumber = computed(() => this.activeModuleId().replace('module-', ''));
 
   constructor() {
+    void this.loadWorkspaceMedia();
     effect(() => {
       const firstModule = this.curriculum.modules()[0];
       if (!this.activeUnitId() && firstModule?.units[0]) void this.selectUnit(firstModule, firstModule.units[0]);
@@ -72,6 +102,7 @@ export class AdminContentComponent {
     const request = ++this.selectionRequest;
     this.activeModuleId.set(module.id);
     this.activeUnitId.set(unit.id);
+    this.draft.set(this.defaultDraft(unit));
     this.expanded.update(current => new Set(current).add(module.id));
     this.loadingUnit.set(true);
     this.message.set('');
@@ -79,19 +110,10 @@ export class AdminContentComponent {
     try {
       const stored = await this.mediaCms.getUnit(module.id, unit.id);
       if (request !== this.selectionRequest) return;
-      this.draft.set({
-        title: stored?.title || unit.title,
-        description: stored?.description || unit.description || '',
-        estimatedDuration: stored?.estimatedDuration || '',
-        videoUrl: stored?.videoUrl || '',
-        audioUrl: stored?.audioUrl || '',
-        mentorName: stored?.mentorName || 'Sophie',
-        content: stored?.content || stored?.textContent || '',
-        published: stored?.published !== false,
-        requiresTierUnlock: stored?.requiresTierUnlock ?? false,
-      });
+      if (stored) this.draft.set(this.draftFromStored(unit, stored));
     } catch (error) {
-      if (request === this.selectionRequest) this.error.set(this.errorText(error, 'Unable to load this unit.'));
+      console.warn('[AdminContent] Unit hydration unavailable; using local editor defaults.', error);
+      if (request === this.selectionRequest) this.error.set('');
     } finally {
       if (request === this.selectionRequest) this.loadingUnit.set(false);
     }
@@ -136,7 +158,11 @@ export class AdminContentComponent {
       this.patchDraft(type === 'video' ? 'videoUrl' : 'audioUrl', url);
       this.message.set(`${type === 'video' ? 'Video' : 'Audio'} uploaded. Save changes to publish it.`);
     } catch (error) {
-      this.error.set(this.errorText(error, `Unable to upload the ${type}.`));
+      console.warn(`[AdminContent] ${type} upload unavailable; manual URL mode remains active.`, error);
+      this.error.set('');
+      this.message.set(error instanceof RemoteMediaUnavailableError
+        ? error.message
+        : `Direct ${type} upload is unavailable. Add a manual CDN URL instead.`);
     } finally {
       this.uploading.set(null);
     }
@@ -149,7 +175,7 @@ export class AdminContentComponent {
     this.error.set('');
     this.message.set('');
     try {
-      await this.mediaCms.saveUnit(this.activeModuleId(), this.activeUnitId(), update);
+      const target = await this.mediaCms.saveUnit(this.activeModuleId(), this.activeUnitId(), update);
       this.curriculum.updateUnit(this.activeModuleId(), this.activeUnitId(), {
         title: update.title,
         description: update.description,
@@ -158,7 +184,9 @@ export class AdminContentComponent {
         videoUrl: update.videoUrl,
         mentorName: update.mentorName,
       });
-      this.message.set('Changes saved and available to student views.');
+      this.message.set(target === 'remote'
+        ? 'Changes saved and available to student views.'
+        : 'Saved locally. Manual URL mode is active until Firebase reconnects.');
     } catch (error) {
       this.error.set(this.errorText(error, 'Unable to save this unit.'));
     } finally {
@@ -168,5 +196,72 @@ export class AdminContentComponent {
 
   private errorText(error: unknown, fallback: string): string {
     return error instanceof Error && error.message ? error.message : fallback;
+  }
+
+  setTab(tab: WorkspaceTab): void {
+    this.activeTab.set(tab);
+    this.workspaceMessage.set('');
+  }
+
+  patchMentor(id: string, key: keyof Pick<MentorMediaRecord, 'avatarUrl' | 'videoUrl' | 'audioUrl'>, value: string): void {
+    this.mentors.update(items => items.map(item => item.id === id ? {...item, [key]: value} : item));
+    this.workspaceMessage.set('');
+  }
+
+  patchBrandMedia(id: string, value: string): void {
+    this.brandMedia.update(items => items.map(item => item.id === id ? {...item, url: value} : item));
+    this.workspaceMessage.set('');
+  }
+
+  async saveWorkspaceMedia(): Promise<void> {
+    if (this.savingWorkspace()) return;
+    this.savingWorkspace.set(true);
+    this.workspaceMessage.set('');
+    try {
+      const target = await this.mediaCms.saveWorkspaceMedia({
+        mentors: this.mentors(),
+        brandMedia: this.brandMedia(),
+      });
+      this.workspaceMessage.set(target === 'remote'
+        ? 'Workspace media saved.'
+        : 'Workspace media saved locally. Remote Firebase is currently unavailable.');
+    } finally {
+      this.savingWorkspace.set(false);
+    }
+  }
+
+  private async loadWorkspaceMedia(): Promise<void> {
+    const media = await this.mediaCms.loadWorkspaceMedia(DEFAULT_WORKSPACE_MEDIA);
+    this.mentors.set(media.mentors);
+    this.brandMedia.set(media.brandMedia);
+  }
+
+  private defaultDraft(unit: CurriculumUnit): CurriculumUnitUpdate {
+    return {
+      title: unit.title,
+      description: unit.description || '',
+      estimatedDuration: '',
+      videoUrl: unit.videoUrl || '',
+      audioUrl: unit.audioUrl || '',
+      mentorName: unit.mentorName || 'Sophie',
+      content: unit.content || '',
+      published: true,
+      requiresTierUnlock: false,
+    };
+  }
+
+  private draftFromStored(unit: CurriculumUnit, stored: Partial<CurriculumUnitUpdate> & {textContent?: string}): CurriculumUnitUpdate {
+    const fallback = this.defaultDraft(unit);
+    return {
+      title: stored.title || fallback.title,
+      description: stored.description ?? fallback.description,
+      estimatedDuration: stored.estimatedDuration ?? fallback.estimatedDuration,
+      videoUrl: stored.videoUrl ?? fallback.videoUrl,
+      audioUrl: stored.audioUrl ?? fallback.audioUrl,
+      mentorName: stored.mentorName ?? fallback.mentorName,
+      content: stored.content ?? stored.textContent ?? fallback.content,
+      published: stored.published !== false,
+      requiresTierUnlock: stored.requiresTierUnlock ?? false,
+    };
   }
 }

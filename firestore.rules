@@ -58,6 +58,11 @@ service cloud.firestore {
         && unitId.matches('unit-[1-9][0-9]*');
     }
 
+    match /adminMedia/{documentId} {
+      allow read, write: if request.auth != null
+        && request.auth.token.superAdmin == true;
+    }
+
     match /sponsorProfiles/{userId} {
       allow read: if isOwner(userId);
       allow write: if false;
