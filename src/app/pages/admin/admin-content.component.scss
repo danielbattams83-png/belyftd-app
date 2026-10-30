@@ -17,7 +17,7 @@
 button, input, textarea, select { font: inherit; }
 button { color: inherit; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.cms-shell { max-width: 1540px; margin: 0 auto; padding: 32px 24px 64px; }
+.cms-shell { width: 100%; max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem; }
 .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
 .page-heading h1 { margin: 5px 0 2px; font-size: clamp(28px, 4vw, 38px); line-height: 1.15; letter-spacing: -.035em; }
 .page-heading p { margin: 0; color: var(--muted); }
@@ -122,8 +122,9 @@ button { color: inherit; }
 .workspace-toolbar p { margin: 0; color: var(--muted); }
 .mentor-grid, .brand-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .mentor-card, .brand-card { display: grid; gap: 15px; border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: #171d24; }
-.mentor-card > header { display: flex; align-items: center; gap: 13px; }
-.mentor-card > header img { width: 72px; height: 72px; border: 1px solid var(--line); border-radius: 16px; background: #0f172a; object-fit: cover; }
+.mentor-card > header { display: flex; min-width: 0; align-items: center; gap: 18px; }
+.mentor-card > header img { flex: 0 0 120px; width: 120px; height: 120px; border: 2px solid rgba(255, 255, 255, .12); border-radius: 18px; background: #0f172a; box-shadow: inset 0 0 18px rgba(255, 255, 255, .05), 0 10px 24px rgba(0, 0, 0, .2); object-fit: cover; }
+.mentor-card > header div { min-width: 0; }
 .mentor-card h3, .brand-card h3 { margin: 2px 0 0; font-size: 18px; }
 .mentor-video { max-height: 250px; }
 .brand-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -137,7 +138,7 @@ button { color: inherit; }
   .brand-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
-  .cms-shell { padding: 22px 12px 40px; }
+  .cms-shell { padding: 1.5rem 1rem; }
   .page-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
   .catalog-count { white-space: normal; }
   .inspector-header { align-items: stretch; flex-direction: column; padding: 18px; }
@@ -147,4 +148,5 @@ button { color: inherit; }
   .workspace-panel { padding: 18px; }
   .workspace-toolbar { align-items: stretch; flex-direction: column; }
   .mentor-grid { grid-template-columns: 1fr; }
+  .mentor-card > header img { flex-basis: 112px; width: 112px; height: 112px; }
 }
