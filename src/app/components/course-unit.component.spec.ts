@@ -6,7 +6,14 @@ import {FirebaseService} from '../services/firebase.service';
 import {AudioPlayerService} from '../services/audio-player.service';
 
 describe('Course unit media visibility', () => {
-  async function render(audioUrls: Record<string, string>, videoUrls: Record<string, string>, tier = 3, textContent = 'Clean reading content', moduleId = 'module-5') {
+  async function render(
+    audioUrls: Record<string, string>,
+    videoUrls: Record<string, string>,
+    tier = 3,
+    textContent = 'Clean reading content',
+    moduleId = 'module-5',
+    directMedia: {audioUrl?: string; videoUrl?: string; mentorName?: string} = {},
+  ) {
     const sign = vi.fn(async (path: string) => {
       if (path.includes('missing')) throw new Error('Not found');
       return 'https://storage.googleapis.com/verified-recording';
@@ -16,7 +23,7 @@ describe('Course unit media visibility', () => {
       {provide: ActivatedRoute, useValue: {snapshot: {paramMap: convertToParamMap({moduleId, unitId: 'unit-2'})}}},
       {provide: FirebaseService, useValue: {
         userProfile: signal(null), getModuleCatalog: vi.fn().mockResolvedValue([]), subscriptionTier: signal(tier), currentUser: signal(null), getCourseMediaUrlFromPath: sign,
-        getModuleUnit: vi.fn().mockResolvedValue({id: 'unit-2', title: 'Hope', minTier: 3, textContent, audioUrls, videoUrls}),
+        getModuleUnit: vi.fn().mockResolvedValue({id: 'unit-2', title: 'Hope', minTier: 3, textContent, audioUrls, videoUrls, ...directMedia}),
       }},
       {provide: AudioPlayerService, useValue: {activeTrack: signal(null), isTrackAvailable: () => tier >= 3, close: vi.fn(), formatTime: () => '0:00'}},
     ]}).compileComponents();
@@ -57,6 +64,20 @@ describe('Course unit media visibility', () => {
     expect(element.querySelector('[aria-label="Mentor audio player"]')).toBeNull();
     expect(element.textContent).toContain('Clean reading content');
     load.mockRestore();
+  });
+
+  it('renders CMS video and mentor narration directly above the lesson body', async () => {
+    const {element} = await render({}, {}, 3, 'Lesson body', 'module-5', {
+      videoUrl: 'https://cdn.example.com/lesson.mp4',
+      audioUrl: 'https://cdn.example.com/narration.mp3',
+      mentorName: 'Sophie',
+    });
+    const video = element.querySelector<HTMLVideoElement>('.reader-video');
+    const audio = element.querySelector<HTMLAudioElement>('.reader-audio-player');
+    expect(video?.src).toContain('lesson.mp4');
+    expect(audio?.src).toContain('narration.mp3');
+    expect(element.textContent).toContain('Mentor Narration');
+    expect(element.textContent).toContain('Sophie');
   });
 
   it('omits restricted media without requesting signed URLs or showing a banner', async () => {

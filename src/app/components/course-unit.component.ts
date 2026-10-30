@@ -19,7 +19,7 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
   selector: 'app-course-unit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MentorAudioComponent, CommonModule, MatIconModule],
-  styles: [`.unit-modal-header { padding-top: calc(.5rem + var(--safe-top, 0px)); } .unit-modal-logo { display: block; width: 140px; height: auto; min-height: 64px; object-fit: contain; } .unit-modal-logo.logo-on-dark, :host-context(.dark) .unit-modal-logo.logo-on-light { display: none; } :host-context(.dark) .unit-modal-logo.logo-on-dark { display: block; } .unit-reading-card { max-width: 820px; margin: 0 auto; } @media (min-width: 768px) { .unit-reading-card { padding: 2rem; } } .unit-content-body { min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; white-space: pre-line; }`],
+  styleUrl: './course-unit.component.scss',
   host: {'(document:keydown.escape)': 'onEscape()'},
   template: `
     <section class="fullscreen-page fixed inset-0 z-[70] overflow-y-auto overscroll-contain bg-slate-50 dark:bg-slate-950" role="dialog" aria-modal="true" [attr.aria-label]="unit()?.title || 'Course unit'">
@@ -60,6 +60,29 @@ import {FirebaseService, SponsorProfileDocument} from '../services/firebase.serv
               <p class="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-300">Tier {{ lesson.minTier }} course unit</p>
               <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ lesson.title || lesson.id }}</h1>
             </header>
+
+            @if (hasMediaAccess() && lesson.videoUrl) {
+              <div class="unit-media-wrapper video-container">
+                <video [src]="lesson.videoUrl" controls playsinline preload="metadata" class="reader-video">
+                  Your browser does not support video playback.
+                </video>
+              </div>
+            }
+
+            @if (hasMediaAccess() && lesson.audioUrl) {
+              <div class="unit-media-wrapper audio-dock">
+                <div class="audio-dock__info">
+                  <div class="audio-icon-wrap"><mat-icon aria-hidden="true">headphones</mat-icon></div>
+                  <div class="audio-meta">
+                    <span class="audio-label">Mentor Narration</span>
+                    <span class="audio-sub">{{ lesson.mentorName || 'Listen with your mentor' }}</span>
+                  </div>
+                </div>
+                <audio controls [src]="lesson.audioUrl" preload="metadata" class="reader-audio-player">
+                  Your browser does not support audio playback.
+                </audio>
+              </div>
+            }
 
             @if (hasMediaAccess() && visibleVideoMedia().length > 0) {
               <section class="space-y-3">
@@ -239,12 +262,8 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
             this.resolveMedia(unit.audioUrls, moduleId, unitId, 'audio'),
           ])
           : [[], []];
-        const videoMedia = unit.videoUrl
-          ? [{key: `${unit.mentorName || 'Mentor'} - English`, url: unit.videoUrl, path: unit.videoUrl}, ...legacyVideo.filter(item => item.url !== unit.videoUrl)]
-          : legacyVideo;
-        const audioMedia = unit.audioUrl
-          ? [{key: `${unit.mentorName || 'Mentor'} - English`, url: unit.audioUrl, path: unit.audioUrl}, ...legacyAudio.filter(item => item.url !== unit.audioUrl)]
-          : legacyAudio;
+        const videoMedia = legacyVideo;
+        const audioMedia = legacyAudio;
         if (this.destroyed) return;
         this.audioTracks.set(audioMedia.flatMap(({key: label, path}) => {
           const {mentorName, language} = parseMentorLabel(label);
@@ -262,8 +281,7 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
         }
         this.unit.set(unit);
 
-        const expectedMedia = Object.keys(unit.audioUrls ?? {}).length + Object.keys(unit.videoUrls ?? {}).length
-          + (unit.audioUrl ? 1 : 0) + (unit.videoUrl ? 1 : 0);
+        const expectedMedia = Object.keys(unit.audioUrls ?? {}).length + Object.keys(unit.videoUrls ?? {}).length;
         this.mediaUnavailable.set(this.hasMediaAccess() && expectedMedia > 0 && videoMedia.length + audioMedia.length === 0);
         this.videoMedia.set(videoMedia);
         this.selectedVideo.set(videoMedia[0] ?? null);

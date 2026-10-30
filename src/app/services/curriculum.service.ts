@@ -32,8 +32,15 @@ export class CurriculumService {
   getUnit(moduleId: string | number, unitId: string | number) {
     const mId = String(moduleId).trim();
     const uId = String(unitId).trim();
-    return this.modules().find(module => String(module.id).trim() === mId)
-      ?.units.find(unit => String(unit.id).trim() === uId) ?? null;
+    const unit = this.modules().find(module => String(module.id).trim() === mId)
+      ?.units.find(item => String(item.id).trim() === uId);
+    return unit ? {
+      ...unit,
+      audioUrl: unit.audioUrl,
+      videoUrl: unit.videoUrl,
+      mentorName: unit.mentorName,
+      hasMedia: Boolean(unit.hasMedia || unit.audioUrl || unit.videoUrl),
+    } : null;
   }
 
   updateUnit(moduleId: string, unitId: string, patch: Partial<CurriculumUnit>): void {

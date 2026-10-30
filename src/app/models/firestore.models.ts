@@ -17,6 +17,7 @@ export interface ModuleUnitDocument {
   content?: string;
   readingContentPath?: string;
   contentKind?: 'reading';
+  hasMedia?: boolean;
   audioUrls: CourseMediaUrls;
   videoUrls: CourseMediaUrls;
   audioUrl?: string;
