@@ -230,11 +230,23 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
       const unit = await this.firebaseService.getModuleUnit(moduleId, unitId);
       if (!unit) {
         this.errorMessage.set('This lesson could not be found.');
+      } else if (unit.published === false) {
+        this.errorMessage.set('This lesson is not currently published.');
       } else {
-        const [videoMedia, audioMedia] = this.hasMediaAccess() ? await Promise.all([this.resolveMedia(unit.videoUrls, moduleId, unitId, 'video'), this.resolveMedia(unit.audioUrls, moduleId, unitId, 'audio')]) : [[], []];
+        const [legacyVideo, legacyAudio] = this.hasMediaAccess()
+          ? await Promise.all([
+            this.resolveMedia(unit.videoUrls, moduleId, unitId, 'video'),
+            this.resolveMedia(unit.audioUrls, moduleId, unitId, 'audio'),
+          ])
+          : [[], []];
+        const videoMedia = unit.videoUrl
+          ? [{key: `${unit.mentorName || 'Mentor'} - English`, url: unit.videoUrl, path: unit.videoUrl}, ...legacyVideo.filter(item => item.url !== unit.videoUrl)]
+          : legacyVideo;
+        const audioMedia = unit.audioUrl
+          ? [{key: `${unit.mentorName || 'Mentor'} - English`, url: unit.audioUrl, path: unit.audioUrl}, ...legacyAudio.filter(item => item.url !== unit.audioUrl)]
+          : legacyAudio;
         if (this.destroyed) return;
         this.audioTracks.set(audioMedia.flatMap(({key: label, path}) => {
-          if (!path.startsWith(`course-content/${moduleId}/${unitId}/audio/`)) return [];
           const {mentorName, language} = parseMentorLabel(label);
           return [{
             id: path, title: unit.title || unit.id,
@@ -250,7 +262,8 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
         }
         this.unit.set(unit);
 
-        const expectedMedia = Object.keys(unit.audioUrls ?? {}).length + Object.keys(unit.videoUrls ?? {}).length;
+        const expectedMedia = Object.keys(unit.audioUrls ?? {}).length + Object.keys(unit.videoUrls ?? {}).length
+          + (unit.audioUrl ? 1 : 0) + (unit.videoUrl ? 1 : 0);
         this.mediaUnavailable.set(this.hasMediaAccess() && expectedMedia > 0 && videoMedia.length + audioMedia.length === 0);
         this.videoMedia.set(videoMedia);
         this.selectedVideo.set(videoMedia[0] ?? null);

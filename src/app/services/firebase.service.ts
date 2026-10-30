@@ -582,11 +582,13 @@ export class FirebaseService {
   if (!unitDoc.exists()) return null;
   const data = unitDoc.data() as Partial<ModuleUnitDocument>;
   // The reading-content callable can fail independently (cold start, region, auth); fall back to the stored text instead of failing the whole lesson.
-  let textContent = typeof data.textContent === 'string' ? cleanContent(data.textContent) : '';
-  try {
-    textContent = await this.getReadingContent(mId, uId);
-  } catch (error: unknown) {
-    console.error(`[FirebaseService] getCourseReadingContent failed for ${mId}/${uId}; using stored text.`, error);
+  let textContent = cleanContent(typeof data.content === 'string' ? data.content : (data.textContent ?? ''));
+  if (typeof data.content !== 'string') {
+    try {
+      textContent = await this.getReadingContent(mId, uId);
+    } catch (error: unknown) {
+      console.error(`[FirebaseService] getCourseReadingContent failed for ${mId}/${uId}; using stored text.`, error);
+    }
   }
   return {...data, id: unitDoc.id, textContent} as ModuleUnitDocument;
   }

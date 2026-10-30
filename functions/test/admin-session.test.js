@@ -18,7 +18,8 @@ function setup() {
     },
     get: async () => ({docs: [...store].filter(([path]) => path.startsWith(`${collection}/`)).map(([path, value]) => ({id: path.split('/')[1], data: () => value}))}),
   }), runTransaction: async callback => callback({get: ref => ref.get(), set: (ref, value) => ref.set(value)})};
-  const handlers = createAdminHandlers({db, masterKey: () => key, HttpsError, now: () => time});
+  const auth = {createCustomToken: async (uid, claims) => `token:${uid}:${JSON.stringify(claims)}`};
+  const handlers = createAdminHandlers({db, auth, masterKey: () => key, HttpsError, now: () => time});
   return {handlers, store, login: () => handlers.login({data: {passkey: key}, rawRequest: {ip: '127.0.0.1'}}),
     expire: () => { time += 12 * 60 * 60 * 1000; }, rotate: () => { key = 'a-different-private-master-key'; }, unconfigure: () => {key = '';}};
 }
@@ -51,6 +52,7 @@ test('rejects forged sessions and standard Firebase accounts', async () => {
     await assert.rejects(app.handlers.validate(request), {code: 'unauthenticated'});
     await assert.rejects(app.handlers.listPartners(request), {code: 'unauthenticated'});
     await assert.rejects(app.handlers.savePartner(request), {code: 'unauthenticated'});
+    await assert.rejects(app.handlers.firebaseToken(request), {code: 'unauthenticated'});
   }
 });
 
@@ -77,4 +79,10 @@ test('authorizes and validates partner writes without letting clients replace an
   for (const changes of [{id: '../users'}, {websiteUrl: 'javascript:alert(1)'}, {redemptionCodes: ['x']}, {branding: {logoUrl: 'javascript:alert(1)'}}]) {
     await assert.rejects(app.handlers.savePartner({data: {...session, partner: {...partner, ...changes}}}), {code: 'invalid-argument'});
   }
+});
+
+test('exchanges only a valid admin session for a scoped Firebase token', async () => {
+  const app = setup(); const session = await app.login();
+  const result = await app.handlers.firebaseToken({data: session});
+  assert.equal(result.customToken, 'token:super-admin-media-cms:{"superAdmin":true,"subscriptionTier":4}');
 });

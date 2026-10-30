@@ -1,7 +1,7 @@
 import {Injectable, computed, inject, signal} from '@angular/core';
 import {Router} from '@angular/router';
 import catalogSnapshot from '../models/course-catalog.json';
-import {CurriculumModule, sortCurriculum} from '../models/curriculum.model';
+import {CurriculumModule, CurriculumUnit, sortCurriculum} from '../models/curriculum.model';
 import {FirebaseService} from './firebase.service';
 import {TierService, canAccessModule} from './tier.service';
 
@@ -34,6 +34,20 @@ export class CurriculumService {
     const uId = String(unitId).trim();
     return this.modules().find(module => String(module.id).trim() === mId)
       ?.units.find(unit => String(unit.id).trim() === uId) ?? null;
+  }
+
+  updateUnit(moduleId: string, unitId: string, patch: Partial<CurriculumUnit>): void {
+    this.modules.update(modules => modules.map(module => module.id !== moduleId ? module : ({
+      ...module,
+      units: module.units.map(unit => unit.id !== unitId ? unit : {
+        ...unit,
+        ...patch,
+        hasText: patch.content !== undefined ? Boolean(patch.content.trim()) : unit.hasText,
+        hasMedia: patch.audioUrl !== undefined || patch.videoUrl !== undefined
+          ? Boolean(patch.audioUrl || patch.videoUrl)
+          : unit.hasMedia,
+      }),
+    })));
   }
 
   canAccess(moduleId: string): boolean { return canAccessModule(this.firebase.subscriptionTier(), moduleId); }

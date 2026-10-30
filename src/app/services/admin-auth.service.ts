@@ -112,4 +112,10 @@ export class AdminAuthService {
   async saveTier4Partner(partner: Tier4PartnerDocument): Promise<void> {
     await this.authenticatedRequest('superAdminSavePartner', {partner});
   }
+
+  async getFirebaseToken(): Promise<string> {
+    const result = await this.authenticatedRequest<{customToken: string}>('superAdminFirebaseToken');
+    if (!result.customToken) throw new Error('The media service did not return an admin credential.');
+    return result.customToken;
+  }
 }

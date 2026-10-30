@@ -11,12 +11,19 @@ export interface ModuleUnitDocument {
   title?: string;
   tags?: string[];
   description?: string;
+  estimatedDuration?: string;
   minTier: SubscriptionTier;
   textContent: string;
+  content?: string;
   readingContentPath?: string;
   contentKind?: 'reading';
   audioUrls: CourseMediaUrls;
   videoUrls: CourseMediaUrls;
+  audioUrl?: string;
+  videoUrl?: string;
+  mentorName?: string;
+  published?: boolean;
+  requiresTierUnlock?: boolean;
 }
 
 export interface CourseUnitDocument extends ModuleUnitDocument {

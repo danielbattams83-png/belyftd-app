@@ -4,6 +4,10 @@ export interface CurriculumUnit {
   hasText: boolean;
   hasMedia: boolean;
   description?: string;
+  audioUrl?: string;
+  videoUrl?: string;
+  mentorName?: string;
+  content?: string;
 }
 
 export interface CurriculumModule {

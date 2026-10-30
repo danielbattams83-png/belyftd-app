@@ -1,0 +1,206 @@
+<app-admin-header />
+
+<main class="cms-shell">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Platform control</span>
+      <h1>Curriculum Media Editor</h1>
+      <p>Manage lesson copy, mentor media, publishing, and tier access.</p>
+    </div>
+    <span class="catalog-count">{{ curriculum.modules().length }} modules · {{ curriculum.totalUnits() }} units</span>
+  </header>
+
+  <div class="cms-grid">
+    <aside class="catalog-panel" aria-label="Curriculum catalog">
+      <div class="panel-title">
+        <div>
+          <span class="eyebrow">Catalog</span>
+          <h2>Course modules</h2>
+        </div>
+      </div>
+      <label class="search-field">
+        <span class="sr-only">Search modules and units</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+        <input type="search" placeholder="Search 21 modules…" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      </label>
+
+      <nav class="module-tree" aria-label="Modules and units">
+        @for (module of filteredModules(); track module.id) {
+          <section class="module-group">
+            <button type="button" class="module-row" (click)="toggleModule(module.id)" [attr.aria-expanded]="isExpanded(module.id)">
+              <span class="module-number">{{ module.id.replace('module-', '').padStart(2, '0') }}</span>
+              <span class="module-copy">
+                <strong>{{ moduleLabel(module) }}</strong>
+                <span>{{ module.title }}</span>
+              </span>
+              <span class="unit-count">{{ module.units.length }}</span>
+              <span class="chevron" [class.open]="isExpanded(module.id)">⌄</span>
+            </button>
+            @if (isExpanded(module.id)) {
+              <div class="unit-list">
+                @for (unit of module.units; track unit.id) {
+                  <button type="button" class="unit-row"
+                    [class.active]="activeModuleId() === module.id && activeUnitId() === unit.id"
+                    (click)="selectUnit(module, unit)">
+                    <span class="unit-title">{{ unit.title }}</span>
+                    <span class="status-badges" aria-label="Media availability">
+                      <span [class.ready]="unit.audioUrl || unit.hasMedia">Audio</span>
+                      <span [class.ready]="unit.videoUrl || unit.hasMedia">Video</span>
+                      <span [class.ready]="unit.hasText">Text</span>
+                    </span>
+                  </button>
+                }
+              </div>
+            }
+          </section>
+        } @empty {
+          <p class="empty-state">No modules or units match your search.</p>
+        }
+      </nav>
+    </aside>
+
+    <section class="inspector-panel" aria-label="Unit inspector">
+      @if (loadingUnit()) {
+        <div class="loading-state" role="status"><span class="spinner"></span>Loading unit…</div>
+      } @else if (draft(); as draftValue) {
+        <header class="inspector-header">
+          <div>
+            <span class="eyebrow">Module {{ moduleNumber() }} · {{ activeUnitId().replace('unit-', 'Unit ') }}</span>
+            <h2>{{ draftValue.title || activeUnit()?.title }}</h2>
+          </div>
+          <button class="primary-button" type="button" (click)="save()" [disabled]="saving() || uploading()">
+            {{ saving() ? 'Saving…' : 'Save Changes' }}
+          </button>
+        </header>
+
+        @if (message()) { <p class="notice success" role="status">{{ message() }}</p> }
+        @if (error()) { <p class="notice error" role="alert">{{ error() }}</p> }
+
+        <form (submit)="$event.preventDefault(); save()">
+          <section class="editor-section">
+            <div class="section-heading">
+              <span class="section-icon">✦</span>
+              <div><h3>Core fields</h3><p>Student-facing title and lesson preview details.</p></div>
+            </div>
+            <div class="field-grid">
+              <label class="field field-wide">
+                <span>Unit title</span>
+                <input type="text" [ngModel]="draftValue.title" (ngModelChange)="patchDraft('title', $event)" name="title" />
+              </label>
+              <label class="field field-wide">
+                <span>Subtitle / preview description</span>
+                <textarea rows="3" [ngModel]="draftValue.description" (ngModelChange)="patchDraft('description', $event)" name="description"></textarea>
+              </label>
+              <label class="field">
+                <span>Estimated reading duration</span>
+                <input type="text" placeholder="e.g. 8 min read" [ngModel]="draftValue.estimatedDuration"
+                  (ngModelChange)="patchDraft('estimatedDuration', $event)" name="estimatedDuration" />
+              </label>
+            </div>
+          </section>
+
+          <section class="editor-section">
+            <div class="section-heading">
+              <span class="section-icon video-icon">▶</span>
+              <div><h3>Mentor video</h3><p>Upload a video or link an external CDN / HLS source.</p></div>
+            </div>
+            <label class="drop-zone" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'video')">
+              <input type="file" accept=".mp4,.webm,.mov,video/mp4,video/webm,video/quicktime"
+                (change)="onFileSelected($event, 'video')" [disabled]="uploading() !== null" />
+              <span class="upload-symbol">↑</span>
+              <strong>Drop mentor video here</strong>
+              <span>or click to choose · MP4, WebM, MOV</span>
+            </label>
+            @if (uploading() === 'video') {
+              <div class="progress-block" role="status">
+                <span><strong>Uploading video</strong><b>{{ mediaCms.videoProgress() }}%</b></span>
+                <div class="progress-track"><i [style.width.%]="mediaCms.videoProgress()"></i></div>
+              </div>
+            }
+            <label class="field url-field">
+              <span>Manual video URL override</span>
+              <input type="url" placeholder="https://cdn.example.com/lesson.m3u8" [ngModel]="draftValue.videoUrl"
+                (ngModelChange)="patchDraft('videoUrl', $event)" name="videoUrl" />
+            </label>
+            @if (draftValue.videoUrl) {
+              <video class="media-preview video-preview" controls playsinline preload="metadata" [src]="draftValue.videoUrl">
+                Your browser does not support video playback.
+              </video>
+            }
+          </section>
+
+          <section class="editor-section">
+            <div class="section-heading">
+              <span class="section-icon audio-icon">♫</span>
+              <div><h3>Narration audio</h3><p>Attach the mentor narration used in the lesson player.</p></div>
+            </div>
+            <label class="drop-zone" (dragover)="onDragOver($event)" (drop)="onDrop($event, 'audio')">
+              <input type="file" accept=".mp3,.wav,.aac,.m4a,audio/mpeg,audio/wav,audio/aac,audio/mp4"
+                (change)="onFileSelected($event, 'audio')" [disabled]="uploading() !== null" />
+              <span class="upload-symbol">↑</span>
+              <strong>Drop narration audio here</strong>
+              <span>or click to choose · MP3, WAV, AAC, M4A</span>
+            </label>
+            @if (uploading() === 'audio') {
+              <div class="progress-block" role="status">
+                <span><strong>Uploading audio</strong><b>{{ mediaCms.audioProgress() }}%</b></span>
+                <div class="progress-track"><i [style.width.%]="mediaCms.audioProgress()"></i></div>
+              </div>
+            }
+            <div class="field-grid">
+              <label class="field">
+                <span>Manual audio URL override</span>
+                <input type="url" placeholder="https://cdn.example.com/narration.mp3" [ngModel]="draftValue.audioUrl"
+                  (ngModelChange)="patchDraft('audioUrl', $event)" name="audioUrl" />
+              </label>
+              <label class="field">
+                <span>Mentor voice</span>
+                <select [ngModel]="draftValue.mentorName" (ngModelChange)="patchDraft('mentorName', $event)" name="mentorName">
+                  <option>Sophie</option><option>Hannah</option><option>Omari</option><option>Steve</option>
+                </select>
+              </label>
+            </div>
+            @if (draftValue.audioUrl) {
+              <audio class="media-preview audio-preview" controls preload="metadata" [src]="draftValue.audioUrl">
+                Your browser does not support audio playback.
+              </audio>
+            }
+          </section>
+
+          <section class="editor-section">
+            <div class="section-heading">
+              <span class="section-icon">¶</span>
+              <div><h3>Lesson content</h3><p>Markdown and plain text are supported.</p></div>
+            </div>
+            <label class="field content-editor">
+              <span>Full unit lesson text</span>
+              <textarea rows="18" placeholder="Write the full lesson content…" [ngModel]="draftValue.content"
+                (ngModelChange)="patchDraft('content', $event)" name="content"></textarea>
+            </label>
+          </section>
+
+          <section class="editor-section access-section">
+            <div class="section-heading">
+              <span class="section-icon">⌁</span>
+              <div><h3>Access controls</h3><p>Control lesson visibility and gated access.</p></div>
+            </div>
+            <label class="toggle-row">
+              <span><strong>Published</strong><small>Visible to eligible students</small></span>
+              <input type="checkbox" [ngModel]="draftValue.published" (ngModelChange)="patchDraft('published', $event)" name="published" />
+              <i aria-hidden="true"></i>
+            </label>
+            <label class="toggle-row">
+              <span><strong>Requires Tier Unlock</strong><small>Keep this lesson behind its module tier</small></span>
+              <input type="checkbox" [ngModel]="draftValue.requiresTierUnlock"
+                (ngModelChange)="patchDraft('requiresTierUnlock', $event)" name="requiresTierUnlock" />
+              <i aria-hidden="true"></i>
+            </label>
+          </section>
+        </form>
+      } @else {
+        @if (error()) { <p class="notice error" role="alert">{{ error() }}</p> }
+        <div class="loading-state">Select a curriculum unit to begin editing.</div>
+      }
+    </section>
+  </div>
+</main>

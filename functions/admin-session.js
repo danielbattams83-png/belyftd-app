@@ -4,7 +4,7 @@ const SESSION_DURATION = 12 * 60 * 60 * 1000;
 const RATE_WINDOW = 15 * 60 * 1000;
 const digest = value => createHash('sha256').update(value).digest();
 
-function createAdminHandlers({db, masterKey, HttpsError, now = Date.now}) {
+function createAdminHandlers({db, auth, masterKey, HttpsError, now = Date.now}) {
   const fail = (code, message) => { throw new HttpsError(code, message); };
   const configuredKey = () => {
     const key = masterKey();
@@ -111,6 +111,13 @@ function createAdminHandlers({db, masterKey, HttpsError, now = Date.now}) {
       // Analytics are server-owned; admin branding edits must not overwrite counters.
       await db.collection('partners').doc(partner.id).set(partner, {merge: true});
       return {saved: true};
+    },
+    async firebaseToken(request) {
+      await requireSession(request);
+      if (!auth) fail('failed-precondition', 'Admin media authentication is unavailable.');
+      return {
+        customToken: await auth.createCustomToken('super-admin-media-cms', {superAdmin: true, subscriptionTier: 4}),
+      };
     },
   };
 }
