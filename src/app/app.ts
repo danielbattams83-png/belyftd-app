@@ -12,6 +12,7 @@ import {ExploreStackComponent} from './components/explore-stack/explore-stack.co
 import {VideoCarouselComponent} from './components/video-carousel/video-carousel.component';
 import {HOME_CAROUSEL_VIDEOS} from './components/video-carousel/video-carousel.videos';
 import {DASHBOARD_BENTO_CARDS, mentorBentoCards} from './components/spotlight-bento/spotlight-bento.cards';
+import {LIFE_LESSON_CARDS} from './components/spotlight-bento/life-lesson.cards';
 import {NavigationService} from './services/navigation.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {afterNextRender, DestroyRef, ElementRef, viewChild, ChangeDetectionStrategy, Component, computed, inject, signal, effect} from '@angular/core';
@@ -97,6 +98,7 @@ export class App {
       .map(mentor => ({...mentor, initials: mentor.name.slice(0, 2).toUpperCase()}));
   });
   readonly dashboardBentoCards = DASHBOARD_BENTO_CARDS;
+  readonly lifeLessonCards = LIFE_LESSON_CARDS;
   readonly mentorBentoCards = computed(() => mentorBentoCards(this.dataService.mentors()));
   readonly curriculum = inject(CurriculumService);
   readonly themeService = inject(ThemeAccessibilityService);

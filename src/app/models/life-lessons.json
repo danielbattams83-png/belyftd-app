@@ -1,0 +1,772 @@
+[
+  {
+    "id": "life-01",
+    "number": "01",
+    "title": "Marriage Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Choose commitment over convenience",
+        "thought": "Marriage grows stronger when both partners keep choosing each other through good times and difficult moments.",
+        "prompt": "What can I do today to strengthen my marriage?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Show honour before expecting it",
+        "thought": "Small acts of respect help each partner feel valued and appreciated.",
+        "prompt": "How can I show my partner respect today?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Listen to understand",
+        "thought": "Listening calmly can help your partner feel heard, even when you see things differently.",
+        "prompt": "Have I really listened to my partner lately?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Choose forgiveness over resentment",
+        "thought": "Working through hurt can help a relationship heal, although rebuilding trust may take time.",
+        "prompt": "Is there a hurt we need to talk about kindly and honestly?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Notice the good and express gratitude",
+        "thought": "Appreciation helps us see what our partner contributes instead of focusing only on what is missing.",
+        "prompt": "What is one thing I appreciate about my partner?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Build trust one promise at a time",
+        "thought": "Trust grows when our actions match our words and we do what we say we will do.",
+        "prompt": "What promise can I make sure to keep?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Make room for laughter",
+        "thought": "Sharing fun and light-hearted moments can help couples reconnect during busy or stressful times.",
+        "prompt": "What could we do together this week just for fun?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Keep growing together",
+        "thought": "Partners change over time, and a strong relationship makes room for both people to learn and grow.",
+        "prompt": "How can I support my partner's growth?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Speak openly and kindly",
+        "thought": "Honest communication works best when we choose our words with care and make space for each other's views.",
+        "prompt": "Is there something important I need to discuss calmly?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Keep choosing each other",
+        "thought": "Love is shown in everyday choices, including kindness, time, affection, and support.",
+        "prompt": "What small action could help my partner feel loved today?"
+      }
+    ]
+  },
+  {
+    "id": "life-02",
+    "number": "02",
+    "title": "Budgeting Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Know where your money goes",
+        "thought": "Tracking what comes in and what goes out helps you make informed choices.",
+        "prompt": "Do I know what I spent money on this week?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Plan before you spend",
+        "thought": "A simple budget helps you decide what your money needs to cover first.",
+        "prompt": "Have I made a plan for my next pay or payment?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Separate needs from wants",
+        "thought": "Knowing the difference can help you protect money for essentials.",
+        "prompt": "Before my next purchase, is it a need or a want?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Save a little when you can",
+        "thought": "Even small, regular savings can build a useful buffer over time.",
+        "prompt": "Could I set aside a small amount this week?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Watch small, regular costs",
+        "thought": "Subscriptions and frequent small purchases can add up over time.",
+        "prompt": "Is there a regular expense I no longer need?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Compare prices before buying",
+        "thought": "Checking a few options may help you get better value for your money.",
+        "prompt": "Can I compare prices before my next purchase?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Plan for bills ahead of time",
+        "thought": "Setting money aside for upcoming bills can reduce last-minute pressure.",
+        "prompt": "Which bill should I prepare for next?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Be careful with borrowing",
+        "thought": "Loans and credit can cost more than the amount first borrowed.",
+        "prompt": "Do I understand the full cost before borrowing?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Set a clear savings goal",
+        "thought": "A specific goal gives your saving a purpose and helps you track progress.",
+        "prompt": "What is one realistic thing I would like to save for?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Review your budget regularly",
+        "thought": "Life changes, so your spending plan may need to change too.",
+        "prompt": "When will I next check my budget?"
+      }
+    ]
+  },
+  {
+    "id": "life-03",
+    "number": "03",
+    "title": "Career Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Keep learning",
+        "thought": "Building new skills can help you adapt and notice new opportunities.",
+        "prompt": "What is one skill I could improve?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Be reliable",
+        "thought": "Turning up on time and following through helps others trust your work.",
+        "prompt": "Can people rely on me to do what I promise?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Ask questions when unsure",
+        "thought": "Asking early can prevent mistakes and help you learn faster.",
+        "prompt": "What do I need to clarify instead of guessing?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Communicate clearly",
+        "thought": "Clear updates help others understand what you are doing and what you need.",
+        "prompt": "Could I explain my current work more clearly?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Take responsibility",
+        "thought": "Owning your part and learning from mistakes helps you improve.",
+        "prompt": "What can I learn from a recent mistake?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Be willing to help",
+        "thought": "Supporting your team builds cooperation and goodwill.",
+        "prompt": "Who could I help with a task today?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Accept useful feedback",
+        "thought": "Feedback can show you what to keep doing and what to improve.",
+        "prompt": "What helpful feedback have I received recently?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Manage your time",
+        "thought": "Choosing priorities helps you focus on the work that matters most.",
+        "prompt": "What is my most important task today?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Build good work relationships",
+        "thought": "Respect and fairness help create a healthier workplace.",
+        "prompt": "How can I make working with me easier for others?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Review your direction",
+        "thought": "Checking your goals helps you see whether your work still fits your hopes and strengths.",
+        "prompt": "What would I like my next career step to be?"
+      }
+    ]
+  },
+  {
+    "id": "life-04",
+    "number": "04",
+    "title": "Health Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Make small, healthy choices",
+        "thought": "Simple habits repeated over time can support your general wellbeing.",
+        "prompt": "What is one healthy choice I can make today?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Move your body regularly",
+        "thought": "Walking, stretching, and other suitable movement can be part of an active routine.",
+        "prompt": "How can I add a little more movement to my day?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Make time for sleep",
+        "thought": "Regular, sufficient sleep supports daily functioning and wellbeing.",
+        "prompt": "What could help me keep a steadier sleep routine?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Drink water regularly",
+        "thought": "Water helps your body carry out many important functions.",
+        "prompt": "Have I had enough water today?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Eat a variety of foods",
+        "thought": "A varied eating pattern can help provide the nutrients your body needs.",
+        "prompt": "Could I add a fruit or vegetable to a meal today?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Take breaks when needed",
+        "thought": "Short breaks can help you reset when you feel tired or overloaded.",
+        "prompt": "When could I take a brief break today?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Look after your mental wellbeing",
+        "thought": "Talking with someone you trust can help when life feels difficult.",
+        "prompt": "Who could I speak with if I need support?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Keep up with suitable health checks",
+        "thought": "Health professionals can advise which checks and care are right for you.",
+        "prompt": "Is there a health appointment I need to arrange?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Be kind to yourself",
+        "thought": "Progress is not always perfect, and harsh self-talk can make hard days harder.",
+        "prompt": "What would I say to encourage a friend in my situation?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Ask for professional advice when needed",
+        "thought": "Reliable health advice can help you make choices suited to your circumstances.",
+        "prompt": "Is there a health concern I should discuss with a qualified professional?"
+      }
+    ]
+  },
+  {
+    "id": "life-05",
+    "number": "05",
+    "title": "Leadership Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Lead by example",
+        "thought": "People notice what you do, not only what you say.",
+        "prompt": "What example am I setting today?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Listen to your team",
+        "thought": "People often share useful ideas when they feel heard.",
+        "prompt": "Whose view should I make more time to hear?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Give credit to others",
+        "thought": "Recognising people's contributions helps them feel valued.",
+        "prompt": "Who deserves thanks for their work?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Be clear about expectations",
+        "thought": "People work better when they understand the goal and their role.",
+        "prompt": "Have I explained what success looks like?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Take responsibility for mistakes",
+        "thought": "A leader who owns mistakes helps build honesty and trust.",
+        "prompt": "Is there something I need to acknowledge or put right?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Make fair decisions",
+        "thought": "Consistency and fairness help people trust your leadership.",
+        "prompt": "Have I considered who may be affected by this decision?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Encourage people to grow",
+        "thought": "Good leaders help others build confidence and skills.",
+        "prompt": "Who could I encourage to take their next step?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Stay calm under pressure",
+        "thought": "Pausing before reacting can help you choose a better response.",
+        "prompt": "What would help me respond calmly to a challenge?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Share the purpose",
+        "thought": "People are more engaged when they understand why the work matters.",
+        "prompt": "Have I explained why this goal is important?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Keep learning as a leader",
+        "thought": "Leadership improves when you reflect, listen, and keep developing.",
+        "prompt": "What is one thing I can learn from this week?"
+      }
+    ]
+  },
+  {
+    "id": "life-06",
+    "number": "06",
+    "title": "Relationship Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Listen without rushing to fix",
+        "thought": "Sometimes people need understanding before they need advice.",
+        "prompt": "Can I listen fully before offering a solution?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Speak with respect",
+        "thought": "Strong feelings do not excuse hurtful words.",
+        "prompt": "How can I say what I feel without attacking someone?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Be dependable",
+        "thought": "Following through on small commitments helps build trust.",
+        "prompt": "What have I promised someone that I need to complete?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Ask instead of assuming",
+        "thought": "Checking what someone means can prevent unnecessary misunderstandings.",
+        "prompt": "What do I need to ask rather than guess?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Respect differences",
+        "thought": "People can care about each other and still see things differently.",
+        "prompt": "Can I be curious about a view that differs from mine?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Say thank you",
+        "thought": "Acknowledging another person's effort helps them feel seen.",
+        "prompt": "Who could I thank today?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Make time for people",
+        "thought": "Relationships need attention, not just good intentions.",
+        "prompt": "Who would appreciate a call or a visit from me?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Apologize when you are wrong",
+        "thought": "A sincere apology accepts responsibility without making excuses.",
+        "prompt": "Is there someone I need to apologize to?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Keep healthy boundaries",
+        "thought": "Clear and respectful boundaries help people understand what is acceptable.",
+        "prompt": "Is there a boundary I need to communicate kindly?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Show care in practical ways",
+        "thought": "Small, helpful actions can communicate care more clearly than words alone.",
+        "prompt": "What practical thing could I do to help someone?"
+      }
+    ]
+  },
+  {
+    "id": "life-07",
+    "number": "07",
+    "title": "Personal Growth Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Keep learning",
+        "thought": "Every day offers chances to gain knowledge or practise a skill.",
+        "prompt": "What could I learn this week?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Take the first step",
+        "thought": "You do not need to have everything worked out before you begin.",
+        "prompt": "What small step have I been putting off?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Know your strengths",
+        "thought": "Understanding what you do well can help you use your abilities wisely.",
+        "prompt": "Which strength could I use more often?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Learn from mistakes",
+        "thought": "A mistake can offer useful information when you reflect and adjust.",
+        "prompt": "What can I do differently next time?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Choose your influences carefully",
+        "thought": "The people and ideas around you can shape your habits and outlook.",
+        "prompt": "Who or what is influencing me most right now?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Practise patience",
+        "thought": "Meaningful change often takes time and repeated effort.",
+        "prompt": "Where do I need to give myself more time?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Keep your promises to yourself",
+        "thought": "Following through on small personal commitments can build confidence.",
+        "prompt": "What is one promise to myself I can keep today?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Be open to change",
+        "thought": "New information may show you a better way forward.",
+        "prompt": "What idea might I need to reconsider?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Celebrate progress",
+        "thought": "Noticing improvement can help you stay encouraged.",
+        "prompt": "What progress have I made recently?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Ask for help when needed",
+        "thought": "Seeking support can be a wise step, not a weakness.",
+        "prompt": "Who could help me with something I find difficult?"
+      }
+    ]
+  },
+  {
+    "id": "life-08",
+    "number": "08",
+    "title": "Attitude Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Focus on what you can control",
+        "thought": "You may not control every situation, but you can consider your next response.",
+        "prompt": "What part of this situation can I influence?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Look for the lesson",
+        "thought": "Reflecting on a challenge can help you decide what to do next.",
+        "prompt": "What can this experience teach me?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Pause before reacting",
+        "thought": "A short pause can help you respond thoughtfully instead of impulsively.",
+        "prompt": "When might I need to pause before speaking today?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Practice gratitude",
+        "thought": "Noticing good things can help balance your view of a difficult day.",
+        "prompt": "What are three things I appreciate today?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Use encouraging words",
+        "thought": "The way you speak to yourself and others can influence how you face challenges.",
+        "prompt": "What encouraging words do I need to hear or share?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Do not compare every journey",
+        "thought": "People have different starting points, needs, and timelines.",
+        "prompt": "Am I measuring my progress against someone else's?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Choose hope with action",
+        "thought": "Hope can give you courage to take a practical next step.",
+        "prompt": "What is one helpful action I can take now?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Accept what you cannot change",
+        "thought": "Accepting reality can help you focus energy where it may make a difference.",
+        "prompt": "What do I need to stop fighting and start addressing?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Stay open to another viewpoint",
+        "thought": "A different perspective may help you see something you missed.",
+        "prompt": "What could I learn by hearing another person's view?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Keep going one step at a time",
+        "thought": "Progress can begin with one manageable action, even on a hard day.",
+        "prompt": "What is my next small step?"
+      }
+    ]
+  },
+  {
+    "id": "life-09",
+    "number": "09",
+    "title": "Goal Setting Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Be clear about your goal",
+        "thought": "A clear goal makes it easier to decide what action to take.",
+        "prompt": "What exactly do I want to achieve?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Know why it matters",
+        "thought": "A meaningful reason can help you stay focused when progress is slow.",
+        "prompt": "Why is this goal important to me?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Break it into small steps",
+        "thought": "Smaller tasks can make a large goal feel more manageable.",
+        "prompt": "What is the first step I can take?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Set a realistic timeframe",
+        "thought": "A sensible deadline can help you plan and review progress.",
+        "prompt": "When would it be reasonable to check my progress?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Write your goal down",
+        "thought": "Writing a goal makes it easier to remember and review.",
+        "prompt": "Have I written my goal somewhere I can see it?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Plan for obstacles",
+        "thought": "Thinking ahead can help you prepare for likely challenges.",
+        "prompt": "What might get in my way, and what could I do?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Track your progress",
+        "thought": "Checking what you have done helps you see what is working.",
+        "prompt": "How will I measure progress?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Ask for support",
+        "thought": "A trusted person can encourage you and help you stay accountable.",
+        "prompt": "Who could encourage me as I work towards this goal?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Adjust when needed",
+        "thought": "A plan can change when circumstances or useful information change.",
+        "prompt": "What needs to change in my plan?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Take action today",
+        "thought": "Even a small action can move you closer to your goal.",
+        "prompt": "What can I do in the next 24 hours?"
+      }
+    ]
+  },
+  {
+    "id": "life-10",
+    "number": "10",
+    "title": "Time Management Tips",
+    "tips": [
+      {
+        "number": 1,
+        "label": "Tip 1",
+        "title": "Choose your top priority",
+        "thought": "Identifying the most important task helps you use your time with purpose.",
+        "prompt": "What is the one task that matters most today?"
+      },
+      {
+        "number": 2,
+        "label": "Tip 2",
+        "title": "Plan your day",
+        "thought": "A simple plan can help you remember tasks and reduce last-minute rushing.",
+        "prompt": "Have I set aside time for my main tasks?"
+      },
+      {
+        "number": 3,
+        "label": "Tip 3",
+        "title": "Allow time for breaks",
+        "thought": "Rest breaks can help you return to tasks with renewed attention.",
+        "prompt": "When will I take a short break today?"
+      },
+      {
+        "number": 4,
+        "label": "Tip 4",
+        "title": "Do one task at a time",
+        "thought": "Focusing on one task can help reduce distractions and unfinished work.",
+        "prompt": "What can I focus on without interruption?"
+      },
+      {
+        "number": 5,
+        "label": "Tip 5",
+        "title": "Limit distractions",
+        "thought": "Putting away unnecessary notifications can protect your attention.",
+        "prompt": "What distraction could I reduce for the next 30 minutes?"
+      },
+      {
+        "number": 6,
+        "label": "Tip 6",
+        "title": "Leave room for the unexpected",
+        "thought": "A plan with some flexibility is easier to manage when things change.",
+        "prompt": "Have I left some space in my day for surprises?"
+      },
+      {
+        "number": 7,
+        "label": "Tip 7",
+        "title": "Learn to say no politely",
+        "thought": "Taking on too much can leave too little time for important commitments.",
+        "prompt": "Is there a request I need to decline or renegotiate?"
+      },
+      {
+        "number": 8,
+        "label": "Tip 8",
+        "title": "Start with a small task",
+        "thought": "Beginning with one manageable action can help you build momentum.",
+        "prompt": "What can I start right now?"
+      },
+      {
+        "number": 9,
+        "label": "Tip 9",
+        "title": "Prepare ahead",
+        "thought": "Getting things ready early can make tomorrow less stressful.",
+        "prompt": "What can I prepare for tomorrow?"
+      },
+      {
+        "number": 10,
+        "label": "Tip 10",
+        "title": "Review how you use time",
+        "thought": "Looking back can help you spot habits that support or waste your time.",
+        "prompt": "What is one change that would help me use my time better?"
+      }
+    ]
+  }
+]

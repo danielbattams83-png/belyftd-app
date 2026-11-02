@@ -957,6 +957,14 @@
           }
         </div>
 
+        <section id="life-lessons" aria-labelledby="life-lessons-title" class="flex flex-col gap-3 pt-4">
+          <div>
+            <h3 id="life-lessons-title" class="text-lg font-bold text-slate-900 dark:text-slate-100 font-display">Life Lessons</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Ten short modules. Open a card to read the tips.</p>
+          </div>
+          <app-explore-stack [cards]="lifeLessonCards" label="Life lessons" />
+        </section>
+
       </div>
     }
 

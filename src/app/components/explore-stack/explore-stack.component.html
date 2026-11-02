@@ -26,6 +26,18 @@
           @if (card.detail) {
             <p class="explore-card__detail">{{ card.detail }}</p>
           }
+          @if (card.readings?.length) {
+            <ol class="explore-card__readings" (click)="$event.stopPropagation()">
+              @for (tip of card.readings; track tip.label) {
+                <li>
+                  <p class="explore-card__reading-kicker">{{ tip.label }}</p>
+                  <h5 class="explore-card__reading-title">{{ tip.title }}</h5>
+                  <p>{{ tip.thought }}</p>
+                  <p class="explore-card__prompt">{{ tip.prompt }}</p>
+                </li>
+              }
+            </ol>
+          }
           @if (card.chips?.length) {
             <ul class="explore-card__chips" role="list">
               @for (chip of card.chips; track chip) {
@@ -36,16 +48,18 @@
         </div>
       </div>
 
-      <img
-        class="explore-card__image"
-        [src]="card.image"
-        [alt]="card.alt"
-        [style.object-position]="card.position ?? '50% 0%'"
-        width="640"
-        height="320"
-        loading="lazy"
-        decoding="async"
-      />
+      @if (card.image) {
+        <img
+          class="explore-card__image"
+          [src]="card.image"
+          [alt]="card.alt"
+          [style.object-position]="card.position ?? '50% 0%'"
+          width="640"
+          height="320"
+          loading="lazy"
+          decoding="async"
+        />
+      }
 
       @if (card.href) {
         <!-- stopPropagation keeps this click from toggling the card; every other tap on the card still expands it. -->

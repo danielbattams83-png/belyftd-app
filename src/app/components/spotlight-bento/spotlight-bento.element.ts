@@ -13,6 +13,8 @@ export interface BentoCard {
   position?: string;
   /** In-app route the explore stack's "Learn More" link points to. */
   href?: string;
+  /** Short readings shown when an explore-stack card is opened. */
+  readings?: {label: string; title: string; thought: string; prompt: string}[];
 }
 
 const FALLBACK_EASE = 'cubic-bezier(.34,1.36,.64,1)';

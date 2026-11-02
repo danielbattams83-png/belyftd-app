@@ -177,6 +177,48 @@
   color: var(--es-ink);
 }
 
+.explore-card__readings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-height: min(60vh, 28rem);
+  margin: 0;
+  padding: 0.15rem 0.2rem 0.35rem 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.explore-card__reading-kicker {
+  margin: 0;
+  color: var(--es-accent-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.explore-card__reading-title {
+  margin: 0.15rem 0 0;
+  color: var(--es-ink);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.explore-card__readings p {
+  margin: 0.35rem 0 0;
+  color: var(--es-ink-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.explore-card__readings .explore-card__prompt {
+  color: var(--es-ink);
+  font-weight: 600;
+}
+
 .explore-card__chips {
   display: flex;
   flex-wrap: wrap;
