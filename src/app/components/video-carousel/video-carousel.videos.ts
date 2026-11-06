@@ -4,6 +4,7 @@ const BASE = '/videos/carousel';
 
 /** Homepage carousel, in display order. Edit titles and captions here. */
 export const HOME_CAROUSEL_VIDEOS: CarouselVideo[] = [
+  {tag: 'Welcome', title: 'Welcome, with Sandy', caption: 'Sandy welcomes you to Lyft\'d.', duration: '0:35', src: `${BASE}/video-8.mp4`, poster: `${BASE}/video-8.jpg`, aspect: '9/16'},
   {tag: 'Hope', title: 'Hope, with Hannah', caption: 'A quiet moment of encouragement from Hannah.', duration: '0:45', src: `${BASE}/video-1.mp4`, poster: `${BASE}/video-1.jpg`, aspect: '9/16'},
   {tag: 'Hope', title: 'More hope, with Hannah', caption: 'Hannah on holding on to hope.', duration: '0:48', src: `${BASE}/video-2.mp4`, poster: `${BASE}/video-2.jpg`, aspect: '9/16'},
   {tag: 'Hope · Swahili', title: 'Hope, with Omari', caption: 'Omari shares a message of hope in Swahili.', duration: '1:40', src: `${BASE}/video-3.mp4`, poster: `${BASE}/video-3.jpg`, aspect: '9/16'},
