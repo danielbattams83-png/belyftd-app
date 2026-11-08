@@ -96,6 +96,19 @@
       <!-- Right Action Items -->
       <div class="app-header-actions">
         <div class="app-header-icons">
+        @if (showPwaInstallButton()) {
+          <button
+            id="install-app-btn"
+            type="button"
+            (click)="handleInstallClick()"
+            class="install-app-button h-9 px-3 rounded-[10px] bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition focus-accessible shadow-sm shrink-0"
+            aria-label="Install Lyftd app"
+            title="Install Lyftd"
+          >
+            <mat-icon class="text-base">download</mat-icon>
+            <span class="install-app-label">Install</span>
+          </button>
+        }
         <button type="button" id="open-smart-search-btn" (click)="smartSearch.open()"
           class="w-9 h-9 rounded-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center cursor-pointer focus-accessible shrink-0"
           aria-label="Search lessons and mentors" title="Search lessons and mentors (Ctrl / ⌘ K)">

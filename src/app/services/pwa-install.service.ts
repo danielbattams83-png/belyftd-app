@@ -22,6 +22,9 @@ export class PwaInstallService {
   readonly isAppInstalled = signal<boolean>(false);
   readonly isBannerDismissed = signal<boolean>(false);
 
+  // Keep install controls available until the app is actually installed.
+  readonly showInstallButton = computed(() => !this.isAppInstalled());
+
   // Computed banner visibility
   readonly showInstallBanner = computed(() => {
     return !this.isAppInstalled() && !this.isBannerDismissed();
@@ -29,10 +32,12 @@ export class PwaInstallService {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      // 1. Check if already installed / standalone mode
-      const isStandalone = 
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+      // 1. Check if already installed, including iOS and Capacitor app shells.
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui)').matches ||
+        (window.navigator as unknown as {standalone?: boolean}).standalone === true ||
+        (window as Window & {Capacitor?: {isNativePlatform?: () => boolean}})
+          .Capacitor?.isNativePlatform?.() === true;
       
       if (isStandalone) {
         this.isAppInstalled.set(true);
