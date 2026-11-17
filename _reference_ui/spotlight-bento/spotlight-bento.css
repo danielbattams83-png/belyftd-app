@@ -1,0 +1,144 @@
+/* Spotlight Bento — PWA-ready, dependency-free. Theme via CSS variables. */
+.sb {
+  --sb-bg: #0b0b10;
+  --sb-card: #16161d;
+  --sb-fg: #f5f5f7;
+  --sb-muted: rgba(245,245,247,.72);
+  --sb-accent: #ff7a1a;
+  --sb-radius: 22px;
+  --sb-gap: 12px;
+  --sb-h: 280px;          /* card height */
+  --sb-h-active: 360px;   /* spotlight card height */
+  --sb-h-mobile: 220px;
+  --sb-h-mobile-active: 440px;
+  --sb-pad: 28px;
+  --sb-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sb-ease: linear(0,0.019,0.069,0.141,0.228,0.324,0.423,0.52,0.614,0.7,0.778,0.847,0.906,0.956,0.996,1.027,1.05,1.067,1.077,1.082,1.083,1.081,1.077,1.071,1.063,1.055,1.047,1.039,1.031,1.024,1.017,1.012,1.007,1.003,1,0.997,0.996,0.994,0.993,0.993,1);
+  --sb-dur: 550ms;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  gap: var(--sb-gap);
+  padding: var(--sb-gap) max(var(--sb-gap), env(safe-area-inset-right)) var(--sb-gap) max(var(--sb-gap), env(safe-area-inset-left));
+  font-family: var(--sb-font);
+  color: var(--sb-fg);
+  -webkit-tap-highlight-color: transparent;
+}
+/* Lyft'd preset: <spotlight-bento class="sb-theme-lyftd"> */
+.sb.sb-theme-lyftd {
+  --sb-bg: #1d232a;
+  --sb-card: #262e37;
+  --sb-accent: #00baf0;
+  --sb-radius: 18px;
+  --sb-img-pos: 88% 45%;  /* Lyft'd art keeps the app screens on the right */
+}
+/* Lyft'd: navy scrim from the bottom-left so copy stays readable over app screenshots */
+.sb.sb-theme-lyftd .sb-inner::after {
+  background:
+    linear-gradient(to top, rgba(35,43,52,.96) 0%, rgba(35,43,52,.78) 34%, rgba(35,43,52,0) 68%),
+    linear-gradient(to right, rgba(35,43,52,.9) 0%, rgba(35,43,52,.55) 38%, rgba(35,43,52,0) 62%);
+}
+.sb.sb-theme-lyftd .sb-inner { box-shadow: 0 0 0 1px rgba(0,186,240,.16) inset, 0 10px 30px -18px rgba(0,0,0,.6); }
+@media (max-width: 1023px) { .sb { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 639px)  { .sb { grid-template-columns: minmax(0, 1fr); --sb-pad: 22px; } }
+
+.sb-card {
+  position: relative;
+  grid-column: span var(--span, 1);
+  height: var(--sb-h);
+  cursor: pointer;
+  outline: none;
+  scroll-margin: calc(16px + env(safe-area-inset-top)) 0 calc(16px + env(safe-area-inset-bottom));
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* .sb-card is the layout slot; .sb-inner is the visual that FLIP animates */
+.sb-inner {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  border-radius: var(--sb-radius);
+  overflow: hidden;
+  background: var(--sb-card);
+  isolation: isolate;
+  transform-origin: 0 0;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.07) inset;
+}
+.sb-card.sb-moving { z-index: 1; }
+.sb-card.sb-lead { z-index: 2; }
+.sb-card[aria-expanded="true"] { height: var(--sb-h-active); }
+@media (max-width: 639px) {
+  .sb-card { height: var(--sb-h-mobile); }
+  .sb-card[aria-expanded="true"] { height: var(--sb-h-mobile-active); }
+}
+.sb-card:focus-visible .sb-inner { box-shadow: 0 0 0 2px var(--sb-bg), 0 0 0 4px var(--sb-accent); }
+
+.sb-media { position: absolute; inset: 0; z-index: -2; overflow: hidden; }
+.sb-media img {
+  width: 100%; height: 100%; object-fit: cover; object-position: var(--sb-img-pos, 50% 50%); display: block;
+  transform: scale(1.001);
+  transition: transform 1.2s cubic-bezier(.2,.7,.2,1), filter .6s;
+  filter: saturate(.9) brightness(.9);
+}
+.sb-card[aria-expanded="true"] .sb-media img { transform: scale(1.08); filter: saturate(1.05) brightness(1); }
+
+/* legibility gradient */
+.sb-inner::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(to top, rgba(0,0,0,.82) 0%, rgba(0,0,0,.45) 38%, rgba(0,0,0,0) 70%);
+}
+/* pointer/touch spotlight glow */
+.sb-inner::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(420px circle at var(--x, 50%) var(--y, 50%),
+    color-mix(in srgb, var(--sb-accent) 38%, transparent), transparent 60%);
+  mix-blend-mode: screen;
+  opacity: 0; transition: opacity .35s;
+}
+.sb-card[data-glow] .sb-inner::before { opacity: 1; }
+
+.sb-body {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  padding: var(--sb-pad);
+  padding-bottom: var(--sb-pad);
+  display: flex; flex-direction: column; gap: 8px;
+  max-width: 720px;
+}
+.sb-tag {
+  align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--sb-accent); background: color-mix(in srgb, var(--sb-accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sb-accent) 40%, transparent);
+  padding: 4px 10px; border-radius: 999px;
+}
+.sb-heading { margin: 0; font-size: clamp(20px, 2.1vw, 26px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; }
+.sb-text { margin: 0; font-size: 15px; line-height: 1.45; color: var(--sb-muted); }
+.sb-detail {
+  margin: 0; font-size: 14px; line-height: 1.5; color: var(--sb-muted);
+  display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateY(6px);
+  transition: grid-template-rows .45s var(--sb-ease), opacity .3s, transform .45s var(--sb-ease);
+}
+.sb-detail > div { overflow: hidden; }
+.sb-card[aria-expanded="true"] .sb-detail { grid-template-rows: 1fr; opacity: 1; transform: none; transition-delay: .12s; }
+.sb-detail ul { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.sb-detail li { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.1); color: var(--sb-fg); }
+
+.sb-hint {
+  position: absolute; top: 16px; right: 16px; z-index: 2;
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(0,0,0,.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.18);
+  transition: transform .45s var(--sb-ease), background .3s;
+}
+.sb-hint::before, .sb-hint::after { content: ""; position: absolute; width: 12px; height: 2px; border-radius: 2px; background: var(--sb-fg); }
+.sb-hint::after { transform: rotate(90deg); }
+.sb-card[aria-expanded="true"] .sb-hint { transform: rotate(45deg); background: var(--sb-accent); }
+
+.sb-card.sb-moving .sb-inner { will-change: transform, width, height; }
+
+@supports not (transition-timing-function: linear(0, 1)) {
+  .sb { --sb-ease: cubic-bezier(.34, 1.36, .64, 1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sb-inner::before, .sb-media img, .sb-detail, .sb-hint { transition: none !important; }
+  .sb-card[aria-expanded="true"] .sb-media img { transform: none; }
+}
