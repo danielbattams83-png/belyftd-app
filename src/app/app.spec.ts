@@ -29,6 +29,17 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
+  it('shows the install button until the app is installed', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('#install-app-btn')).not.toBeNull();
+
+    window.dispatchEvent(new Event('appinstalled'));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('#install-app-btn')).toBeNull();
+  });
+
   it('keeps the homepage visible after the admin portal creates a guest session', () => {
     const app = TestBed.createComponent(App).componentInstance;
     app.firebaseService.currentUser.set({uid: 'guest-admin', isAnonymous: true} as User);

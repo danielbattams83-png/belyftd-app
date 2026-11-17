@@ -175,8 +175,8 @@ export class App {
   readonly showStreakModal = signal<boolean>(false);
   readonly showNewQuestModal = signal<boolean>(false);
 
-  // PWA banner computed & feedback
-  readonly showPwaInstallBanner = computed(() => this.pwaService.showInstallBanner());
+  // PWA install control & feedback
+  readonly showPwaInstallButton = computed(() => this.pwaService.showInstallButton());
   readonly pwaManualGuideMessage = signal<string | null>(null);
 
   // Developer Testing Widget & Notification State
@@ -776,9 +776,9 @@ export class App {
   }
 
   /**
-   * Triggers the native browser PWA install prompt when the banner is clicked.
+   * Triggers the native browser PWA install prompt when the install button is clicked.
    */
-  async handleInstallBannerClick(): Promise<void> {
+  async handleInstallClick(): Promise<void> {
     const outcome = await this.pwaService.promptInstall();
     if (outcome === 'accepted') {
       this.themeService.announce("Lyftd is now installing to your home screen!");
