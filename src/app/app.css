@@ -8,8 +8,6 @@
 :host-context(.dark) .partner-experience { background-color: color-mix(in oklab, var(--primary-brand) 6%, #020617); }
 .partner-experience .home-hero { background: var(--hero-background); border-color: var(--primary-brand); color: var(--hero-text-color); }
 .partner-experience .home-hero h2, .partner-experience .home-hero p { color: inherit; }
-.partner-experience .hero-badge { background: var(--accent-highlight); border-color: var(--accent-highlight); color: var(--hero-background); }
-.partner-experience #quick-record-voice-btn { background: var(--primary-brand); color: var(--hero-text-color); border-color: var(--primary-brand); }
 .partner-experience .app-header-brand { overflow-wrap: anywhere; }
 /* Partner logos size from their height, so they skip the Lyftd container query that swaps in the small mark. */
 .partner-experience .app-header-brand { flex: 0 0 auto; min-width: 0; max-width: none; container-type: normal; }
@@ -95,5 +93,3 @@
 .recordings-close { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; }
 .recordings-close:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
 @media (min-width: 768px) { .courses-section-heading { padding-inline: 0; } }
-
-#daily-message-card { height: auto; min-height: 350px; }

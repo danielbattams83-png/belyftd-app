@@ -1,0 +1,44 @@
+<div class="module-carousel-container">
+  <button type="button" class="track-nav track-nav--prev" aria-label="Scroll mentors left" (click)="scrollTrack(-1)">
+    <mat-icon aria-hidden="true">chevron_left</mat-icon>
+  </button>
+  <div #track class="module-track" role="group" aria-label="Meet your mentors">
+    @for (card of cards(); track card.heading; let i = $index) {
+      <button
+        type="button"
+        class="module-card"
+        [class.is-active]="i === activeIndex()"
+        [class.is-prev]="i < activeIndex()"
+        [class.is-next]="i > activeIndex()"
+        [class.is-hidden]="i < activeIndex() - 1 || i > activeIndex() + 1"
+        [attr.aria-hidden]="i < activeIndex() - 1 || i > activeIndex() + 1 ? true : null"
+        [attr.tabindex]="i < activeIndex() - 1 || i > activeIndex() + 1 ? -1 : null"
+        [attr.aria-pressed]="i === activeIndex()"
+        [attr.aria-label]="card.heading"
+        (click)="selectCard(i, $event)"
+      >
+        <span class="module-card__face">
+          <span class="mentor-media">
+            @if (card.image) {
+              <img [src]="card.image" [alt]="card.alt || card.heading" [style.object-position]="card.position || '50% 25%'" loading="lazy" decoding="async" draggable="false">
+            }
+          </span>
+          <span class="mentor-body">
+            @if (card.tag) { <span class="mentor-tag">{{ card.tag }}</span> }
+            <span class="mentor-heading">{{ card.heading }}</span>
+            @if (card.text) { <span class="mentor-text">{{ card.text }}</span> }
+            @if (card.detail) { <span class="mentor-detail">{{ card.detail }}</span> }
+            @if (card.chips?.length) {
+              <span class="mentor-chips">
+                @for (chip of card.chips; track chip) { <span>{{ chip }}</span> }
+              </span>
+            }
+          </span>
+        </span>
+      </button>
+    }
+  </div>
+  <button type="button" class="track-nav track-nav--next" aria-label="Scroll mentors right" (click)="scrollTrack(1)">
+    <mat-icon aria-hidden="true">chevron_right</mat-icon>
+  </button>
+</div>

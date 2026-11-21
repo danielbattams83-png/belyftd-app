@@ -32,7 +32,7 @@
                     </div>
                   } @else {<h4>Your voice. Your journey.</h4><p>Capture a small win, a new idea, or a moment that mattered.</p>}
                 </div>
-                <footer><button type="button" (click)="recordNote.emit()"><mat-icon aria-hidden="true">add</mat-icon> Record Note</button></footer>
+                <footer><button id="record-voice-note-btn" type="button" (click)="recordNote.emit()"><mat-icon aria-hidden="true">add</mat-icon> Record Note</button></footer>
               }
               @default {
                 @if (chosenMentors()[i - 3]; as mentor) {

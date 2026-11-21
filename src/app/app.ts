@@ -8,6 +8,7 @@ import {MentorRecordingPickerComponent} from './components/mentor-recording-pick
 import {productionMentorForLabel} from './services/production-mentors';
 import {BackButtonComponent} from './components/back-button.component';
 import {SpotlightBentoComponent} from './components/spotlight-bento/spotlight-bento.component';
+import {HomeMentorCarouselComponent} from './components/home-mentor-carousel.component';
 import {ExploreStackComponent} from './components/explore-stack/explore-stack.component';
 import {VideoCarouselComponent} from './components/video-carousel/video-carousel.component';
 import {HOME_CAROUSEL_VIDEOS} from './components/video-carousel/video-carousel.videos';
@@ -63,6 +64,7 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
     MentorRecordingPickerComponent,
     BackButtonComponent,
     SpotlightBentoComponent,
+    HomeMentorCarouselComponent,
     ExploreStackComponent,
     VideoCarouselComponent,
     CommonModule,
@@ -89,14 +91,6 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-s
 export class App {
   readonly audioPlayer = inject(AudioPlayerService);
   readonly dataService = inject(MentorshipDataService);
-  readonly homeMentors = computed(() => {
-    const chosen = this.firebaseService.userProfile()?.selectedMentorIds ?? [];
-    const all = this.dataService.mentors();
-    const picked = all.filter(mentor => chosen.includes(mentor.id));
-    return [...(picked.length ? picked : all)]
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map(mentor => ({...mentor, initials: mentor.name.slice(0, 2).toUpperCase()}));
-  });
   readonly dashboardBentoCards = DASHBOARD_BENTO_CARDS;
   readonly lifeLessonCards = LIFE_LESSON_CARDS;
   readonly mentorBentoCards = computed(() => mentorBentoCards(this.dataService.mentors()));
@@ -364,11 +358,6 @@ export class App {
     if (this.firebaseService.isLoggedIn()) return true;
     this.showRegisterModal.set(true);
     return false;
-  }
-
-  openVoiceJournal(): void {
-    if (!this.requireSignIn()) return;
-    this.showVoiceRecorder.set(true);
   }
 
   openProfileOrSignIn(): void {

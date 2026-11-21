@@ -125,9 +125,9 @@ export class FeatureWalkthroughComponent implements OnInit, AfterViewInit, OnDes
   readonly initialTab = input<WalkthroughTab>('daily-lyft');
   readonly tabChange = output<WalkthroughTab>();
   readonly steps: WalkthroughStep[] = [
-    {title: 'Start with a daily reset', sentence: 'Find a short encouragement, play an audio reset, and check in with your mood to shape the guidance you see.', icon: 'auto_awesome', section: 'Home', tab: 'daily-lyft', targetSelectors: ['#daily-mood-checkin', '#start-todays-lesson-btn']},
+    {title: 'Start with a daily reset', sentence: 'Find a short encouragement, play an audio reset, and check in with your mood to shape the guidance you see.', icon: 'auto_awesome', section: 'Home', tab: 'daily-lyft', targetSelectors: ['#daily-mood-checkin', '#home-mentor-carousel']},
     {title: 'Learn at your pace', sentence: 'Explore bite-sized courses, follow your progress, and return to lessons when you are ready.', icon: 'auto_stories', section: 'Courses', tab: 'courses', targetSelectors: ['#courses-tour-anchor']},
-    {title: 'Reflect out loud', sentence: 'Use Voice Journal to record a private reflection whenever you want to get your thoughts out.', icon: 'mic', section: 'Voice Journal', tab: 'daily-lyft', targetSelectors: ['#quick-record-voice-btn']},
+    {title: 'Reflect out loud', sentence: 'Use Voice Journal to record a private reflection whenever you want to get your thoughts out.', icon: 'mic', section: 'Voice Journal', tab: 'courses', targetSelectors: ['#record-voice-note-btn']},
     {title: 'Find support that fits', sentence: 'Browse mentors by age and specialty, then connect directly with someone who understands your goals.', icon: 'people_alt', section: 'Mentors', tab: 'mentors', targetSelectors: ['#mentors-tour-anchor']},
     {title: 'Turn goals into action', sentence: 'Create a Growth Quest, break it into manageable steps, and track your progress along the way.', icon: 'flag', section: 'Quests', tab: 'quests', targetSelectors: ['#add-quest-header-btn']},
     {title: 'Lift up your community', sentence: 'Share a win or encourage someone on the Hype Wall. The Partners page introduces organizations investing in the youth community.', icon: 'forum', section: 'Community', tab: 'community', targetSelectors: ['#community-tour-anchor', '#tab-community-content h2']},

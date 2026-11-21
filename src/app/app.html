@@ -263,73 +263,85 @@
         </section>
   }
 
+        @if (isLoggedIn() && !tenantService.activeTenant()?.branding?.welcomeHeadline) {
+          <h2 class="order-2 py-4 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
+            A new day full of potential, {{ userFirstName() }}.
+          </h2>
+        } @else {
+          <h2 class="order-2 py-4 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
+            {{ tenantService.activeTenant()?.branding?.welcomeHeadline || "Welcome to Lyft'd." }}
+          </h2>
+        }
+
         <!-- Welcome Header / Hopeful Sunrise Hero -->
         <div class="card home-hero order-2 relative overflow-hidden rounded-[24px] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
           <div class="absolute -top-12 right-8 h-32 w-32 rounded-full bg-amber-300/40 blur-2xl"></div>
           <div class="absolute bottom-4 left-8 h-24 w-24 rounded-full bg-indigo-400/20 blur-2xl"></div>
 
-          <div class="relative z-10 flex flex-col items-center gap-5 text-center">
+          <div class="relative z-10 flex flex-col items-center text-center">
             <div class="w-full max-w-3xl text-center">
-              <div class="flex justify-center">
-              <div class="hero-badge inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-700 dark:bg-slate-900/40 dark:text-amber-300">
-                <span class="h-2.5 w-2.5 rounded-full bg-[var(--primary-brand)] shadow-sm"></span>
-                {{ tenantService.activeTenant()?.branding?.sponsorBadgeText || 'Safe space + fresh start' }}
-              </div>
-              </div>
-
-              @if (isLoggedIn() && !tenantService.activeTenant()?.branding?.welcomeHeadline) {
-                <h2 class="mt-4 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
-                  A new day full of potential, {{ userFirstName() }}.
-                </h2>
-              } @else {
-                <h2 class="mt-4 text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 font-display leading-tight">
-                  {{ tenantService.activeTenant()?.branding?.welcomeHeadline || 'A new day full of potential. Welcome to Lyftd.' }}
-                </h2>
-              }
-              <p class="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+              <section class="text-left" aria-labelledby="lyftd-meaning-title">
+                <h3 id="lyftd-meaning-title" class="text-center text-xl sm:text-2xl font-bold leading-tight text-slate-900 dark:text-white">LYFT’d — What Does It Mean?</h3>
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-1.5">
+                  Life can sometimes leave us feeling stuck, lost or unsure of what comes next. LYFT’d is about helping people move from where they are to where they are meant to be.
+                </p>
+                <ul class="space-y-3 my-4">
+                  <li class="flex items-start gap-3">
+                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">L</span>
+                    <div class="min-w-0">
+                      <p class="font-semibold text-slate-900 dark:text-white text-sm">Lifting</p>
+                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">Raising people up to a higher level.</p>
+                    </div>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">Y</span>
+                    <div class="min-w-0">
+                      <p class="font-semibold text-slate-900 dark:text-white text-sm">You</p>
+                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">The person God created You to be — uniquely You, with purpose and potential.</p>
+                    </div>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">F</span>
+                    <div class="min-w-0">
+                      <p class="font-semibold text-slate-900 dark:text-white text-sm">From</p>
+                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">Moving away from the things that have held you back.</p>
+                    </div>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">T</span>
+                    <div class="min-w-0">
+                      <p class="font-semibold text-slate-900 dark:text-white text-sm">The</p>
+                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">Preparing you for what is ahead.</p>
+                    </div>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">D</span>
+                    <div class="min-w-0">
+                      <p class="font-semibold text-slate-900 dark:text-white text-sm">Depths</p>
+                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">Those difficult places in life where we can feel lost, broken, stuck or without hope.</p>
+                    </div>
+                  </li>
+                </ul>
+                <div class="rounded-xl p-3.5 mt-4 border border-white/80 bg-white/35 dark:border-white/15 dark:bg-white/10">
+                  <p class="text-sm font-bold text-slate-900 dark:text-white">LYFT’d</p>
+                  <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug mt-1">We help people rise from the depths, discover their purpose and become all they can be.</p>
+                  <p class="font-semibold text-indigo-700 dark:text-indigo-300 text-xs mt-1.5">From where you are — to where you are meant to be.</p>
+                </div>
+              </section>
+              <p class="mx-auto mt-5 max-w-2xl text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
                 {{ tenantService.activeTenant()?.branding?.welcomeSubtext || 'Whatever yesterday looked like, today is a fresh step forward. We’re right here with you.' }}
               </p>
-
-              <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
-                <div class="flex -space-x-2">
-                  @for (mentor of homeMentors(); track mentor.id) {
-                    <div class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br text-[10px] font-bold text-slate-700 shadow-sm"
-                      [class.from-amber-200]="$index % 4 === 0" [class.to-orange-300]="$index % 4 === 0"
-                      [class.from-rose-200]="$index % 4 === 1" [class.to-pink-300]="$index % 4 === 1"
-                      [class.from-emerald-200]="$index % 4 === 2" [class.to-teal-300]="$index % 4 === 2"
-                      [class.from-indigo-200]="$index % 4 === 3" [class.to-violet-300]="$index % 4 === 3"
-                      [title]="mentor.name" [attr.aria-label]="mentor.name">{{ mentor.initials }}</div>
-                  }
-                </div>
-                <div class="inline-flex items-center gap-2 rounded-full bg-white/80 dark:bg-slate-900/60 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
-                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                  {{ homeMentors().length }} Mentors Online
-                </div>
-              </div>
             </div>
-
-            <button
-              id="quick-record-voice-btn"
-              type="button"
-              (click)="openVoiceJournal()"
-              class="shrink-0 rounded-2xl border border-slate-200 bg-white/85 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-indigo-500 hover:text-indigo-600 focus-accessible dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 sm:px-4 sm:py-2.5"
-            >
-              <span class="flex items-center gap-2">
-                <mat-icon class="text-base text-rose-500">mic</mat-icon>
-                <span class="hidden sm:inline">Voice Journal</span>
-                <span class="sm:hidden">Record</span>
-              </span>
-            </button>
           </div>
         </div>
 
-  <p class="order-3 font-cursive text-3xl text-indigo-600 dark:text-indigo-400 pt-0 pb-0 text-center">
+  <p class="order-3 mb-8 font-cursive text-3xl text-indigo-600 dark:text-indigo-400 pt-0 pb-0 text-center">
   “A world where everybody wins,&nbsp;<br />
   and no one is left out.”
   </p>
 
         <section id="daily-explore-bento" aria-labelledby="daily-explore-title" class="explore-section order-7 flex flex-col gap-3">
-          <h3 id="daily-explore-title" class="text-lg font-bold text-slate-900 dark:text-slate-100 font-display">Explore Lyft'd</h3>
+          <h3 id="daily-explore-title" class="text-center text-3xl font-bold text-slate-900 dark:text-slate-100">Explore Lyft'd</h3>
           <app-explore-stack [cards]="dashboardBentoCards" label="Explore Lyft'd" />
         </section>
 
@@ -392,77 +404,10 @@
           </section>
         }
 
-  <!-- 'Daily Message' Card with 'Start Today's Lesson' Direct CTA -->
-        <div id="daily-message-card" class="card order-4 relative overflow-hidden rounded-3xl border p-7 shadow-sm" style="background-color: transparent; background-image: linear-gradient(to right bottom, oklab(0.769 0.0640531 0.176752 / 0.1) 0%, oklab(0.645 0.235944 0.0696166 / 0.1) 50%, oklab(0.511 0.0317755 -0.260066 / 0.1) 100%); border-color: oklab(0.924 -0.0120142 0.119397 / 0.6);">
-          <div class="absolute inset-0 hidden bg-gradient-to-r from-amber-100/80 via-rose-50/80 to-indigo-50/80 dark:from-amber-950/20 dark:via-rose-950/10 dark:to-indigo-950/20" style="border-color: oklab(0.924 -0.0120142 0.119397 / 0.6);"></div>
-  <div class="relative z-10 space-y-4 text-center">
-  <div class="flex items-center justify-center gap-4 flex-wrap">
-              <span class="inline-flex items-start gap-1.5 rounded-full bg-white/80 pl-[17px] pr-[14px] py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-indigo-700 shadow-sm ring-1 ring-indigo-100 dark:bg-slate-900/70 dark:text-indigo-300 dark:ring-indigo-900">
-                ✨ 30-Sec Mindset Reset
-              </span>
-              <span class="flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                <mat-icon class="text-sm">schedule</mat-icon>
-                {{ todaysLesson().estimatedTime }} lesson
-              </span>
-            </div>
-
-            <div>
-              <h3 class="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
-                Discover Your Identity
-              </h3>
-              <p class="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:text-base">
-                This module guides you through a powerful journey of self-discovery to uncover your individual strengths, core values, and personal gifts. You&apos;ll learn to recognize your inherent worth, embrace what makes you distinct, and live a purpose-driven life centered on awareness, personal growth, and service to others.
-              </p>
-            </div>
-
-            <div class="flex flex-wrap items-center justify-center gap-3 pt-1">
-              <button
-                id="start-todays-lesson-btn"
-                type="button"
-                (click)="startTodaysLesson()"
-                class="flex items-center gap-2 rounded-2xl bg-indigo-400 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-500/25 transition hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/25 focus-accessible"
-              >
-                <mat-icon class="text-lg">play_arrow</mat-icon>
-                <span>Start Today's Lesson</span>
-              </button>
-
-              <button
-                id="open-custom-pep-modal-btn"
-                type="button"
-                (click)="showCustomPepTalk.set(true)"
-                class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus-accessible dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-850"
-              >
-                <mat-icon class="text-base text-amber-500">auto_awesome</mat-icon>
-                <span>AI Pep Talk</span>
-              </button>
-            </div>
-          @if (hopeUnits().length > 0) {
-<div class="relative z-10 mt-5 border-t border-white/70 pt-4 text-center dark:border-slate-700/70">
-  <div class="mb-3 flex items-center justify-center gap-3">
-                <div>
-                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-indigo-700 dark:text-indigo-300">Hope module</p>
-                  <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">One video, then mentor audio lessons</p>
-                </div>
-                <span class="text-xs text-slate-500 dark:text-slate-400">{{ hopeUnits().length }} units</span>
-              </div>
-              <div class="mx-auto grid max-w-2xl gap-2 text-left md:grid-cols-2">
-                @for (unit of hopeUnits(); track unit.id) {
-                  <button type="button" (click)="playHopeUnit(unit)" class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 text-left shadow-sm transition hover:bg-white focus-accessible dark:border-slate-700 dark:bg-slate-900/60 dark:hover:bg-slate-900">
-                    <img [src]="unit.avatar" [alt]="unit.mentor" class="h-11 w-11 shrink-0 rounded-xl object-cover" referrerpolicy="no-referrer" />
-                    <span class="min-w-0 flex-1">
-                      <span class="block truncate text-sm font-bold text-slate-800 dark:text-slate-100">{{ unit.title }}</span>
-                      <span class="block text-xs text-slate-500 dark:text-slate-400">{{ unit.mentor }}</span>
-                    </span>
-                    <mat-icon class="text-indigo-400">play_circle</mat-icon>
-                  </button>
-                }
-              </div>
-            </div>
-          }
-          </div>
-          <!-- Subtle Decorative Shape -->
-          <div class="pointer-events-none absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-indigo-50 opacity-60 dark:bg-indigo-950/20"></div>
-        </div>
+        <section aria-labelledby="home-mentors-heading" class="order-4 flex w-full flex-col items-center gap-5">
+          <h2 id="home-mentors-heading" class="text-3xl font-bold text-slate-900 dark:text-slate-100">Meet Your Mentors</h2>
+          <app-home-mentor-carousel id="home-mentor-carousel" class="w-full" [cards]="mentorBentoCards()" />
+        </section>
 
 <!-- Short Courses: Featured Audio Lessons -->
   <section class="card hidden order-5 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
