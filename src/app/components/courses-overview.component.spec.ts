@@ -1,77 +1,95 @@
+import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
+import {provideRouter} from '@angular/router';
 import {CoursesOverviewComponent} from './courses-overview.component';
-import {PRODUCTION_MENTORS} from '../services/production-mentors';
-import {VoiceJournal} from '../models/app.models';
+import {CurriculumService, countCompletedLifeLessons, findNextUnreadUnit} from '../services/curriculum.service';
+import {CurriculumModule} from '../models/curriculum.model';
 
-const journals: VoiceJournal[] = [
-  {id: 'first', title: 'First reflection', date: 'Oct 29', durationSec: 75, prompt: 'A small win', mood: '✨ Inspired'},
-  {id: 'second', title: 'Second reflection', date: 'Oct 28', durationSec: 38, prompt: 'A new idea', mood: '✨ Inspired'},
+const modules: CurriculumModule[] = [
+  {id: 'module-1', title: 'Mindset', units: [
+    {id: 'unit-1', title: 'Mindset', hasText: true, hasMedia: false, description: 'Start with the strengths you already have.'},
+    {id: 'unit-2', title: 'As a Man Thinks', hasText: true, hasMedia: false},
+  ]},
+  {id: 'module-2', title: 'Identity', units: [
+    {id: 'unit-1', title: 'Identity Theft', hasText: true, hasMedia: false},
+  ]},
 ];
 
-async function setup(ids = ['sophie', 'hannah']) {
-  TestBed.configureTestingModule({imports: [CoursesOverviewComponent]});
+const completed = signal(new Set<string>());
+const openUnit = vi.fn();
+
+async function setup() {
+  completed.set(new Set());
+  TestBed.configureTestingModule({
+    imports: [CoursesOverviewComponent],
+    providers: [
+      provideRouter([]),
+      {provide: CurriculumService, useValue: {modules: signal(modules), completedIds: completed, openUnit}},
+    ],
+  });
   const fixture = TestBed.createComponent(CoursesOverviewComponent);
-  fixture.componentRef.setInput('mentors', PRODUCTION_MENTORS);
-  fixture.componentRef.setInput('selectedMentorIds', ids);
-  fixture.componentRef.setInput('journals', journals);
-  fixture.componentRef.setInput('progress', 50);
-  fixture.componentRef.setInput('completedSteps', 5);
-  fixture.componentRef.setInput('totalSteps', 10);
   fixture.detectChanges();
   await fixture.whenStable();
   fixture.detectChanges();
   return {fixture, component: fixture.componentInstance, element: fixture.nativeElement as HTMLElement};
 }
 
+describe('next unread unit', () => {
+  it('returns Module 1 Unit 1 when a later unit is already complete', () => {
+    const next = findNextUnreadUnit(modules, new Set(['module-1/unit-2', 'module-2/unit-1']));
+    expect(next).toMatchObject({moduleNumber: 1, unitNumber: 1, title: 'Mindset', courseComplete: false});
+  });
+
+  it('falls back to reviewing Module 1 when every unit is complete', () => {
+    const next = findNextUnreadUnit(modules, new Set(['module-1/unit-1', 'module-1/unit-2', 'module-2/unit-1']));
+    expect(next).toMatchObject({moduleNumber: 1, unitNumber: 1, courseComplete: true});
+  });
+
+  it('counts life lessons at 10 percent each', () => {
+    expect(countCompletedLifeLessons(new Set())).toBe(0);
+    expect(countCompletedLifeLessons(new Set(['life-lesson/life-01', 'life-02', 'life-lesson/life-03']))).toBe(3);
+  });
+});
+
 describe('courses overview carousel', () => {
-  it('shows the three growth cards and only the two saved mentors, in saved order', async () => {
+  it('shows the four learning cards and no mentor cards', async () => {
     const {component, element} = await setup();
-    expect(component.labels()).toEqual(['Upcoming Session', 'Weekly Growth Progress', 'My Voice Reflections', 'Sophie', 'Hannah']);
-    expect(element.querySelectorAll('.overview-card')).toHaveLength(5);
-    expect(element.textContent).not.toContain('Omari');
-    expect(element.querySelector('progress')?.value).toBe(50);
-    expect(element.textContent).toContain('5 / 10');
+    expect(component.labels).toEqual(['Daily Lyft', 'Continue Learning', 'Life Lessons Progress', 'Your Key']);
+    expect(element.querySelectorAll('.overview-card')).toHaveLength(4);
+    expect(element.textContent).toContain('DAY 1');
+    expect(element.textContent).toContain('Believe In Yourself');
+    expect(element.textContent).toContain('Module 1:');
+    expect(element.textContent).toContain('Unit 1: Mindset');
+    expect(element.textContent).toContain('0 of 10');
+    expect(element.textContent).toContain('0%');
+    expect(element.textContent).toContain('Unlock your full potential');
+    expect(element.querySelector('.card-face--mentor')).toBeNull();
+    expect(element.querySelector('a[href="/your-key"]')).not.toBeNull();
+    expect(element.querySelector('a[href="/life-lessons"]')).not.toBeNull();
   });
 
-  it('renders portrait heroes, verified badges, language chips and named audio buttons', async () => {
-    const {element} = await setup();
-    const cards = element.querySelectorAll('.card-face--mentor');
-    expect(cards).toHaveLength(2);
-    expect(cards[0].querySelector('img')?.getAttribute('src')).toBe('/mentors/sophie.png');
-    expect(cards[0].querySelector('[aria-label="Verified mentor"]')).not.toBeNull();
-    expect([...cards[0].querySelectorAll('.language-chip')].map(chip => chip.textContent?.trim())).toEqual(['English', 'Chinese']);
-    expect(cards[0].querySelector('.action-pill--primary')?.textContent).toContain('Listen to Sophie');
-    expect(cards[1].querySelector('.action-pill--primary')?.textContent).toContain('Listen to Hannah');
-  });
-
-  it('never fills missing selections with arbitrary mentors', async () => {
-    const {component, element} = await setup(['missing']);
-    expect(component.chosenMentors()).toEqual([]);
-    expect(element.querySelectorAll('.overview-card')).toHaveLength(3);
-    expect(element.querySelector('.choose-mentors')).not.toBeNull();
-  });
-
-  it('deduplicates, limits and updates saved mentors reactively', async () => {
-    const {fixture, component} = await setup(['hannah', 'hannah', 'sophie', 'omari']);
-    expect(component.chosenMentors().map(mentor => mentor.id)).toEqual(['hannah', 'sophie']);
-    fixture.componentRef.setInput('selectedMentorIds', ['steve', 'omari']);
+  it('opens the earliest unread unit and shows the course-complete state', async () => {
+    const {fixture, element} = await setup();
+    element.querySelectorAll('.overview-card')[1].querySelector('button')!.click();
+    expect(openUnit).toHaveBeenCalledWith('module-1', 'unit-1');
+    completed.set(new Set(['module-1/unit-1', 'module-1/unit-2', 'module-2/unit-1']));
     fixture.detectChanges();
-    expect(component.chosenMentors().map(mentor => mentor.id)).toEqual(['steve', 'omari']);
+    expect(element.textContent).toContain('Course Complete — Review Module 1');
   });
 
-  it('navigates using buttons, dots and arrow keys without wrapping past the ends', async () => {
+  it('navigates with buttons, dots and arrow keys without wrapping past the ends', async () => {
     const {fixture, component, element} = await setup();
     element.querySelector<HTMLButtonElement>('.next')!.click();
     fixture.detectChanges();
     expect(component.activeIndex()).toBe(1);
-    element.querySelectorAll<HTMLButtonElement>('.carousel-dots button')[4].click();
+    element.querySelectorAll<HTMLButtonElement>('.carousel-dots button')[3].click();
     fixture.detectChanges();
-    expect(component.activeIndex()).toBe(4);
+    expect(component.activeIndex()).toBe(3);
     expect(element.querySelector<HTMLButtonElement>('.next')!.disabled).toBe(true);
     element.querySelector('.overview-track')!.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowLeft', bubbles: true}));
-    expect(component.activeIndex()).toBe(3);
+    expect(component.activeIndex()).toBe(2);
     component.select(-1);
-    expect(component.activeIndex()).toBe(3);
+    expect(component.activeIndex()).toBe(2);
   });
 
   it('supports throttled wheel navigation while preserving horizontal gestures and zoom', async () => {
@@ -90,43 +108,8 @@ describe('courses overview carousel', () => {
       clock.mockReturnValue(1421);
       wheel({deltaY: -100});
       expect(component.activeIndex()).toBe(0);
-      component.select(4);
+      component.select(3);
       expect(wheel({deltaY: 100}).defaultPrevented).toBe(false);
     } finally { clock.mockRestore(); }
-  });
-
-  it('keeps journal playback, recording, quests and mentor actions connected', async () => {
-    const {component, element, fixture} = await setup();
-    const play = vi.fn(), record = vi.fn(), quest = vi.fn(), mentor = vi.fn();
-    component.playJournal.subscribe(play);
-    component.recordNote.subscribe(record);
-    component.viewQuests.subscribe(quest);
-    component.mentorSelected.subscribe(mentor);
-    element.querySelector<HTMLButtonElement>('.listen')!.click();
-    expect(play).toHaveBeenCalledWith(journals[0]);
-    expect(element.querySelector('.listen')?.textContent).toContain('1:15');
-    element.querySelector<HTMLButtonElement>('[aria-label="Next reflection"]')!.click();
-    fixture.detectChanges();
-    expect(element.querySelector('.journal-title')?.textContent).toBe('Second reflection');
-    const cards = element.querySelectorAll('.overview-card');
-    cards[2].querySelector<HTMLButtonElement>('footer button')!.click();
-    cards[0].querySelector<HTMLButtonElement>('footer button')!.click();
-    cards[3].querySelector<HTMLButtonElement>('footer button')!.click();
-    expect(record).toHaveBeenCalled();
-    expect(quest).toHaveBeenCalled();
-    expect(mentor).toHaveBeenCalledWith(PRODUCTION_MENTORS[0]);
-  });
-
-  it('handles empty journals and removes wheel handlers on destruction', async () => {
-    const {fixture, component, element} = await setup();
-    fixture.componentRef.setInput('journals', []);
-    fixture.detectChanges();
-    expect(element.textContent).toContain('Your voice. Your journey.');
-    const track = element.querySelector('.overview-track')!;
-    fixture.destroy();
-    const wheel = new WheelEvent('wheel', {deltaY: 100, cancelable: true});
-    track.dispatchEvent(wheel);
-    expect(wheel.defaultPrevented).toBe(false);
-    expect(component.activeIndex()).toBe(0);
   });
 });

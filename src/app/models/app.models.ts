@@ -60,6 +60,7 @@ export interface Mentor {
   availableNext?: string;
   verified: boolean;
   recommendedFor: string[];
+  region?: string;
   voiceIntroPrompt?: string;
 }
 

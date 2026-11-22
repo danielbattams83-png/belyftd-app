@@ -42,9 +42,9 @@ testem.log
 /typings
 __screenshots__/
 
-# System files
-.DS_Store
-Thumbs.db
+# Binary video stays on this machine or in Firebase Storage. Posters stay in Git.
+*.mp4
+
 
 # Local sync caches and Firebase runtime logs
 /.tmp.driveupload/

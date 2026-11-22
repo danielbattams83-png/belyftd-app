@@ -27,14 +27,14 @@ export const DASHBOARD_BENTO_CARDS: BentoCard[] = [
   },
   {
     tag: 'Quests',
-    heading: 'Youth Growth Quests',
+    heading: "Lyft'd Life Lessons",
     image: '/assets/lyftd/quests.webp',
-    alt: 'Youth Growth Quests screen with a Launch Personal Portfolio Web App quest',
+    alt: "Lyft'd Life Lessons screen with a Launch Personal Portfolio Web App lesson",
     text: 'Turn big dreams into real-world milestones with structured guidance.',
     detail:
       'Every quest comes with mentor tips and steps that earn XP: launch a personal portfolio web app, draft scholarship and college essays, or build a 7-day mindful morning routine. Level up as your milestones fill in.',
     chips: ['Mentor tips', 'Earn XP', 'Levels', 'Milestones'],
-    href: '/quests',
+    href: '/life-lessons',
   },
   {
     tag: 'Partners',

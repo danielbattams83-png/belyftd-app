@@ -15,6 +15,10 @@ export interface BentoCard {
   href?: string;
   /** Short readings shown when an explore-stack card is opened. */
   readings?: {label: string; title: string; thought: string; prompt: string}[];
+  /** Draws an HTML preview in place of a screenshot, so the card title is not baked into an image. */
+  preview?: 'life-lessons';
+  /** Preview-only card: it can open, and it does not navigate. */
+  comingSoon?: boolean;
 }
 
 const FALLBACK_EASE = 'cubic-bezier(.34,1.36,.64,1)';

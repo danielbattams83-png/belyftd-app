@@ -7,11 +7,10 @@ import {SmartSearchComponent} from './components/smart-search/smart-search.compo
 import {MentorRecordingPickerComponent} from './components/mentor-recording-picker.component';
 import {productionMentorForLabel} from './services/production-mentors';
 import {BackButtonComponent} from './components/back-button.component';
-import {SpotlightBentoComponent} from './components/spotlight-bento/spotlight-bento.component';
 import {HomeMentorCarouselComponent} from './components/home-mentor-carousel.component';
 import {ExploreStackComponent} from './components/explore-stack/explore-stack.component';
 import {VideoCarouselComponent} from './components/video-carousel/video-carousel.component';
-import {HOME_CAROUSEL_VIDEOS} from './components/video-carousel/video-carousel.videos';
+import {HOME_CAROUSEL_START, HOME_CAROUSEL_VIDEOS} from './components/video-carousel/video-carousel.videos';
 import {DASHBOARD_BENTO_CARDS, mentorBentoCards} from './components/spotlight-bento/spotlight-bento.cards';
 import {LIFE_LESSON_CARDS} from './components/spotlight-bento/life-lesson.cards';
 import {NavigationService} from './services/navigation.service';
@@ -51,7 +50,7 @@ import {PostAuthOnboardingWizardComponent} from './components/post-auth-onboardi
 import {FeatureWalkthroughComponent} from './components/feature-walkthrough.component';
 import {Course} from './models/app.models';
 
-export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'your-key' | 'community' | 'partners' | 'profile';
+export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'your-key' | 'faq' | 'community' | 'partners' | 'profile';
 
 @Component({
   selector: 'app-root',
@@ -63,7 +62,6 @@ export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'your-ke
     SmartSearchComponent,
     MentorRecordingPickerComponent,
     BackButtonComponent,
-    SpotlightBentoComponent,
     HomeMentorCarouselComponent,
     ExploreStackComponent,
     VideoCarouselComponent,
@@ -93,7 +91,15 @@ export class App {
   readonly dataService = inject(MentorshipDataService);
   readonly dashboardBentoCards = DASHBOARD_BENTO_CARDS;
   readonly lifeLessonCards = LIFE_LESSON_CARDS;
-  readonly mentorBentoCards = computed(() => mentorBentoCards(this.dataService.mentors()));
+  readonly mentorBentoCards = computed(() => {
+    const mentors = [...this.dataService.mentors()];
+    const sophie = mentors.findIndex(mentor => mentor.id === 'sophie');
+    const hannah = mentors.findIndex(mentor => mentor.id === 'hannah');
+    if (sophie >= 0 && hannah >= 0) [mentors[sophie], mentors[hannah]] = [mentors[hannah], mentors[sophie]];
+    return mentorBentoCards(mentors);
+  });
+  readonly mentorRegionFilters = ['All Mentors', 'Australia', 'Africa', 'Indonesia', 'Japan', 'India', 'China', 'Mediterranean'] as const;
+  readonly selectedRegion = signal<string>('All');
   readonly curriculum = inject(CurriculumService);
   readonly themeService = inject(ThemeAccessibilityService);
   readonly aiService = inject(AiMentorService);
@@ -103,6 +109,15 @@ export class App {
   readonly pwaService = inject(PwaInstallService);
   readonly hopeVideoUrl = signal<string | null>(null);
   readonly homeCarouselVideos = HOME_CAROUSEL_VIDEOS;
+  readonly homeCarouselStart = HOME_CAROUSEL_START;
+  readonly faqItems = [
+    {q: 'What is Lyft’d?', a: 'Lyft’d helps people move from where they are to where they are meant to be, with foundational courses, mentors, Lyft’d Life Lessons, and Your Key.'},
+    {q: 'What are Foundational Courses?', a: 'A curriculum of modules and units on character, resilience, habits, leadership, money, faith, and digital life. Open Courses to start a unit.'},
+    {q: 'What are Lyft’d Life Lessons?', a: 'Short lesson modules you can open and read, plus milestones you can break into steps and track.'},
+    {q: 'Who are the mentors?', a: 'Sophie (English and Chinese), Omari (English and Swahili), Hannah, and Steve (English). Their course recordings live on the Mentors page.'},
+    {q: 'What is Your Key?', a: 'Your Key is a companion for encouragement and practical guidance. It is not healthcare, therapy, or crisis support. For an emergency, contact local emergency services.'},
+    {q: 'How do I partner with Lyft’d?', a: 'Partner With Us lists monthly tiers that support mentorship. Higher tiers unlock more modules, the mentor video library, and multilingual audio.'},
+  ];
   readonly hopeUnits = signal<HopeUnit[]>([]);
   readonly dailyMessageScheduler = inject(DailyMessageSchedulerService);
   readonly isLoggedIn = computed(() => this.firebaseService.isLoggedIn());
@@ -111,16 +126,8 @@ export class App {
   readonly isDashboard = signal(true);
   readonly isAdminPortal = signal(false);
   private readonly isJoinRoute = signal(false);
-  /** Every new visitor must redeem a partner code; partner users and pre-launch Lyft'd members skip it. */
-  readonly showRedemptionGate = computed(() =>
-    !this.isAdminPortal() &&
-    !this.isJoinRoute() &&
-    !this.firebaseService.authLoading() &&
-    this.tenantService.isResolved() &&
-    !this.tenantService.activeTenant() &&
-    !this.tenantService.hasRedeemedAccess() &&
-    !this.tenantService.isLegacyMember()
-  );
+  /** Access-code gate is off so the app can be reviewed in the browser without signing in. */
+  readonly showRedemptionGate = computed(() => false);
 
   // Active Tab navigation
   readonly activeTab = signal<MainTab>('daily-lyft');
@@ -152,9 +159,23 @@ export class App {
     void this.router.navigate(['/modules', unit.moduleId, 'units', unit.id]);
   }
 
+  /** The tour has no FAQ step, so a visit to F.A.Q. starts the tour on Home. */
+  tourTab(): Exclude<MainTab, 'faq'> {
+    const tab = this.activeTab();
+    return tab === 'faq' ? 'daily-lyft' : tab;
+  }
+
   selectTab(tab: MainTab): void {
-    void this.router.navigateByUrl(tab === 'daily-lyft' ? '/dashboard' : '/' + tab);
+    const path = tab === 'daily-lyft' ? '/dashboard' : tab === 'quests' ? '/life-lessons' : '/' + tab;
+    void this.router.navigateByUrl(path);
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  focusDailyLyft(overview: CoursesOverviewComponent): void {
+    overview.select(0);
+    const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelector('app-courses-overview')?.scrollIntoView({behavior: reduced ? 'auto' : 'smooth', block: 'start'});
+    document.getElementById('daily-lyft-card')?.focus({preventScroll: true});
   }
   
   // Modals state
@@ -195,6 +216,17 @@ export class App {
     return 'Leader';
   });
 
+  /** First name for the home greeting. Empty for guests so the template can fall back to Friend. */
+  readonly userName = computed(() => {
+    if (!this.firebaseService.isLoggedIn()) return '';
+    const profile = this.firebaseService.userProfile();
+    const name = this.firebaseService.currentUser()?.displayName?.trim()
+      || profile?.fullName?.trim()
+      || profile?.displayName?.trim()
+      || '';
+    return name.split(/\s+/)[0] || '';
+  });
+
     private async loadHopeModule(): Promise<void> {
     this.hopeVideoUrl.set('/videos/5.2-HOPE-Hannah.mp4');
 
@@ -222,7 +254,8 @@ export class App {
       const path = this.router.parseUrl(this.router.url).root.children['primary']?.segments.map(segment => segment.path).join('/') ?? '';
       const tabs: Record<string, MainTab> = {
         '': 'daily-lyft', dashboard: 'daily-lyft', courses: 'courses', mentors: 'mentors',
-        quests: 'quests', 'your-key': 'your-key', 'coach-spark': 'your-key', community: 'community', partners: 'partners',
+        quests: 'quests', 'life-lessons': 'quests', 'your-key': 'your-key', 'coach-spark': 'your-key',
+        faq: 'faq', community: 'community', partners: 'partners',
       };
       this.isAdminPortal.set(path === 'admin' || path.startsWith('admin/'));
       this.isJoinRoute.set(path === 'join');
@@ -553,13 +586,15 @@ export class App {
   readonly filteredMentors = computed(() => {
     const specialtyFilter = this.mentorSpecialtyFilter();
     const ageBracketFilter = this.mentorAgeBracketFilter();
+    const region = this.selectedRegion();
     const list = this.dataService.mentors();
     return list.filter(mentor => {
       const matchesSpecialty = specialtyFilter === 'All' || mentor.specialties.some(specialty =>
         specialty.toLowerCase().includes(specialtyFilter.toLowerCase())
       );
       const matchesAgeBracket = ageBracketFilter === 'All' || mentor.ageBrackets?.includes(ageBracketFilter);
-      return matchesSpecialty && matchesAgeBracket;
+      const matchesRegion = region === 'All' || mentor.region === region;
+      return matchesSpecialty && matchesAgeBracket && matchesRegion;
     });
   });
 

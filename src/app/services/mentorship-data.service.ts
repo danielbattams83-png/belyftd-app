@@ -192,7 +192,7 @@ export class MentorshipDataService {
     this.audioCatalogLoading.set(false);
   }
 
-  readonly mentors = signal<Mentor[]>(PRODUCTION_MENTORS.filter(mentor => mentor.mediaPaths.length > 0));
+  readonly mentors = signal<Mentor[]>(PRODUCTION_MENTORS);
 
   // Quests & Real-World Goals
   readonly goalQuests = signal<GoalQuest[]>([

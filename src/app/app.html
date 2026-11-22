@@ -63,25 +63,26 @@
           type="button"
           (click)="selectTab('quests')"
           [class]="activeTab() === 'quests' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
-          class="cursor-pointer"
+          class="cursor-pointer whitespace-nowrap"
         >
-          Growth Quests
+          Lyft'd Life Lessons
         </button>
         <button
           type="button"
           (click)="selectTab('your-key')"
-          [class]="activeTab() === 'your-key' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
-          class="cursor-pointer"
+          class="nav-your-key cursor-pointer"
+          [class.is-active]="activeTab() === 'your-key'"
         >
+          <mat-icon class="nav-key-icon" aria-hidden="true">key</mat-icon>
           Your Key
         </button>
         <button
           type="button"
-          (click)="selectTab('community')"
-          [class]="activeTab() === 'community' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
-          class="cursor-pointer"
+          (click)="selectTab('faq')"
+          [class]="activeTab() === 'faq' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
+          class="cursor-pointer whitespace-nowrap"
         >
-          Hype Wall
+          F.A.Q.
         </button>
         <button
           type="button"
@@ -259,18 +260,71 @@
   @if (isDashboard()) {
   <section aria-labelledby="home-video-carousel-title" class="order-1 -mx-4 mt-2 sm:mx-0">
           <h2 id="home-video-carousel-title" class="sr-only">Lyft&apos;d videos</h2>
-          <app-video-carousel [videos]="homeCarouselVideos" label="Lyft'd videos" />
+          <app-video-carousel [videos]="homeCarouselVideos" [startIndex]="homeCarouselStart" label="Lyft'd videos" />
         </section>
   }
 
-        @if (isLoggedIn() && !tenantService.activeTenant()?.branding?.welcomeHeadline) {
-          <h2 class="order-2 py-4 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
-            A new day full of potential, {{ userFirstName() }}.
-          </h2>
-        } @else {
-          <h2 class="order-2 py-4 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
-            {{ tenantService.activeTenant()?.branding?.welcomeHeadline || "Welcome to Lyft'd." }}
-          </h2>
+        <h2 class="home-greeting order-2 py-4 text-center text-3xl font-bold text-slate-900 dark:text-slate-100">
+          Hi {{ userName() || 'there' }}, Welcome to Lyft'd
+        </h2>
+        @if (tenantService.activeTenant()?.branding?.welcomeHeadline; as welcomeHeadline) {
+          <p class="order-2 -mt-2 text-center text-base font-semibold text-slate-600 dark:text-slate-300">{{ welcomeHeadline }}</p>
+        }
+
+        @if (isLoggedIn()) {
+          <section id="daily-mood-checkin" class="feeling-checkin order-2 space-y-4 p-6">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="feeling-icon flex h-9 w-9 items-center justify-center rounded-xl">
+                  <mat-icon class="text-lg">sentiment_satisfied_alt</mat-icon>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold">How Are You Feeling Right Now?</h4>
+                  <p class="feeling-muted text-xs">Select a mood to calibrate your guidance</p>
+                </div>
+              </div>
+              <span class="feeling-muted text-xs font-medium">Quick Check-in</span>
+            </div>
+
+            <div class="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+              @for (item of moodCheckins; track item.mood) {
+                <button
+                  type="button"
+                  (click)="setMoodCheckin(item)"
+                  [class]="activeMoodPrompt()?.mood === item.mood
+                    ? 'border-indigo-400 bg-indigo-400 font-semibold text-white shadow-xs'
+                    : 'feeling-mood'"
+                  class="flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-2xl border px-4 py-2.5 text-xs transition focus-accessible"
+                >
+                  <span>{{ item.emoji }}</span>
+                  <span>{{ item.mood.split(' ')[1] || item.mood }}</span>
+                </button>
+              }
+            </div>
+
+            @if (activeMoodPrompt()) {
+              <div class="feeling-response animate-in slide-in-from-top-2 rounded-2xl border p-4 duration-150">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="mb-1 text-xs font-bold text-sky-200">
+                      {{ activeMoodPrompt()?.mood }} Mentorship Guidance:
+                    </p>
+                    <p class="text-xs leading-relaxed text-slate-100">
+                      {{ activeMoodPrompt()?.advice }}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    (click)="playMoodTrack(activeMoodPrompt()!.trackId)"
+                    class="flex shrink-0 cursor-pointer items-center gap-1 rounded-xl bg-indigo-400 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-700"
+                  >
+                    <mat-icon class="text-sm">play_arrow</mat-icon>
+                    <span>Listen</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </section>
         }
 
         <!-- Welcome Header / Hopeful Sunrise Hero -->
@@ -344,65 +398,6 @@
           <h3 id="daily-explore-title" class="text-center text-3xl font-bold text-slate-900 dark:text-slate-100">Explore Lyft'd</h3>
           <app-explore-stack [cards]="dashboardBentoCards" label="Explore Lyft'd" />
         </section>
-
-        @if (isLoggedIn()) {
-          <!-- Quick Mood Check-in Carousel -->
-          <section id="daily-mood-checkin" class="card order-6 bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                  <mat-icon class="text-lg">sentiment_satisfied_alt</mat-icon>
-                </div>
-                <div>
-                  <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">How Are You Feeling Right Now?</h4>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">Select a mood to calibrate your guidance</p>
-                </div>
-              </div>
-              <span class="text-xs text-slate-400 font-medium">Quick Check-in</span>
-            </div>
-
-            <!-- Mood Pills -->
-            <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-              @for (item of moodCheckins; track item.mood) {
-                <button
-                  type="button"
-                  (click)="setMoodCheckin(item)"
-                  [class]="activeMoodPrompt()?.mood === item.mood
-                    ? 'bg-indigo-400 text-white font-semibold border-indigo-600 shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'"
-                  class="px-4 py-2.5 rounded-2xl border text-xs whitespace-nowrap flex items-center gap-2 cursor-pointer transition focus-accessible shrink-0"
-                >
-                  <span>{{ item.emoji }}</span>
-                  <span>{{ item.mood.split(' ')[1] || item.mood }}</span>
-                </button>
-              }
-            </div>
-
-            <!-- Mood Response Banner if clicked -->
-            @if (activeMoodPrompt()) {
-              <div class="card p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 animate-in slide-in-from-top-2 duration-150">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <p class="text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-1">
-                      {{ activeMoodPrompt()?.mood }} Mentorship Guidance:
-                    </p>
-                    <p class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
-                      {{ activeMoodPrompt()?.advice }}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    (click)="playMoodTrack(activeMoodPrompt()!.trackId)"
-                    class="px-3.5 py-1.5 rounded-xl bg-indigo-400 text-white text-xs font-bold flex items-center gap-1 hover:bg-indigo-700 cursor-pointer shrink-0 transition shadow-xs"
-                  >
-                    <mat-icon class="text-sm">play_arrow</mat-icon>
-                    <span>Listen</span>
-                  </button>
-                </div>
-              </div>
-            }
-          </section>
-        }
 
         <section aria-labelledby="home-mentors-heading" class="order-4 flex w-full flex-col items-center gap-5">
           <h2 id="home-mentors-heading" class="text-3xl font-bold text-slate-900 dark:text-slate-100">Meet Your Mentors</h2>
@@ -668,21 +663,7 @@
     @if (activeTab() === 'courses') {
       <div id="tab-courses-content" class="courses-page pt-6 animate-in fade-in duration-150">
         
-        @if (isLoggedIn()) {
-          <app-courses-overview
-            [mentors]="dataService.mentors()"
-            [selectedMentorIds]="firebaseService.userProfile()?.selectedMentorIds ?? []"
-            [journals]="dataService.voiceJournals()"
-            [progress]="growthProgressPercent()"
-            [completedSteps]="completedStepsCount()"
-            [totalSteps]="totalStepsCount()"
-            (viewQuests)="selectTab('quests')"
-            (recordNote)="showVoiceRecorder.set(true)"
-            (playJournal)="playRecordedJournal($event)"
-            (mentorSelected)="openCourseMentorRecordings($event)"
-            (chooseMentors)="showPostAuthOnboarding.set(true)"
-          />
-        }
+        <app-courses-overview #coursesOverview />
         @if (courseRecordingMentor(); as mentor) {
           <section class="course-recordings card rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900" aria-labelledby="course-recordings-heading">
             <header class="flex items-center justify-between gap-3">
@@ -713,9 +694,7 @@
         </section>
         }
 
-        @if (isLoggedIn()) {
-        <!-- Member Progress Filters -->
-        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+        <div class="module-filters flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
           <button
             type="button"
             (click)="courseFilter.set('all')"
@@ -724,7 +703,7 @@
               : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'"
             class="px-4 py-2 rounded-2xl cursor-pointer transition focus-accessible whitespace-nowrap shrink-0"
           >
-            All Courses ({{ curriculum.courseModuleCount() }})
+            All Modules ({{ curriculum.courseModuleCount() }})
           </button>
           <button
             type="button"
@@ -751,7 +730,6 @@
             Completed ({{ completedCoursesCount() }})
           </button>
         </div>
-        }
 
         <app-courses-curriculum
           [filter]="courseFilter()" (filterChange)="courseFilter.set($event)"
@@ -762,7 +740,23 @@
           [audioError]="dataService.audioCatalogError()"
           (playRecording)="playMentorRecording($event)"
           (chooseMentors)="requireSignIn() && showPostAuthOnboarding.set(true)"
-        />
+          (showDailyLyft)="focusDailyLyft(coursesOverview)"
+        >
+          <div id="pwa-status-badge" class="mx-auto mt-10 flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
+            <mat-icon class="text-base">cloud_done</mat-icon>
+            <span>Offline support available</span>
+          </div>
+          <footer class="mt-8 border-t border-slate-200/80 pt-5 text-center dark:border-slate-800">
+            <nav aria-label="Legal" class="flex items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+              <a routerLink="/privacy" class="transition hover:text-indigo-600 hover:underline focus-accessible dark:hover:text-indigo-300">Privacy Policy</a>
+              <span aria-hidden="true">•</span>
+              <a routerLink="/terms" class="transition hover:text-indigo-600 hover:underline focus-accessible dark:hover:text-indigo-300">Terms of Service</a>
+            </nav>
+            @if (tenantService.activeTenant()) {
+              <p class="tenant-powered mt-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Powered by Lyft&apos;d</p>
+            }
+          </footer>
+        </app-courses-curriculum>
 
       </div>
     }
@@ -771,25 +765,44 @@
     <!-- TAB 2: MENTORS DIRECTORY & 1-ON-1 SESSIONS -->
     <!-- ========================================== -->
     @if (activeTab() === 'mentors') {
-      <section id="tab-mentors-content" class="space-y-6 py-6">
+      <section id="tab-mentors-content" class="mentor-directory space-y-6 py-6">
         <h2 id="mentors-tour-anchor" class="text-3xl font-bold">Meet Your Mentors</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-300">Explore course recordings from our four production mentors.</p>
-        <app-spotlight-bento [cards]="mentorBentoCards()" label="Mentor spotlight" />
-        <div class="mentor-grid responsive-grid">
-          @for (mentor of dataService.mentors(); track mentor.id) {
-            <article class="card space-y-4 overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-[#333333]">
-              <div class="flex items-center gap-4">
-                <img [src]="mentor.avatar" [alt]="mentor.name" class="h-20 w-20 rounded-2xl object-cover" />
-                <div><h3 class="text-xl font-bold">{{ mentor.name }}</h3>
-                  <p class="text-sm font-semibold text-(--brand-accent)">{{ mentor.languages.join(' / ') }}</p>
-                </div>
+        <p class="text-sm text-slate-500 dark:text-slate-300">Thirteen mentors across Australia and six regions. Filter the roster, then play a lesson.</p>
+        <div class="mentor-region-filters" role="toolbar" aria-label="Filter mentors by region">
+          @for (region of mentorRegionFilters; track region) {
+            <button
+              type="button"
+              class="mentor-region-pill"
+              [class.is-active]="selectedRegion() === (region === 'All Mentors' ? 'All' : region)"
+              [attr.aria-pressed]="selectedRegion() === (region === 'All Mentors' ? 'All' : region)"
+              (click)="selectedRegion.set(region === 'All Mentors' ? 'All' : region)"
+            >{{ region }}</button>
+          }
+        </div>
+        <div class="mentor-grid">
+          @for (mentor of filteredMentors(); track mentor.id) {
+            <article class="mentor-card">
+              <div class="mentor-portrait">
+                <img [src]="mentor.avatar" [alt]="'Portrait of ' + mentor.name" />
+                @if (mentor.region) {
+                  <span class="mentor-region-badge">{{ mentor.region }}</span>
+                }
               </div>
-              <p class="text-sm text-slate-600 dark:text-slate-300">{{ mentor.bio }}</p>
-              <app-mentor-recording-picker
-                [tracks]="mentorRecordings(mentor.name)"
-                [showLanguageSelector]="mentor.languages.length > 1"
-                (playRecording)="playMentorRecording($event)"
-              />
+              <div class="mentor-card__body">
+                <h3>{{ mentor.name }}</h3>
+                <p class="mentor-role">{{ mentor.title }}</p>
+                <p class="mentor-languages">{{ mentor.languages.join(' • ') }}</p>
+                <p class="mentor-bio">{{ mentor.bio }}</p>
+                @if (mentorRecordings(mentor.name).length) {
+                  <app-mentor-recording-picker
+                    [tracks]="mentorRecordings(mentor.name)"
+                    [showLanguageSelector]="mentor.languages.length > 1"
+                    (playRecording)="playMentorRecording($event)"
+                  />
+                } @else {
+                  <p class="mentor-soon">Videos Coming Soon</p>
+                }
+              </div>
             </article>
           }
         </div>
@@ -801,11 +814,11 @@
         
         <div class="flex items-center justify-between gap-4">
           <div>
-            <h2 id="community-tour-anchor" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
-              Growth Quests
+            <h2 id="life-lessons-page-title" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
+              Lyft'd Life Lessons
             </h2>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Turn big dreams into real-world milestones with structured guidance.
+              Short lessons you can read, and milestones you can track.
             </p>
           </div>
 
@@ -1057,7 +1070,7 @@
         
         <div class="flex items-center justify-between gap-4">
           <div>
-            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
+            <h2 id="community-tour-anchor" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
               The Hype Wall
             </h2>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -1200,21 +1213,40 @@
       <app-partner-with-us />
     }
 
-    <div id="pwa-status-badge" class="mx-auto mt-10 flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
-      <mat-icon class="text-base">cloud_done</mat-icon>
-      <span>Offline support available</span>
-    </div>
+    @if (activeTab() === 'faq') {
+      <section id="tab-faq-content" class="space-y-6 pt-6 animate-in fade-in duration-150" aria-labelledby="faq-title">
+        <div>
+          <h2 id="faq-title" class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl font-display">F.A.Q.</h2>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Straight answers about courses, mentors, Lyft'd Life Lessons, and Your Key.</p>
+        </div>
+        <div class="space-y-3">
+          @for (item of faqItems; track item.q) {
+            <details class="faq-item rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#1e242b]">
+              <summary class="cursor-pointer text-sm font-bold text-slate-900 dark:text-slate-100">{{ item.q }}</summary>
+              <p class="pt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{{ item.a }}</p>
+            </details>
+          }
+        </div>
+      </section>
+    }
 
-    <footer class="mt-8 border-t border-slate-200/80 pt-5 text-center dark:border-slate-800">
-      <nav aria-label="Legal" class="flex items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-        <a routerLink="/privacy" class="transition hover:text-indigo-600 hover:underline focus-accessible dark:hover:text-indigo-300">Privacy Policy</a>
-        <span aria-hidden="true">•</span>
-        <a routerLink="/terms" class="transition hover:text-indigo-600 hover:underline focus-accessible dark:hover:text-indigo-300">Terms of Service</a>
-      </nav>
-      @if (tenantService.activeTenant()) {
-        <p class="tenant-powered mt-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Powered by Lyft&apos;d</p>
-      }
-    </footer>
+    @if (activeTab() !== 'courses') {
+      <div id="pwa-status-badge" class="mx-auto mt-10 flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <mat-icon class="text-base">cloud_done</mat-icon>
+        <span>Offline support available</span>
+      </div>
+
+      <footer class="mt-8 border-t border-slate-200/80 pt-5 text-center dark:border-slate-800">
+        <nav aria-label="Legal" class="flex items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+          <a routerLink="/privacy" class="transition hover:text-indigo-600 hover:underline focus-accessible dark:hover:text-indigo-300">Privacy Policy</a>
+          <span aria-hidden="true">•</span>
+          <a routerLink="/terms" class="transition hover:text-indigo-600 hover:underline focus-accessible dark:hover:text-indigo-300">Terms of Service</a>
+        </nav>
+        @if (tenantService.activeTenant()) {
+          <p class="tenant-powered mt-3 text-xs font-semibold text-slate-500 dark:text-slate-400">Powered by Lyft&apos;d</p>
+        }
+      </footer>
+    }
   </main>
 
   <!-- ========================================== -->
@@ -1272,41 +1304,51 @@
       </button>
 
       <button
-        id="nav-partners-btn"
-        type="button"
-        (click)="selectTab('partners')"
-        [class]="activeTab() === 'partners' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
-        class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl cursor-pointer transition focus-accessible"
-        aria-label="Partner with us"
-      >
-        <mat-icon class="text-xl">handshake</mat-icon>
-        <span class="text-[10px] tracking-tight font-medium">Partners</span>
-      </button>
-
-      <!-- Tab 4: Quests -->
-      <button
         id="nav-quests-btn"
         type="button"
         (click)="selectTab('quests')"
         [class]="activeTab() === 'quests' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
-        class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
-        aria-label="Quests Tab"
+        class="flex flex-col items-center gap-0.5 rounded-xl px-1 py-1 cursor-pointer transition focus-accessible"
+        aria-label="Lyft'd Life Lessons"
       >
         <mat-icon class="text-xl">flag</mat-icon>
-        <span class="text-[10px] tracking-tight font-medium">Quests</span>
+        <span class="dock-label">Lyft'd<br>Life Lessons</span>
       </button>
 
-      <!-- Tab 5: Profile -->
       <button
-        id="nav-profile-dock-btn"
+        id="nav-your-key-btn"
         type="button"
-        (click)="openProfileOrSignIn()"
-        [class]="showProfileModal() ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
-        class="flex flex-col items-center gap-0.5 px-2.5 py-1 rounded-xl cursor-pointer transition focus-accessible"
-        aria-label="Profile Tab"
+        (click)="selectTab('your-key')"
+        class="nav-your-key flex flex-col items-center gap-0.5 rounded-xl px-1 py-1 cursor-pointer transition focus-accessible"
+        [class.is-active]="activeTab() === 'your-key'"
+        aria-label="Your Key"
       >
-        <mat-icon class="text-xl">person</mat-icon>
-        <span class="text-[10px] tracking-tight font-medium">Profile</span>
+        <mat-icon class="text-xl">key</mat-icon>
+        <span class="dock-label">Your Key</span>
+      </button>
+
+      <button
+        id="nav-faq-btn"
+        type="button"
+        (click)="selectTab('faq')"
+        [class]="activeTab() === 'faq' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
+        class="flex flex-col items-center gap-0.5 rounded-xl px-1 py-1 cursor-pointer transition focus-accessible"
+        aria-label="F.A.Q."
+      >
+        <mat-icon class="text-xl">help</mat-icon>
+        <span class="dock-label">F.A.Q.</span>
+      </button>
+
+      <button
+        id="nav-partners-btn"
+        type="button"
+        (click)="selectTab('partners')"
+        [class]="activeTab() === 'partners' ? 'text-indigo-600 font-bold' : 'text-slate-400 dark:text-slate-500'"
+        class="flex flex-col items-center gap-0.5 rounded-xl px-1 py-1 cursor-pointer transition focus-accessible"
+        aria-label="Partner With Us"
+      >
+        <mat-icon class="text-xl">handshake</mat-icon>
+        <span class="dock-label">Partner<br>With Us</span>
       </button>
 
     </div>
@@ -1486,7 +1528,7 @@
   }
 
   @if (showFeatureWalkthrough()) {
-    <app-feature-walkthrough [initialTab]="activeTab()" (tabChange)="selectTab($event)" (completed)="handleFeatureWalkthroughCompleted()" />
+    <app-feature-walkthrough [initialTab]="tourTab()" (tabChange)="selectTab($event)" (completed)="handleFeatureWalkthroughCompleted()" />
   }
 
   <!-- ========================================== -->

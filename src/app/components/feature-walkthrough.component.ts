@@ -3,7 +3,8 @@ import {A11yModule} from '@angular/cdk/a11y';
 import {MatIconModule} from '@angular/material/icon';
 import {FirebaseService} from '../services/firebase.service';
 
-export type WalkthroughTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'your-key' | 'community' | 'partners' | 'profile';
+export type WalkthroughTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'your-key' | 'faq' | 'community' | 'partners' | 'profile';
+
 
 interface WalkthroughStep {
   title: string;
@@ -122,17 +123,17 @@ interface WalkthroughStep {
 })
 export class FeatureWalkthroughComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly completed = output<void>();
-  readonly initialTab = input<WalkthroughTab>('daily-lyft');
+  readonly initialTab = input<'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'your-key' | 'faq' | 'community' | 'partners' | 'profile'>('daily-lyft');
   readonly tabChange = output<WalkthroughTab>();
   readonly steps: WalkthroughStep[] = [
     {title: 'Start with a daily reset', sentence: 'Find a short encouragement, play an audio reset, and check in with your mood to shape the guidance you see.', icon: 'auto_awesome', section: 'Home', tab: 'daily-lyft', targetSelectors: ['#daily-mood-checkin', '#home-mentor-carousel']},
     {title: 'Learn at your pace', sentence: 'Explore bite-sized courses, follow your progress, and return to lessons when you are ready.', icon: 'auto_stories', section: 'Courses', tab: 'courses', targetSelectors: ['#courses-tour-anchor']},
-    {title: 'Reflect out loud', sentence: 'Use Voice Journal to record a private reflection whenever you want to get your thoughts out.', icon: 'mic', section: 'Voice Journal', tab: 'courses', targetSelectors: ['#record-voice-note-btn']},
+    {title: 'Reflect out loud', sentence: 'Use Voice Journal to record a private reflection whenever you want to get your thoughts out.', icon: 'mic', section: 'Voice Journal', tab: 'courses', targetSelectors: ['#courses-tour-anchor']},
     {title: 'Find support that fits', sentence: 'Browse mentors by age and specialty, then connect directly with someone who understands your goals.', icon: 'people_alt', section: 'Mentors', tab: 'mentors', targetSelectors: ['#mentors-tour-anchor']},
-    {title: 'Turn goals into action', sentence: 'Create a Growth Quest, break it into manageable steps, and track your progress along the way.', icon: 'flag', section: 'Quests', tab: 'quests', targetSelectors: ['#add-quest-header-btn']},
+    {title: 'Turn goals into action', sentence: 'Create a Lyft\'d Life Lesson, break it into manageable steps, and track your progress along the way.', icon: 'flag', section: 'Lyft\'d Life Lessons', tab: 'quests', targetSelectors: ['#add-quest-header-btn']},
     {title: 'Lift up your community', sentence: 'Share a win or encourage someone on the Hype Wall. The Partners page introduces organizations investing in the youth community.', icon: 'forum', section: 'Community', tab: 'community', targetSelectors: ['#community-tour-anchor', '#tab-community-content h2']},
     {title: 'Build a steady rhythm', sentence: 'Your streak makes daily practice visible. You can set reminders and find offline support in the app.', icon: 'local_fire_department', section: 'Home', tab: 'daily-lyft', targetSelectors: ['#streak-indicator-btn', '#daily-message-reminder-toggle']},
-    {title: 'Make it yours', sentence: 'Visit your profile to update your details, change the theme, and adjust accessibility preferences.', icon: 'tune', section: 'Profile', tab: 'daily-lyft', targetSelectors: ['#open-profile-dialog-btn', '#nav-profile-dock-btn']}
+    {title: 'Make it yours', sentence: 'Visit your profile to update your details, change the theme, and adjust accessibility preferences.', icon: 'tune', section: 'Profile', tab: 'daily-lyft', targetSelectors: ['#open-profile-dialog-btn']}
   ];
 
   readonly stepIndex = signal(0);

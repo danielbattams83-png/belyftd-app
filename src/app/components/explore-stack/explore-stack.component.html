@@ -2,9 +2,9 @@
   @for (card of cards(); track card.heading; let i = $index) {
     @let open = expanded() === i;
     <!-- The button stays the accessible control; its click bubbles up to the card handler. -->
-    <li class="explore-card" [class.is-expanded]="open" [style.--card-index]="i" [attr.data-index]="i" (click)="onCardClick(i)">
+    <li class="explore-card" [class.is-expanded]="open" [class.is-soon]="card.comingSoon" [style.--card-index]="i" [attr.data-index]="i" (click)="onCardClick(i)">
       <div class="explore-card__head">
-        <span class="explore-card__tag">{{ card.tag }}</span>
+        <span class="explore-card__tag" [class.explore-card__tag--soon]="card.comingSoon">{{ card.comingSoon ? 'Coming Soon' : card.tag }}</span>
         <button
           type="button"
           class="explore-card__toggle"
@@ -48,7 +48,30 @@
         </div>
       </div>
 
-      @if (card.image) {
+      @if (card.preview === 'life-lessons') {
+        <div class="explore-card__media explore-card__life-preview" aria-hidden="true">
+          <article class="life-ui life-ui--back">
+            <span class="life-ui__pill">Marriage Tips</span>
+            <h5 class="life-ui__title">1. Marriage Tips</h5>
+            <div class="life-ui__meter">
+              <span>1 / 10 Tips</span>
+              <span class="life-ui__track"><i></i></span>
+            </div>
+            <span class="life-ui__pill-btn">Read Tips →</span>
+          </article>
+          <article class="life-ui life-ui--front">
+            <span class="life-ui__badge">Tip 1</span>
+            <h5 class="life-ui__heading">Choose commitment over convenience</h5>
+            <p class="life-ui__kicker">The Thought</p>
+            <p class="life-ui__copy">Marriage grows stronger when both partners keep choosing each other through good times and difficult moments.</p>
+            <span class="life-ui__cta"><span aria-hidden="true">▶</span> Listen / Read</span>
+          </article>
+        </div>
+      } @else if (card.comingSoon) {
+        <div class="explore-card__media explore-card__soon-media" aria-hidden="true">
+          <span class="explore-card__soon">Coming Soon</span>
+        </div>
+      } @else if (card.image) {
         <img
           class="explore-card__image"
           [src]="card.image"
@@ -61,7 +84,7 @@
         />
       }
 
-      @if (card.href) {
+      @if (card.href && !card.comingSoon) {
         <!-- stopPropagation keeps this click from toggling the card; every other tap on the card still expands it. -->
         <a
           class="explore-card__link"

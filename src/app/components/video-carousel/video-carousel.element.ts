@@ -25,7 +25,7 @@ let uid = 0;
 class VideoCarousel extends HTMLElement {
   constructor() {
     super();
-    this._videos = []; this._i = 0; this._li = 0; this._loop = false; this._mid = 0; this._base = 0; this._cards = []; this._p = null; this._preview = null; this._player = null;
+    this._videos = []; this._i = 0; this._li = 0; this._didStart = false; this._loop = false; this._mid = 0; this._base = 0; this._cards = []; this._p = null; this._preview = null; this._player = null;
     this._visible = true; this._eat = false; this._raf = 0; this._wheelLock = 0; this._id = `vc${++uid}`;
     // Only attached where `scrollend` is missing (older Safari): a debounce stands in for it. No style work happens here.
     this._onScroll = () => { clearTimeout(this._recT); this._recT = setTimeout(() => this._settle(), 120); };
@@ -70,18 +70,20 @@ class VideoCarousel extends HTMLElement {
     this.innerHTML = `
       <p class="vc-sr" id="${this._id}-hint">Swipe or use arrow keys to browse. Press and hold a video to preview it, tap to open the player.</p>
       <div class="vc-track" tabindex="-1">${cards.map(({ v, i, real }) => `
-        <div class="vc-card" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}: ${esc(v.title)}" data-i="${i}"${real ? "" : ' aria-hidden="true"'}
+        <div class="vc-card${v.placeholder ? " vc-placeholder" : ""}" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}: ${esc(v.title)}" data-i="${i}"${real ? "" : ' aria-hidden="true"'}
              style="${v.aspect ? `--vc-aspect:${esc(v.aspect)};` : ""}${v.position ? `--vc-pos:${esc(v.position)};` : ""}">
           <div class="vc-cf"><div class="vc-lift"><div class="vc-inner">
-            <img src="${esc(v.poster)}" alt="" draggable="false" loading="${real && i < 3 ? "eager" : "lazy"}" decoding="async">
+            ${v.placeholder
+              ? `<div class="vc-ph" aria-hidden="true"><span class="vc-ph-badge">${esc(v.badge || "Coming Soon / Intro")}</span><span class="vc-ph-play">${I.play}</span></div>`
+              : `<img src="${esc(v.poster)}" alt="" draggable="false" loading="${real && i < 3 ? "eager" : "lazy"}" decoding="async">
             <video muted playsinline webkit-playsinline loop preload="none" disablepictureinpicture disableremoteplayback
-                   poster="${esc(v.poster)}" data-src="${esc(v.src)}" aria-hidden="true" tabindex="-1"></video>
+                   poster="${esc(v.poster)}" data-src="${esc(v.src)}" aria-hidden="true" tabindex="-1"></video>`}
             <div class="vc-scrim"></div>
             <div class="vc-meta"><div class="vc-row"><h3 class="vc-title">${esc(v.title)}</h3><span class="vc-dur">${esc(v.duration || "")}</span></div>
               ${v.caption ? `<p class="vc-cap">${esc(v.caption)}</p>` : ""}</div>
             <div class="vc-prog"><i></i></div>
           </div></div></div>
-          <button class="vc-hit" type="button" tabindex="${real && i === this._li ? 0 : -1}" aria-label="Play ${esc(v.title)}" aria-describedby="${this._id}-hint"></button>
+          <button class="vc-hit" type="button" tabindex="${real && i === this._li ? 0 : -1}" aria-label="${v.placeholder ? `Coming soon: ${esc(v.title)}` : `Play ${esc(v.title)}`}"${v.placeholder ? ' aria-disabled="true"' : ""} aria-describedby="${this._id}-hint"></button>
         </div>`).join("")}
       </div>
       <div class="vc-bar">
@@ -96,16 +98,19 @@ class VideoCarousel extends HTMLElement {
     this._cards.forEach((c, k) => {
       const i = k % n;
       const v = c.querySelector("video");
-      v.muted = true; v.defaultMuted = true;
-      v.addEventListener("playing", () => { c.classList.add("vc-playing"); this._tick(); });
-      v.addEventListener("loadedmetadata", () => {
-        const d = c.querySelector(".vc-dur"); if (!this._videos[i].duration) d.textContent = fmt(v.duration);
-        if (!this._videos[i].aspect && v.videoWidth) c.style.setProperty("--vc-aspect", `${v.videoWidth} / ${v.videoHeight}`);
-      });
-      c.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse" && !e.buttons && !this._dragging) { clearTimeout(this._hoverT); this._hoverT = setTimeout(() => this._startPreview(c), 90); } });
+      if (v) {
+        v.muted = true; v.defaultMuted = true;
+        v.addEventListener("playing", () => { c.classList.add("vc-playing"); this._tick(); });
+        v.addEventListener("loadedmetadata", () => {
+          const d = c.querySelector(".vc-dur"); if (!this._videos[i].duration) d.textContent = fmt(v.duration);
+          if (!this._videos[i].aspect && v.videoWidth) c.style.setProperty("--vc-aspect", `${v.videoWidth} / ${v.videoHeight}`);
+        });
+      }
+      c.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse" && !e.buttons && !this._dragging && !c.classList.contains("vc-placeholder")) { clearTimeout(this._hoverT); this._hoverT = setTimeout(() => this._startPreview(c), 90); } });
       c.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") { clearTimeout(this._hoverT); if (this._preview === c) this._endPreview(); } });
       c.querySelector(".vc-hit").addEventListener("click", (e) => {
         if (this._eat) { e.preventDefault(); return; }
+        if (this._videos[i]?.placeholder) { if (k !== this._i) this.go(k); return; }
         this.open(i, c);
       });
       c.querySelector(".vc-hit").addEventListener("focus", () => { if (k !== this._i && !this._p) this.go(k); });
@@ -129,7 +134,13 @@ class VideoCarousel extends HTMLElement {
     this.querySelector(".vc-prev").addEventListener("click", () => this.go(this._i - 1));
     this.querySelector(".vc-next").addEventListener("click", () => this.go(this._i + 1));
     this.querySelectorAll(".vc-dots button").forEach((b) => b.addEventListener("click", () => this.go(this._phys(+b.dataset.i))));
-    this._li = Math.min(this._li, Math.max(0, n - 1));
+    if (n && !this._didStart) {
+      const start = +(this.getAttribute("start-index") || 0);
+      this._li = Number.isFinite(start) ? Math.max(0, Math.min(n - 1, start | 0)) : 0;
+      this._didStart = true;
+    } else {
+      this._li = Math.min(this._li, Math.max(0, n - 1));
+    }
     this._i = this._base + this._li;
     // The track can be laid out after the first frame (e.g. inside a hidden or not-yet-sized parent), so centre on the
     // middle copy once it has a real width and keep the active card centred when its size changes.
@@ -234,18 +245,20 @@ class VideoCarousel extends HTMLElement {
 
   // ---------- video control ----------
   _load(c) {
-    const v = c.querySelector("video");
+    const v = c?.querySelector("video");
+    if (!v) return null;
     if (!v.getAttribute("src") && v.dataset.src) { v.src = v.dataset.src; v.preload = this._saveData ? "none" : "metadata"; }
     return v;
   }
   _playOnly(c) {
     this._cards.forEach((o) => { if (o !== c) this._stop(o); });
     if (!c) return;
-    const v = this._load(c); v.muted = true;
+    const v = this._load(c); if (!v) return;
+    v.muted = true;
     const p = v.play(); if (p) p.catch(() => {});
   }
   _stop(c, poster = true) {
-    const v = c.querySelector("video"); if (!v.paused) v.pause();
+    const v = c.querySelector("video"); if (v && !v.paused) v.pause();
     if (poster && !c.classList.contains("vc-card--active")) c.classList.remove("vc-playing");
   }
   _resume() {
@@ -259,14 +272,14 @@ class VideoCarousel extends HTMLElement {
       let any = false;
       this._cards.forEach((c) => {
         const v = c.querySelector("video");
-        if (!v.paused && v.duration) { any = true; c.querySelector(".vc-prog").style.setProperty("--p", (v.currentTime / v.duration).toFixed(4)); }
+        if (v && !v.paused && v.duration) { any = true; c.querySelector(".vc-prog").style.setProperty("--p", (v.currentTime / v.duration).toFixed(4)); }
       });
       this._raf = any ? requestAnimationFrame(loop) : 0;
     };
     this._raf = requestAnimationFrame(loop);
   }
   _startPreview(c) {
-    if (this._preview === c || this._player) return;
+    if (this._preview === c || this._player || c.classList.contains("vc-placeholder")) return;
     if (this._preview) this._endPreview(true);
     this._preview = c; c.classList.add("vc-preview");
     this._playOnly(c);
@@ -359,10 +372,10 @@ class VideoCarousel extends HTMLElement {
 
   // ---------- glass floating player ----------
   open(i, tapped) {
-    const cfg = this._videos[i], card = tapped || this._cards[this._phys(i)]; if (!cfg || !card || this._player) return;
+    const cfg = this._videos[i], card = tapped || this._cards[this._phys(i)]; if (!cfg || cfg.placeholder || !card || this._player) return;
     clearTimeout(this._hoverT); this._endPreview(true);
     if (card !== this._cards[this._i]) this.go(this._cards.indexOf(card));
-    const cv = card.querySelector("video"), t0 = cv.currentTime || 0;
+    const cv = card.querySelector("video"), t0 = cv?.currentTime || 0;
     this._cards.forEach((c) => this._stop(c, false));
     const accent = getComputedStyle(this).getPropertyValue("--vc-accent").trim() || "#00baf0";
     const pipOK = !!(document.pictureInPictureEnabled && HTMLVideoElement.prototype.requestPictureInPicture);
@@ -504,7 +517,7 @@ class VideoCarousel extends HTMLElement {
     this._player = null;
     const { el, card, v } = P, panel = el.querySelector(".vcp-panel"), bd = el.querySelector(".vcp-backdrop");
     const cv = card.querySelector("video");
-    if (v.currentTime && cv.getAttribute("src")) { card.classList.remove("vc-playing"); try { cv.currentTime = v.currentTime; } catch {} } // poster shows until the card video is playing again
+    if (cv && v.currentTime && cv.getAttribute("src")) { card.classList.remove("vc-playing"); try { cv.currentTime = v.currentTime; } catch {} } // poster shows until the card video is playing again
     document.documentElement.classList.remove("vcp-lock");
     const finish = () => {
       card.classList.remove("vc-hidden");

@@ -1,33 +1,24 @@
-import {ChangeDetectionStrategy, Component, computed, effect, ElementRef, input, output, signal, untracked, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, signal, untracked, viewChild} from '@angular/core';
+import {RouterLink} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
-import {Mentor, VoiceJournal} from '../models/app.models';
+import {CurriculumService, countCompletedLifeLessons, findNextUnreadUnit, NextUnreadUnit} from '../services/curriculum.service';
+
+const LABELS = ['Daily Lyft', 'Continue Learning', 'Life Lessons Progress', 'Your Key'] as const;
 
 @Component({
   selector: 'app-courses-overview',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule],
+  imports: [MatIconModule, RouterLink],
   templateUrl: './courses-overview.component.html',
   styleUrl: './courses-overview.component.scss',
 })
 export class CoursesOverviewComponent {
-  readonly mentors = input<Mentor[]>([]);
-  readonly selectedMentorIds = input<string[]>([]);
-  readonly journals = input<VoiceJournal[]>([]);
-  readonly progress = input(0);
-  readonly completedSteps = input(0);
-  readonly totalSteps = input(0);
-  readonly viewQuests = output<void>();
-  readonly recordNote = output<void>();
-  readonly playJournal = output<VoiceJournal>();
-  readonly mentorSelected = output<Mentor>();
-  readonly chooseMentors = output<void>();
-  readonly chosenMentors = computed(() => [...new Set(this.selectedMentorIds())]
-    .map(id => this.mentors().find(mentor => mentor.id === id))
-    .filter((mentor): mentor is Mentor => !!mentor).slice(0, 2));
-  readonly labels = computed(() => ['Upcoming Session', 'Weekly Growth Progress', 'My Voice Reflections', ...this.chosenMentors().map(mentor => mentor.name)]);
+  private readonly curriculum = inject(CurriculumService);
+  readonly labels = LABELS;
+  readonly nextUnit = computed(() => findNextUnreadUnit(this.curriculum.modules(), this.curriculum.completedIds()));
+  readonly completedLifeLessons = computed(() => countCompletedLifeLessons(this.curriculum.completedIds()));
+  readonly lifeLessonsPercent = computed(() => Math.min(100, this.completedLifeLessons() * 10));
   readonly activeIndex = signal(0);
-  readonly journalIndex = signal(0);
-  readonly currentJournal = computed(() => this.journals()[Math.min(this.journalIndex(), Math.max(0, this.journals().length - 1))]);
   readonly track = viewChild<ElementRef<HTMLElement>>('track');
   private wheelLockedUntil = 0;
   private scrolling = false;
@@ -36,7 +27,7 @@ export class CoursesOverviewComponent {
   constructor() {
     effect(onCleanup => {
       const track = this.track()?.nativeElement;
-      const count = this.labels().length;
+      const count = this.labels.length;
       if (!track) return;
       const sync = () => {
         if (this.scrolling) return;
@@ -66,7 +57,7 @@ export class CoursesOverviewComponent {
   }
 
   select(index: number, animate = true): void {
-    if (index < 0 || index >= this.labels().length) return;
+    if (index < 0 || index >= this.labels.length) return;
     this.activeIndex.set(index);
     const track = this.track()?.nativeElement;
     const card = track?.querySelectorAll<HTMLElement>('.overview-card')[index];
@@ -86,23 +77,18 @@ export class CoursesOverviewComponent {
     this.select(this.activeIndex() + (event.key === 'ArrowRight' ? 1 : -1));
   }
 
+  openUnit(unit: NextUnreadUnit): void {
+    this.curriculum.openUnit(unit.moduleId, unit.unitId);
+  }
+
   private onWheel = (event: WheelEvent): void => {
     if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
     const next = this.activeIndex() + (event.deltaY > 0 ? 1 : -1);
-    if (next < 0 || next >= this.labels().length) return;
+    if (next < 0 || next >= this.labels.length) return;
     event.preventDefault();
     const now = performance.now();
     if (now < this.wheelLockedUntil) return;
     this.wheelLockedUntil = now + 420;
     this.select(next);
   };
-
-  changeJournal(direction: -1 | 1): void {
-    const count = this.journals().length;
-    if (count) this.journalIndex.set((Math.min(this.journalIndex(), count - 1) + direction + count) % count);
-  }
-
-  duration(seconds: number): string {
-    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
-  }
 }

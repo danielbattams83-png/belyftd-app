@@ -29,6 +29,7 @@ export class CoursesCurriculumComponent {
   readonly audioError = input<string | null>(null);
   readonly playRecording = output<AudioTrack>();
   readonly chooseMentors = output<void>();
+  readonly showDailyLyft = output<void>();
   readonly overallProgress = computed(() => this.curriculum.totalUnits() ? Math.round(this.curriculum.completedCount() / this.curriculum.totalUnits() * 100) : 0);
   readonly circumference = 2 * Math.PI * RING_RADIUS;
   readonly track = viewChild<ElementRef<HTMLElement>>('track');
@@ -206,6 +207,16 @@ export class CoursesCurriculumComponent {
   scrollTrack(direction: -1 | 1): void {
     const neighbour = this.visibleModules()[this.activeIndex() + direction];
     if (neighbour) this.selectModule(neighbour.id);
+  }
+
+  goToNextModule(): void {
+    const next = this.visibleModules()[this.activeIndex() + 1];
+    if (next) {
+      this.selectModule(next.id);
+      document.getElementById('unit-drawer')?.scrollIntoView({behavior: this.scrollBehavior, block: 'start'});
+      return;
+    }
+    document.querySelector('.module-carousel-container')?.scrollIntoView({behavior: this.scrollBehavior, block: 'center'});
   }
 
   openReader(moduleId: string, unitId: string): void {
