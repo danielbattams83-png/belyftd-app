@@ -72,9 +72,11 @@ export class VideoCarouselComponent {
       const videos = this.videos();
       const start = this.startIndex();
       element.setAttribute('start-index', String(start));
+      element.videos = videos;
       void this.playbackVideos(videos).then(resolved => {
         if (this.videos() !== videos) return;
-        element.videos = resolved;
+        const changed = resolved.some((video, index) => video.src !== videos[index]?.src);
+        if (changed) element.videos = resolved;
       });
     });
   }
