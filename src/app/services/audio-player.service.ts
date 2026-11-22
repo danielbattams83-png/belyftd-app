@@ -274,7 +274,7 @@ export class AudioPlayerService {
     const customTrack: AudioTrack = {
       id: `custom-${Date.now()}`,
       title,
-      speaker: speakerName || 'Coach Spark',
+      speaker: speakerName || 'Your Key',
       speakerRole: 'Lyftd AI Mentor',
       speakerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       category,

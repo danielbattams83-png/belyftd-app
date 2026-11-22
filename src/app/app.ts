@@ -51,7 +51,7 @@ import {PostAuthOnboardingWizardComponent} from './components/post-auth-onboardi
 import {FeatureWalkthroughComponent} from './components/feature-walkthrough.component';
 import {Course} from './models/app.models';
 
-export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-spark' | 'community' | 'partners' | 'profile';
+export type MainTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'your-key' | 'community' | 'partners' | 'profile';
 
 @Component({
   selector: 'app-root',
@@ -222,7 +222,7 @@ export class App {
       const path = this.router.parseUrl(this.router.url).root.children['primary']?.segments.map(segment => segment.path).join('/') ?? '';
       const tabs: Record<string, MainTab> = {
         '': 'daily-lyft', dashboard: 'daily-lyft', courses: 'courses', mentors: 'mentors',
-        quests: 'quests', 'coach-spark': 'coach-spark', community: 'community', partners: 'partners',
+        quests: 'quests', 'your-key': 'your-key', 'coach-spark': 'your-key', community: 'community', partners: 'partners',
       };
       this.isAdminPortal.set(path === 'admin' || path.startsWith('admin/'));
       this.isJoinRoute.set(path === 'join');
@@ -757,9 +757,9 @@ export class App {
 
   speakAiResponse(text: string): void {
     this.audioPlayer.speakCustomScript(
-      'Coach Spark Voice Guidance',
+      'Your Key Voice Guidance',
       text,
-      'Coach Spark (AI Mentor)',
+      'Your Key',
       'Mindset'
     );
   }

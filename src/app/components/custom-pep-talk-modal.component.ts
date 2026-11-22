@@ -152,7 +152,7 @@ export class CustomPepTalkModalComponent {
     this.player.speakCustomScript(
       result.title,
       result.script,
-      'Coach Spark (Lyftd AI)',
+      'Your Key',
       'Confidence'
     );
 

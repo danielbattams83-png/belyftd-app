@@ -17,8 +17,8 @@ export class AiMentorService {
     {
       id: 'c1',
       sender: 'coach-spark',
-      senderName: 'Coach Spark (AI Mentor)',
-      text: 'Hey there! 👋 I\'m Coach Spark, your 24/7 youth uplift companion. Whether you need an instant pep talk before a test, resume tips, or advice on handling stress, I\'m here for you. How are you feeling today?',
+      senderName: 'Your Key',
+      text: 'Hey there! 👋 I\'m Your Key, your 24/7 youth uplift companion. Whether you need an instant pep talk before a test, resume tips, or advice on handling stress, I\'m here for you. How are you feeling today?',
       timestamp: 'Today at 8:00 AM',
     }
   ]);
@@ -53,7 +53,7 @@ export class AiMentorService {
     } finally {
       this.coachMessages.update(msgs => [...msgs, {
         id: `bot-${crypto.randomUUID()}`, sender: 'coach-spark',
-        senderName: 'Coach Spark (AI Mentor)', text: response.reply,
+        senderName: 'Your Key', text: response.reply,
         actionPrompt: response.actionStep, timestamp: 'Just now',
       }]);
       this.isGenerating.set(false);

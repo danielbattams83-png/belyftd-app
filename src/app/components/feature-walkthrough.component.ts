@@ -3,7 +3,7 @@ import {A11yModule} from '@angular/cdk/a11y';
 import {MatIconModule} from '@angular/material/icon';
 import {FirebaseService} from '../services/firebase.service';
 
-export type WalkthroughTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'coach-spark' | 'community' | 'partners' | 'profile';
+export type WalkthroughTab = 'daily-lyft' | 'courses' | 'mentors' | 'quests' | 'your-key' | 'community' | 'partners' | 'profile';
 
 interface WalkthroughStep {
   title: string;
