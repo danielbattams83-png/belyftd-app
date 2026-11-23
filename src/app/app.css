@@ -34,18 +34,18 @@
 :host-context(.dark) .app-header-logo.logo-on-dark { display: block; }
 .app-header-mark { display: none; box-sizing: content-box; width: 45px; height: 90px; min-height: 90px; padding-left: 20px; border-radius: 12px; object-fit: cover; align-items: stretch; justify-content: center; text-align: left; }
 .app-header-layout > app-back-button { display: flex; align-self: center; justify-content: flex-start; margin-left: 0; text-align: left; }
-.app-header-layout > app-back-button ::ng-deep button { display: block; width: 25px; min-width: 25px; margin-top: 0; text-align: left; }
+.app-header-layout > app-back-button ::ng-deep button { display: block; width: 44px; min-width: 44px; min-height: 44px; margin-top: 0; text-align: left; }
 .app-header-actions { display: grid; grid-template-columns: max-content; justify-content: end; justify-items: end; align-content: center; row-gap: 4px; flex: 0 1 200px; min-width: 0; margin-left: auto; max-width: calc(100% - 60px); text-align: right; }
 .app-header-icons { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .375rem; max-width: 100%; }
 .partner-experience .app-header-actions { height: 80px; }
 /* The back button takes ~44px on inner pages; reserve it so the actions don't wrap under the logo. */
 .app-header-layout:has(> app-back-button) .app-header-actions { max-width: calc(100% - 140px); }
 .app-header-icons > button { flex-shrink: 0; }
-/* Override the global 44px touch-target minimum so header controls render at their compact sizes. */
-#install-app-btn { height: 36px; min-height: 36px; }
-#open-smart-search-btn, #theme-quick-toggle-btn { width: 36px; height: 36px; min-width: 36px; min-height: 36px; border-radius: 10px; }
-#streak-indicator-btn { height: 36px; min-height: 36px; padding-inline: 8px; }
-#open-profile-dialog-btn { width: 36px; height: 36px; min-width: 36px; min-height: 36px; }
+/* Header controls stay inside a 40–44px tap area so they fit the phone row and remain easy to hit. */
+#install-app-btn { height: 44px; min-height: 44px; min-width: 44px; }
+#open-smart-search-btn, #theme-quick-toggle-btn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 10px; }
+#streak-indicator-btn { height: 44px; min-height: 44px; padding-inline: 8px; }
+#open-profile-dialog-btn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
 .app-header-powered { margin: 0; white-space: nowrap; text-align: right; font-size: 14px; line-height: 1.2; font-weight: 600; opacity: .85; }
 .header-icon-22 { width: 22px; height: 22px; font-size: 22px; line-height: 22px; }
 .app-header-nav { display: none; order: 3; width: 100%; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
@@ -62,10 +62,12 @@
   .app-header-layout:has(> app-back-button) .app-header-actions { flex: 1 1 auto; min-width: 0; max-width: none; }
   .app-header-icons { flex-wrap: nowrap; gap: 2px; min-width: 0; }
   .app-header-icons > button { flex-shrink: 1; }
-  #install-app-btn { width: 32px; min-width: 32px; height: 32px; min-height: 32px; padding-inline: 0; }
+  #install-app-btn { width: 40px; min-width: 40px; height: 40px; min-height: 40px; padding-inline: 0; }
   .install-app-label { display: none; }
-  #open-register-btn { height: 32px; min-height: 32px; padding-inline: 6px; gap: 2px; }
-  #open-smart-search-btn, #theme-quick-toggle-btn { width: 32px; height: 32px; min-width: 32px; min-height: 32px; }
+  #open-register-btn { height: 40px; min-height: 40px; padding-inline: 6px; gap: 2px; }
+  #open-smart-search-btn, #theme-quick-toggle-btn { width: 40px; height: 40px; min-width: 40px; min-height: 40px; }
+  #streak-indicator-btn { min-width: 40px; height: 40px; min-height: 40px; }
+  #open-profile-dialog-btn { width: 40px; min-width: 40px; height: 40px; min-height: 40px; }
   .partner-experience .app-header-logo { height: 40px; max-width: 34vw; }
   .partner-experience .app-header-actions { height: auto; }
   .app-header-powered { font-size: 12px; }
@@ -327,3 +329,21 @@
 }
 .daily-message-mark--open { top: 0; left: 0; transform: translate(-42%, -42%); }
 .daily-message-mark--close { right: 0; bottom: 0; transform: translate(42%, 42%); }
+.daily-message-shimmer { display: grid; gap: 0.7rem; }
+.daily-message-shimmer span {
+  display: block;
+  height: 0.9rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.08) 25%, rgba(15, 23, 42, 0.18) 50%, rgba(15, 23, 42, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: daily-message-shimmer 1.2s ease-in-out infinite;
+}
+.daily-message-shimmer span:nth-child(2) { width: 92%; }
+.daily-message-shimmer span:nth-child(3) { width: 68%; }
+@keyframes daily-message-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .daily-message-shimmer span { animation: none; }
+}

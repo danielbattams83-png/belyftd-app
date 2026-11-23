@@ -149,6 +149,7 @@
   align-items: center;
   gap: 16px;
   overflow-x: auto;
+  touch-action: pan-x pan-y;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   overscroll-behavior-x: contain;
@@ -175,7 +176,6 @@
   height: 250px;
   margin: 0;
   scroll-snap-align: center;
-  scroll-snap-stop: always;
   display: block;
   border: none;
   background: transparent;

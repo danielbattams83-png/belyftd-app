@@ -13,7 +13,7 @@ import {VideoCarouselComponent} from './components/video-carousel/video-carousel
 import {HOME_CAROUSEL_START, HOME_CAROUSEL_VIDEOS} from './components/video-carousel/video-carousel.videos';
 import {DASHBOARD_BENTO_CARDS, mentorBentoCards} from './components/spotlight-bento/spotlight-bento.cards';
 import {LIFE_LESSON_CARDS} from './components/spotlight-bento/life-lesson.cards';
-import {mentorMessageForDate} from './models/mentor-message';
+import {MENTOR_MESSAGE_FALLBACK, loadMentorMessageForDate} from './models/mentor-message';
 import {NavigationService} from './services/navigation.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {afterNextRender, DestroyRef, ElementRef, viewChild, ChangeDetectionStrategy, Component, computed, inject, signal, effect} from '@angular/core';
@@ -186,8 +186,8 @@ export class App {
   }
 
   readonly yourKeyIntroSrc = 'https://firebasestorage.googleapis.com/v0/b/belyft-d-app.firebasestorage.app/o/App_Videos%2Fyou-key-intro.mp4?alt=media';
-  readonly yourKeyIntroPoster = '/videos/you-key-intro.jpg?smile=1';
-  readonly todaysMentorMessage = mentorMessageForDate();
+  readonly yourKeyIntroPoster = '/videos/you-key-intro.webp';
+  readonly todaysMentorMessage = signal(MENTOR_MESSAGE_FALLBACK);
   readonly yourKeyMuted = signal(true);
   readonly yourKeyEnded = signal(false);
   readonly yourKeyProgress = signal(0);
@@ -417,6 +417,13 @@ export class App {
 
     afterNextRender(() => {
       (window as Window & {hideAppLoader?: () => void}).hideAppLoader?.();
+    });
+
+    effect(() => {
+      if (this.activeTab() !== 'your-key') return;
+      void loadMentorMessageForDate().then(message => {
+        if (this.activeTab() === 'your-key') this.todaysMentorMessage.set(message);
+      });
     });
 
     effect(() => {

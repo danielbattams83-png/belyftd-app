@@ -1,4 +1,4 @@
-<div class="module-carousel-container" (pointerdown)="onPointerDown($event)" (pointerup)="onPointerUp($event)" (pointercancel)="onPointerCancel()">
+<div class="module-carousel-container" (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)" (pointerup)="onPointerUp($event)" (pointercancel)="onPointerCancel()">
   <button type="button" class="track-nav track-nav--prev" aria-label="Scroll mentors left" (click)="scrollTrack(-1)">
     <mat-icon aria-hidden="true">chevron_left</mat-icon>
   </button>

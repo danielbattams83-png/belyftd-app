@@ -95,28 +95,30 @@ describe('courses overview carousel', () => {
     expect(component.activeIndex()).toBe(2);
   });
 
-  it('supports throttled wheel navigation while preserving horizontal gestures and zoom', async () => {
+  it('supports throttled horizontal wheel navigation and lets vertical scrolling pass through', async () => {
     const {component, element} = await setup();
     const track = element.querySelector('.overview-track')!;
     const clock = vi.spyOn(performance, 'now').mockReturnValue(1000);
     try {
       const wheel = (init: WheelEventInit) => {const event = new WheelEvent('wheel', {...init, cancelable: true}); track.dispatchEvent(event); return event;};
-      expect(wheel({deltaY: -100}).defaultPrevented).toBe(true);
+      expect(wheel({deltaY: -100}).defaultPrevented).toBe(false);
+      expect(component.activeIndex()).toBe(0);
+      expect(wheel({deltaX: -100, deltaY: 10}).defaultPrevented).toBe(true);
       expect(component.activeIndex()).toBe(3);
       component.select(0);
       clock.mockReturnValue(2000);
-      expect(wheel({deltaX: 100, deltaY: 10}).defaultPrevented).toBe(false);
-      expect(wheel({deltaY: 100, ctrlKey: true}).defaultPrevented).toBe(false);
-      expect(wheel({deltaY: 100}).defaultPrevented).toBe(true);
+      expect(wheel({deltaY: 100}).defaultPrevented).toBe(false);
+      expect(wheel({deltaX: 100, ctrlKey: true}).defaultPrevented).toBe(false);
+      expect(wheel({deltaX: 100, deltaY: 10}).defaultPrevented).toBe(true);
       expect(component.activeIndex()).toBe(1);
-      wheel({deltaY: 100});
+      wheel({deltaX: 100});
       expect(component.activeIndex()).toBe(1);
       clock.mockReturnValue(2421);
-      wheel({deltaY: -100});
+      wheel({deltaX: -100});
       expect(component.activeIndex()).toBe(0);
       clock.mockReturnValue(4000);
       component.select(3);
-      expect(wheel({deltaY: 100}).defaultPrevented).toBe(true);
+      expect(wheel({deltaX: 100}).defaultPrevented).toBe(true);
       expect(component.activeIndex()).toBe(0);
     } finally { clock.mockRestore(); }
   });

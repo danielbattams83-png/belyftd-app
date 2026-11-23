@@ -19,7 +19,10 @@ export class HomeMentorCarouselComponent {
 
   private wheelLockedUntil = 0;
   private pointerStartX = 0;
+  private pointerStartY = 0;
+  private pointerId = -1;
   private pointerTracking = false;
+  private pointerCaptured = false;
   private swiped = false;
 
   constructor() {
@@ -46,9 +49,9 @@ export class HomeMentorCarouselComponent {
   }
 
   private onTrackWheel = (event: WheelEvent): void => {
-    if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+    if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
     if (this.cards().length < 2) return;
-    const direction: -1 | 1 = event.deltaY > 0 ? 1 : -1;
+    const direction: -1 | 1 = event.deltaX > 0 ? 1 : -1;
 
     event.preventDefault();
     const now = performance.now();
@@ -62,9 +65,19 @@ export class HomeMentorCarouselComponent {
     if (event.target instanceof Element && event.target.closest('.track-nav')) return;
     this.swiped = false;
     this.pointerStartX = event.clientX;
+    this.pointerStartY = event.clientY;
+    this.pointerId = event.pointerId;
     this.pointerTracking = true;
-    if (event.currentTarget instanceof HTMLElement) {
+    this.pointerCaptured = false;
+  }
+
+  onPointerMove(event: PointerEvent): void {
+    if (!this.pointerTracking || this.pointerCaptured || event.pointerId !== this.pointerId) return;
+    const dx = event.clientX - this.pointerStartX;
+    const dy = event.clientY - this.pointerStartY;
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) && event.currentTarget instanceof HTMLElement) {
       event.currentTarget.setPointerCapture(event.pointerId);
+      this.pointerCaptured = true;
     }
   }
 
@@ -83,6 +96,7 @@ export class HomeMentorCarouselComponent {
 
   onPointerCancel(): void {
     this.pointerTracking = false;
+    this.pointerCaptured = false;
   }
 
   selectCard(index: number): void {

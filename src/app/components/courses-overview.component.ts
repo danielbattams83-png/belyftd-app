@@ -22,7 +22,10 @@ export class CoursesOverviewComponent {
   readonly track = viewChild<ElementRef<HTMLElement>>('track');
   private wheelLockedUntil = 0;
   private pointerStartX = 0;
+  private pointerStartY = 0;
+  private pointerId = -1;
   private pointerTracking = false;
+  private pointerCaptured = false;
   private swiped = false;
 
   constructor() {
@@ -67,9 +70,19 @@ export class CoursesOverviewComponent {
     if (event.target instanceof Element && event.target.closest('.track-nav, a, button')) return;
     this.swiped = false;
     this.pointerStartX = event.clientX;
+    this.pointerStartY = event.clientY;
+    this.pointerId = event.pointerId;
     this.pointerTracking = true;
-    if (event.currentTarget instanceof HTMLElement) {
+    this.pointerCaptured = false;
+  }
+
+  onPointerMove(event: PointerEvent): void {
+    if (!this.pointerTracking || this.pointerCaptured || event.pointerId !== this.pointerId) return;
+    const dx = event.clientX - this.pointerStartX;
+    const dy = event.clientY - this.pointerStartY;
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) && event.currentTarget instanceof HTMLElement) {
       event.currentTarget.setPointerCapture(event.pointerId);
+      this.pointerCaptured = true;
     }
   }
 
@@ -88,6 +101,7 @@ export class CoursesOverviewComponent {
 
   onPointerCancel(): void {
     this.pointerTracking = false;
+    this.pointerCaptured = false;
   }
 
   step(direction: -1 | 1): void {
@@ -105,8 +119,8 @@ export class CoursesOverviewComponent {
   }
 
   private onWheel = (event: WheelEvent): void => {
-    if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
-    const next = this.activeIndex() + (event.deltaY > 0 ? 1 : -1);
+    if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+    const next = this.activeIndex() + (event.deltaX > 0 ? 1 : -1);
     event.preventDefault();
     const now = performance.now();
     if (now < this.wheelLockedUntil) return;

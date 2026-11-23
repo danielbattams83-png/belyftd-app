@@ -20,10 +20,10 @@ type WorkspaceTab = 'curriculum' | 'mentors' | 'brand';
 
 const DEFAULT_WORKSPACE_MEDIA: CmsWorkspaceMedia = {
   mentors: [
-    {id: 'sophie', name: 'Sophie', avatarUrl: '/mentors/sophie.png', videoUrl: '', audioUrl: ''},
-    {id: 'hannah', name: 'Hannah', avatarUrl: '/mentors/hannah.png', videoUrl: '', audioUrl: ''},
-    {id: 'omari', name: 'Omari', avatarUrl: '/mentors/omari.png', videoUrl: '', audioUrl: ''},
-    {id: 'steve', name: 'Steve', avatarUrl: '/mentors/steve.png', videoUrl: '', audioUrl: ''},
+    {id: 'sophie', name: 'Sophie', avatarUrl: '/mentors/sophie.webp', videoUrl: '', audioUrl: ''},
+    {id: 'hannah', name: 'Hannah', avatarUrl: '/mentors/hannah.webp', videoUrl: '', audioUrl: ''},
+    {id: 'omari', name: 'Omari', avatarUrl: '/mentors/omari.webp', videoUrl: '', audioUrl: ''},
+    {id: 'steve', name: 'Steve', avatarUrl: '/mentors/steve.webp', videoUrl: '', audioUrl: ''},
   ],
   brandMedia: [
     {id: 'hero', label: 'Primary hero artwork', description: 'Site-wide hero image or video poster.', url: ''},

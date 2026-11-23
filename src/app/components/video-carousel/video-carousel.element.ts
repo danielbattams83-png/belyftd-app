@@ -84,6 +84,11 @@ class VideoCarousel extends HTMLElement {
     this._loop = n > 1; this._mid = this._loop ? 2 : 0; this._base = this._mid * n;
     const copies = this._loop ? 5 : 1;
     const cards = Array.from({ length: copies * n }, (_, k) => ({ v: this._videos[k % n], i: k % n, k, real: Math.floor(k / n) === this._mid }));
+    const posterBox = (aspect) => {
+      const [widthRatio, heightRatio] = String(aspect || "9/16").split("/").map(Number);
+      const width = 720;
+      return {width, height: widthRatio && heightRatio ? Math.round(width * heightRatio / widthRatio) : 1280};
+    };
     this.innerHTML = `
       <p class="vc-sr" id="${this._id}-hint">Swipe or use arrow keys to browse. Press and hold a video to preview it, tap to open the player.</p>
       <div class="vc-track" tabindex="-1">${cards.map(({ v, i, real }) => `
@@ -92,8 +97,8 @@ class VideoCarousel extends HTMLElement {
           <div class="vc-cf"><div class="vc-lift"><div class="vc-inner">
             ${v.placeholder
               ? `<div class="vc-ph" aria-hidden="true"><span class="vc-ph-badge">${esc(v.badge || "Coming Soon / Intro")}</span><span class="vc-ph-play">${I.play}</span></div>`
-              : `<img src="${esc(v.poster)}" alt="" draggable="false" loading="${real && i < 3 ? "eager" : "lazy"}" decoding="async">
-            <video muted playsinline webkit-playsinline loop preload="metadata" disablepictureinpicture disableremoteplayback
+              : `<img src="${esc(v.poster)}" alt="" width="${posterBox(v.aspect).width}" height="${posterBox(v.aspect).height}" draggable="false" loading="${real && i < 3 ? "eager" : "lazy"}" decoding="async">
+            <video muted playsinline webkit-playsinline loop preload="none" disablepictureinpicture disableremoteplayback
                    poster="${esc(v.poster)}" data-src="${esc(v.src)}" aria-hidden="true" tabindex="-1"></video>`}
             ${v.placeholder ? "" : `<button type="button" class="vc-sound" aria-label="Unmute video">${I.mute}</button>`}
             <div class="vc-scrim"></div>
@@ -155,9 +160,7 @@ class VideoCarousel extends HTMLElement {
         }
       });
     });
-    // lazy-load: attach src only when a card is within ~1 viewport of the track
-    this._lazyIO = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && this._load(e.target)), { root: this._track, rootMargin: "0px 110% 0px 110%" });
-    this._cards.forEach((c) => this._lazyIO.observe(c));
+    // Posters only until a slide is the centered one. Neighbors never receive a src here.
     this._cardIO?.disconnect();
     this._cardIO = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -270,6 +273,7 @@ class VideoCarousel extends HTMLElement {
       this._live.textContent = `${this._videos[li]?.title ?? ""}, ${li + 1} of ${n}`;
       this.dispatchEvent(new CustomEvent("vc-change", { detail: { index: li, video: this._videos[li] }, bubbles: true }));
     }
+    this._retainCenter();
     this._armPlayback();
   }
   // Play the centred clip only after the coverflow transform has finished. A click (unmute) plays immediately.
@@ -336,15 +340,37 @@ class VideoCarousel extends HTMLElement {
   prev() { this.go(this._i - 1); }
 
   // ---------- video control ----------
+  // The centered card is the only one with offset 0 and vc-card--active. Clones share the logical offset, so both checks are required.
+  _isCenter(c) { return !!c && c.dataset.offset === "0" && c.classList.contains("vc-card--active"); }
+  _retainCenter() {
+    if (this._player) return;
+    this._cards.forEach((c) => { if (this._isCenter(c)) this._load(c); else this._release(c); });
+  }
   _load(c) {
     const v = c?.querySelector("video");
     if (!v) return null;
-    // Attach the source once. Rotating slides keeps every <video> mounted and never reloads it.
-    if (!v.getAttribute("src") && v.dataset.src) { v.src = v.dataset.src; v.preload = this._saveData ? "none" : "metadata"; }
+    if (!v.getAttribute("src") && v.dataset.src) {
+      v.preload = "none";
+      v.src = v.dataset.src;
+      const resumeAt = this._resumeAt;
+      if (resumeAt && this._isCenter(c)) {
+        this._resumeAt = 0;
+        v.addEventListener("loadeddata", () => { try { v.currentTime = resumeAt; } catch {} }, { once: true });
+      }
+    }
     return v;
   }
+  _release(c) {
+    const v = c?.querySelector("video");
+    if (!v?.getAttribute("src")) return;
+    try { v.pause(); } catch {}
+    v.removeAttribute("src");
+    v.load();
+    v.preload = "none";
+    c.classList.remove("vc-playing");
+  }
   _playOnly(c) {
-    this._cards.forEach((o) => { if (o !== c) this._stop(o); });
+    this._cards.forEach((o) => { if (o !== c) { this._stop(o); this._release(o); } });
     if (!c) return;
     const v = this._load(c); if (!v) return;
     if (c !== this._unmuted) v.muted = true;
@@ -453,9 +479,9 @@ class VideoCarousel extends HTMLElement {
     this._dragging = false; this._track.classList.remove("vc-dragging");
   }
   _wheel(e) {
-    if (this.hasAttribute("no-wheel") || Math.abs(e.deltaX) >= Math.abs(e.deltaY) || e.ctrlKey) return; // trackpads scroll natively
-    const dir = Math.sign(e.deltaY), to = this._i + dir;
-    if (to < 0 || to >= this._cards.length) return; // let the page scroll at the ends
+    if (this.hasAttribute("no-wheel") || e.ctrlKey || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    const dir = Math.sign(e.deltaX), to = this._i + dir;
+    if (!dir || to < 0 || to >= this._cards.length) return;
     e.preventDefault();
     const now = performance.now(); if (now < this._wheelLock) return;
     this._wheelLock = now + 420; this.go(to);
@@ -485,7 +511,7 @@ class VideoCarousel extends HTMLElement {
     clearTimeout(this._hoverT); this._endPreview(true);
     if (card !== this._cards[this._i]) this.go(this._cards.indexOf(card));
     const cv = card.querySelector("video"), t0 = cv?.currentTime || 0;
-    this._cards.forEach((c) => this._stop(c, false));
+    this._cards.forEach((c) => { this._stop(c, false); this._release(c); });
     const accent = getComputedStyle(this).getPropertyValue("--vc-accent").trim() || "#00baf0";
     const pipOK = !!(document.pictureInPictureEnabled && HTMLVideoElement.prototype.requestPictureInPicture);
     const el = document.createElement("div");
@@ -496,7 +522,7 @@ class VideoCarousel extends HTMLElement {
       <div class="vcp-panel">
         <div class="vcp-grab" aria-hidden="true"></div>
         <div class="vcp-media">
-          <video playsinline webkit-playsinline loop preload="auto" poster="${esc(cfg.poster)}" src="${esc(cfg.src)}"></video>
+          <video playsinline webkit-playsinline loop preload="none" poster="${esc(cfg.poster)}"></video>
           <div class="vcp-info"><h2 class="vcp-title" id="${this._id}-pt">${esc(cfg.title)}</h2>${cfg.caption ? `<p class="vcp-cap">${esc(cfg.caption)}</p>` : ""}</div>
           <button class="vcp-bigplay" type="button" tabindex="-1" aria-hidden="true"><span>${I.play}</span></button>
           <button class="vcp-close" type="button" aria-label="Close player">${I.close}</button>
@@ -512,6 +538,9 @@ class VideoCarousel extends HTMLElement {
       </div>`;
     const $ = (s) => el.querySelector(s);
     const panel = $(".vcp-panel"), media = $(".vcp-media"), v = $("video"), bd = $(".vcp-backdrop");
+    v.preload = "none";
+    if (t0) v.addEventListener("loadedmetadata", () => { try { v.currentTime = t0; } catch {} }, { once: true });
+    v.src = cfg.src;
     const scrub = $(".vcp-scrub"), playB = $(".vcp-play"), muteB = $(".vcp-mute");
     // size: keep the video's aspect, fit the viewport (88vw on phones, up to 500px on desktop)
     const asp = (() => { const s = cfg.aspect || (cv.videoWidth ? `${cv.videoWidth}/${cv.videoHeight}` : "9/16"); const [a, b] = String(s).split("/").map(Number); return a && b ? a / b : 9 / 16; })();
@@ -625,8 +654,7 @@ class VideoCarousel extends HTMLElement {
     const P = this._player; if (!P) return;
     this._player = null;
     const { el, card, v } = P, panel = el.querySelector(".vcp-panel"), bd = el.querySelector(".vcp-backdrop");
-    const cv = card.querySelector("video");
-    if (cv && v.currentTime && cv.getAttribute("src")) { card.classList.remove("vc-playing"); try { cv.currentTime = v.currentTime; } catch {} } // poster shows until the card video is playing again
+    this._resumeAt = v.currentTime || 0;
     document.documentElement.classList.remove("vcp-lock");
     const finish = () => {
       card.classList.remove("vc-hidden");

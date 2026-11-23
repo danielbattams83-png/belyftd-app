@@ -824,7 +824,7 @@
           @for (mentor of filteredMentors(); track mentor.id) {
             <article class="mentor-card">
               <div class="mentor-portrait">
-                <img [src]="mentor.avatar" [alt]="'Portrait of ' + mentor.name" />
+                <img [src]="mentor.avatar" [alt]="'Portrait of ' + mentor.name" width="720" height="1280" />
                 @if (mentor.region) {
                   <span class="mentor-region-badge">{{ mentor.region }}</span>
                 }
@@ -978,20 +978,27 @@
         </div>
 
         <section class="daily-message-frame mx-auto w-full max-w-3xl px-6 pb-12" aria-labelledby="daily-message-title">
+          @let message = todaysMentorMessage();
           <header class="daily-message-top">
             <div>
               <h3 id="daily-message-title">Daily Message</h3>
               <p>Larry's Mentor Messages</p>
             </div>
-            <span class="daily-message-day">DAY {{ todaysMentorMessage.day }}</span>
+            <span class="daily-message-day">@if (message.day) {DAY {{ message.day }}}</span>
           </header>
-          <h4 class="daily-message-title">{{ todaysMentorMessage.title }}</h4>
-          <div class="daily-message-quote">
-            <span class="daily-message-mark daily-message-mark--open" aria-hidden="true">“</span>
-            <p class="daily-message-hook">{{ todaysMentorMessage.hook }}</p>
-            <p>{{ todaysMentorMessage.message }}</p>
-            <span class="daily-message-mark daily-message-mark--close" aria-hidden="true">”</span>
-          </div>
+          @if (message.day) {
+            <h4 class="daily-message-title">{{ message.title }}</h4>
+            <div class="daily-message-quote">
+              <span class="daily-message-mark daily-message-mark--open" aria-hidden="true">“</span>
+              <p class="daily-message-hook">{{ message.hook }}</p>
+              <p>{{ message.message }}</p>
+              <span class="daily-message-mark daily-message-mark--close" aria-hidden="true">”</span>
+            </div>
+          } @else {
+            <div class="daily-message-quote" role="status" aria-live="polite" aria-busy="true" aria-label="Loading today's message">
+              <div class="daily-message-shimmer" aria-hidden="true"><span></span><span></span><span></span></div>
+            </div>
+          }
         </section>
       </div>
     }

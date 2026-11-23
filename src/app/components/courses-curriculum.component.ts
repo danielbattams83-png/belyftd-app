@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, input, output, signal, untracked, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, input, NgZone, output, signal, untracked, viewChild} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {CurriculumService} from '../services/curriculum.service';
 import {CourseUnitComponent} from './course-unit.component';
@@ -33,6 +33,8 @@ export class CoursesCurriculumComponent {
   readonly overallProgress = computed(() => this.curriculum.totalUnits() ? Math.round(this.curriculum.completedCount() / this.curriculum.totalUnits() * 100) : 0);
   readonly circumference = 2 * Math.PI * RING_RADIUS;
   readonly track = viewChild<ElementRef<HTMLElement>>('track');
+  private readonly zone = inject(NgZone);
+  private cardCenters: number[] = [];
 
   readonly visibleModules = computed(() => this.curriculum.modules().map(module => {
     const completedUnits = module.units.filter(unit => this.curriculum.isCompleted(module.id, unit.id)).length;
@@ -86,18 +88,29 @@ export class CoursesCurriculumComponent {
 
       const desktop = typeof matchMedia === 'undefined' ? null : matchMedia('(min-width: 1024px)');
       const restoreMobile = () => { if (!desktop?.matches) this.centerActive(track); };
+      const measure = () => {
+        this.cardCenters = Array.from(track.querySelectorAll<HTMLElement>('.module-card'), card => card.offsetLeft + card.offsetWidth / 2);
+      };
       desktop?.addEventListener('change', restoreMobile);
-      track.addEventListener('scroll', this.onTrackScroll, {passive: true});
-      track.addEventListener('wheel', this.onTrackWheel, {passive: false});
+      const resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+      this.zone.runOutsideAngular(() => {
+        measure();
+        track.addEventListener('scroll', this.onTrackScroll, {passive: true});
+        track.addEventListener('wheel', this.onTrackWheel, {passive: false});
+        resize?.observe(track);
+      });
       const initialSync = setTimeout(() => {
+        measure();
         this.centerActive(track);
         this.syncActiveCardFromScroll();
       }, INITIAL_SYNC_MS);
 
       onCleanup(() => {
         desktop?.removeEventListener('change', restoreMobile);
+        resize?.disconnect();
         track.removeEventListener('scroll', this.onTrackScroll);
         track.removeEventListener('wheel', this.onTrackWheel);
+        this.cardCenters = [];
         this.wheelLockedUntil = 0;
         clearTimeout(initialSync);
         if (this.rafId) cancelAnimationFrame(this.rafId);
@@ -107,16 +120,17 @@ export class CoursesCurriculumComponent {
   }
 
   private onTrackWheel = (event: WheelEvent): void => {
-    // Preserve native horizontal trackpad scrolling and pinch-to-zoom.
-    if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
-    const direction = event.deltaY > 0 ? 1 : -1;
-    if (!this.visibleModules()[this.activeIndex() + direction]) return;
+    if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+    const direction = event.deltaX > 0 ? 1 : -1;
+    const modules = untracked(() => this.visibleModules());
+    const index = untracked(() => this.activeIndex());
+    if (!modules[index + direction]) return;
 
     event.preventDefault();
     const now = performance.now();
     if (now < this.wheelLockedUntil) return;
     this.wheelLockedUntil = now + WHEEL_COOLDOWN_MS;
-    this.scrollTrack(direction);
+    this.zone.run(() => this.scrollTrack(direction));
   };
 
   private onTrackScroll = (): void => {
@@ -124,35 +138,43 @@ export class CoursesCurriculumComponent {
     if (this.rafId) cancelAnimationFrame(this.rafId);
     this.rafId = requestAnimationFrame(() => {
       this.rafId = null;
-      this.syncActiveCardFromScroll();
+      const track = this.track()?.nativeElement;
+      if (!track) return;
+      const closestIndex = this.nearestCardIndex(track);
+      if (closestIndex === null) return;
+      this.zone.run(() => this.commitScrollIndex(closestIndex));
     });
   };
 
-  private syncActiveCardFromScroll(): void {
-    if (typeof matchMedia !== 'undefined' && matchMedia('(min-width: 1024px)').matches) return;
-    const track = this.track()?.nativeElement;
-    if (!track) return;
-    const cards = track.querySelectorAll<HTMLElement>('.module-card');
-    if (!cards.length) return;
-
-    const trackRect = track.getBoundingClientRect();
-    const trackCenter = trackRect.left + trackRect.width / 2;
-
+  private nearestCardIndex(track: HTMLElement): number | null {
+    if (!this.cardCenters.length) return null;
+    const center = track.scrollLeft + track.clientWidth / 2;
     let closestIndex = 0;
     let minDistance = Infinity;
-    cards.forEach((card, i) => {
-      const rect = card.getBoundingClientRect();
-      const distance = Math.abs(trackCenter - (rect.left + rect.width / 2));
+    this.cardCenters.forEach((cardCenter, index) => {
+      const distance = Math.abs(center - cardCenter);
       if (distance < minDistance) {
         minDistance = distance;
-        closestIndex = i;
+        closestIndex = index;
       }
     });
+    return closestIndex;
+  }
 
+  private commitScrollIndex(closestIndex: number): void {
+    if (typeof matchMedia !== 'undefined' && matchMedia('(min-width: 1024px)').matches) return;
     const currentModules = untracked(() => this.visibleModules());
     if (closestIndex < currentModules.length && untracked(() => this.activeIndex()) !== closestIndex) {
       this.selectedModuleId.set(currentModules[closestIndex].id);
     }
+  }
+
+  private syncActiveCardFromScroll(): void {
+    const track = this.track()?.nativeElement;
+    if (!track) return;
+    const closestIndex = this.nearestCardIndex(track);
+    if (closestIndex === null) return;
+    this.commitScrollIndex(closestIndex);
   }
 
   private centerActive(track: HTMLElement): void {

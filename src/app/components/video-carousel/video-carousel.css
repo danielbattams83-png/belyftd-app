@@ -21,6 +21,7 @@
 .vc-track {
   display: flex; gap: var(--vc-gap);
   overflow-x: auto; overflow-y: hidden;
+  touch-action: pan-x pan-y;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
@@ -38,7 +39,6 @@
   flex: 0 0 var(--vc-card-w);
   aspect-ratio: var(--vc-aspect);
   scroll-snap-align: center;
-  scroll-snap-stop: always;
   position: relative;
   touch-action: pan-x pan-y;
   user-select: none; -webkit-user-select: none;
@@ -325,3 +325,11 @@ html.vcp-lock, html.vcp-lock body { overflow: hidden; }
   background: linear-gradient(to top, rgba(22,27,33,.92), rgba(22,27,33,.6) 55%, rgba(22,27,33,0)); transition: opacity .25s; }
 .vcp-grab { display: none; }
 @media (pointer: coarse) { .vcp-grab { display: block; } }
+@media (max-width: 767px) {
+  .vc-card:not(.vc-card--active) .vc-sound,
+  .vc-nav {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(15, 23, 42, 0.72);
+  }
+}

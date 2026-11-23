@@ -19,7 +19,6 @@ const PRECACHE_ASSETS = [
   '/manifest.json',
   '/manifest.webmanifest',
   '/favicon.ico',
-  '/logo.png',
   '/icon-192.png?v=padding-1',
   '/icon-512.png?v=padding-1',
   '/dailyMessagingLinkHandler.js'
