@@ -228,7 +228,7 @@ export class App {
   });
 
     private async loadHopeModule(): Promise<void> {
-    this.hopeVideoUrl.set('/videos/5.2-HOPE-Hannah.mp4');
+    this.hopeVideoUrl.set('https://firebasestorage.googleapis.com/v0/b/belyft-d-app.firebasestorage.app/o/App_Videos%2FHero-Hope-Hannah-f69d46967a11.mp4?alt=media');
 
     const units = (await this.firebaseService.getModuleUnits('module-5')).filter(unit => unit.id === 'unit-2');
     this.hopeUnits.set(units.flatMap(unit => {
