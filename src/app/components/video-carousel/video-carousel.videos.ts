@@ -2,16 +2,6 @@ import type {CarouselVideo} from './video-carousel.component';
 
 const BASE = '/videos/carousel';
 
-const intro = (title: string): CarouselVideo => ({
-  title,
-  caption: 'A short intro is on the way.',
-  badge: 'Coming Soon / Intro',
-  placeholder: true,
-  aspect: '9/16',
-  src: '',
-  poster: '',
-});
-
 /** Sandy is the third slide, so the coverflow opens with her in the center. */
 export const HOME_CAROUSEL_START = 2;
 
@@ -26,7 +16,15 @@ export const HOME_CAROUSEL_VIDEOS: CarouselVideo[] = [
     poster: `${BASE}/mentor-messages.jpg`,
     aspect: '9/16',
   },
-  intro('Mentor Intro'),
+  {
+    tag: 'Intro',
+    title: 'Mentor Intro',
+    caption: 'Hannah, Sophie, Omari, and Steve welcome you.',
+    src: `${BASE}/lyftd-mentor-intro.mp4`,
+    poster: '/mentors/hannah.png',
+    aspect: '9/16',
+    soundToggle: true,
+  },
   {
     tag: 'Welcome',
     title: 'Sandy',

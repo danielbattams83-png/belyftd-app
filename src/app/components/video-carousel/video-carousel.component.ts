@@ -32,8 +32,8 @@ export interface CarouselVideo {
   position?: string;
   /** Dark placeholder card until a real clip is uploaded. */
   placeholder?: boolean;
-  /** Small badge on a placeholder card. */
-  badge?: string;
+  /** Show a mute toggle. Unmuting restarts the clip so the opening line is heard. */
+  soundToggle?: boolean;
 }
 
 interface VideoCarouselElement extends HTMLElement {

@@ -55,7 +55,7 @@ class VideoCarousel extends HTMLElement {
   disconnectedCallback() {
     document.removeEventListener("visibilitychange", this._onVis);
     clearTimeout(this._recT);
-    this._hostIO?.disconnect(); this._lazyIO?.disconnect(); this._activeIO?.disconnect(); this._sizeRO?.disconnect();
+    this._hostIO?.disconnect(); this._lazyIO?.disconnect(); this._activeIO?.disconnect(); this._cardIO?.disconnect(); this._sizeRO?.disconnect();
     this._closePlayer(true);
   }
 
@@ -76,8 +76,9 @@ class VideoCarousel extends HTMLElement {
             ${v.placeholder
               ? `<div class="vc-ph" aria-hidden="true"><span class="vc-ph-badge">${esc(v.badge || "Coming Soon / Intro")}</span><span class="vc-ph-play">${I.play}</span></div>`
               : `<img src="${esc(v.poster)}" alt="" draggable="false" loading="${real && i < 3 ? "eager" : "lazy"}" decoding="async">
-            <video muted playsinline webkit-playsinline loop preload="none" disablepictureinpicture disableremoteplayback
+            <video muted playsinline webkit-playsinline loop preload="${v.soundToggle ? "metadata" : "none"}"${v.soundToggle && real ? " autoplay" : ""} disablepictureinpicture disableremoteplayback
                    poster="${esc(v.poster)}" data-src="${esc(v.src)}" aria-hidden="true" tabindex="-1"></video>`}
+            ${v.soundToggle ? `<button type="button" class="vc-sound" aria-label="Unmute video">${I.mute}</button>` : ""}
             <div class="vc-scrim"></div>
             <div class="vc-meta"><div class="vc-row"><h3 class="vc-title">${esc(v.title)}</h3><span class="vc-dur">${esc(v.duration || "")}</span></div>
               ${v.caption ? `<p class="vc-cap">${esc(v.caption)}</p>` : ""}</div>
@@ -114,10 +115,40 @@ class VideoCarousel extends HTMLElement {
         this.open(i, c);
       });
       c.querySelector(".vc-hit").addEventListener("focus", () => { if (k !== this._i && !this._p) this.go(k); });
+      c.querySelector(".vc-sound")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const video = this._load(c);
+        const button = e.currentTarget;
+        if (!video) return;
+        if (video.muted) {
+          this._cards.forEach((other) => { if (other !== c) this._stop(other); });
+          video.currentTime = 0;
+          video.muted = false;
+          const playback = video.play();
+          if (playback) playback.catch(() => {});
+          button.setAttribute("aria-label", "Mute video");
+          button.innerHTML = I.vol;
+        } else {
+          video.muted = true;
+          button.setAttribute("aria-label", "Unmute video");
+          button.innerHTML = I.mute;
+        }
+      });
     });
     // lazy-load: attach src only when a card is within ~1 viewport of the track
     this._lazyIO = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && this._load(e.target)), { root: this._track, rootMargin: "0px 110% 0px 110%" });
     this._cards.forEach((c) => this._lazyIO.observe(c));
+    this._cardIO?.disconnect();
+    this._cardIO = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) return;
+        const video = entry.target.querySelector("video");
+        if (video && !video.paused) video.pause();
+        entry.target.classList.remove("vc-playing");
+      });
+    }, { threshold: 0.2 });
+    this._cards.forEach((c) => this._cardIO.observe(c));
 
     const t = this._track;
     if ("onscrollend" in window) t.addEventListener("scrollend", () => this._settle());
