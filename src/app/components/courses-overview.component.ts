@@ -21,6 +21,9 @@ export class CoursesOverviewComponent {
   readonly activeIndex = signal(0);
   readonly track = viewChild<ElementRef<HTMLElement>>('track');
   private wheelLockedUntil = 0;
+  private pointerStartX = 0;
+  private pointerTracking = false;
+  private swiped = false;
 
   constructor() {
     effect(onCleanup => {
@@ -49,6 +52,42 @@ export class CoursesOverviewComponent {
 
   select(index: number): void {
     this.activeIndex.set(this.wrap(index));
+  }
+
+  onCardClick(index: number): void {
+    if (this.swiped) {
+      this.swiped = false;
+      return;
+    }
+    this.select(index);
+  }
+
+  onPointerDown(event: PointerEvent): void {
+    if (event.button !== 0) return;
+    if (event.target instanceof Element && event.target.closest('.track-nav, a, button')) return;
+    this.swiped = false;
+    this.pointerStartX = event.clientX;
+    this.pointerTracking = true;
+    if (event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+  }
+
+  onPointerUp(event: PointerEvent): void {
+    if (!this.pointerTracking) return;
+    this.pointerTracking = false;
+    const delta = event.clientX - this.pointerStartX;
+    if (delta > 48) {
+      this.swiped = true;
+      this.step(-1);
+    } else if (delta < -48) {
+      this.swiped = true;
+      this.step(1);
+    }
+  }
+
+  onPointerCancel(): void {
+    this.pointerTracking = false;
   }
 
   step(direction: -1 | 1): void {

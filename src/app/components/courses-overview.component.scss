@@ -14,7 +14,7 @@
 .eyebrow { color: var(--overview-accent); font-size: .875rem; font-weight: 700; letter-spacing: .06em; }
 .overview-heading .eyebrow { color: inherit; opacity: .65; }
 .position { font-size: .875rem; opacity: .65; white-space: nowrap; }
-.carousel-shell { position: relative; max-width: 1000px; margin-inline: auto; overflow: hidden; }
+.carousel-shell { position: relative; max-width: 1000px; margin-inline: auto; overflow: hidden; touch-action: pan-y; }
 .overview-track {
   --card-w: min(76vw, 300px);
   --wing: min(34vw, 230px);

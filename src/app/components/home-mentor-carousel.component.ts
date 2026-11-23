@@ -59,8 +59,13 @@ export class HomeMentorCarouselComponent {
 
   onPointerDown(event: PointerEvent): void {
     if (event.button !== 0) return;
+    if (event.target instanceof Element && event.target.closest('.track-nav')) return;
+    this.swiped = false;
     this.pointerStartX = event.clientX;
     this.pointerTracking = true;
+    if (event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
   }
 
   onPointerUp(event: PointerEvent): void {
