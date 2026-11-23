@@ -20,7 +20,7 @@
         <span class="module-card__face">
           <span class="mentor-media">
             @if (card.image) {
-              <img [src]="card.image" [alt]="card.alt || card.heading" loading="lazy" decoding="async" draggable="false">
+              <img [src]="card.image" [alt]="card.alt || card.heading" width="720" height="1080" [attr.loading]="i <= 1 ? 'eager' : 'lazy'" [attr.fetchpriority]="i === 0 ? 'high' : 'low'" decoding="async" draggable="false">
             }
           </span>
           <span class="mentor-body">

@@ -30,8 +30,9 @@ export const HOME_CAROUSEL_VIDEOS: CarouselVideo[] = [
     title: 'Sandy',
     caption: "Sandy welcomes you to Lyft'd.",
     duration: '0:35',
-    src: `${BASE}/video-8.mp4`,
-    poster: `${BASE}/video-8.jpg`,
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/belyft-d-app.firebasestorage.app/o/App_Videos%2Fsandy-welcome.mp4?alt=media',
+    src: 'https://firebasestorage.googleapis.com/v0/b/belyft-d-app.firebasestorage.app/o/App_Videos%2Fsandy-welcome.mp4?alt=media',
+    poster: `${BASE}/sandy-welcome.jpg`,
     aspect: '9/16',
   },
   {

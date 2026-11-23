@@ -76,7 +76,7 @@ class VideoCarousel extends HTMLElement {
             ${v.placeholder
               ? `<div class="vc-ph" aria-hidden="true"><span class="vc-ph-badge">${esc(v.badge || "Coming Soon / Intro")}</span><span class="vc-ph-play">${I.play}</span></div>`
               : `<img src="${esc(v.poster)}" alt="" draggable="false" loading="${real && i < 3 ? "eager" : "lazy"}" decoding="async">
-            <video muted playsinline webkit-playsinline loop preload="${v.soundToggle ? "metadata" : "none"}"${v.soundToggle && real ? " autoplay" : ""} disablepictureinpicture disableremoteplayback
+            <video muted playsinline webkit-playsinline loop preload="metadata"${v.soundToggle && real ? " autoplay" : ""} disablepictureinpicture disableremoteplayback
                    poster="${esc(v.poster)}" data-src="${esc(v.src)}" aria-hidden="true" tabindex="-1"></video>`}
             ${v.soundToggle ? `<button type="button" class="vc-sound" aria-label="Unmute video">${I.mute}</button>` : ""}
             <div class="vc-scrim"></div>
