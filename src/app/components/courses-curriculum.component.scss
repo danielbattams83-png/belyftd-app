@@ -15,7 +15,74 @@
     --bento-accent: var(--brand-accent, #00baf0);
   }
   .curriculum.curriculum { max-width: 1180px; padding: 0; }
-  .module-carousel-container.module-carousel-container { display: none; }
+  .curriculum-main-column .module-carousel-container {
+    display: block;
+    position: relative;
+    z-index: 1;
+    max-width: none;
+    margin: 0 0 1.25rem;
+    padding: 0;
+    overflow: hidden;
+    container-type: inline-size;
+  }
+  .curriculum-main-column .module-track {
+    --card-w: min(300px, 70cqi);
+    --gap: 20px;
+    --slide: 0;
+    display: flex;
+    align-items: stretch;
+    width: max-content;
+    max-width: none;
+    margin-left: 50%;
+    padding: 1.25rem 0;
+    gap: var(--gap);
+    overflow: visible;
+    scroll-snap-type: none;
+    perspective: none;
+    transform-style: flat;
+    transform: translate3d(calc(var(--card-w) / -2 - var(--slide) * (var(--card-w) + var(--gap))), 0, 0);
+    transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .curriculum-main-column .track-nav { z-index: 20; }
+  .curriculum-main-column .module-card {
+    flex: 0 0 var(--card-w);
+    width: var(--card-w);
+    min-width: 0;
+    max-width: var(--card-w);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+    transform-style: flat;
+  }
+  .curriculum-main-column .module-card__face {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    transform: none;
+    transform-style: flat;
+    opacity: 0.55;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .curriculum-main-column .module-card.is-prev .module-card__face,
+  .curriculum-main-column .module-card.is-next .module-card__face {
+    transform: scale(0.94);
+    opacity: 0.7;
+  }
+  .curriculum-main-column .module-card.is-active {
+    z-index: 2;
+  }
+  .curriculum-main-column .module-card.is-active .module-card__face {
+    transform: none;
+    opacity: 1;
+  }
   .curriculum-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
@@ -28,10 +95,8 @@
     align-items: start;
   }
   .curriculum-main-column { width: 100%; min-width: 0; }
-  .curriculum-main-column .drawer-header { margin: 0 0 1.25rem; padding: 0; }
-  .curriculum-main-column .drawer-header h2 { font-size: 1.5rem; font-weight: 800; margin: .25rem 0; text-transform: none; }
-  .curriculum-main-column .drawer-meta { font-size: .875rem; margin-top: .25rem; }
-  .curriculum-main-column .sticky-deck { gap: 12px; padding: 0; }
+  .curriculum-main-column .drawer-header { margin: 0 0 1.25rem; padding: 0; max-width: none; }
+  .curriculum-main-column .sticky-deck { gap: 12px; padding: 0; max-width: none; }
   .curriculum-main-column .unit-card { padding: 1.25rem 1.5rem; background: var(--bento-surface); color: var(--bento-text); border-radius: 18px; box-shadow: 0 4px 16px color-mix(in srgb, var(--bento-ink) 25%, transparent); }
   .curriculum-main-column .unit-card:focus-within { border-color: var(--bento-accent); }
   .curriculum-bento-sidebar {
@@ -97,6 +162,9 @@
   &::-webkit-scrollbar { display: none; }
 
   @media (prefers-reduced-motion: reduce) { scroll-behavior: auto; }
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .curriculum-main-column .module-track { transition: none; }
 }
 
 .module-card {
@@ -228,6 +296,12 @@
 
 .unit-drawer, .units-container { overflow: visible; }
 .unit-drawer { min-width: 0; padding: 0 1rem; }
+@media (max-width: 767px) {
+  .unit-drawer > .module-carousel-container {
+    width: calc(100% + 2rem);
+    margin-inline: -1rem;
+  }
+}
 .units-container { animation: fadeIn 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }

@@ -27,6 +27,8 @@
   scrollbar-width: none;
   padding: 28px calc(50% - var(--vc-card-w) / 2) 24px;
   outline: none;
+  perspective: 800px;
+  perspective-origin: center center;
 }
 .vc-track::-webkit-scrollbar { display: none; }
 .vc-track.vc-dragging { scroll-snap-type: none; cursor: grabbing; }
@@ -37,32 +39,108 @@
   aspect-ratio: var(--vc-aspect);
   scroll-snap-align: center;
   scroll-snap-stop: always;
-  contain: layout style;
   position: relative;
   touch-action: pan-x pan-y;
   user-select: none; -webkit-user-select: none;
   -webkit-touch-callout: none;
-  transform: scale(0.92);
-  opacity: 0.7;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-              opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  z-index: 1;
 }
-.vc-card.vc-card--active {
-  transform: scale(1);
-  opacity: 1;
-  z-index: 2;
-}
-.vc-track.vc-instant .vc-card { transition: none; }
+.vc-card.vc-card--active { z-index: 10; }
+.vc-card.vc-card--far { visibility: hidden; pointer-events: none; }
+.vc-track.vc-instant .vc-inner { transition: none; }
+.vc-cf, .vc-lift { transform-style: preserve-3d; }
 .vc-inner {
   position: absolute; inset: 0;
   border-radius: var(--vc-radius);
-  overflow: hidden; isolation: isolate;
+  overflow: hidden;
   background: var(--vc-card);
-  transform-origin: 50% 50%;
-  will-change: transform;
-  box-shadow: 0 0 0 1px rgba(0,186,240,.14) inset, 0 18px 40px -22px rgba(0,0,0,.75);
-  transition: box-shadow .45s var(--vc-ease), filter .35s var(--vc-ease);
+  will-change: transform, opacity;
+  box-shadow: 0 0 0 1px rgba(0,186,240,.16) inset, 0 10px 30px -18px rgba(0,0,0,.6);
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.35s ease,
+              box-shadow 0.35s ease,
+              border-color 0.35s ease;
+  transform: scale(0.85);
+  opacity: 0.45;
+}
+.vc-card.vc-card--prev .vc-inner {
+  transform-origin: right center;
+  transform: scale(0.85) rotateY(-20deg) translateZ(-30px);
+  opacity: 0.45;
+}
+.vc-card.vc-card--next .vc-inner {
+  transform-origin: left center;
+  transform: scale(0.85) rotateY(20deg) translateZ(-30px);
+  opacity: 0.45;
+}
+.vc-card.vc-card--active .vc-inner {
+  transform-origin: center center;
+  transform: scale(1.02) rotateY(0deg) translateZ(20px);
+  opacity: 1;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(14, 165, 233, 0.35);
+}
+
+/* Desktop orbit: one centered 3D stage. Phones keep the scrolling track above. */
+@media (min-width: 768px) {
+  .vc.vc-orbit .vc-track {
+    display: block;
+    position: relative;
+    height: calc(var(--vc-card-w) * 16 / 9);
+    margin: 8px auto;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+    perspective: 1100px;
+    perspective-origin: center center;
+    transform-style: preserve-3d;
+  }
+  .vc.vc-orbit .vc-card.vc-clone { display: none; }
+  .vc.vc-orbit .vc-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--vc-card-w);
+    flex: none;
+    margin: 0;
+    visibility: visible;
+    pointer-events: auto;
+    will-change: transform, opacity;
+    transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1), opacity 450ms ease;
+    transform: translate3d(-50%, -50%, -220px) rotateY(0deg) scale(0.72);
+    opacity: 0;
+    z-index: 10;
+  }
+  .vc.vc-orbit .vc-card[data-offset="0"] {
+    transform: translate3d(-50%, -50%, 60px) rotateY(0deg) scale(1);
+    opacity: 1;
+    z-index: 30;
+  }
+  .vc.vc-orbit .vc-card[data-offset="-1"] {
+    transform: translate3d(calc(-50% - 230px), -50%, -80px) rotateY(-16deg) scale(0.86);
+    opacity: 0.65;
+    z-index: 20;
+  }
+  .vc.vc-orbit .vc-card[data-offset="1"] {
+    transform: translate3d(calc(-50% + 230px), -50%, -80px) rotateY(16deg) scale(0.86);
+    opacity: 0.65;
+    z-index: 20;
+  }
+  .vc.vc-orbit .vc-card[data-offset="far"] {
+    transform: translate3d(-50%, -50%, -220px) rotateY(0deg) scale(0.72);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .vc.vc-orbit .vc-track.vc-instant .vc-card { transition: none; }
+  .vc.vc-orbit .vc-card .vc-inner {
+    transform: none;
+    opacity: 1;
+    transition: box-shadow 0.35s ease;
+  }
+}
+@media (min-width: 768px) and (prefers-reduced-motion: reduce) {
+  .vc.vc-orbit .vc-card { transition: none; }
 }
 .vc-card img, .vc-card video {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -70,9 +148,9 @@
   display: block; pointer-events: none;
   -webkit-touch-callout: none; user-select: none; -webkit-user-drag: none;
 }
-.vc-card video { z-index: 0; opacity: 0; transition: opacity .25s; background: transparent; }
+.vc-card img { z-index: 0; }
+.vc-card video { z-index: 1; opacity: 0; transition: opacity .25s; background: transparent; }
 .vc-card.vc-playing video { opacity: 1; }
-.vc-card img { z-index: -1; }
 
 /* lift + glow while previewing (hold on touch, hover on desktop) */
 .vc-lift {
@@ -237,7 +315,7 @@ html.vcp-lock, html.vcp-lock body { overflow: hidden; }
 .vc-ph-play svg { width: 26px; height: 26px; fill: currentColor; margin-left: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .vc-card, .vc-lift, .vc-dots button { transition: none; }
+  .vc-card, .vc-inner, .vc-lift, .vc-dots button { transition: none; }
 }
 
 .vc-track { position: relative; }

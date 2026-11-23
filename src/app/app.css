@@ -216,6 +216,17 @@
 .recordings-close { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; }
 .recordings-close:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
 .module-filters { margin: 0.25rem 0 0.75rem; }
+@media (min-width: 1024px) {
+  .courses-section-heading,
+  .courses-page .module-filters {
+    width: 100%;
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    box-sizing: border-box;
+  }
+}
 
 .feeling-checkin {
   background: linear-gradient(180deg, #1e242b 0%, #182028 100%);
@@ -239,4 +250,14 @@
 .feeling-checkin .feeling-response {
   background: rgba(26, 155, 239, 0.12);
   border-color: rgba(143, 208, 250, 0.28);
+}
+
+.meaning-glass {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.78), rgba(255, 247, 237, 0.55) 55%, rgba(238, 242, 255, 0.5));
+  backdrop-filter: blur(12px);
+}
+:root.dark .meaning-glass,
+.dark .meaning-glass {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(165deg, rgba(30, 36, 43, 0.9), rgba(24, 32, 40, 0.78));
 }

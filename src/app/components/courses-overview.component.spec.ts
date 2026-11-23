@@ -77,7 +77,7 @@ describe('courses overview carousel', () => {
     expect(element.textContent).toContain('Course Complete — Review Module 1');
   });
 
-  it('navigates with buttons, dots and arrow keys without wrapping past the ends', async () => {
+  it('wraps with buttons, dots and arrow keys in both directions', async () => {
     const {fixture, component, element} = await setup();
     element.querySelector<HTMLButtonElement>('.next')!.click();
     fixture.detectChanges();
@@ -85,9 +85,12 @@ describe('courses overview carousel', () => {
     element.querySelectorAll<HTMLButtonElement>('.carousel-dots button')[3].click();
     fixture.detectChanges();
     expect(component.activeIndex()).toBe(3);
-    expect(element.querySelector<HTMLButtonElement>('.next')!.disabled).toBe(true);
+    expect(element.querySelector<HTMLButtonElement>('.next')!.disabled).toBe(false);
+    element.querySelector<HTMLButtonElement>('.next')!.click();
+    fixture.detectChanges();
+    expect(component.activeIndex()).toBe(0);
     element.querySelector('.overview-track')!.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowLeft', bubbles: true}));
-    expect(component.activeIndex()).toBe(2);
+    expect(component.activeIndex()).toBe(3);
     component.select(-1);
     expect(component.activeIndex()).toBe(2);
   });
@@ -98,18 +101,23 @@ describe('courses overview carousel', () => {
     const clock = vi.spyOn(performance, 'now').mockReturnValue(1000);
     try {
       const wheel = (init: WheelEventInit) => {const event = new WheelEvent('wheel', {...init, cancelable: true}); track.dispatchEvent(event); return event;};
-      expect(wheel({deltaY: -100}).defaultPrevented).toBe(false);
+      expect(wheel({deltaY: -100}).defaultPrevented).toBe(true);
+      expect(component.activeIndex()).toBe(3);
+      component.select(0);
+      clock.mockReturnValue(2000);
       expect(wheel({deltaX: 100, deltaY: 10}).defaultPrevented).toBe(false);
       expect(wheel({deltaY: 100, ctrlKey: true}).defaultPrevented).toBe(false);
       expect(wheel({deltaY: 100}).defaultPrevented).toBe(true);
       expect(component.activeIndex()).toBe(1);
       wheel({deltaY: 100});
       expect(component.activeIndex()).toBe(1);
-      clock.mockReturnValue(1421);
+      clock.mockReturnValue(2421);
       wheel({deltaY: -100});
       expect(component.activeIndex()).toBe(0);
+      clock.mockReturnValue(4000);
       component.select(3);
-      expect(wheel({deltaY: 100}).defaultPrevented).toBe(false);
+      expect(wheel({deltaY: 100}).defaultPrevented).toBe(true);
+      expect(component.activeIndex()).toBe(0);
     } finally { clock.mockRestore(); }
   });
 });

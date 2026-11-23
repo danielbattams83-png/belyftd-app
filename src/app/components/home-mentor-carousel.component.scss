@@ -11,35 +11,27 @@
 
 .module-track {
   position: relative;
+  display: block;
   width: 100%;
+  height: 480px;
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  perspective: 800px;
+  overflow: hidden;
+  perspective: 1100px;
   perspective-origin: center center;
+  transform-style: preserve-3d;
   --card-w: min(72vw, 280px);
-  padding: 1rem max(0px, calc(50% - (var(--card-w) / 2)));
-  &::-webkit-scrollbar { display: none; }
-
-  @media (prefers-reduced-motion: reduce) { scroll-behavior: auto; }
+  --wing: min(34vw, 230px);
 }
 
 .module-card {
-  position: relative;
-  flex: 0 0 var(--card-w);
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: var(--card-w);
-  min-width: var(--card-w);
   height: 440px;
   margin: 0;
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
+  flex: none;
+  scroll-snap-align: none;
   display: block;
   border: none;
   background: transparent;
@@ -48,16 +40,44 @@
   text-align: left;
   cursor: pointer;
   transform-style: preserve-3d;
-  z-index: 1;
+  will-change: transform, opacity;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(-50%, -50%, -220px) rotateY(0deg) scale(0.72);
+  transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1), opacity 450ms ease;
 
-  &.is-active { z-index: 10; }
+  &.is-active {
+    z-index: 30;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate3d(-50%, -50%, 60px) rotateY(0deg) scale(1);
+  }
+
+  &.is-prev {
+    z-index: 20;
+    opacity: 0.65;
+    pointer-events: auto;
+    transform: translate3d(calc(-50% - var(--wing)), -50%, -80px) rotateY(-16deg) scale(0.86);
+  }
+
+  &.is-next {
+    z-index: 20;
+    opacity: 0.65;
+    pointer-events: auto;
+    transform: translate3d(calc(-50% + var(--wing)), -50%, -80px) rotateY(16deg) scale(0.86);
+  }
 
   &.is-hidden {
-    visibility: hidden;
+    z-index: 0;
+    opacity: 0;
     pointer-events: none;
+    transform: translate3d(-50%, -50%, -220px) rotateY(0deg) scale(0.72);
   }
 
   &:focus-visible { outline: 3px solid #fff; outline-offset: 3px; border-radius: 22px; }
+
+  @media (prefers-reduced-motion: reduce) { transition: none; }
 }
 
 .module-card__face {
@@ -73,31 +93,9 @@
   box-shadow: 0 0 0 1px rgba(0, 186, 240, .16) inset, 0 10px 30px -18px rgba(0, 0, 0, .6);
   overflow: hidden;
   position: relative;
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
-  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-              opacity 0.35s ease,
-              box-shadow 0.35s ease,
-              border-color 0.35s ease;
-  transform: scale(0.85);
-  opacity: 0.45;
-
-  .is-prev > & {
-    transform-origin: right center;
-    transform: scale(0.85) rotateY(-20deg) translateZ(-30px);
-    opacity: 0.45;
-  }
-
-  .is-next > & {
-    transform-origin: left center;
-    transform: scale(0.85) rotateY(20deg) translateZ(-30px);
-    opacity: 0.45;
-  }
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
 
   .is-active > & {
-    transform-origin: center center;
-    transform: scale(1.02) rotateY(0deg) translateZ(20px);
-    opacity: 1;
     border-color: rgba(14, 165, 233, 0.45);
     box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(14, 165, 233, 0.35);
   }

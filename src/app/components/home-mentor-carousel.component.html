@@ -1,4 +1,4 @@
-<div class="module-carousel-container">
+<div class="module-carousel-container" (pointerdown)="onPointerDown($event)" (pointerup)="onPointerUp($event)" (pointercancel)="onPointerCancel()">
   <button type="button" class="track-nav track-nav--prev" aria-label="Scroll mentors left" (click)="scrollTrack(-1)">
     <mat-icon aria-hidden="true">chevron_left</mat-icon>
   </button>
@@ -7,15 +7,15 @@
       <button
         type="button"
         class="module-card"
-        [class.is-active]="i === activeIndex()"
-        [class.is-prev]="i < activeIndex()"
-        [class.is-next]="i > activeIndex()"
-        [class.is-hidden]="i < activeIndex() - 1 || i > activeIndex() + 1"
-        [attr.aria-hidden]="i < activeIndex() - 1 || i > activeIndex() + 1 ? true : null"
-        [attr.tabindex]="i < activeIndex() - 1 || i > activeIndex() + 1 ? -1 : null"
-        [attr.aria-pressed]="i === activeIndex()"
+        [class.is-active]="ringOffset(i) === 0"
+        [class.is-prev]="ringOffset(i) === -1"
+        [class.is-next]="ringOffset(i) === 1"
+        [class.is-hidden]="ringOffset(i) <= -2 || ringOffset(i) >= 2"
+        [attr.aria-hidden]="ringOffset(i) <= -2 || ringOffset(i) >= 2 ? true : null"
+        [attr.tabindex]="ringOffset(i) <= -2 || ringOffset(i) >= 2 ? -1 : null"
+        [attr.aria-pressed]="ringOffset(i) === 0"
         [attr.aria-label]="card.heading"
-        (click)="selectCard(i, $event)"
+        (click)="selectCard(i)"
       >
         <span class="module-card__face">
           <span class="mentor-media">

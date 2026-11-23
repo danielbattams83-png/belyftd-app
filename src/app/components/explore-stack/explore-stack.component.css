@@ -524,6 +524,87 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .explore-stack {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.5rem;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-bottom: 0;
+  }
+  .explore-stack::after { content: none; }
+  .explore-card {
+    position: relative;
+    top: auto;
+    grid-column: span 3;
+    height: 100%;
+  }
+  .explore-card[data-index="0"],
+  .explore-card[data-index="1"] {
+    min-height: 100%;
+  }
+  .explore-card[data-index="0"] { grid-column: span 7; }
+  .explore-card[data-index="1"] { grid-column: span 5; }
+  .explore-card[data-index="0"] .explore-card__image,
+  .explore-card[data-index="1"] .explore-card__media {
+    flex: 1 1 auto;
+    min-height: 168px;
+    aspect-ratio: auto;
+  }
+  .explore-card[data-index="6"] {
+    position: relative;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 32rem) minmax(280px, 1fr);
+    align-items: center;
+    column-gap: 2rem;
+    width: auto;
+    height: auto;
+    min-height: 260px;
+    padding: 2rem 4.5rem 2rem 2rem;
+    overflow: hidden;
+  }
+  .explore-card[data-index="6"] .explore-card__toggle {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 6;
+    margin: 0;
+  }
+  .explore-card[data-index="6"] .explore-card__head,
+  .explore-card[data-index="6"] .explore-card__title,
+  .explore-card[data-index="6"] .explore-card__text,
+  .explore-card[data-index="6"] .explore-card__panel,
+  .explore-card[data-index="6"] .explore-card__link {
+    grid-column: 1;
+    width: 100%;
+    max-width: 32rem;
+  }
+  .explore-card[data-index="6"] .explore-card__head { justify-content: flex-start; }
+  .explore-card[data-index="6"] .explore-card__link {
+    position: static;
+    margin: 0.85rem 0 0;
+  }
+  .explore-card[data-index="6"] .explore-card__image {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    align-self: center;
+    justify-self: stretch;
+    width: 100%;
+    max-width: none;
+    height: 230px;
+    max-height: none;
+    aspect-ratio: auto;
+    margin: 0;
+    border: 0;
+    border-radius: 16px;
+    object-fit: contain;
+    object-position: center center !important;
+    background: transparent;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .explore-card,
   .explore-card__toggle,

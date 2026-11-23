@@ -6,7 +6,7 @@
   <div class="carousel-shell">
     <div #track class="overview-track" tabindex="0" aria-label="Your learning cards. Use left and right arrow keys to browse." (keydown)="onKeydown($event)">
       @for (label of labels; track label; let i = $index) {
-        <article id="daily-lyft-card" tabindex="-1" class="overview-card" [class.is-active]="activeIndex() === i" [class.is-prev]="i < activeIndex()" [class.is-next]="i > activeIndex()" role="group" aria-roledescription="slide" [attr.aria-label]="label + ', ' + (i + 1) + ' of ' + labels.length" (click)="select(i)" (focusin)="select(i)">
+        <article [id]="i === 0 ? 'daily-lyft-card' : null" tabindex="-1" class="overview-card" [class.is-active]="ringOffset(i) === 0" [class.is-prev]="ringOffset(i) === -1" [class.is-next]="ringOffset(i) === 1" [class.is-hidden]="ringOffset(i) <= -2 || ringOffset(i) >= 2" [attr.aria-hidden]="ringOffset(i) <= -2 || ringOffset(i) >= 2 ? true : null" role="group" aria-roledescription="slide" [attr.aria-label]="label + ', ' + (i + 1) + ' of ' + labels.length" (click)="select(i)" (focusin)="select(i)">
           <div class="card-face" [class.card-face--spotlight]="i === 0" [class.card-face--key]="i === 3">
             @switch (i) {
               @case (0) {
@@ -64,8 +64,8 @@
         </article>
       }
     </div>
-    <button type="button" class="track-nav prev" aria-label="Previous learning card" [disabled]="activeIndex() === 0" (click)="select(activeIndex() - 1)"><mat-icon aria-hidden="true">chevron_left</mat-icon></button>
-    <button type="button" class="track-nav next" aria-label="Next learning card" [disabled]="activeIndex() === labels.length - 1" (click)="select(activeIndex() + 1)"><mat-icon aria-hidden="true">chevron_right</mat-icon></button>
+    <button type="button" class="track-nav prev" aria-label="Previous learning card" (click)="step(-1)"><mat-icon aria-hidden="true">chevron_left</mat-icon></button>
+    <button type="button" class="track-nav next" aria-label="Next learning card" (click)="step(1)"><mat-icon aria-hidden="true">chevron_right</mat-icon></button>
   </div>
   <nav class="carousel-dots" aria-label="Choose a learning card">
     @for (label of labels; track label) {<button type="button" [attr.aria-label]="'Show ' + label" [attr.aria-current]="activeIndex() === $index ? 'true' : null" (click)="select($index)"><span></span></button>}

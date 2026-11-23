@@ -20,6 +20,7 @@ const SPRING = "linear(0,0.019,0.069,0.141,0.228,0.324,0.423,0.52,0.614,0.7,0.77
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = (s) => { if (!isFinite(s)) return "0:00"; s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
 const mq = (q) => window.matchMedia?.(q);
+const COVERFLOW_MS = 380;
 let uid = 0;
 
 class VideoCarousel extends HTMLElement {
@@ -27,6 +28,14 @@ class VideoCarousel extends HTMLElement {
     super();
     this._videos = []; this._i = 0; this._li = 0; this._didStart = false; this._loop = false; this._mid = 0; this._base = 0; this._cards = []; this._p = null; this._preview = null; this._player = null;
     this._visible = true; this._eat = false; this._raf = 0; this._wheelLock = 0; this._id = `vc${++uid}`;
+    this._onCoverflowEnd = (e) => {
+      if (e && e.target !== this._playFace) return;
+      if (e && e.propertyName && e.propertyName !== "transform") return;
+      this._playFace?.removeEventListener("transitionend", this._onCoverflowEnd);
+      this._playFace = null;
+      clearTimeout(this._autoT);
+      this._resume();
+    };
     // Only attached where `scrollend` is missing (older Safari): a debounce stands in for it. No style work happens here.
     this._onScroll = () => { clearTimeout(this._recT); this._recT = setTimeout(() => this._settle(), 120); };
     this._onVis = () => this._resume();
@@ -50,9 +59,17 @@ class VideoCarousel extends HTMLElement {
     document.addEventListener("visibilitychange", this._onVis);
     this._hostIO = new IntersectionObserver((es) => { this._visible = es[es.length - 1].isIntersecting; this._resume(); }, { threshold: 0.25 });
     this._hostIO.observe(this);
+    this._orbitMq = mq("(min-width: 768px)");
+    this._onOrbit = () => {
+      this.classList.toggle("vc-orbit", !!this._orbitMq?.matches);
+      if (this._cards?.length) this.go(this._base + this._li, false);
+    };
+    this._orbitMq?.addEventListener?.("change", this._onOrbit);
+    this.classList.toggle("vc-orbit", !!this._orbitMq?.matches);
     this._render();
   }
   disconnectedCallback() {
+    this._orbitMq?.removeEventListener?.("change", this._onOrbit);
     document.removeEventListener("visibilitychange", this._onVis);
     clearTimeout(this._recT);
     this._hostIO?.disconnect(); this._lazyIO?.disconnect(); this._activeIO?.disconnect(); this._cardIO?.disconnect(); this._sizeRO?.disconnect();
@@ -70,13 +87,13 @@ class VideoCarousel extends HTMLElement {
     this.innerHTML = `
       <p class="vc-sr" id="${this._id}-hint">Swipe or use arrow keys to browse. Press and hold a video to preview it, tap to open the player.</p>
       <div class="vc-track" tabindex="-1">${cards.map(({ v, i, real }) => `
-        <div class="vc-card${v.placeholder ? " vc-placeholder" : ""}" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}: ${esc(v.title)}" data-i="${i}"${real ? "" : ' aria-hidden="true"'}
+        <div class="vc-card${v.placeholder ? " vc-placeholder" : ""}${real ? "" : " vc-clone"}" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}: ${esc(v.title)}" data-i="${i}"${real ? "" : ' aria-hidden="true"'}
              style="${v.aspect ? `--vc-aspect:${esc(v.aspect)};` : ""}${v.position ? `--vc-pos:${esc(v.position)};` : ""}">
           <div class="vc-cf"><div class="vc-lift"><div class="vc-inner">
             ${v.placeholder
               ? `<div class="vc-ph" aria-hidden="true"><span class="vc-ph-badge">${esc(v.badge || "Coming Soon / Intro")}</span><span class="vc-ph-play">${I.play}</span></div>`
               : `<img src="${esc(v.poster)}" alt="" draggable="false" loading="${real && i < 3 ? "eager" : "lazy"}" decoding="async">
-            <video muted playsinline webkit-playsinline loop preload="metadata"${v.soundToggle && real ? " autoplay" : ""} disablepictureinpicture disableremoteplayback
+            <video muted playsinline webkit-playsinline loop preload="metadata" disablepictureinpicture disableremoteplayback
                    poster="${esc(v.poster)}" data-src="${esc(v.src)}" aria-hidden="true" tabindex="-1"></video>`}
             ${v.soundToggle ? `<button type="button" class="vc-sound" aria-label="Unmute video">${I.mute}</button>` : ""}
             <div class="vc-scrim"></div>
@@ -122,6 +139,7 @@ class VideoCarousel extends HTMLElement {
         const button = e.currentTarget;
         if (!video) return;
         if (video.muted) {
+          this._unmuted = c;
           this._cards.forEach((other) => { if (other !== c) this._stop(other); });
           video.currentTime = 0;
           video.muted = false;
@@ -130,6 +148,7 @@ class VideoCarousel extends HTMLElement {
           button.setAttribute("aria-label", "Mute video");
           button.innerHTML = I.vol;
         } else {
+          if (this._unmuted === c) this._unmuted = null;
           video.muted = true;
           button.setAttribute("aria-label", "Unmute video");
           button.innerHTML = I.mute;
@@ -178,7 +197,7 @@ class VideoCarousel extends HTMLElement {
     this._sizeRO?.disconnect();
     let placed = false;
     this._sizeRO = new ResizeObserver(() => {
-      if (!t.clientWidth || !this._cards[0].offsetWidth) return;
+      if (!t.clientWidth || !this._cards.some((c) => c.offsetWidth)) return;
       this._observeActive();
       if (!placed) { placed = true; this.go(this._i, false); }
       else if (!this._dragging && !this._player) this.go(this._i, false);
@@ -190,8 +209,17 @@ class VideoCarousel extends HTMLElement {
   // The root is shrunk to exactly one card-width slot in the middle of the track, so only the centred card can reach
   // the threshold. Scrolling itself runs untouched on the compositor; JS only flips one class when a card snaps in,
   // and CSS animates the scale/opacity.
+  _isOrbit() { return !!this._orbitMq?.matches; }
+  // Shortest signed step around the ring, so the last card rotates into the first instead of sliding the long way.
+  _ringOffset(index, active, n) {
+    let d = index - active;
+    if (d > n / 2) d -= n;
+    if (d < -n / 2) d += n;
+    return d;
+  }
   _observeActive() {
     this._activeIO?.disconnect();
+    if (this._isOrbit()) return;
     const t = this._track, w = this._cards[0]?.offsetWidth; if (!t || !w) return;
     const side = Math.max(0, (t.clientWidth - w) / 2);
     this._activeIO = new IntersectionObserver((es) => {
@@ -223,7 +251,18 @@ class VideoCarousel extends HTMLElement {
   _setActive(i) {
     const n = this._videos.length, li = n ? i % n : 0;
     const changed = li !== this._li; this._i = i; this._li = li;
-    this._cards.forEach((c, k) => { c.classList.toggle("vc-card--active", k === i); c.querySelector(".vc-hit").tabIndex = k === this._base + li ? 0 : -1; });
+    this._cards.forEach((c, k) => {
+      c.classList.toggle("vc-card--active", k === i);
+      c.classList.toggle("vc-card--prev", k === i - 1);
+      c.classList.toggle("vc-card--next", k === i + 1);
+      c.classList.toggle("vc-card--far", k !== i && k !== i - 1 && k !== i + 1);
+      if (n > 0) {
+        const off = this._ringOffset(k % n, li, n);
+        c.dataset.offset = Math.abs(off) >= 2 ? "far" : String(off);
+      }
+      c.querySelector(".vc-hit").tabIndex = k === this._base + li ? 0 : -1;
+      if (k !== i) this._stop(c);
+    });
     this.querySelectorAll(".vc-dots button").forEach((b, k) => b.setAttribute("aria-current", String(k === li)));
     this.querySelector(".vc-prev").disabled = !this._loop && i <= 0;
     this.querySelector(".vc-next").disabled = !this._loop && i >= this._cards.length - 1;
@@ -231,7 +270,20 @@ class VideoCarousel extends HTMLElement {
       this._live.textContent = `${this._videos[li]?.title ?? ""}, ${li + 1} of ${n}`;
       this.dispatchEvent(new CustomEvent("vc-change", { detail: { index: li, video: this._videos[li] }, bubbles: true }));
     }
-    clearTimeout(this._autoT); this._autoT = setTimeout(() => this._resume(), 140);
+    this._armPlayback();
+  }
+  // Play the centred clip only after the coverflow transform has finished. A click (unmute) plays immediately.
+  _armPlayback() {
+    this._playFace?.removeEventListener("transitionend", this._onCoverflowEnd);
+    clearTimeout(this._autoT);
+    const card = this._cards[this._i];
+    const face = this._isOrbit() ? card : card?.querySelector(".vc-inner");
+    this._playFace = face || null;
+    if (!face || this._preview || this._player) return;
+    if (this._track?.classList.contains("vc-instant") || this._reduced) { this._playFace = null; this._resume(); return; }
+    face.addEventListener("transitionend", this._onCoverflowEnd);
+    const wait = this._isOrbit() ? 550 : COVERFLOW_MS;
+    this._autoT = setTimeout(() => this._onCoverflowEnd(), wait + 40);
   }
   _settle() { if (!this._dragging) this._track.classList.remove("vc-dragging"); this._syncNearest(); this._recenter(); }
 
@@ -265,6 +317,15 @@ class VideoCarousel extends HTMLElement {
   }
 
   go(i, smooth = true) {
+    if (this._isOrbit()) {
+      const n = this._videos.length;
+      if (!n || !this._cards.length) return;
+      const li = ((i % n) + n) % n;
+      const real = this._base + li;
+      if (!smooth || this._reduced) this._instant(() => this._setActive(real));
+      else this._setActive(real);
+      return;
+    }
     const k = Math.max(0, Math.min(this._cards.length - 1, i | 0));
     const t = this._track, c = this._cards[k]; if (!t || !c) return;
     const left = c.offsetLeft + c.offsetWidth / 2 - t.clientWidth / 2;
@@ -278,6 +339,7 @@ class VideoCarousel extends HTMLElement {
   _load(c) {
     const v = c?.querySelector("video");
     if (!v) return null;
+    // Attach the source once. Rotating slides keeps every <video> mounted and never reloads it.
     if (!v.getAttribute("src") && v.dataset.src) { v.src = v.dataset.src; v.preload = this._saveData ? "none" : "metadata"; }
     return v;
   }
@@ -285,7 +347,8 @@ class VideoCarousel extends HTMLElement {
     this._cards.forEach((o) => { if (o !== c) this._stop(o); });
     if (!c) return;
     const v = this._load(c); if (!v) return;
-    v.muted = true;
+    if (c !== this._unmuted) v.muted = true;
+    if (!v.paused) return;
     const p = v.play(); if (p) p.catch(() => {});
   }
   _stop(c, poster = true) {
@@ -342,12 +405,14 @@ class VideoCarousel extends HTMLElement {
     const dx = e.clientX - p.x, dy = e.clientY - p.y;
     if (!p.moved && Math.hypot(dx, dy) > 8) {
       p.moved = true; clearTimeout(this._holdT);
+      if (this._isOrbit()) { p.dx = dx; return; }
       if (p.type === "mouse") {
         this._dragging = true; clearTimeout(this._hoverT); this._endPreview();
         this._track.classList.add("vc-dragging");
         try { this._track.setPointerCapture(e.pointerId); } catch {}
       }
     }
+    if (this._isOrbit() && p.moved) p.dx = dx;
     if (this._dragging) {
       p.dx = dx;
       p.vs.push([performance.now(), e.clientX]); if (p.vs.length > 6) p.vs.shift();
@@ -362,6 +427,11 @@ class VideoCarousel extends HTMLElement {
     clearTimeout(this._holdT); this._p = null;
     if (p.held) this._endPreview();
     if (p.held || p.moved) { this._eat = true; setTimeout(() => (this._eat = false), 60); }
+    if (this._isOrbit() && p.moved) {
+      const dir = p.dx < -48 ? 1 : p.dx > 48 ? -1 : 0;
+      if (dir) this.go(this._li + dir);
+      return;
+    }
     if (this._dragging) {
       cancelAnimationFrame(this._dragRaf); this._dragRaf = 0;
       if (p.dx !== undefined) this._track.scrollLeft = p.sl - p.dx;
@@ -393,6 +463,14 @@ class VideoCarousel extends HTMLElement {
   _key(e) {
     if (this._player || e.target.closest(".vc-dots")) return;
     const k = e.key; let to = null;
+    if (this._isOrbit() && (k === "ArrowRight" || k === "ArrowLeft" || k === "Home" || k === "End")) {
+      e.preventDefault();
+      const n = this._videos.length;
+      const li = k === "Home" ? 0 : k === "End" ? n - 1 : this._li + (k === "ArrowRight" ? 1 : -1);
+      this.go(li);
+      this._cards[this._i]?.querySelector(".vc-hit")?.focus({ preventScroll: true });
+      return;
+    }
     if (k === "ArrowRight") to = this._i + 1; else if (k === "ArrowLeft") to = this._i - 1;
     else if (k === "Home") to = this._phys(0); else if (k === "End") to = this._phys(this._videos.length - 1);
     if (to === null) return;

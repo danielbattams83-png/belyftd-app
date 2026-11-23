@@ -10,7 +10,7 @@
 <div class="app-shell min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans text-lg transition-colors duration-200" [class.partner-experience]="!!tenantService.activeTenant()" [class.has-audio-player]="audioPlayer.hasPlayableMedia()">
   
   <!-- Top App Header / Navigation Bar -->
-  <header class="app-header sticky top-0 z-30 bg-slate-200/95 dark:bg-slate-900/95 backdrop-blur-md border-b-2 border-(--brand-accent) pt-safe px-3 sm:px-6 py-2 shadow-sm">
+  <header class="app-header sticky top-0 z-50 bg-slate-200/95 dark:bg-slate-900/95 backdrop-blur-md border-b-2 border-(--brand-accent) pt-safe px-3 sm:px-6 py-2 shadow-sm">
     <div class="app-header-layout">
       <!-- Brand Logo -->
       <a
@@ -272,7 +272,7 @@
         }
 
         @if (isLoggedIn()) {
-          <section id="daily-mood-checkin" class="feeling-checkin order-5 space-y-4 p-6">
+          <section id="daily-mood-checkin" class="feeling-checkin order-5 mx-auto w-full space-y-4 p-6 lg:max-w-3xl">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2.5">
                 <div class="feeling-icon flex h-9 w-9 items-center justify-center rounded-xl">
@@ -328,73 +328,114 @@
         }
 
         <!-- Welcome Header / Hopeful Sunrise Hero -->
-        <div class="card home-hero order-2 relative overflow-hidden rounded-[24px] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 sm:p-7 dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900 shadow-lg shadow-amber-500/5">
+        <div class="card home-hero meaning-hero order-2 relative overflow-hidden rounded-[24px] border border-amber-200/60 bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-indigo-600/10 p-5 shadow-lg shadow-amber-500/5 sm:p-7 lg:hidden dark:from-amber-950/30 dark:via-rose-950/20 dark:to-slate-900">
           <div class="absolute -top-12 right-8 h-32 w-32 rounded-full bg-amber-300/40 blur-2xl"></div>
           <div class="absolute bottom-4 left-8 h-24 w-24 rounded-full bg-indigo-400/20 blur-2xl"></div>
 
           <div class="relative z-10 flex flex-col items-center text-center">
             <div class="w-full max-w-3xl text-center">
-              <section class="text-left" aria-labelledby="lyftd-meaning-title">
-                <h3 id="lyftd-meaning-title" class="text-center text-xl sm:text-2xl font-bold leading-tight text-slate-900 dark:text-white">LYFT’d — What Does It Mean?</h3>
-                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-1.5">
-                  Life can sometimes leave us feeling stuck, lost or unsure of what comes next. LYFT’d is about helping people move from where they are to where they are meant to be.
-                </p>
-                <ul class="space-y-3 my-4">
-                  <li class="flex items-start gap-3">
-                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">L</span>
-                    <div class="min-w-0">
-                      <p class="font-semibold text-slate-900 dark:text-white text-sm">Lifting</p>
-                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">Raising people up to a higher level.</p>
-                    </div>
-                  </li>
-                  <li class="flex items-start gap-3">
-                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">Y</span>
-                    <div class="min-w-0">
-                      <p class="font-semibold text-slate-900 dark:text-white text-sm">You</p>
-                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">The person God created You to be — uniquely You, with purpose and potential.</p>
-                    </div>
-                  </li>
-                  <li class="flex items-start gap-3">
-                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">F</span>
-                    <div class="min-w-0">
-                      <p class="font-semibold text-slate-900 dark:text-white text-sm">From</p>
-                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">Moving away from the things that have held you back.</p>
-                    </div>
-                  </li>
-                  <li class="flex items-start gap-3">
-                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">T</span>
-                    <div class="min-w-0">
-                      <p class="font-semibold text-slate-900 dark:text-white text-sm">The</p>
-                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">Preparing you for what is ahead.</p>
-                    </div>
-                  </li>
-                  <li class="flex items-start gap-3">
-                    <span class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">D</span>
-                    <div class="min-w-0">
-                      <p class="font-semibold text-slate-900 dark:text-white text-sm">Depths</p>
-                      <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug">Those difficult places in life where we can feel lost, broken, stuck or without hope.</p>
-                    </div>
-                  </li>
-                </ul>
-                <div class="rounded-xl p-3.5 mt-4 border border-white/80 bg-white/35 dark:border-white/15 dark:bg-white/10">
-                  <p class="text-sm font-bold text-slate-900 dark:text-white">LYFT’d</p>
-                  <p class="text-xs text-slate-600 dark:text-slate-300 leading-snug mt-1">We help people rise from the depths, discover their purpose and become all they can be.</p>
-                  <p class="font-semibold text-indigo-700 dark:text-indigo-300 text-xs mt-1.5">From where you are — to where you are meant to be.</p>
-                </div>
-              </section>
-              <p class="mx-auto mt-5 max-w-2xl text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                {{ tenantService.activeTenant()?.branding?.welcomeSubtext || 'Whatever yesterday looked like, today is a fresh step forward. We’re right here with you.' }}
+              <h3 id="lyftd-meaning-title" class="text-center text-xl font-bold leading-tight text-slate-900 sm:text-2xl dark:text-white">LYFT’d — What Does It Mean?</h3>
+              <p class="mt-1.5 text-xs leading-relaxed text-slate-600 sm:text-sm dark:text-slate-300">
+                Life can sometimes leave us feeling stuck, lost or unsure of what comes next. LYFT’d is about helping people move from where they are to where they are meant to be.
               </p>
+              <ul class="my-4 w-full space-y-3 text-left">
+                <li class="flex items-start gap-3">
+                  <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">L</span>
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">Lifting</p>
+                    <p class="text-xs leading-snug text-slate-600 dark:text-slate-300">Raising people up to a higher level.</p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">Y</span>
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">You</p>
+                    <p class="text-xs leading-snug text-slate-600 dark:text-slate-300">The person God created You to be — uniquely You, with purpose and potential.</p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">F</span>
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">From</p>
+                    <p class="text-xs leading-snug text-slate-600 dark:text-slate-300">Moving away from the things that have held you back.</p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">T</span>
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">The</p>
+                    <p class="text-xs leading-snug text-slate-600 dark:text-slate-300">Preparing you for what is ahead.</p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">D</span>
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">Depths</p>
+                    <p class="text-xs leading-snug text-slate-600 dark:text-slate-300">Those difficult places in life where we can feel lost, broken, stuck or without hope.</p>
+                  </div>
+                </li>
+              </ul>
+              <div class="mt-4 w-full rounded-xl border border-white/80 bg-white/35 p-3.5 text-left dark:border-white/15 dark:bg-white/10">
+                <p class="text-sm font-bold text-slate-900 dark:text-white">LYFT’d</p>
+                <p class="mt-1 text-xs leading-snug text-slate-600 dark:text-slate-300">We help people rise from the depths, discover their purpose and become all they can be.</p>
+                <p class="mt-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300">From where you are — to where you are meant to be.</p>
+              </div>
             </div>
           </div>
         </div>
 
-  <p class="order-3 mb-8 font-cursive text-3xl text-indigo-600 dark:text-indigo-400 pt-0 pb-0 text-center">
+        <div class="meaning-desktop order-2 mx-auto hidden w-full max-w-6xl gap-4 lg:grid">
+          <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+            <article class="meaning-glass rounded-2xl border border-slate-200/70 p-6 shadow-sm lg:col-span-7">
+              <h3 class="text-2xl font-bold leading-tight text-slate-900 dark:text-white">LYFT’d — What Does It Mean?</h3>
+              <p class="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                Life can sometimes leave us feeling stuck, lost or unsure of what comes next. LYFT’d is about helping people move from where they are to where they are meant to be.
+              </p>
+              <div class="mt-5 border-t border-slate-200/70 pt-4 dark:border-white/10">
+                <p class="text-sm font-bold text-slate-900 dark:text-white">LYFT’d</p>
+                <p class="mt-2 text-sm leading-snug text-slate-600 dark:text-slate-300">We help people rise from the depths, discover their purpose and become all they can be.</p>
+                <p class="mt-2 text-sm font-semibold text-indigo-700 dark:text-indigo-300">From where you are — to where you are meant to be.</p>
+              </div>
+            </article>
+            <article class="meaning-glass flex items-center justify-center rounded-2xl border border-slate-200/70 p-8 text-center shadow-sm lg:col-span-5">
+              <p class="font-cursive text-3xl text-indigo-600 dark:text-indigo-400">“A world where everybody wins, and no one is left out.”</p>
+            </article>
+          </div>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <article class="meaning-glass flex flex-col items-start gap-3 rounded-2xl border border-slate-200/70 p-6 shadow-sm">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">L</span>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">Lifting</p>
+              <p class="text-sm leading-snug text-slate-600 dark:text-slate-300">Raising people up to a higher level.</p>
+            </article>
+            <article class="meaning-glass flex flex-col items-start gap-3 rounded-2xl border border-slate-200/70 p-6 shadow-sm">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">Y</span>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">You</p>
+              <p class="text-sm leading-snug text-slate-600 dark:text-slate-300">The person God created You to be — uniquely You, with purpose and potential.</p>
+            </article>
+            <article class="meaning-glass flex flex-col items-start gap-3 rounded-2xl border border-slate-200/70 p-6 shadow-sm">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">F</span>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">From</p>
+              <p class="text-sm leading-snug text-slate-600 dark:text-slate-300">Moving away from the things that have held you back.</p>
+            </article>
+            <article class="meaning-glass flex flex-col items-start gap-3 rounded-2xl border border-slate-200/70 p-6 shadow-sm">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">T</span>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">The</p>
+              <p class="text-sm leading-snug text-slate-600 dark:text-slate-300">Preparing you for what is ahead.</p>
+            </article>
+            <article class="meaning-glass flex flex-col items-start gap-3 rounded-2xl border border-slate-200/70 p-6 shadow-sm sm:col-span-2 lg:col-span-1">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600/10 text-sm font-bold text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300" aria-hidden="true">D</span>
+              <p class="text-sm font-bold text-slate-900 dark:text-white">Depths</p>
+              <p class="text-sm leading-snug text-slate-600 dark:text-slate-300">Those difficult places in life where we can feel lost, broken, stuck or without hope.</p>
+            </article>
+          </div>
+        </div>
+
+  <p class="order-3 mb-8 pt-0 pb-0 text-center font-cursive text-3xl text-indigo-600 lg:hidden dark:text-indigo-400">
   “A world where everybody wins,&nbsp;<br />
   and no one is left out.”
   </p>
 
-        <section id="daily-explore-bento" aria-labelledby="daily-explore-title" class="explore-section order-7 flex flex-col gap-3">
+        <section id="daily-explore-bento" aria-labelledby="daily-explore-title" class="explore-section order-7 flex flex-col gap-3 lg:mx-auto lg:max-w-6xl">
           <h3 id="daily-explore-title" class="text-center text-3xl font-bold text-slate-900 dark:text-slate-100">Explore Lyft'd</h3>
           <app-explore-stack [cards]="dashboardBentoCards" label="Explore Lyft'd" />
         </section>

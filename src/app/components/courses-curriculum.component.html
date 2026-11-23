@@ -3,19 +3,21 @@
   @if (curriculum.usingSnapshot()) { <p class="catalog-note" role="status">Showing the saved course catalog. Live updates are temporarily unavailable.</p> }
 
   @if (visibleModules().length) {
+    <div class="curriculum-layout">
+    <div id="unit-drawer" class="unit-drawer curriculum-main-column" aria-live="polite">
     <div class="module-carousel-container">
       <button type="button" class="track-nav track-nav--prev" aria-label="Scroll modules left" (click)="scrollTrack(-1)">
         <mat-icon aria-hidden="true">chevron_left</mat-icon>
       </button>
-      <div #track class="module-track" role="group" aria-label="Choose a module">
+      <div #track class="module-track" [style.--slide]="activeIndex() < 0 ? 0 : activeIndex()" role="group" aria-label="Choose a module">
         @for (module of visibleModules(); track module.id; let i = $index) {
           <button
             type="button"
             class="module-card"
             [attr.data-module-id]="module.id"
             [class.is-active]="i === activeIndex()"
-            [class.is-prev]="i < activeIndex()"
-            [class.is-next]="i > activeIndex()"
+            [class.is-prev]="i === activeIndex() - 1"
+            [class.is-next]="i === activeIndex() + 1"
             [attr.aria-pressed]="module.id === activeModuleId()"
             aria-controls="unit-drawer"
             (click)="selectModule(module.id, $event)"
@@ -58,9 +60,6 @@
         <mat-icon aria-hidden="true">chevron_right</mat-icon>
       </button>
     </div>
-
-    <div class="curriculum-layout">
-    <div id="unit-drawer" class="unit-drawer curriculum-main-column" aria-live="polite">
       @for (module of activeModuleList(); track module.id) {
         <div class="units-container">
           <header class="drawer-header">
