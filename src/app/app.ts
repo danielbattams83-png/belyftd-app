@@ -202,6 +202,7 @@ export class App {
       video.muted = true;
       video.volume = 0;
     }
+    if (video.paused && !this.yourKeyEnded()) video.play().catch(() => undefined);
   }
 
   keepYourKeyMuted(event: Event): void {
