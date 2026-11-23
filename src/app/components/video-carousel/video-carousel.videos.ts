@@ -48,8 +48,8 @@ export const HOME_CAROUSEL_VIDEOS: CarouselVideo[] = [
   },
   {
     tag: 'Intro',
-    title: "Lyft'd Life Lessons Intro",
-    caption: 'Hannah introduces Lyft\'d Life Lessons.',
+    title: 'Life Lessons Intro',
+    caption: 'Hannah introduces Life Lessons.',
     duration: '0:25',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/belyft-d-app.firebasestorage.app/o/App_Videos%2Flyftd-life-lessons-intro-hannah.mp4?alt=media',
     src: 'https://firebasestorage.googleapis.com/v0/b/belyft-d-app.firebasestorage.app/o/App_Videos%2Flyftd-life-lessons-intro-hannah.mp4?alt=media',

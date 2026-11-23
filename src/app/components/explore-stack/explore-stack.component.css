@@ -546,13 +546,16 @@
   }
   .explore-card[data-index="0"] { grid-column: span 7; }
   .explore-card[data-index="1"] { grid-column: span 5; }
+  :host(.explore-lessons) .explore-card {
+    grid-column: auto;
+  }
   .explore-card[data-index="0"] .explore-card__image,
   .explore-card[data-index="1"] .explore-card__media {
     flex: 1 1 auto;
     min-height: 168px;
     aspect-ratio: auto;
   }
-  .explore-card[data-index="6"] {
+  :host(.explore-bento) .explore-card[data-index="6"] {
     position: relative;
     grid-column: 1 / -1;
     display: grid;
@@ -565,28 +568,28 @@
     padding: 2rem 4.5rem 2rem 2rem;
     overflow: hidden;
   }
-  .explore-card[data-index="6"] .explore-card__toggle {
+  :host(.explore-bento) .explore-card[data-index="6"] .explore-card__toggle {
     position: absolute;
     top: 1.25rem;
     right: 1.25rem;
     z-index: 6;
     margin: 0;
   }
-  .explore-card[data-index="6"] .explore-card__head,
-  .explore-card[data-index="6"] .explore-card__title,
-  .explore-card[data-index="6"] .explore-card__text,
-  .explore-card[data-index="6"] .explore-card__panel,
-  .explore-card[data-index="6"] .explore-card__link {
+  :host(.explore-bento) .explore-card[data-index="6"] .explore-card__head,
+  :host(.explore-bento) .explore-card[data-index="6"] .explore-card__title,
+  :host(.explore-bento) .explore-card[data-index="6"] .explore-card__text,
+  :host(.explore-bento) .explore-card[data-index="6"] .explore-card__panel,
+  :host(.explore-bento) .explore-card[data-index="6"] .explore-card__link {
     grid-column: 1;
     width: 100%;
     max-width: 32rem;
   }
-  .explore-card[data-index="6"] .explore-card__head { justify-content: flex-start; }
-  .explore-card[data-index="6"] .explore-card__link {
+  :host(.explore-bento) .explore-card[data-index="6"] .explore-card__head { justify-content: flex-start; }
+  :host(.explore-bento) .explore-card[data-index="6"] .explore-card__link {
     position: static;
     margin: 0.85rem 0 0;
   }
-  .explore-card[data-index="6"] .explore-card__image {
+  :host(.explore-bento) .explore-card[data-index="6"] .explore-card__image {
     grid-column: 2;
     grid-row: 1 / span 6;
     align-self: center;
@@ -603,6 +606,40 @@
     object-position: center center !important;
     background: transparent;
   }
+}
+
+:host(.explore-lessons) { display: block; }
+:host(.explore-lessons) .explore-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+:host(.explore-lessons) .explore-stack::after { content: none; }
+:host(.explore-lessons) .explore-card {
+  position: relative;
+  top: auto;
+  grid-column: auto;
+  height: auto;
+}
+
+@media (min-width: 640px) {
+  :host(.explore-lessons) .explore-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  :host(.explore-lessons.explore-lessons-row-3) .explore-stack {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 56rem;
+    margin-inline: auto;
+  }
+  :host(.explore-lessons.explore-lessons-row-4) .explore-stack {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-width: none;
+  }
+  :host(.explore-lessons-spaced) { margin-bottom: 1.25rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

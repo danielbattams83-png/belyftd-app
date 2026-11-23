@@ -13,6 +13,7 @@ import {VideoCarouselComponent} from './components/video-carousel/video-carousel
 import {HOME_CAROUSEL_START, HOME_CAROUSEL_VIDEOS} from './components/video-carousel/video-carousel.videos';
 import {DASHBOARD_BENTO_CARDS, mentorBentoCards} from './components/spotlight-bento/spotlight-bento.cards';
 import {LIFE_LESSON_CARDS} from './components/spotlight-bento/life-lesson.cards';
+import {mentorMessageForDate} from './models/mentor-message';
 import {NavigationService} from './services/navigation.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {afterNextRender, DestroyRef, ElementRef, viewChild, ChangeDetectionStrategy, Component, computed, inject, signal, effect} from '@angular/core';
@@ -91,6 +92,9 @@ export class App {
   readonly dataService = inject(MentorshipDataService);
   readonly dashboardBentoCards = DASHBOARD_BENTO_CARDS;
   readonly lifeLessonCards = LIFE_LESSON_CARDS;
+  readonly lifeLessonRow1 = LIFE_LESSON_CARDS.slice(0, 3);
+  readonly lifeLessonRow2 = LIFE_LESSON_CARDS.slice(3, 7);
+  readonly lifeLessonRow3 = LIFE_LESSON_CARDS.slice(7, 10);
   readonly mentorBentoCards = computed(() => {
     const mentors = [...this.dataService.mentors()];
     const sophie = mentors.findIndex(mentor => mentor.id === 'sophie');
@@ -110,6 +114,144 @@ export class App {
   readonly hopeVideoUrl = signal<string | null>(null);
   readonly homeCarouselVideos = HOME_CAROUSEL_VIDEOS;
   readonly homeCarouselStart = HOME_CAROUSEL_START;
+  readonly lifeLessonsIntro = HOME_CAROUSEL_VIDEOS.find(video => video.src?.includes('lyftd-life-lessons-intro-hannah'));
+  readonly lifeLessonsMuted = signal(true);
+  readonly lifeLessonsEnded = signal(false);
+  readonly lifeLessonsProgress = signal(0);
+  private lifeLessonsSoundUnlocked = false;
+
+  private lifeLessonsVideoFrom(event: Event): HTMLVideoElement | null {
+    return event.target instanceof HTMLVideoElement ? event.target : null;
+  }
+
+  prepareLifeLessonsIntro(event: Event): void {
+    const video = this.lifeLessonsVideoFrom(event);
+    if (!video) return;
+    video.loop = false;
+    video.defaultMuted = true;
+    if (!this.lifeLessonsSoundUnlocked) {
+      video.muted = true;
+      video.volume = 0;
+    }
+    if (video.paused && !this.lifeLessonsEnded()) video.play().catch(() => undefined);
+  }
+
+  keepLifeLessonsMuted(event: Event): void {
+    const video = this.lifeLessonsVideoFrom(event);
+    if (!video) return;
+    video.loop = false;
+    if (this.lifeLessonsSoundUnlocked) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+  }
+
+  toggleLifeLessonsMuted(video: HTMLVideoElement, event: Event): void {
+    event.stopPropagation();
+    const muted = !this.lifeLessonsMuted();
+    this.lifeLessonsSoundUnlocked = !muted;
+    this.lifeLessonsMuted.set(muted);
+    video.muted = muted;
+    video.defaultMuted = muted;
+    video.volume = muted ? 0 : 1;
+    if (!muted && video.paused && !this.lifeLessonsEnded()) video.play().catch(() => undefined);
+  }
+
+  onLifeLessonsTime(event: Event): void {
+    const video = this.lifeLessonsVideoFrom(event);
+    if (!video?.duration || this.lifeLessonsEnded()) return;
+    video.loop = false;
+    this.lifeLessonsProgress.set((video.currentTime / video.duration) * 100);
+  }
+
+  onLifeLessonsEnded(event: Event): void {
+    const video = this.lifeLessonsVideoFrom(event);
+    if (video) {
+      video.loop = false;
+      video.pause();
+    }
+    this.lifeLessonsEnded.set(true);
+    this.lifeLessonsProgress.set(100);
+  }
+
+  replayLifeLessons(video: HTMLVideoElement): void {
+    if (!this.lifeLessonsEnded()) return;
+    this.lifeLessonsEnded.set(false);
+    this.lifeLessonsProgress.set(0);
+    video.loop = false;
+    video.currentTime = 0;
+    video.muted = this.lifeLessonsMuted();
+    video.volume = this.lifeLessonsMuted() ? 0 : 1;
+    video.play().catch(() => undefined);
+  }
+
+  readonly yourKeyIntroSrc = 'https://firebasestorage.googleapis.com/v0/b/belyft-d-app.firebasestorage.app/o/App_Videos%2Fyou-key-intro.mp4?alt=media';
+  readonly yourKeyIntroPoster = '/videos/you-key-intro.jpg?smile=1';
+  readonly todaysMentorMessage = mentorMessageForDate();
+  readonly yourKeyMuted = signal(true);
+  readonly yourKeyEnded = signal(false);
+  readonly yourKeyProgress = signal(0);
+  private yourKeySoundUnlocked = false;
+
+  prepareYourKeyIntro(event: Event): void {
+    const video = event.target instanceof HTMLVideoElement ? event.target : null;
+    if (!video) return;
+    video.loop = false;
+    video.defaultMuted = true;
+    if (!this.yourKeySoundUnlocked) {
+      video.muted = true;
+      video.volume = 0;
+    }
+  }
+
+  keepYourKeyMuted(event: Event): void {
+    const video = event.target instanceof HTMLVideoElement ? event.target : null;
+    if (!video) return;
+    video.loop = false;
+    if (this.yourKeySoundUnlocked) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+  }
+
+  toggleYourKeyMuted(video: HTMLVideoElement, event: Event): void {
+    event.stopPropagation();
+    const muted = !this.yourKeyMuted();
+    this.yourKeySoundUnlocked = !muted;
+    this.yourKeyMuted.set(muted);
+    video.muted = muted;
+    video.defaultMuted = muted;
+    video.volume = muted ? 0 : 1;
+    if (!muted && video.paused && !this.yourKeyEnded()) video.play().catch(() => undefined);
+  }
+
+  onYourKeyTime(event: Event): void {
+    const video = event.target instanceof HTMLVideoElement ? event.target : null;
+    if (!video?.duration || this.yourKeyEnded()) return;
+    video.loop = false;
+    this.yourKeyProgress.set((video.currentTime / video.duration) * 100);
+  }
+
+  onYourKeyEnded(event: Event): void {
+    const video = event.target instanceof HTMLVideoElement ? event.target : null;
+    if (video) {
+      video.loop = false;
+      video.pause();
+    }
+    this.yourKeyEnded.set(true);
+    this.yourKeyProgress.set(100);
+  }
+
+  replayYourKey(video: HTMLVideoElement): void {
+    if (!this.yourKeyEnded()) return;
+    this.yourKeyEnded.set(false);
+    this.yourKeyProgress.set(0);
+    video.loop = false;
+    video.currentTime = 0;
+    video.muted = this.yourKeyMuted();
+    video.volume = this.yourKeyMuted() ? 0 : 1;
+    video.play().catch(() => undefined);
+  }
   readonly faqItems = [
     {q: 'What is Lyft’d?', a: 'Lyft’d helps people move from where they are to where they are meant to be, with foundational courses, mentors, Lyft’d Life Lessons, and Your Key.'},
     {q: 'What are Foundational Courses?', a: 'A curriculum of modules and units on character, resilience, habits, leadership, money, faith, and digital life. Open Courses to start a unit.'},

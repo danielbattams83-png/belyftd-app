@@ -261,3 +261,69 @@
   border-color: rgba(255, 255, 255, 0.12);
   background: linear-gradient(165deg, rgba(30, 36, 43, 0.9), rgba(24, 32, 40, 0.78));
 }
+
+.daily-message-frame {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.15rem 1.15rem 1.25rem;
+  border-radius: 22px;
+  color: #ffffff;
+  background: linear-gradient(155deg, #132234 0%, #182028 65%, #1c2736 100%);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.22), 0 14px 28px -12px rgba(0, 0, 0, 0.55);
+}
+.daily-message-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.daily-message-top h3 { margin: 0; color: #fbbf24; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+.daily-message-top p { margin: 0.15rem 0 0; color: #b7c4d3; font-size: 0.8rem; }
+.daily-message-day {
+  flex: none;
+  margin-top: 0.1rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+.daily-message-title { margin: 0; color: #ffffff; font-size: 1.15rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
+.daily-message-quote {
+  position: relative;
+  padding: 0.85rem 0.95rem 0.95rem;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-left: 3px solid #0ea5e9;
+}
+.daily-message-quote p {
+  margin: 0;
+  color: #0f172a;
+  font-family: Georgia, "Playfair Display", serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.55;
+}
+.daily-message-quote p.daily-message-hook { font-weight: 700; margin-bottom: 0.55rem; }
+.daily-message-mark {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 50%;
+  font-family: Georgia, "Playfair Display", serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fbbf24;
+  background: #132234;
+  border: 1px solid rgba(245, 158, 11, 0.7);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+}
+.daily-message-mark--open { top: 0; left: 0; transform: translate(-42%, -42%); }
+.daily-message-mark--close { right: 0; bottom: 0; transform: translate(42%, 42%); }

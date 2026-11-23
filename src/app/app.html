@@ -65,7 +65,7 @@
           [class]="activeTab() === 'quests' ? 'text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors'"
           class="cursor-pointer whitespace-nowrap"
         >
-          Lyft'd Life Lessons
+          Life Lessons
         </button>
         <button
           type="button"
@@ -437,7 +437,7 @@
 
         <section id="daily-explore-bento" aria-labelledby="daily-explore-title" class="explore-section order-7 flex flex-col gap-3 lg:mx-auto lg:max-w-6xl">
           <h3 id="daily-explore-title" class="text-center text-3xl font-bold text-slate-900 dark:text-slate-100">Explore Lyft'd</h3>
-          <app-explore-stack [cards]="dashboardBentoCards" label="Explore Lyft'd" />
+          <app-explore-stack class="explore-bento" [cards]="dashboardBentoCards" label="Explore Lyft'd" />
         </section>
 
         <section aria-labelledby="home-mentors-heading" class="order-4 flex w-full flex-col items-center gap-5">
@@ -852,130 +852,70 @@
 
     @if (activeTab() === 'quests') {
       <div id="tab-quests-content" class="space-y-6 pt-6 animate-in fade-in duration-150">
-        
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <h2 id="life-lessons-page-title" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">
-              Lyft'd Life Lessons
-            </h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Short lessons you can read, and milestones you can track.
-            </p>
-          </div>
-
-          <button
-            id="add-quest-header-btn"
-            type="button"
-            (click)="showNewQuestModal.set(true)"
-            class="px-4 py-2.5 rounded-2xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm cursor-pointer transition focus-accessible shrink-0"
-          >
-            <mat-icon class="text-base">add</mat-icon>
-            <span>New Quest</span>
-          </button>
-        </div>
-
-        <!-- Progress XP Card -->
-        <div class="card p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base">
-                ⚡
-              </div>
-              <div>
-                <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100 font-display">
-                  Level 3 Pathfinder
-                </h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400">{{ totalQuestXp() }} XP Total Earned</p>
-              </div>
-            </div>
-
-            <span class="text-xs font-bold font-mono text-indigo-600 dark:text-indigo-400">
-              {{ completedStepsCount() }}/{{ totalStepsCount() }} Milestones Done
-            </span>
-          </div>
-
-          <!-- XP Bar -->
-          <div class="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">
-            <div
-              class="bg-indigo-400 h-full rounded-full transition-all duration-300"
-              [style.width.%]="totalStepsCount() ? (completedStepsCount() / totalStepsCount()) * 100 : 0"
-            ></div>
-          </div>
-        </div>
-
-        <!-- Quest Cards -->
-        <div class="space-y-4">
-          @for (quest of dataService.goalQuests(); track quest.id) {
-            <div
-              class="card rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 space-y-4 shadow-sm"
-            >
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <div class="flex items-center gap-2 mb-1.5">
-                    <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300">
-                      {{ quest.category }}
-                    </span>
-                    <span class="text-xs text-slate-400">{{ quest.deadline }}</span>
+        <div id="life-lessons" class="mx-auto w-full max-w-6xl lg:px-6">
+          <div class="mx-auto flex w-full max-w-4xl flex-col items-center justify-center gap-10 px-6 py-10 lg:flex-row">
+            @if (lifeLessonsIntro; as intro) {
+              <figure class="mx-auto w-[270px] max-w-full shrink-0">
+                <div
+                  class="relative aspect-[9/16] overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 shadow-lg"
+                  style="aspect-ratio: 9 / 16;"
+                  (click)="replayLifeLessons(lifeLessonsVideo)"
+                >
+                  <video
+                    #lifeLessonsVideo
+                    class="block h-full w-full object-cover"
+                    [src]="intro.src"
+                    [poster]="intro.poster"
+                    [attr.aria-label]="intro.title"
+                    controls
+                    muted
+                    playsinline
+                    preload="metadata"
+                    (loadedmetadata)="prepareLifeLessonsIntro($event)"
+                    (play)="keepLifeLessonsMuted($event)"
+                    (timeupdate)="onLifeLessonsTime($event)"
+                    (ended)="onLifeLessonsEnded($event)"
+                  ></video>
+                  <div class="pointer-events-none absolute inset-x-0 bottom-14 bg-gradient-to-t from-black/85 via-black/35 to-transparent px-4 pb-3 pt-16">
+                    <div class="flex items-end justify-between gap-3">
+                      <h3 class="text-[17px] font-bold leading-tight text-white">{{ intro.title }}</h3>
+                      @if (intro.duration) {
+                        <span class="shrink-0 rounded-full bg-black/40 px-2.5 py-1 text-xs text-white backdrop-blur-md">{{ intro.duration }}</span>
+                      }
+                    </div>
+                    @if (intro.caption) {
+                      <p class="mt-1.5 text-[13px] leading-snug text-white/85">{{ intro.caption }}</p>
+                    }
+                    @if (lifeLessonsEnded()) {
+                      <p class="mt-2 text-xs font-semibold text-white">Tap to replay</p>
+                    }
                   </div>
-                  <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-display">
-                    {{ quest.title }}
-                  </h3>
-                </div>
-
-                @if (quest.status === 'completed') {
-                  <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1">
-                    <mat-icon class="text-sm">verified</mat-icon> Completed
-                  </span>
-                }
-              </div>
-
-              @if (quest.notes) {
-                <p class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-750 leading-relaxed">
-                  💡 <strong class="text-slate-900 dark:text-slate-100">Mentor Tip:</strong> {{ quest.notes }}
-                </p>
-              }
-
-              <!-- Steps Checkbox List -->
-              <div class="space-y-2 pt-1">
-                @for (step of quest.steps; track step.id) {
                   <button
                     type="button"
-                    (click)="dataService.toggleGoalStep(quest.id, step.id)"
-                    [class]="step.completed
-                      ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50 text-slate-400 line-through'
-                      : 'bg-slate-50 dark:bg-slate-800/60 border-slate-100 dark:border-slate-750 text-slate-800 dark:text-slate-200 hover:border-indigo-300'"
-                    class="w-full p-3 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition text-left focus-accessible"
-                    [attr.aria-label]="(step.completed ? 'Mark incomplete: ' : 'Mark complete: ') + step.title"
+                    class="absolute top-3 right-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-slate-900/35 text-white backdrop-blur-md"
+                    [attr.aria-label]="lifeLessonsMuted() ? 'Unmute video' : 'Mute video'"
+                    (click)="toggleLifeLessonsMuted(lifeLessonsVideo, $event)"
                   >
-                    <div class="flex items-center gap-3 min-w-0">
-                      <div
-                        [class]="step.completed ? 'bg-emerald-600 text-white border-emerald-600' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900'"
-                        class="w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition shadow-xs"
-                      >
-                        @if (step.completed) {
-                          <mat-icon class="text-xs font-bold">check</mat-icon>
-                        }
-                      </div>
-                      <span class="text-xs font-medium truncate">{{ step.title }}</span>
-                    </div>
-
-                    <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-700 text-amber-600 dark:text-amber-300 shrink-0">
-                      +{{ step.xp }} XP
-                    </span>
+                    <mat-icon class="text-xl">{{ lifeLessonsMuted() ? 'volume_off' : 'volume_up' }}</mat-icon>
                   </button>
-                }
-              </div>
+                </div>
+              </figure>
+            }
+            <div class="max-w-md text-center lg:text-left">
+              <div class="mx-auto mb-4 h-1 w-14 rounded-full bg-indigo-400 lg:mx-0" aria-hidden="true"></div>
+              <h3 id="life-lessons-title" class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100 font-display lg:text-4xl">Life Lessons</h3>
+              <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Ten short modules. Open a card to read the tips.</p>
+              <p class="mt-4 text-base leading-relaxed text-slate-600 dark:text-slate-300">
+                Welcome to your daily toolkit for personal growth. Watch Hannah's quick intro on the left, then explore the ten bite-sized modules below to find practical, actionable tips you can start applying today.
+              </p>
             </div>
-          }
-        </div>
-
-        <section id="life-lessons" aria-labelledby="life-lessons-title" class="flex flex-col gap-3 pt-4">
-          <div>
-            <h3 id="life-lessons-title" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight font-display">Life Lessons</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Ten short modules. Open a card to read the tips.</p>
           </div>
-          <app-explore-stack [cards]="lifeLessonCards" label="Life lessons" />
-        </section>
+          <div class="mx-auto w-full max-w-5xl px-6">
+            <app-explore-stack class="explore-lessons explore-lessons-row-3 explore-lessons-spaced" [cards]="lifeLessonRow1" label="Life lessons modules 1 to 3" />
+            <app-explore-stack class="explore-lessons explore-lessons-row-4 explore-lessons-spaced" [cards]="lifeLessonRow2" label="Life lessons modules 4 to 7" />
+            <app-explore-stack class="explore-lessons explore-lessons-row-3" [cards]="lifeLessonRow3" label="Life lessons modules 8 to 10" />
+          </div>
+        </div>
 
       </div>
     }
@@ -984,122 +924,75 @@
     <!-- TAB 4: YOUR KEY (24/7 YOUTH AI COMPANION)-->
     <!-- ========================================== -->
     @if (activeTab() === 'your-key') {
-      <div id="tab-your-key-content" class="space-y-6 pt-6 animate-in fade-in duration-150">
-        
-        <div class="flex items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-indigo-400 text-white flex items-center justify-center shadow-sm">
-              <mat-icon class="text-2xl">bolt</mat-icon>
-            </div>
-            <div>
-              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 font-display">
-                Your Key
-              </h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">
-                24/7 Youth Uplift, Resume Prep & Life Guidance
-              </p>
-            </div>
-          </div>
-
-          <!-- Instant Pep Talk CTA -->
-          <button
-            type="button"
-            (click)="showCustomPepTalk.set(true)"
-            class="px-4 py-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50 text-xs font-semibold flex items-center gap-1.5 cursor-pointer hover:bg-amber-100 transition shrink-0"
-          >
-            <mat-icon class="text-sm">auto_awesome</mat-icon>
-            <span>Instant Pep Talk</span>
-          </button>
-        </div>
-
-        <!-- Quick Prompt Chips -->
-        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
-          @for (chip of [
-            'How to overcome test anxiety?',
-            'Tips for high school resume',
-            'Staying focused when unmotivated',
-            'Dealing with peer pressure'
-          ]; track chip) {
-            <button
-              type="button"
-              (click)="askCoachQuickQuestion(chip)"
-              class="px-4 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-500 text-xs whitespace-nowrap cursor-pointer transition focus-accessible shrink-0 shadow-xs"
-            >
-              {{ chip }}
-            </button>
-          }
-        </div>
-
-        <!-- Chat Conversation Area -->
-        <div class="card space-y-4 min-h-[380px] p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
-          @for (msg of aiService.coachMessages(); track msg.id) {
+      <div id="tab-your-key-content" class="animate-in fade-in duration-150">
+        <div class="mx-auto flex w-full max-w-4xl flex-col items-center gap-10 px-6 py-10 lg:flex-row">
+          <figure class="mx-auto w-[270px] max-w-full shrink-0">
             <div
-              [class]="msg.sender === 'user' ? 'flex justify-end' : 'flex justify-start'"
+              class="relative aspect-[9/16] overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 shadow-lg"
+              style="aspect-ratio: 9 / 16;"
+              (click)="replayYourKey(yourKeyVideo)"
             >
-              <div
-                [class]="msg.sender === 'user'
-                  ? 'bg-indigo-400 text-white rounded-3xl rounded-tr-xs'
-                  : 'bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-3xl rounded-tl-xs'"
-                class="max-w-[85%] p-4 text-sm shadow-xs space-y-2"
-              >
-                <div class="flex items-center justify-between gap-3 text-[11px] opacity-75">
-                  <span class="font-bold">{{ msg.senderName }}</span>
-                  <span>{{ msg.timestamp }}</span>
+              <video
+                #yourKeyVideo
+                class="block h-full w-full object-cover"
+                [src]="yourKeyIntroSrc"
+                [poster]="yourKeyIntroPoster"
+                [muted]="true"
+                [loop]="false"
+                controls
+                muted
+                playsinline
+                preload="none"
+                aria-label="Your Key intro"
+                (loadedmetadata)="prepareYourKeyIntro($event)"
+                (play)="keepYourKeyMuted($event)"
+                (timeupdate)="onYourKeyTime($event)"
+                (ended)="onYourKeyEnded($event)"
+              ></video>
+              <div class="pointer-events-none absolute inset-x-0 bottom-14 bg-gradient-to-t from-black/85 via-black/35 to-transparent px-4 pb-3 pt-16">
+                <div class="flex items-end justify-between gap-3">
+                  <h3 class="text-[17px] font-bold leading-tight text-white">Your Key Intro</h3>
+                  <span class="shrink-0 rounded-full bg-black/40 px-2.5 py-1 text-xs text-white backdrop-blur-md">0:24</span>
                 </div>
-
-                <p class="leading-relaxed text-xs sm:text-sm">{{ msg.text }}</p>
-
-                <!-- Voice Playback Button for AI answers -->
-                @if (msg.sender === 'coach-spark') {
-                  <div class="pt-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      (click)="speakAiResponse(msg.text)"
-                      class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-400 hover:text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition shadow-xs"
-                      title="Speak AI Coach Advice"
-                    >
-                      <mat-icon class="text-xs">volume_up</mat-icon>
-                      <span>Listen to Audio Voice</span>
-                    </button>
-                    @if (msg.actionPrompt) {
-                      <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
-                        ⚡ Next Step
-                      </span>
-                    }
-                  </div>
+                @if (yourKeyEnded()) {
+                  <p class="mt-2 text-xs font-semibold text-white">Tap to replay</p>
                 }
               </div>
+              <button
+                type="button"
+                class="absolute top-3 right-3 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-slate-900/35 text-white backdrop-blur-md"
+                [attr.aria-label]="yourKeyMuted() ? 'Unmute video' : 'Mute video'"
+                (click)="toggleYourKeyMuted(yourKeyVideo, $event)"
+              >
+                <mat-icon class="text-xl">{{ yourKeyMuted() ? 'volume_off' : 'volume_up' }}</mat-icon>
+              </button>
             </div>
-          }
-
-          @if (aiService.isGenerating()) {
-            <div class="flex items-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 p-2">
-              <mat-icon class="animate-spin text-sm">autorenew</mat-icon>
-              <span>Your Key is crafting uplifting guidance...</span>
-            </div>
-          }
+          </figure>
+          <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-6 text-center shadow-sm lg:text-left dark:border-slate-800 dark:bg-slate-900">
+            <div class="mx-auto mb-4 h-1 w-14 rounded-full bg-indigo-400 lg:mx-0" aria-hidden="true"></div>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100 font-display lg:text-4xl">Your Key</h2>
+            <p class="mt-4 text-base leading-relaxed text-slate-600 dark:text-slate-300">
+              “We believe 'Your Key' is related to how you think, act and respond to circumstances in your life. We have selected 365 messages that you can get through in a year that can encourage and motivate you in your life’s journey. Commitment is also the Key. So commit each day to check into 'Your Key' to see that daily message, and enjoy the journey.”
+            </p>
+          </div>
         </div>
 
-        <!-- Chat Input Form -->
-        <form [formGroup]="coachChatForm" (ngSubmit)="sendCoachSparkMessage()" class="flex items-center gap-3">
-          <input
-            id="your-key-input"
-            type="text"
-            formControlName="prompt"
-            placeholder="Ask Your Key anything (e.g. advice on interview, math stress, goals)..."
-            class="flex-1 px-5 py-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-slate-100 shadow-xs focus-accessible"
-          />
-          <button
-            id="send-coach-msg-btn"
-            type="submit"
-            [disabled]="!coachChatForm.valid || aiService.isGenerating()"
-            class="w-12 h-12 rounded-2xl bg-indigo-400 hover:bg-indigo-700 disabled:opacity-40 text-white flex items-center justify-center shadow-sm cursor-pointer transition focus-accessible shrink-0"
-            aria-label="Send message to Your Key"
-          >
-            <mat-icon>send</mat-icon>
-          </button>
-        </form>
-
+        <section class="daily-message-frame mx-auto w-full max-w-3xl px-6 pb-12" aria-labelledby="daily-message-title">
+          <header class="daily-message-top">
+            <div>
+              <h3 id="daily-message-title">Daily Message</h3>
+              <p>Larry's Mentor Messages</p>
+            </div>
+            <span class="daily-message-day">DAY {{ todaysMentorMessage.day }}</span>
+          </header>
+          <h4 class="daily-message-title">{{ todaysMentorMessage.title }}</h4>
+          <div class="daily-message-quote">
+            <span class="daily-message-mark daily-message-mark--open" aria-hidden="true">“</span>
+            <p class="daily-message-hook">{{ todaysMentorMessage.hook }}</p>
+            <p>{{ todaysMentorMessage.message }}</p>
+            <span class="daily-message-mark daily-message-mark--close" aria-hidden="true">”</span>
+          </div>
+        </section>
       </div>
     }
 
