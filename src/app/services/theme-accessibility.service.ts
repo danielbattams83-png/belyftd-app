@@ -1,7 +1,7 @@
 import {Injectable, signal, effect} from '@angular/core';
 
 export type AppTheme = 'dark' | 'light';
-export type AppFontSize = 'normal' | 'large';
+export type AppFontSize = 'normal' | 'large' | 'extra-large';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +26,7 @@ export class ThemeAccessibilityService {
       this.highContrast.set(savedContrast);
 
       const savedFontSize = localStorage.getItem('belyftd_font_size') as AppFontSize;
-      if (savedFontSize) {
+      if (savedFontSize === 'normal' || savedFontSize === 'large' || savedFontSize === 'extra-large') {
         this.fontSize.set(savedFontSize);
       }
     }
@@ -53,11 +53,9 @@ export class ThemeAccessibilityService {
           root.classList.remove('high-contrast');
         }
 
-        if (font === 'large') {
-          root.classList.add('text-lg-scale');
-        } else {
-          root.classList.remove('text-lg-scale');
-        }
+        root.classList.remove('text-lg-scale', 'text-size-large', 'text-size-extra-large');
+        if (font === 'large') root.classList.add('text-size-large');
+        if (font === 'extra-large') root.classList.add('text-size-extra-large');
 
         // Save preferences
         if (typeof window !== 'undefined') {
@@ -84,10 +82,11 @@ export class ThemeAccessibilityService {
     this.announce(nextVal ? 'High contrast enabled' : 'Standard contrast enabled');
   }
 
-  toggleFontSize(): void {
-    const nextSize = this.fontSize() === 'normal' ? 'large' : 'normal';
+  setFontSize(size: AppFontSize): void {
+    const nextSize = size === 'large' || size === 'extra-large' ? size : 'normal';
     this.fontSize.set(nextSize);
-    this.announce(`Font size set to ${nextSize}`);
+    const label = nextSize === 'extra-large' ? 'extra large' : nextSize === 'large' ? 'large' : 'default';
+    this.announce(`Text size set to ${label}`);
   }
 
   announce(message: string): void {

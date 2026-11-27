@@ -76,6 +76,9 @@ export interface UserProfileDocument {
   countryCode: string;
   ageBracket?: string;
   preferredLanguage?: string;
+  secondaryLanguage?: string;
+  birthdayMonth?: number | null;
+  birthdayDay?: number | null;
   focusAreas?: string[];
   selectedMentorIds?: string[];
   tourCompleted?: boolean;
@@ -478,6 +481,27 @@ export class FirebaseService {
     if (typeof window !== 'undefined') {
       await this._persistActiveSession(user);
       localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED, 'true');
+    }
+  }
+
+  /** Saves language and birthday choices locally, and to Firestore when a signed-in profile exists. */
+  async savePreferenceFields(fields: Partial<Pick<UserProfileDocument, 'preferredLanguage' | 'secondaryLanguage' | 'birthdayMonth' | 'birthdayDay'>>): Promise<void> {
+    const current = this.userProfile();
+    if (current) {
+      const updated = {...current, ...fields, updatedAt: new Date().toISOString()};
+      this.userProfile.set(updated);
+      this._saveLocalStorageUserProfile(updated);
+    }
+
+    const user = this.currentUser();
+    if (!user || user.isAnonymous || !this.db) return;
+    try {
+      await updateDoc(doc(this.db, 'users', user.uid), {
+        ...fields,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.warn('[FirebaseService] Preference save kept locally:', error);
     }
   }
 

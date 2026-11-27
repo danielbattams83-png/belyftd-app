@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import {RouterLink} from '@angular/router';
 import type {BentoCard} from '../spotlight-bento/spotlight-bento.element';
+import {UserPreferencesService} from '../../services/user-preferences.service';
 
 /** Sticky stacking deck: cards pin under the app header as the page scrolls, each one tapping open in place. */
 @Component({
@@ -27,6 +28,7 @@ export class ExploreStackComponent {
   readonly expanded = signal<number | null>(null);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly preferences = inject(UserPreferencesService);
 
   constructor() {
     const destroyRef = inject(DestroyRef);
@@ -107,5 +109,8 @@ export class ExploreStackComponent {
 
   toggle(index: number): void {
     this.expanded.update((current) => (current === index ? null : index));
+    if (this.expanded() !== index || !this.label().toLowerCase().includes('life lesson')) return;
+    const number = this.cards()[index]?.tag?.match(/\d+/)?.[0];
+    if (number) this.preferences.markLifeLessonViewed(`life-${number.padStart(2, '0')}`);
   }
 }

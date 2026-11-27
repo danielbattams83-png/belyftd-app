@@ -90,7 +90,7 @@ export class DailyMessageSchedulerService {
       await this.postWorkerMessage({type: 'SET_DAILY_NOTIFICATIONS_ENABLED', enabled: true});
       await this.refreshAffirmations();
       await this.activateScheduler();
-      this.setStatus('Daily message reminders enabled for 8:00 AM.');
+      this.setStatus('Daily message reminders are on.');
     } catch (error) {
       console.warn('[DailyMessageScheduler] Could not enable notifications:', error);
       this.setStatus('Could not enable daily reminders on this device.');

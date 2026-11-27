@@ -14,6 +14,7 @@ import {ActivatedRoute} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
 import {ModuleUnitDocument} from '../models/firestore.models';
 import {FirebaseService, SponsorProfileDocument} from '../services/firebase.service';
+import {UserPreferencesService} from '../services/user-preferences.service';
 
 @Component({
   selector: 'app-course-unit',
@@ -178,6 +179,7 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
     if (this.embedded()) this.closed.emit();
   }
   private readonly firebaseService = inject(FirebaseService);
+  private readonly preferences = inject(UserPreferencesService);
 
   private readonly audioPlayer = inject(AudioPlayerService);
   readonly hasMediaAccess = computed(() => canAccessModule(this.firebaseService.subscriptionTier(), this.moduleIdInput() ?? this.route.snapshot.paramMap.get('moduleId') ?? ''));
@@ -227,6 +229,7 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
       if (!this.hasMediaAccess()) { player.pause(); player.currentTime = 0; return; }
       player.src = media.url;
       player.load();
+      this.preferences.applyCaptions(player);
     });
   }
 

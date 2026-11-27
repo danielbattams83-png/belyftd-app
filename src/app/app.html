@@ -1328,7 +1328,7 @@
   <!-- Profile & Settings Modal -->
   @if (showProfileModal()) {
     <app-profile-modal
-      (closeModal)="navigation.goBack()"
+      (closeModal)="closeProfile()"
       (logoutComplete)="handleProfileLogout()"
       (editOnboarding)="editProfileOnboarding()"
       (replayTour)="replayAppTour()"

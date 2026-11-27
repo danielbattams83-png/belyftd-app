@@ -1,11 +1,19 @@
 import {BackButtonComponent} from './back-button.component';
-import {ChangeDetectionStrategy, Component, computed, inject, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
 import {MentorshipDataService} from '../services/mentorship-data.service';
-import {ThemeAccessibilityService} from '../services/theme-accessibility.service';
+import {ThemeAccessibilityService, AppFontSize} from '../services/theme-accessibility.service';
 import {FirebaseService} from '../services/firebase.service';
 import {DailyMessageSchedulerService} from '../services/daily-message-scheduler.service';
+import {CurriculumService} from '../services/curriculum.service';
+import {UserPreferencesService} from '../services/user-preferences.service';
+
+const PROFILE_VIDEOS = {
+  explainer: {title: 'App Explainer Video', url: ''},
+  investor: {title: 'Investor Video', url: ''},
+} as const;
 
 @Component({
   selector: 'app-profile-modal',
@@ -19,7 +27,7 @@ import {DailyMessageSchedulerService} from '../services/daily-message-scheduler.
       >
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <app-back-button />
+          <app-back-button class="profile-back" [profile]="true" label="Back" [navigate]="false" (pressed)="closeModal.emit()" />
           <h3 class="text-base font-bold font-display">My Lyft'd Profile & Settings</h3>
           <button
             id="close-profile-btn"
@@ -30,6 +38,16 @@ import {DailyMessageSchedulerService} from '../services/daily-message-scheduler.
             <mat-icon class="text-base">close</mat-icon>
           </button>
         </div>
+
+        <button
+          id="change-preferences-btn"
+          type="button"
+          (click)="scrollToPreferences()"
+          class="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 focus-accessible"
+        >
+          <mat-icon aria-hidden="true">tune</mat-icon>
+          Change my preferences
+        </button>
 
         <!-- User Identity Card -->
         <div class="card flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800">
@@ -64,53 +82,20 @@ import {DailyMessageSchedulerService} from '../services/daily-message-scheduler.
           </div>
         </div>
 
-        <!-- Stats Grid -->
         <div class="grid grid-cols-3 gap-2.5 text-center">
-          <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 shadow-xs">
-            <div class="text-xl font-bold text-indigo-600 dark:text-indigo-400 font-display">
-              {{ activeProfile().lyftsReceived ?? '—' }}
-            </div>
-            <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Lyfts Received</div>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 shadow-xs">
-            <div class="text-xl font-bold text-amber-600 dark:text-amber-400 font-display">
-              {{ activeProfile().lyftsSent ?? '—' }}
-            </div>
-            <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Lyfts Sent</div>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 shadow-xs">
-            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 font-display">
-              {{ activeProfile().completedCourses }}
-            </div>
-            <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">Courses Completed</div>
-          </div>
+          <button id="stat-modules-completed" type="button" (click)="openProgress('/courses')" class="min-h-[44px] rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition hover:border-indigo-400 focus-accessible dark:border-slate-800 dark:bg-slate-850">
+            <div class="text-xl font-bold text-indigo-600 dark:text-indigo-400 font-display">{{ modulesCompleted() }}</div>
+            <div class="mt-0.5 text-[11px] font-semibold leading-snug text-slate-700 dark:text-slate-200">Modules Completed</div>
+          </button>
+          <button id="stat-life-lessons" type="button" (click)="openProgress('/life-lessons')" class="min-h-[44px] rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition hover:border-indigo-400 focus-accessible dark:border-slate-800 dark:bg-slate-850">
+            <div class="text-xl font-bold text-amber-600 dark:text-amber-400 font-display">{{ preferences.lifeLessonsViewed() }} / {{ preferences.lifeLessonsCompleted() }}</div>
+            <div class="mt-0.5 text-[11px] font-semibold leading-snug text-slate-700 dark:text-slate-200">Life Lessons Viewed / Completed</div>
+          </button>
+          <button id="stat-daily-messages" type="button" (click)="openProgress('/your-key')" class="min-h-[44px] rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition hover:border-indigo-400 focus-accessible dark:border-slate-800 dark:bg-slate-850">
+            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 font-display">{{ preferences.dailyMessagesRead() }} / {{ preferences.dailyMessageStreak() }}</div>
+            <div class="mt-0.5 text-[11px] font-semibold leading-snug text-slate-700 dark:text-slate-200">Daily Mentor Messages</div>
+          </button>
         </div>
-
-        @if (firebaseService.hasActiveSession()) {
-          <section aria-labelledby="profile-notifications-title" class="flex items-center justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-850">
-            <div class="flex min-w-0 items-start gap-3">
-              <mat-icon class="shrink-0 text-indigo-600 dark:text-indigo-400" aria-hidden="true">{{ reminders.notificationsEnabled() ? 'notifications_active' : 'notifications_none' }}</mat-icon>
-              <div class="min-w-0">
-                <h4 id="profile-notifications-title" class="text-sm font-bold text-slate-900 dark:text-slate-100">Daily reminders</h4>
-                <p class="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-                  {{ reminders.notificationStatus() || (reminders.notificationsEnabled() ? 'You will get a message at 8 AM each day.' : 'Get a short message at 8 AM each day.') }}
-                </p>
-              </div>
-            </div>
-            <button
-              id="daily-message-reminder-toggle"
-              type="button"
-              role="switch"
-              (click)="reminders.toggleNotifications()"
-              [attr.aria-checked]="reminders.notificationsEnabled()"
-              aria-labelledby="profile-notifications-title"
-              class="relative h-7 w-12 shrink-0 cursor-pointer rounded-full transition focus-accessible"
-              [class]="reminders.notificationsEnabled() ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'"
-            >
-              <span class="absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all" [class]="reminders.notificationsEnabled() ? 'left-6' : 'left-1'"></span>
-            </button>
-          </section>
-        }
 
         <!-- Focus Areas -->
         <div>
@@ -176,89 +161,153 @@ import {DailyMessageSchedulerService} from '../services/daily-message-scheduler.
           }
         </section>
 
-        <!-- Accessibility & UI Preferences -->
-        <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-            Accessibility & Display
-          </h4>
+        <section id="profile-preferences" tabindex="-1" class="space-y-4 border-t border-slate-100 pt-4 outline-none dark:border-slate-800" aria-labelledby="profile-preferences-title">
+          <h4 id="profile-preferences-title" class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Preferences & Accessibility</h4>
 
-          <button type="button" (click)="replayTour.emit()" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 px-4 py-2.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-50 focus-accessible dark:border-indigo-900/60 dark:text-indigo-300 dark:hover:bg-indigo-950/40">
-            <mat-icon class="text-base">play_circle</mat-icon>
-            Replay App Tour
-          </button>
+          <div class="space-y-3">
+            <label class="block text-xs font-bold text-slate-900 dark:text-slate-100" for="profile-language">Choose language</label>
+            <select id="profile-language" [value]="preferences.primaryLanguage()" (change)="preferences.setPrimaryLanguage(readValue($event))" class="border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+              @for (language of preferences.languages; track language.name) {
+                <option [value]="language.name">{{ language.name }}</option>
+              }
+            </select>
+            <p class="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">Lesson captions follow this language, and use English when that track is not available yet.</p>
 
-          <!-- Dark / Light Theme Toggle -->
-          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800">
-            <div class="flex items-center gap-3">
-              <mat-icon class="text-indigo-600 dark:text-indigo-400">
-                {{ themeService.theme() === 'dark' ? 'dark_mode' : 'light_mode' }}
-              </mat-icon>
+            <label class="block text-xs font-bold text-slate-900 dark:text-slate-100" for="profile-language-secondary">2nd language <span class="font-medium text-slate-500">(optional)</span></label>
+            <select id="profile-language-secondary" [value]="preferences.secondaryLanguage()" (change)="preferences.setSecondaryLanguage(readValue($event))" class="border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+              <option value="">None</option>
+              @for (language of preferences.languages; track language.name) {
+                <option [value]="language.name">{{ language.name }}</option>
+              }
+            </select>
+          </div>
+
+          <fieldset class="space-y-2">
+            <legend class="text-xs font-bold text-slate-900 dark:text-slate-100">Birthday <span class="font-medium text-slate-500">(optional, month and day)</span></legend>
+            <p class="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">Add a month and day if you would like a birthday message. No year is stored, and no extra sign-in permission is required.</p>
+            <div class="grid grid-cols-2 gap-2">
+              <select id="profile-birthday-month" aria-label="Birthday month" [value]="preferences.birthdayMonth() ?? ''" (change)="onBirthdayMonth($event)" class="border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                <option value="">Month</option>
+                @for (month of preferences.months; track month.value) {
+                  <option [value]="month.value">{{ month.label }}</option>
+                }
+              </select>
+              <select id="profile-birthday-day" aria-label="Birthday day" [value]="preferences.birthdayDay() ?? ''" (change)="onBirthdayDay($event)" [disabled]="!preferences.birthdayMonth()" class="border border-slate-300 bg-white px-3 text-sm text-slate-900 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                <option value="">Day</option>
+                @for (day of preferences.birthdayDayOptions(); track day) {
+                  <option [value]="day">{{ day }}</option>
+                }
+              </select>
+            </div>
+          </fieldset>
+
+          @if (firebaseService.hasActiveSession()) {
+            <section aria-labelledby="profile-notifications-title" class="flex items-center justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-850">
+              <div class="flex min-w-0 items-start gap-3">
+                <mat-icon class="shrink-0 text-indigo-600 dark:text-indigo-400" aria-hidden="true">{{ reminders.notificationsEnabled() ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+                <div class="min-w-0">
+                  <h4 id="profile-notifications-title" class="text-sm font-bold text-slate-900 dark:text-slate-100">Daily Message notifications</h4>
+                  <p class="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                    {{ reminders.notificationsEnabled() ? 'A short mentor message arrives on the default schedule.' : 'Turn on a daily mentor message. It follows the default schedule.' }}
+                  </p>
+                </div>
+              </div>
+              <button
+                id="daily-message-reminder-toggle"
+                type="button"
+                role="switch"
+                (click)="reminders.toggleNotifications()"
+                [attr.aria-checked]="reminders.notificationsEnabled()"
+                aria-labelledby="profile-notifications-title"
+                class="relative h-7 w-12 shrink-0 cursor-pointer rounded-full transition focus-accessible"
+                [class]="reminders.notificationsEnabled() ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'"
+              >
+                <span class="absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all" [class]="reminders.notificationsEnabled() ? 'left-6' : 'left-1'"></span>
+              </button>
+            </section>
+          }
+
+          <div id="offline-reading-note" class="rounded-2xl border border-slate-200/80 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-850">
+            <h4 class="text-xs font-bold text-slate-900 dark:text-slate-100">Offline reading available</h4>
+            <p class="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-300">Saved lessons and messages can be read offline, even when you are not connected.</p>
+          </div>
+
+          <div class="space-y-3" aria-labelledby="profile-accessibility-title">
+            <h4 id="profile-accessibility-title" class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Accessibility</h4>
+
+            <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-850">
+              <div>
+                <div id="profile-contrast-label" class="text-xs font-bold text-slate-900 dark:text-slate-100">High Contrast</div>
+                <div class="text-[11px] text-slate-600 dark:text-slate-300">Stronger text and borders, without muted gray type.</div>
+              </div>
+              <button
+                id="toggle-contrast-dialog-btn"
+                type="button"
+                role="switch"
+                (click)="themeService.toggleHighContrast()"
+                [attr.aria-checked]="themeService.highContrast()"
+                aria-labelledby="profile-contrast-label"
+                class="relative h-7 w-12 shrink-0 cursor-pointer rounded-full transition focus-accessible"
+                [class]="themeService.highContrast() ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'"
+              >
+                <span class="absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all" [class]="themeService.highContrast() ? 'left-6' : 'left-1'"></span>
+              </button>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-3.5 dark:border-slate-700 dark:bg-slate-850" aria-disabled="true">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span id="profile-sign-language-label" class="text-xs font-bold text-slate-900 dark:text-slate-100">Sign Language</span>
+                  <span class="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-slate-600 dark:bg-slate-700 dark:text-slate-200">Coming Soon (Intro Videos)</span>
+                </div>
+                <p class="mt-1 text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">Sign-language overlays are not on lessons yet. This option will start with intro videos.</p>
+              </div>
+              <button
+                id="profile-sign-language-toggle"
+                type="button"
+                role="switch"
+                disabled
+                aria-checked="false"
+                aria-labelledby="profile-sign-language-label"
+                class="relative h-7 w-12 shrink-0 cursor-not-allowed rounded-full bg-slate-300 opacity-60 dark:bg-slate-700"
+              >
+                <span class="absolute top-1 left-1 h-5 w-5 rounded-full bg-white shadow"></span>
+              </button>
+            </div>
+
+            <label class="block text-xs font-bold text-slate-900 dark:text-slate-100" for="profile-text-size">Text Size</label>
+            <select id="profile-text-size" [value]="themeService.fontSize()" (change)="onTextSize($event)" class="border border-slate-300 bg-white px-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+              <option value="normal">Default</option>
+              <option value="large">Large</option>
+              <option value="extra-large">Extra Large</option>
+            </select>
+
+            <div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-850">
               <div>
                 <div class="text-xs font-bold text-slate-900 dark:text-slate-100">Color Theme</div>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400">Currently in {{ themeService.theme() }} mode</div>
+                <div class="text-[11px] text-slate-600 dark:text-slate-300">Currently in {{ themeService.theme() }} mode</div>
               </div>
+              <button id="toggle-theme-dialog-btn" type="button" (click)="themeService.toggleTheme()" class="rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-700 focus-accessible">
+                Switch to {{ themeService.theme() === 'dark' ? 'Light' : 'Dark' }}
+              </button>
             </div>
 
-            <button
-              id="toggle-theme-dialog-btn"
-              type="button"
-              (click)="themeService.toggleTheme()"
-              class="px-3 py-1.5 rounded-xl bg-indigo-400 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition focus-accessible shadow-xs"
-            >
-              Switch to {{ themeService.theme() === 'dark' ? 'Light' : 'Dark' }}
-            </button>
-          </div>
-
-          <!-- High Contrast Mode Toggle -->
-          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800">
-            <div class="flex items-center gap-3">
-              <mat-icon class="text-amber-500">contrast</mat-icon>
-              <div>
-                <div class="text-xs font-bold text-slate-900 dark:text-slate-100">High-Contrast Mode</div>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400">Enhances border clarity & WCAG AA+ contrast</div>
-              </div>
+            <div class="grid gap-2">
+              <button id="profile-app-tour" type="button" (click)="replayTour.emit()" class="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 px-4 py-2.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-50 focus-accessible dark:border-indigo-900/60 dark:text-indigo-300 dark:hover:bg-indigo-950/40">
+                <mat-icon class="text-base" aria-hidden="true">play_circle</mat-icon>
+                App Tour
+              </button>
+              <button id="profile-explainer-video" type="button" (click)="openInfoVideo('explainer')" class="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-800 transition hover:bg-slate-50 focus-accessible dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800">
+                <mat-icon class="text-base" aria-hidden="true">smart_display</mat-icon>
+                App Explainer Video
+              </button>
+              <button id="profile-investor-video" type="button" (click)="openInfoVideo('investor')" class="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-800 transition hover:bg-slate-50 focus-accessible dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800">
+                <mat-icon class="text-base" aria-hidden="true">smart_display</mat-icon>
+                Investor Video
+              </button>
             </div>
-
-            <button
-              id="toggle-contrast-dialog-btn"
-              type="button"
-              (click)="themeService.toggleHighContrast()"
-              [class]="themeService.highContrast() ? 'bg-amber-500 text-white font-semibold' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'"
-              class="px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition focus-accessible shadow-xs"
-            >
-              {{ themeService.highContrast() ? 'Enabled' : 'Disabled' }}
-            </button>
           </div>
-
-          <!-- Font Size Scaling -->
-          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800">
-            <div class="flex items-center gap-3">
-              <mat-icon class="text-emerald-600">format_size</mat-icon>
-              <div>
-                <div class="text-xs font-bold text-slate-900 dark:text-slate-100">Text Size</div>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400">Scale text for comfortable reading</div>
-              </div>
-            </div>
-
-            <button
-              id="toggle-font-size-btn"
-              type="button"
-              (click)="themeService.toggleFontSize()"
-              class="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer transition focus-accessible shadow-xs"
-            >
-              {{ themeService.fontSize() === 'normal' ? 'A (Standard)' : 'A+ (Large)' }}
-            </button>
-          </div>
-        </div>
-
-        <!-- PWA Status & Offline Notice -->
-        <div class="p-3.5 bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 rounded-2xl flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-          <div class="flex items-center gap-2">
-            <mat-icon class="text-emerald-600 text-base">cloud_done</mat-icon>
-            <span>PWA Offline-Ready & Synced</span>
-          </div>
-          <span class="font-mono text-[10px]">v1.0 MVP</span>
-        </div>
+        </section>
 
         <div class="border-t border-slate-100 pt-4 dark:border-slate-800">
           <button
@@ -272,6 +321,19 @@ import {DailyMessageSchedulerService} from '../services/daily-message-scheduler.
           </button>
         </div>
       </div>
+      @if (infoVideo(); as video) {
+        <div class="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/70 p-4 sm:items-center" role="presentation">
+          <div role="dialog" aria-modal="true" aria-labelledby="profile-video-title" class="w-full max-w-lg space-y-4 rounded-3xl bg-white p-5 text-slate-900 shadow-2xl dark:bg-slate-900 dark:text-slate-100">
+            <h3 id="profile-video-title" class="text-base font-bold font-display">{{ video.title }}</h3>
+            @if (video.url) {
+              <video class="w-full rounded-2xl bg-black" controls playsinline [src]="video.url"></video>
+            } @else {
+              <p class="rounded-2xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">This video has not been uploaded yet.</p>
+            }
+            <button type="button" (click)="infoVideo.set(null)" class="inline-flex min-h-[44px] w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white focus-accessible">Close</button>
+          </div>
+        </div>
+      }
     </div>
   `,
 })
@@ -285,6 +347,13 @@ export class ProfileModalComponent {
   readonly themeService = inject(ThemeAccessibilityService);
   readonly firebaseService = inject(FirebaseService);
   readonly reminders = inject(DailyMessageSchedulerService);
+  readonly preferences = inject(UserPreferencesService);
+  readonly curriculum = inject(CurriculumService);
+  private readonly router = inject(Router);
+  readonly infoVideo = signal<{title: string; url: string} | null>(null);
+  readonly modulesCompleted = computed(() => this.curriculum.modules().filter(module =>
+    module.units.length > 0 && module.units.every(unit => this.curriculum.isCompleted(module.id, unit.id))
+  ).length);
   readonly activeProfile = computed(() => {
     const firestoreProfile = this.firebaseService.userProfile();
     const localProfile = this.dataService.userProfile();
@@ -327,6 +396,40 @@ export class ProfileModalComponent {
 
   constructor() {
     void this.firebaseService.loadUserProfileForSession();
+  }
+
+  scrollToPreferences(): void {
+    const section = document.getElementById('profile-preferences');
+    section?.scrollIntoView({behavior: 'smooth', block: 'start'});
+    section?.focus({preventScroll: true});
+  }
+
+  openProgress(url: string): void {
+    void this.router.navigateByUrl(url);
+  }
+
+  openInfoVideo(kind: keyof typeof PROFILE_VIDEOS): void {
+    this.infoVideo.set(PROFILE_VIDEOS[kind]);
+  }
+
+  onTextSize(event: Event): void {
+    const value = this.readValue(event);
+    const size: AppFontSize = value === 'large' || value === 'extra-large' ? value : 'normal';
+    this.themeService.setFontSize(size);
+  }
+
+  onBirthdayMonth(event: Event): void {
+    const month = Number(this.readValue(event));
+    this.preferences.setBirthday(Number.isInteger(month) && month > 0 ? month : null, this.preferences.birthdayDay());
+  }
+
+  onBirthdayDay(event: Event): void {
+    const day = Number(this.readValue(event));
+    this.preferences.setBirthday(this.preferences.birthdayMonth(), Number.isInteger(day) && day > 0 ? day : null);
+  }
+
+  readValue(event: Event): string {
+    return event.target instanceof HTMLSelectElement ? event.target.value : '';
   }
 
   async logout(): Promise<void> {

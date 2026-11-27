@@ -28,6 +28,7 @@ import {AiMentorService} from './services/ai-mentor.service';
 import {FirebaseService} from './services/firebase.service';
 import {PwaInstallService} from './services/pwa-install.service';
 import {DailyMessageSchedulerService} from './services/daily-message-scheduler.service';
+import {UserPreferencesService} from './services/user-preferences.service';
 import {TenantService} from './services/tenant.service';
 import {AudioTrack, Mentor, GoalQuest, CommunityPost, VoiceJournal} from './models/app.models';
 
@@ -106,10 +107,12 @@ export class App {
   readonly selectedRegion = signal<string>('All');
   readonly curriculum = inject(CurriculumService);
   readonly themeService = inject(ThemeAccessibilityService);
+  readonly preferences = inject(UserPreferencesService);
   readonly aiService = inject(AiMentorService);
   readonly firebaseService = inject(FirebaseService);
   readonly tenantService = inject(TenantService);
   private readonly router = inject(Router);
+  private profileReturnUrl = '/';
   readonly pwaService = inject(PwaInstallService);
   readonly hopeVideoUrl = signal<string | null>(null);
   readonly homeCarouselVideos = HOME_CAROUSEL_VIDEOS;
@@ -404,7 +407,9 @@ export class App {
       this.isJoinRoute.set(path === 'join');
       this.isDashboard.set(path === '' || path === 'dashboard' || path.startsWith('p/'));
       this.activeTab.set(tabs[path] ?? 'daily-lyft');
-      this.showProfileModal.set(path === 'profile' || path === 'settings');
+      const onProfile = path === 'profile' || path === 'settings';
+      if (!onProfile) this.profileReturnUrl = this.router.url.split('#')[0] || '/';
+      this.showProfileModal.set(onProfile);
     };
     syncNavigation();
     this.router.events.pipe(takeUntilDestroyed()).subscribe(event => {
@@ -421,6 +426,7 @@ export class App {
 
     effect(() => {
       if (this.activeTab() !== 'your-key') return;
+      this.preferences.markDailyMessageRead();
       void loadMentorMessageForDate().then(message => {
         if (this.activeTab() === 'your-key') this.todaysMentorMessage.set(message);
       });
@@ -546,6 +552,12 @@ export class App {
   openProfileOrSignIn(): void {
     if (!this.requireSignIn()) return;
     void this.router.navigateByUrl('/profile');
+  }
+
+  closeProfile(): void {
+    const path = this.profileReturnUrl.split('?')[0];
+    const target = !path || path === '/profile' || path === '/settings' ? '/' : this.profileReturnUrl;
+    void this.router.navigateByUrl(target);
   }
 
   editProfileOnboarding(): void {
