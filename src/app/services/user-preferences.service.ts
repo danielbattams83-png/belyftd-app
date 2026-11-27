@@ -197,7 +197,7 @@ export class UserPreferencesService {
   applyCaptions(video: HTMLVideoElement): void {
     const language = this.languages.find(item => item.name === this.primaryLanguage()) ?? this.languages[0];
     video.lang = language.codes[0];
-    if (!this.watchedVideos.has(video)) {
+    if (!this.watchedVideos.has(video) && typeof video.textTracks?.addEventListener === 'function') {
       this.watchedVideos.add(video);
       video.textTracks.addEventListener('addtrack', () => this.applyCaptions(video));
     }

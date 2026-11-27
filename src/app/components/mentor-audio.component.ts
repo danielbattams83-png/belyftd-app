@@ -2,6 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, inject, input, signal} fro
 import {MatIconModule} from '@angular/material/icon';
 import {AudioTrack} from '../models/app.models';
 import {AudioPlayerService} from '../services/audio-player.service';
+import {withMentorVoice} from '../services/mentor-voices';
 
 @Component({
   selector: 'app-mentor-audio',
@@ -65,7 +66,7 @@ export class MentorAudioComponent {
     const track = this.selectedTrack();
     if (!track) return;
     if (this.isCurrent()) this.player.togglePlay();
-    else void this.player.playTrack(track);
+    else void this.player.playTrack(withMentorVoice(track));
   }
 
   seek(event: Event): void {

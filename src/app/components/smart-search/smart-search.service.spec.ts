@@ -20,7 +20,7 @@ describe('Discovery intent matching', () => {
     expect(results.every(lesson => lesson.variants.some(variant => variant.mentorName === 'Omari' && variant.language === 'Swahili' && variant.type === 'audio'))).toBe(true);
     expect(rankDiscoveryLessons(catalog, 'Omari Chinese audio')).toEqual([]);
     expect(rankDiscoveryLessons(catalog, 'Swahili video')).toEqual([]);
-    expect(rankDiscoveryLessons(catalog, 'Mandarin')[0].variants.some(variant => variant.language === 'Chinese')).toBe(true);
+    expect(rankDiscoveryLessons(catalog, 'Mandarin')[0].variants.some(variant => variant.language === 'Mandarin')).toBe(true);
   });
 
   it('includes text-only lessons, prioritizes titles, and matches Firestore tags', () => {

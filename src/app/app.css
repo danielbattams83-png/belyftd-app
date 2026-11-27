@@ -253,6 +253,27 @@
   background: rgba(26, 155, 239, 0.12);
   border-color: rgba(143, 208, 250, 0.28);
 }
+.feeling-layout { display: grid; gap: 1rem; align-items: stretch; }
+@media (min-width: 720px) {
+  .feeling-layout { grid-template-columns: minmax(0, 1fr) 220px; }
+}
+.feeling-tour {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
+  text-align: left;
+  cursor: pointer;
+}
+.feeling-tour:hover { background: rgba(255, 255, 255, 0.12); }
 
 .meaning-glass {
   background: linear-gradient(165deg, rgba(255, 255, 255, 0.78), rgba(255, 247, 237, 0.55) 55%, rgba(238, 242, 255, 0.5));

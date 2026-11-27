@@ -19,6 +19,9 @@ export interface BentoCard {
   preview?: 'life-lessons';
   /** Preview-only card: it can open, and it does not navigate. */
   comingSoon?: boolean;
+  /** Placeholder rows so a coming-soon card can be filled in later. */
+  tiers?: {name: string; detail: string}[];
+  contactEmail?: string;
 }
 
 const FALLBACK_EASE = 'cubic-bezier(.34,1.36,.64,1)';

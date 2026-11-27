@@ -92,7 +92,7 @@ describe('courses overview carousel', () => {
     element.querySelector('.overview-track')!.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowLeft', bubbles: true}));
     expect(component.activeIndex()).toBe(3);
     component.select(-1);
-    expect(component.activeIndex()).toBe(2);
+    expect(component.activeIndex()).toBe(3);
   });
 
   it('supports throttled horizontal wheel navigation and lets vertical scrolling pass through', async () => {
@@ -121,5 +121,35 @@ describe('courses overview carousel', () => {
       expect(wheel({deltaX: 100}).defaultPrevented).toBe(true);
       expect(component.activeIndex()).toBe(0);
     } finally { clock.mockRestore(); }
+  });
+
+  it('advances on a vertical wheel while the pointer is a mouse', async () => {
+    const {component, element} = await setup();
+    const original = window.matchMedia;
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({matches: query === '(pointer: fine)', media: query, addEventListener: () => undefined, removeEventListener: () => undefined}));
+    try {
+      const event = new WheelEvent('wheel', {deltaY: 120, cancelable: true});
+      element.querySelector('.overview-track')!.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(true);
+      expect(component.activeIndex()).toBe(1);
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+
+  it('swipes onward from the Your Key card', async () => {
+    const {fixture, component, element} = await setup();
+    component.select(3);
+    fixture.detectChanges();
+    const link = element.querySelector('.key-link')!;
+    const shell = element.querySelector('.carousel-shell') as HTMLElement;
+    shell.setPointerCapture = vi.fn();
+    link.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, clientX: 220, clientY: 80, pointerId: 1, button: 0}));
+    link.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 140, clientY: 82, pointerId: 1}));
+    link.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, clientX: 140, clientY: 82, pointerId: 1}));
+    expect(component.activeIndex()).toBe(0);
+    const click = new MouseEvent('click', {bubbles: true, cancelable: true});
+    link.dispatchEvent(click);
+    expect(click.defaultPrevented).toBe(true);
   });
 });

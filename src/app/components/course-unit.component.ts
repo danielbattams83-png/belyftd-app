@@ -62,15 +62,15 @@ import {UserPreferencesService} from '../services/user-preferences.service';
               <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white">{{ lesson.title || lesson.id }}</h1>
             </header>
 
-            @if (hasMediaAccess() && lesson.videoUrl) {
+            @if (hasMediaAccess() && mediaSrc(lesson.videoUrl); as videoSrc) {
               <div class="unit-media-wrapper video-container">
-                <video [src]="lesson.videoUrl" controls playsinline preload="metadata" class="reader-video">
+                <video [src]="videoSrc" controls playsinline preload="metadata" class="reader-video" (ended)="pauseMedia($event)">
                   Your browser does not support video playback.
                 </video>
               </div>
             }
 
-            @if (hasMediaAccess() && lesson.audioUrl) {
+            @if (hasMediaAccess() && mediaSrc(lesson.audioUrl); as audioSrc) {
               <div class="unit-media-wrapper audio-dock">
                 <div class="audio-dock__info">
                   <div class="audio-icon-wrap"><mat-icon aria-hidden="true">headphones</mat-icon></div>
@@ -79,7 +79,7 @@ import {UserPreferencesService} from '../services/user-preferences.service';
                     <span class="audio-sub">{{ lesson.mentorName || 'Listen with your mentor' }}</span>
                   </div>
                 </div>
-                <audio controls [src]="lesson.audioUrl" preload="metadata" class="reader-audio-player">
+                <audio controls [src]="audioSrc" preload="metadata" class="reader-audio-player" (ended)="pauseMedia($event)" (play)="onLessonMediaPlay()">
                   Your browser does not support audio playback.
                 </audio>
               </div>
@@ -185,6 +185,20 @@ export class CourseUnitComponent implements OnInit, OnDestroy {
   readonly hasMediaAccess = computed(() => canAccessModule(this.firebaseService.subscriptionTier(), this.moduleIdInput() ?? this.route.snapshot.paramMap.get('moduleId') ?? ''));
   private destroyed = false;
   private previousBodyOverflow: string | null = null;
+
+  mediaSrc(value?: string | null): string | null {
+    const url = value?.trim() ?? '';
+    return /^https?:\/\//i.test(url) || url.startsWith('blob:') ? url : null;
+  }
+
+  onLessonMediaPlay(): void {
+    this.audioPlayer.pause();
+  }
+
+  pauseMedia(event: Event): void {
+    const media = event.target;
+    if (media instanceof HTMLMediaElement) media.pause();
+  }
 
   ngOnDestroy(): void {
     this.destroyed = true;

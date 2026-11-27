@@ -56,7 +56,7 @@ describe('App', () => {
       expect(recordings.length).toBeGreaterThan(0);
       expect(recordings.every(track => track.audioUrl?.startsWith('course-content/'))).toBe(true);
     }
-    expect([...new Set(app.mentorRecordings('Sophie').map(track => track.language))].sort()).toEqual(['Chinese', 'English']);
+    expect([...new Set(app.mentorRecordings('Sophie').map(track => track.language))].sort()).toEqual(['Mandarin']);
     expect([...new Set(app.mentorRecordings('Omari').map(track => track.language))].sort()).toEqual(['English', 'Swahili']);
   });
 

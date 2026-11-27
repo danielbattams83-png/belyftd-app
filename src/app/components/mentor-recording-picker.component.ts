@@ -1,5 +1,7 @@
 import {getDefaultUnitForMentor, MentorAudioUnit} from '../services/course.service';
 import {parseMentorLabel} from '../services/course-assets';
+import {canonicalMentorLanguage, mentorVoice, withMentorVoice} from '../services/mentor-voices';
+import {productionMentorForLabel} from '../services/production-mentors';
 import {ChangeDetectionStrategy, Component, computed, input, output, signal, OnInit, OnChanges} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from '@angular/forms';
@@ -76,7 +78,10 @@ export class MentorRecordingPickerComponent implements OnInit, OnChanges {
   private readonly chosenLanguage = signal('');
   private readonly recordings = computed(() => this.tracks().flatMap(track => {
     const match = track.audioUrl?.trim().match(/^course-content\/(module-[1-9][0-9]*)\/(unit-[1-9][0-9]*)\/audio\/[^/]+\.mp3$/);
-    const normalizedTrack = {...track, language: parseMentorLabel(`${track.mentorName ?? ''} (${track.language ?? ''})`).language};
+    const language = canonicalMentorLanguage(track.language ?? parseMentorLabel(track.speaker).language);
+    const allowed = productionMentorForLabel(track.mentorName ?? track.speaker)?.languages ?? [];
+    if (allowed.length && !allowed.includes(language)) return [];
+    const normalizedTrack = {...track, language};
     return match ? [{track: normalizedTrack, moduleId: match[1], lessonId: match[2]}] : [];
   }));
   readonly modules = computed(() => [...new Set(this.recordings().map(item => item.moduleId))]
@@ -93,7 +98,7 @@ export class MentorRecordingPickerComponent implements OnInit, OnChanges {
     .filter(item => item.moduleId === this.moduleId() && item.lessonId === this.lessonId()));
   readonly languages = computed(() => [...new Set(this.lessonRecordings().map(item => item.track.language).filter((language): language is string => !!language))].sort());
   readonly language = computed(() => {
-    const defaultLanguage = this.mentorId() === 'omari' ? 'Swahili' : this.mentorId() === 'sophie' ? 'Chinese' : 'English';
+    const defaultLanguage = this.mentorId() === 'omari' ? 'Swahili' : this.mentorId() === 'sophie' ? 'Mandarin' : 'English';
     const preferred = this.chosenLanguage() || defaultLanguage;
     return this.languages().includes(preferred) ? preferred : this.languages()[0] ?? '';
   });
@@ -116,6 +121,10 @@ export class MentorRecordingPickerComponent implements OnInit, OnChanges {
 
   playSelected(): void {
     const track = this.selectedTrack();
-    if (track) this.playRecording.emit(track);
+    if (!track) return;
+    const voice = mentorVoice(this.mentorId(), track.language ?? '');
+    this.playRecording.emit(voice
+      ? {...track, language: voice.language, languageCode: voice.languageCode, voiceId: voice.voiceId}
+      : withMentorVoice(track));
   }
 }

@@ -102,9 +102,20 @@ export class AudioPlayerService {
           this.duration.set(this.audioElem.duration);
         }
       });
+      this.audioElem.loop = false;
       this.audioElem.addEventListener('ended', () => {
         this.onPlaybackEnded();
       });
+      document.addEventListener('play', event => {
+        const target = event.target;
+        if (!(target instanceof HTMLMediaElement) || (target instanceof HTMLVideoElement && target.muted)) return;
+        if (target !== this.audioElem) {
+          this.pauseOtherMedia(target);
+          if (this.audioElem && !this.audioElem.paused) this.pause();
+          return;
+        }
+        this.pauseOtherMedia(this.audioElem);
+      }, true);
       this.audioElem.addEventListener('playing', () => {
         if (!this.audioElem?.getAttribute('src') || !this.activeTrack()) return;
         this.isLoading.set(false);
@@ -147,20 +158,41 @@ export class AudioPlayerService {
         : await this.firebaseService.getCourseMediaUrlFromPath(path);
       if (request !== this.playbackRequest) return;
       if (!url?.trim()) { this.hideUnavailableTrack(); return; }
+      if (!/^https?:\/\//i.test(url) && !url.startsWith('blob:')) {
+        this.hideUnavailableTrack();
+        return;
+      }
       this.mediaReady.set(true);
       this.resolvedAt = Date.now();
+      this.pauseOtherMedia(this.audioElem);
       this.audioElem.src = url;
       this.audioElem.preload = 'metadata';
+      this.audioElem.loop = false;
       this.audioElem.playbackRate = this.playbackRate();
       this.audioElem.volume = this.volume();
-      if (startTime > 0) this.audioElem.currentTime = startTime;
+      if (startTime > 0) {
+        const applyTime = () => {
+          if (!this.audioElem || request !== this.playbackRequest) return;
+          try { this.audioElem.currentTime = startTime; } catch { /* Seek again once metadata arrives. */ }
+        };
+        applyTime();
+        this.audioElem.addEventListener('loadedmetadata', applyTime, {once: true});
+      }
       await this.audioElem.play();
       if (request !== this.playbackRequest) return;
       this.isPlaying.set(true);
       this.isLoading.set(false);
     } catch (error: unknown) {
       if (request !== this.playbackRequest) return;
-      const code = (error as {code?: string} | null)?.code;
+      const code = (error as {code?: string; name?: string} | null)?.code;
+      const name = (error as {name?: string} | null)?.name;
+      if (name === 'AbortError') return;
+      if (name === 'NotAllowedError') {
+        this.isLoading.set(false);
+        this.isPlaying.set(false);
+        this.errorMessage.set('Tap play to start. This browser needs a tap before audio can begin.');
+        return;
+      }
       if (['functions/permission-denied', 'functions/unauthenticated', 'functions/not-found'].includes(code ?? '')) {
         this.hideUnavailableTrack();
         return;
@@ -227,11 +259,14 @@ export class AudioPlayerService {
       if (request !== this.playbackRequest) return;
       this.isPlaying.set(true);
       this.isLoading.set(false);
-    }).catch(() => {
+    }).catch((error: unknown) => {
       if (request !== this.playbackRequest) return;
       this.isLoading.set(false);
       this.isPlaying.set(false);
-      this.errorMessage.set('Playback could not start. Please try again.');
+      const name = (error as {name?: string} | null)?.name;
+      this.errorMessage.set(name === 'NotAllowedError'
+        ? 'Tap play to start. This browser needs a tap before audio can begin.'
+        : 'Playback could not start. Please try again.');
     });
   }
 
@@ -293,8 +328,19 @@ export class AudioPlayerService {
   }
 
   private onPlaybackEnded(): void {
+    this.isLoading.set(false);
     this.isPlaying.set(false);
     this.currentTime.set(this.duration());
+  }
+
+  /** Stops every other audible element so courses, mentors, and messages never overlap. */
+  pauseOtherMedia(except?: HTMLMediaElement): void {
+    if (typeof document === 'undefined') return;
+    document.querySelectorAll('audio, video').forEach(node => {
+      if (!(node instanceof HTMLMediaElement) || node === except || node === this.audioElem || node.paused) return;
+      if (node instanceof HTMLVideoElement && node.muted) return;
+      node.pause();
+    });
   }
 
   stopAll(): void {
@@ -302,6 +348,7 @@ export class AudioPlayerService {
     ++this.playbackRequest;
     this.isLoading.set(false);
     this.isPlaying.set(false);
+    this.pauseOtherMedia();
     if (this.audioElem) {
       this.audioElem.pause();
       this.audioElem.removeAttribute('src');

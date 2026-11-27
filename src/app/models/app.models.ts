@@ -27,6 +27,10 @@ export interface AudioTrack {
   speaker: string;
   mentorName?: string;
   language?: string;
+  /** BCP-47 tag for the selected mentor language. */
+  languageCode?: string;
+  /** ElevenLabs voice for this mentor and language. */
+  voiceId?: string;
   speakerRole: string;
   speakerAvatar: string;
   category: 'Mindset' | 'Confidence' | 'Career & Goals' | 'Overcoming Anxiety' | 'Leadership' | 'Wellness';

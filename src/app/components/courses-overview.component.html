@@ -3,7 +3,7 @@
     <div><p class="eyebrow">YOUR LEARNING SPACE</p><h2 id="overview-heading">Keep your momentum.</h2></div>
     <span class="position" aria-live="polite" aria-atomic="true">{{ activeIndex() + 1 }} / {{ labels.length }}<span class="sr-only">: {{ labels[activeIndex()] }}</span></span>
   </header>
-  <div class="carousel-shell" (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)" (pointerup)="onPointerUp($event)" (pointercancel)="onPointerCancel()">
+  <div class="carousel-shell" (click.capture)="suppressSwipeClick($event)" (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)" (pointerup)="onPointerUp($event)" (pointercancel)="onPointerCancel()">
     <div #track class="overview-track" tabindex="0" aria-label="Your learning cards. Use left and right arrow keys to browse." (keydown)="onKeydown($event)">
       @for (label of labels; track label; let i = $index) {
         <article [id]="i === 0 ? 'daily-lyft-card' : null" tabindex="-1" class="overview-card" [class.is-active]="ringOffset(i) === 0" [class.is-prev]="ringOffset(i) === -1" [class.is-next]="ringOffset(i) === 1" [class.is-hidden]="ringOffset(i) <= -2 || ringOffset(i) >= 2" [attr.aria-hidden]="ringOffset(i) <= -2 || ringOffset(i) >= 2 ? true : null" role="group" aria-roledescription="slide" [attr.aria-label]="label + ', ' + (i + 1) + ' of ' + labels.length" (click)="onCardClick(i)" (focusin)="select(i)">
@@ -53,7 +53,7 @@
                 <footer><a routerLink="/life-lessons">Open Lyft'd Life Lessons <mat-icon aria-hidden="true">arrow_forward</mat-icon></a></footer>
               }
               @case (3) {
-                <a class="key-link" routerLink="/your-key">
+                <a class="key-link" href="/your-key" (click)="openYourKey($event)">
                   <span class="key-badge" aria-hidden="true"><mat-icon>key</mat-icon></span>
                   <h3>Your Key</h3>
                   <p>Unlock your full potential</p>

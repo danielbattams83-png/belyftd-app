@@ -1,3 +1,4 @@
+import {canonicalMentorLanguage} from './mentor-voices';
 import {productionMentorForLabel} from './production-mentors';
 export type CourseMediaType = 'audio' | 'video';
 
@@ -27,10 +28,7 @@ export function parseMentorLabel(label: string): {mentorName: string; language: 
   const match = label.trim().match(/^(.+?)\s*(?:\(([^)]+)\)| - (.+))$/);
   const mentorName = productionMentorForLabel(label)?.name ?? (match?.[1] ?? label).trim();
   const rawLanguage = (match?.[2] ?? match?.[3] ?? (['Hannah', 'Steve'].includes(mentorName) ? 'English' : '')).trim();
-  const languageNames: Record<string, string> = {en: 'English', zh: 'Chinese', sw: 'Swahili'};
-  const language = rawLanguage
-    ? languageNames[rawLanguage.toLowerCase()] ?? rawLanguage.charAt(0).toUpperCase() + rawLanguage.slice(1).toLowerCase()
-    : 'Language not specified';
+  const language = rawLanguage ? canonicalMentorLanguage(rawLanguage) : 'Language not specified';
   return {mentorName, language};
 }
 

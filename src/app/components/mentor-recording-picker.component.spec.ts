@@ -36,6 +36,8 @@ describe('Mentor recording selectors', () => {
     expect(play).not.toHaveBeenCalled();
     (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
     expect(play.mock.calls[0][0].audioUrl).toBe('course-content/module-5/unit-3/audio/courage-omari--swahili.mp3');
+    expect(play.mock.calls[0][0].languageCode).toBe('sw');
+    expect(play.mock.calls[0][0].voiceId).toBe('omari-sw');
     await choose('Module', 'module-2');
     expect(component.lessonId()).toBe('unit-1');
     expect(component.language()).toBe('English');
@@ -54,11 +56,11 @@ describe('Mentor recording selectors', () => {
 
   it('hides controls if the mentor has no recordings and drops stale selections', async () => {
     const {fixture, component, choose} = await setup('Sophie', true);
-    await choose('Language', 'Chinese');
+    await choose('Language', 'Mandarin');
     fixture.componentRef.setInput('tracks', VERIFIED_MENTOR_RECORDINGS.filter(track => track.mentorName === 'Sophie' && track.language === 'English'));
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(component.language()).toBe('English');
+    expect(component.language()).toBe('');
     fixture.componentRef.setInput('tracks', []);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -69,9 +71,9 @@ describe('Mentor recording selectors', () => {
     const {fixture, component} = await setup('Sophie', true);
     expect(component.moduleId()).toBe('module-5');
     expect(component.lessonId()).toBe('unit-1');
-    expect(component.languages()).toEqual(['Chinese', 'English']);
-    expect(component.language()).toBe('Chinese');
-    expect((fixture.nativeElement as HTMLElement).querySelector<HTMLSelectElement>('select[aria-label="Language"]')?.value).toBe('Chinese');
+    expect(component.languages()).toEqual(['Mandarin']);
+    expect(component.language()).toBe('Mandarin');
+    expect((fixture.nativeElement as HTMLElement).querySelector<HTMLSelectElement>('select[aria-label="Language"]')?.value).toBe('Mandarin');
   });
 
   it('reselects a complete default when asynchronous tracks arrive', async () => {

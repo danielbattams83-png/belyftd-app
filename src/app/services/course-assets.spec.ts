@@ -21,7 +21,7 @@ describe('production mentor labels', () => {
   });
   it('normalizes all multilingual mentor variants', () => {
     expect(parseMentorLabel('Sophie (english)')).toEqual({mentorName: 'Sophie', language: 'English'});
-    expect(parseMentorLabel('Sophie (chinese)')).toEqual({mentorName: 'Sophie', language: 'Chinese'});
+    expect(parseMentorLabel('Sophie (chinese)')).toEqual({mentorName: 'Sophie', language: 'Mandarin'});
     expect(parseMentorLabel('Omari (swahili)')).toEqual({mentorName: 'Omari', language: 'Swahili'});
     expect(parseMentorLabel('Omari - English')).toEqual({mentorName: 'Omari', language: 'English'});
   });
@@ -31,7 +31,9 @@ it('rejects placeholder mentors and unsupported production languages', () => {
   expect(isProductionMentorVariant('Marcus (English)')).toBe(false);
   expect(isProductionMentorVariant('Sophie (Swahili)')).toBe(false);
   expect(isProductionMentorVariant('Omari (Chinese)')).toBe(false);
-  for (const label of ['Hannah', 'Steve', 'Sophie (EN)', 'Sophie (ZH)', 'Omari (EN)', 'Omari (SW)']) {
+  expect(isProductionMentorVariant('Sophie (EN)')).toBe(false);
+  expect(isProductionMentorVariant('Sophie (english)')).toBe(false);
+  for (const label of ['Hannah', 'Steve', 'Sophie (ZH)', 'Sophie (Cantonese)', 'Omari (EN)', 'Omari (SW)', 'Omari (Portuguese)']) {
     expect(isProductionMentorVariant(label)).toBe(true);
   }
 });

@@ -505,6 +505,18 @@ export class FirebaseService {
     }
   }
 
+  /** Stores a public FAQ question. Callers fall back to email when Firestore is unavailable. */
+  async submitFaqQuestion(entry: {question: string; name: string; email: string}): Promise<void> {
+    const question = entry.question.trim();
+    if (!question || !this.db) throw new Error('Question storage is unavailable.');
+    await setDoc(doc(collection(this.db, 'faq_questions')), {
+      question: question.slice(0, 2000),
+      name: entry.name.trim().slice(0, 120),
+      email: entry.email.trim().slice(0, 200),
+      createdAt: serverTimestamp(),
+    });
+  }
+
   async markAppTourCompleted(): Promise<void> {
     const user = this.currentUser();
     if (!user || !this.db) {

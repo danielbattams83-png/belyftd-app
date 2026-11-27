@@ -4,7 +4,7 @@
     <!-- The button stays the accessible control; its click bubbles up to the card handler. -->
     <li class="explore-card" [class.is-expanded]="open" [class.is-soon]="card.comingSoon" [style.--card-index]="i" [attr.data-index]="i" (click)="onCardClick(i)">
       <div class="explore-card__head">
-        <span class="explore-card__tag" [class.explore-card__tag--soon]="card.comingSoon">{{ card.comingSoon ? 'Coming Soon' : card.tag }}</span>
+        <span class="explore-card__tag" [class.explore-card__tag--soon]="card.comingSoon && !card.tag">{{ card.tag || 'Coming Soon' }}</span>
         <button
           type="button"
           class="explore-card__toggle"
@@ -37,6 +37,19 @@
                 </li>
               }
             </ol>
+          }
+          @if (card.tiers?.length) {
+            <ol class="explore-card__tiers">
+              @for (tier of card.tiers; track tier.name) {
+                <li>
+                  <strong>{{ tier.name }}</strong>
+                  <p>{{ tier.detail }}</p>
+                </li>
+              }
+            </ol>
+          }
+          @if (card.contactEmail) {
+            <a class="explore-card__mail" [href]="'mailto:' + card.contactEmail" (click)="$event.stopPropagation()">{{ card.contactEmail }}</a>
           }
           @if (card.chips?.length) {
             <ul class="explore-card__chips" role="list">

@@ -219,6 +219,11 @@
   font-weight: 600;
 }
 
+.explore-card__tiers { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.explore-card__tiers li { padding: 0.7rem 0.8rem; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--es-ink) 14%, transparent); }
+.explore-card__tiers strong { display: block; font-size: 0.875rem; }
+.explore-card__tiers p { margin: 0.2rem 0 0; color: var(--es-ink-muted); font-size: 0.8125rem; line-height: 1.4; }
+.explore-card__mail { color: var(--es-accent, #1a9bef); font-size: 0.875rem; font-weight: 650; text-decoration: underline; }
 .explore-card__chips {
   display: flex;
   flex-wrap: wrap;

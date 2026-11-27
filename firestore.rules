@@ -80,6 +80,18 @@ service cloud.firestore {
       allow read: if true;
     }
 
+    match /faq_questions/{questionId} {
+      allow create: if request.resource.data.keys().hasOnly(['question', 'name', 'email', 'createdAt'])
+        && request.resource.data.question is string
+        && request.resource.data.question.size() > 0
+        && request.resource.data.question.size() <= 2000
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 200;
+      allow read, update, delete: if false;
+    }
+
     match /partners/{partnerId} {
       allow read: if true;
       // Mutations go through superAdminSavePartner; standard app sessions grant no admin rights.

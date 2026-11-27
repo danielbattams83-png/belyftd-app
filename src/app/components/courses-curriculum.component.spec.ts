@@ -150,6 +150,22 @@ describe('module selector and unit drawer', () => {
     expect(component.activeModuleId()).toBe('module-10');
   });
 
+  it('uses a vertical mouse wheel to move between modules', async () => {
+    const {component, element} = await setup(2);
+    const original = window.matchMedia;
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({matches: query === '(pointer: fine)', media: query, addEventListener: () => undefined, removeEventListener: () => undefined}));
+    const track = element.querySelector('.module-track')!;
+    track.scrollTo = vi.fn();
+    try {
+      const event = new WheelEvent('wheel', {deltaY: 140, cancelable: true});
+      track.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(true);
+      expect(component.activeModuleId()).toBe('module-2');
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+
   it('removes the wheel listener when destroyed', async () => {
     const {fixture, component, element} = await setup();
     const track = element.querySelector('.module-track')!;

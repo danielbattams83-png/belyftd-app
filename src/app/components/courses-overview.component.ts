@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, signal, viewChild} from '@angular/core';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
 import {CurriculumService, countCompletedLifeLessons, findNextUnreadUnit, NextUnreadUnit} from '../services/curriculum.service';
 
@@ -14,6 +14,7 @@ const LABELS = ['Daily Lyft', 'Continue Learning', 'Life Lessons Progress', 'You
 })
 export class CoursesOverviewComponent {
   private readonly curriculum = inject(CurriculumService);
+  private readonly router = inject(Router);
   readonly labels = LABELS;
   readonly nextUnit = computed(() => findNextUnreadUnit(this.curriculum.modules(), this.curriculum.completedIds()));
   readonly completedLifeLessons = computed(() => countCompletedLifeLessons(this.curriculum.completedIds()));
@@ -67,7 +68,7 @@ export class CoursesOverviewComponent {
 
   onPointerDown(event: PointerEvent): void {
     if (event.button !== 0) return;
-    if (event.target instanceof Element && event.target.closest('.track-nav, a, button')) return;
+    if (event.target instanceof Element && event.target.closest('.track-nav')) return;
     this.swiped = false;
     this.pointerStartX = event.clientX;
     this.pointerStartY = event.clientY;
@@ -81,7 +82,7 @@ export class CoursesOverviewComponent {
     const dx = event.clientX - this.pointerStartX;
     const dy = event.clientY - this.pointerStartY;
     if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) && event.currentTarget instanceof HTMLElement) {
-      event.currentTarget.setPointerCapture(event.pointerId);
+      event.currentTarget.setPointerCapture?.(event.pointerId);
       this.pointerCaptured = true;
     }
   }
@@ -118,13 +119,46 @@ export class CoursesOverviewComponent {
     this.curriculum.openUnit(unit.moduleId, unit.unitId);
   }
 
+  openYourKey(event: Event): void {
+    event.preventDefault();
+    if (this.swiped) {
+      this.swiped = false;
+      return;
+    }
+    void this.router.navigateByUrl('/your-key');
+  }
+
+  /** A finished swipe must not activate the Your Key link or another card control. */
+  suppressSwipeClick(event: Event): void {
+    if (!this.swiped) return;
+    event.preventDefault();
+    event.stopPropagation();
+    queueMicrotask(() => {
+      this.swiped = false;
+    });
+  }
+
   private onWheel = (event: WheelEvent): void => {
-    if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
-    const next = this.activeIndex() + (event.deltaX > 0 ? 1 : -1);
+    const direction = wheelDirection(event);
+    if (!direction) return;
     event.preventDefault();
     const now = performance.now();
     if (now < this.wheelLockedUntil) return;
     this.wheelLockedUntil = now + 420;
-    this.select(next);
+    this.select(this.activeIndex() + direction);
   };
+}
+
+function finePointer(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(pointer: fine)').matches;
+}
+
+/** Next card is 1. Coarse pointers ignore a vertical wheel so the page can scroll. */
+function wheelDirection(event: WheelEvent): -1 | 1 | 0 {
+  if (event.ctrlKey) return 0;
+  const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+  if (!finePointer() && !horizontal) return 0;
+  const delta = horizontal ? event.deltaX : event.deltaY;
+  if (!delta) return 0;
+  return delta > 0 ? 1 : -1;
 }

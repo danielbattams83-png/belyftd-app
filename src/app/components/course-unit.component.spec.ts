@@ -25,7 +25,7 @@ describe('Course unit media visibility', () => {
         userProfile: signal(null), getModuleCatalog: vi.fn().mockResolvedValue([]), subscriptionTier: signal(tier), currentUser: signal(null), getCourseMediaUrlFromPath: sign,
         getModuleUnit: vi.fn().mockResolvedValue({id: 'unit-2', title: 'Hope', minTier: 3, textContent, audioUrls, videoUrls, ...directMedia}),
       }},
-      {provide: AudioPlayerService, useValue: {activeTrack: signal(null), isTrackAvailable: () => tier >= 3, close: vi.fn(), formatTime: () => '0:00'}},
+      {provide: AudioPlayerService, useValue: {activeTrack: signal(null), isTrackAvailable: () => tier >= 3, close: vi.fn(), pause: vi.fn(), formatTime: () => '0:00'}},
     ]}).compileComponents();
     const fixture = TestBed.createComponent(CourseUnitComponent);
     fixture.detectChanges();
@@ -45,7 +45,8 @@ describe('Course unit media visibility', () => {
 
   it('isolates missing or unsupported media while keeping valid audio and text', async () => {
     const {element} = await render({
-      'Sophie (english)': 'course-content/module-5/unit-2/audio/sophie.mp3',
+      'Sophie (mandarin)': 'course-content/module-5/unit-2/audio/sophie.mp3',
+      'Sophie (english)': 'course-content/module-5/unit-2/audio/sophie-english.mp3',
       Legacy: 'course-content/module-5/unit-2/audio/legacy.mp3',
       'Sophie (swahili)': 'course-content/module-5/unit-2/audio/unsupported.mp3',
       'Omari (swahili)': 'course-content/module-5/unit-2/audio/missing.mp3',
@@ -54,13 +55,13 @@ describe('Course unit media visibility', () => {
     expect(element.querySelector('video')).toBeNull();
     const options = element.querySelectorAll('option');
     expect(options.length).toBe(1);
-    expect(options[0].textContent).toContain('Sophie - English');
+    expect(options[0].textContent).toContain('Sophie - Mandarin');
   });
   it('shows only the verified video selector when a unit has video but no audio', async () => {
     const load = vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => undefined);
     const {element} = await render({}, {'Sophie (chinese)': 'course-content/module-5/unit-2/video/sophie.mp4'});
     expect(element.querySelector('video')?.controls).toBe(true);
-    expect(element.textContent).toContain('Sophie - Chinese');
+    expect(element.textContent).toContain('Sophie - Mandarin');
     expect(element.querySelector('[aria-label="Mentor audio player"]')).toBeNull();
     expect(element.textContent).toContain('Clean reading content');
     load.mockRestore();

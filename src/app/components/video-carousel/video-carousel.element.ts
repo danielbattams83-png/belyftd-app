@@ -479,12 +479,23 @@ class VideoCarousel extends HTMLElement {
     this._dragging = false; this._track.classList.remove("vc-dragging");
   }
   _wheel(e) {
-    if (this.hasAttribute("no-wheel") || e.ctrlKey || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-    const dir = Math.sign(e.deltaX), to = this._i + dir;
-    if (!dir || to < 0 || to >= this._cards.length) return;
+    if (this.hasAttribute("no-wheel") || e.ctrlKey) return;
+    const fine = !!mq("(pointer: fine)")?.matches;
+    const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    // Touch and coarse pointers keep vertical wheel/swipe for the page.
+    if (!fine && !horizontal) return;
+    const delta = horizontal ? e.deltaX : e.deltaY;
+    if (!delta) return;
+    const dir = Math.sign(delta);
+    const orbit = this._isOrbit();
+    const to = (orbit ? this._li : this._i) + dir;
+    const inBounds = orbit || (to >= 0 && to < this._cards.length);
+    if (!inBounds && !fine) return;
     e.preventDefault();
-    const now = performance.now(); if (now < this._wheelLock) return;
-    this._wheelLock = now + 420; this.go(to);
+    const now = performance.now();
+    if (now < this._wheelLock || !inBounds) return;
+    this._wheelLock = now + 420;
+    this.go(orbit ? this._li + dir : to);
   }
   _key(e) {
     if (this._player || e.target.closest(".vc-dots")) return;

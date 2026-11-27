@@ -151,6 +151,31 @@ describe('AudioPlayerService production playback', () => {
     expect(player.errorMessage()).toBeNull();
   });
 
+  it('resets the play button when the recording ends', async () => {
+    await player.playTrack(track('omari'));
+    player.isPlaying.set(true);
+    audio.dispatchEvent(new Event('ended'));
+    expect(player.isPlaying()).toBe(false);
+  });
+
+  it('asks for a tap when the browser blocks autoplay', async () => {
+    audio.play.mockRejectedValueOnce(Object.assign(new Error('blocked'), {name: 'NotAllowedError'}));
+    await player.playTrack(track('omari'));
+    expect(player.isPlaying()).toBe(false);
+    expect(player.isLoading()).toBe(false);
+    expect(player.errorMessage()).toContain('Tap play');
+  });
+
+  it('pauses another audible element when a recording starts', async () => {
+    const other = document.createElement('audio');
+    vi.spyOn(other, 'pause').mockImplementation(() => undefined);
+    vi.spyOn(other, 'paused', 'get').mockReturnValue(false);
+    document.body.appendChild(other);
+    await player.playTrack(track('omari'));
+    expect(other.pause).toHaveBeenCalled();
+    other.remove();
+  });
+
   it('omits blank and missing signed media without an error banner', async () => {
     await player.playTrack({...track('blank'), audioUrl: '  '});
     expect(sign).not.toHaveBeenCalled();

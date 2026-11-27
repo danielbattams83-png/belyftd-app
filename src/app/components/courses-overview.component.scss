@@ -28,6 +28,11 @@
   perspective-origin: center center;
   transform-style: preserve-3d;
 }
+.overview-card,
+.card-face,
+.card-face a,
+.card-face button,
+.key-link { touch-action: pan-y; }
 .overview-card {
   position: absolute;
   top: 50%;
@@ -171,7 +176,7 @@ footer { display: flex; flex-direction: column; gap: .35rem; padding-top: .55rem
 footer a { display: inline-flex; align-items: center; gap: .375rem; color: var(--overview-accent); font-size: .875rem; font-weight: 650; min-height: 36px; text-decoration: none; }
 footer a:hover { text-decoration: underline; }
 .card-face--key { border-color: rgba(14, 165, 233, 0.55); box-shadow: 0 0 18px rgba(14, 165, 233, 0.28); }
-.key-link { display: flex; flex: 1; flex-direction: column; justify-content: center; gap: .75rem; min-height: 0; color: inherit; text-decoration: none; }
+.key-link { display: flex; flex: 1; flex-direction: column; justify-content: center; gap: .75rem; min-height: 0; color: inherit; text-decoration: none; touch-action: pan-y; }
 .key-link:hover { text-decoration: none; }
 .key-badge { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 999px; color: #bff4ff; background: rgba(14, 165, 233, 0.16); border: 1px solid rgba(14, 165, 233, 0.55); box-shadow: 0 0 16px rgba(14, 165, 233, 0.28); }
 .key-link p { color: var(--overview-text); font-size: 1rem; }

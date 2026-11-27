@@ -1,11 +1,8 @@
 import {AudioTrack} from '../models/app.models';
 import {parseMentorLabel} from './course-assets';
+import {languageCodeFor, MENTOR_VOICES} from './mentor-voices';
 
-export interface UnitAudioTrack {
-  en?: string;
-  sw?: string;
-  zh?: string;
-}
+export type UnitAudioTrack = Record<string, string | undefined>;
 
 export interface MentorAudioUnit {
   moduleId: string;
@@ -15,21 +12,20 @@ export interface MentorAudioUnit {
 
 export function hasDualLanguageAudio(audio: UnitAudioTrack | undefined, mentorId: string): boolean {
   if (!audio) return false;
-  const valid = (url?: string) => !!url?.trim();
-  return valid(audio.en) && (mentorId.toLowerCase() === 'omari' ? valid(audio.sw)
-    : mentorId.toLowerCase() === 'sophie' ? valid(audio.zh) : true);
+  const codes = MENTOR_VOICES.filter(voice => voice.mentorId === mentorId.toLowerCase()).map(voice => voice.languageCode);
+  const present = codes.filter(code => !!audio[code]?.trim());
+  return codes.length > 1 ? present.length >= 2 : present.length === 1;
 }
 
 // Only group real course paths; languages from different units or mentors never form a pair.
 export function mentorAudioUnits(tracks: readonly AudioTrack[], mentorId: string): MentorAudioUnit[] {
   const units = new Map<string, MentorAudioUnit>();
-  const codes: Record<string, keyof UnitAudioTrack> = {en: 'en', english: 'en', sw: 'sw', swahili: 'sw', zh: 'zh', chinese: 'zh'};
   for (const track of tracks) {
     const mentor = track.mentorName ?? parseMentorLabel(track.speaker).mentorName;
     if (mentor.toLowerCase() !== mentorId.toLowerCase()) continue;
     const path = track.audioUrl?.trim();
     const match = path?.match(/^course-content\/(module-[1-9][0-9]*)\/(unit-[1-9][0-9]*)\/audio\/[^/]+\.mp3$/);
-    const language = codes[(track.language ?? parseMentorLabel(track.speaker).language).toLowerCase()];
+    const language = languageCodeFor(track.language ?? parseMentorLabel(track.speaker).language);
     if (!match || !language) continue;
     const key = `${match[1]}/${match[2]}`;
     const unit = units.get(key) ?? {moduleId: match[1], unitId: match[2], audioTracks: {}};

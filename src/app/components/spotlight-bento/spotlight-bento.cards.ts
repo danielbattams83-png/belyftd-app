@@ -30,10 +30,10 @@ export const DASHBOARD_BENTO_CARDS: BentoCard[] = [
     heading: 'Mentors',
     image: '/assets/lyftd/mentors.webp',
     alt: 'Mentor cards for Sophie and Hannah with Play lesson buttons',
-    text: 'Course recordings from four mentors, in your language.',
+    text: 'Course recordings in each mentor’s own languages.',
     detail:
-      'Sophie (English / Chinese), Omari (English / Swahili), Hannah and Steve (English). Pick a module, a lesson and a language, then hit play.',
-    chips: ['4 mentors', 'English', 'Chinese', 'Swahili'],
+      'Sophie speaks Mandarin and Cantonese. Omari speaks English, Swahili, and Portuguese. Every mentor card lists the languages they record.',
+    chips: ['13 mentors', 'Mandarin', 'Swahili', 'Hindi'],
     href: '/mentors',
   },
   {
@@ -49,17 +49,22 @@ export const DASHBOARD_BENTO_CARDS: BentoCard[] = [
     href: '/mentors',
   },
   {
-    tag: 'Coming Soon',
+    tag: 'Transformation System',
     heading: "The Lyft'd System",
     text: 'The full Lyft’d path, gathered in one place.',
-    detail: 'This is a preview. The Lyft’d System opens here when it is ready.',
+    detail: 'This is a preview. The Transformation System opens here when it is ready.',
     comingSoon: true,
   },
   {
-    tag: 'Coming Soon',
+    tag: 'New Tiers',
     heading: 'The Increase Business System',
     text: 'A business-building path inside Lyft’d.',
-    detail: 'This is a preview. The Increase Business System opens here when it is ready.',
+    tiers: [
+      {name: 'Tier 1', detail: 'Add the first tier name, price, and what it includes.'},
+      {name: 'Tier 2', detail: 'Add the second tier name, price, and what it includes.'},
+      {name: 'Tier 3', detail: 'Add the third tier name, price, and what it includes.'},
+    ],
+    contactEmail: 'belyftd@gmail.com',
     comingSoon: true,
   },
   {

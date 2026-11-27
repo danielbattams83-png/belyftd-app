@@ -34,7 +34,7 @@ const groups = [
   ['habits', 'habit', 'routine', 'consistency', 'commitment', 'discipline'],
 ];
 const stopWords = new Set('i im am a an the me my to for with in on of and or is feel feeling need want please find show something help some lesson lessons unit units about overcoming quick short listen listening hear by from can could you give bit today'.split(' '));
-const languageAliases: Record<string, string> = {english: 'English', en: 'English', chinese: 'Chinese', mandarin: 'Chinese', zh: 'Chinese', swahili: 'Swahili', kiswahili: 'Swahili', sw: 'Swahili'};
+const languageAliases: Record<string, string> = {english: 'English', en: 'English', chinese: 'Mandarin', mandarin: 'Mandarin', zh: 'Mandarin', cantonese: 'Cantonese', swahili: 'Swahili', kiswahili: 'Swahili', sw: 'Swahili', portuguese: 'Portuguese', hindi: 'Hindi', tamil: 'Tamil', japanese: 'Japanese', french: 'French', spanish: 'Spanish', italian: 'Italian', greek: 'Greek'};
 
 /** Small, deterministic intent matcher. Queries stay local; no model/API calls. */
 export function rankDiscoveryLessons(lessons: DiscoveryLesson[], query: string): DiscoveryLesson[] {

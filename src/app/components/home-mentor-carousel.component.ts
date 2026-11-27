@@ -49,10 +49,8 @@ export class HomeMentorCarouselComponent {
   }
 
   private onTrackWheel = (event: WheelEvent): void => {
-    if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
-    if (this.cards().length < 2) return;
-    const direction: -1 | 1 = event.deltaX > 0 ? 1 : -1;
-
+    const direction = wheelDirection(event);
+    if (!direction || this.cards().length < 2) return;
     event.preventDefault();
     const now = performance.now();
     if (now < this.wheelLockedUntil) return;
@@ -114,4 +112,18 @@ export class HomeMentorCarouselComponent {
     if (!total) return;
     this.activeIndex.set((this.activeIndex() + direction + total) % total);
   }
+}
+
+function finePointer(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(pointer: fine)').matches;
+}
+
+/** Next card is 1. Coarse pointers ignore a vertical wheel so the page can scroll. */
+function wheelDirection(event: WheelEvent): -1 | 1 | 0 {
+  if (event.ctrlKey) return 0;
+  const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+  if (!finePointer() && !horizontal) return 0;
+  const delta = horizontal ? event.deltaX : event.deltaY;
+  if (!delta) return 0;
+  return delta > 0 ? 1 : -1;
 }

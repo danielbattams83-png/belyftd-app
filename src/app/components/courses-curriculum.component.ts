@@ -120,17 +120,25 @@ export class CoursesCurriculumComponent {
   }
 
   private onTrackWheel = (event: WheelEvent): void => {
-    if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
-    const direction = event.deltaX > 0 ? 1 : -1;
+    if (event.ctrlKey) return;
+    const fine = typeof matchMedia === 'function' && matchMedia('(pointer: fine)').matches;
+    const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+    if (!fine && !horizontal) return;
+    const delta = horizontal ? event.deltaX : event.deltaY;
+    if (!delta) return;
+    const direction = delta > 0 ? 1 : -1;
     const modules = untracked(() => this.visibleModules());
     const index = untracked(() => this.activeIndex());
-    if (!modules[index + direction]) return;
+    if (!modules[index + direction]) {
+      if (fine) event.preventDefault();
+      return;
+    }
 
     event.preventDefault();
     const now = performance.now();
     if (now < this.wheelLockedUntil) return;
     this.wheelLockedUntil = now + WHEEL_COOLDOWN_MS;
-    this.zone.run(() => this.scrollTrack(direction));
+    this.zone.run(() => this.scrollTrack(direction as -1 | 1));
   };
 
   private onTrackScroll = (): void => {

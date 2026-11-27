@@ -6,6 +6,7 @@ import {UpgradeModalComponent} from './components/upgrade-modal.component';
 import {SmartSearchComponent} from './components/smart-search/smart-search.component';
 import {MentorRecordingPickerComponent} from './components/mentor-recording-picker.component';
 import {productionMentorForLabel} from './services/production-mentors';
+import {withMentorVoice} from './services/mentor-voices';
 import {BackButtonComponent} from './components/back-button.component';
 import {HomeMentorCarouselComponent} from './components/home-mentor-carousel.component';
 import {ExploreStackComponent} from './components/explore-stack/explore-stack.component';
@@ -260,10 +261,14 @@ export class App {
     {q: 'What is Lyft’d?', a: 'Lyft’d helps people move from where they are to where they are meant to be, with foundational courses, mentors, Lyft’d Life Lessons, and Your Key.'},
     {q: 'What are Foundational Courses?', a: 'A curriculum of modules and units on character, resilience, habits, leadership, money, faith, and digital life. Open Courses to start a unit.'},
     {q: 'What are Lyft’d Life Lessons?', a: 'Short lesson modules you can open and read, plus milestones you can break into steps and track.'},
-    {q: 'Who are the mentors?', a: 'Sophie (English and Chinese), Omari (English and Swahili), Hannah, and Steve (English). Their course recordings live on the Mentors page.'},
+    {q: 'Who are the mentors?', a: 'Each mentor card lists their languages. Sophie speaks Mandarin and Cantonese. Omari speaks English, Swahili, and Portuguese. Hannah speaks English and Spanish. Steve speaks English and French.'},
     {q: 'What is Your Key?', a: 'Your Key is a companion for encouragement and practical guidance. It is not healthcare, therapy, or crisis support. For an emergency, contact local emergency services.'},
     {q: 'How do I partner with Lyft’d?', a: 'Partner With Us lists monthly tiers that support mentorship. Higher tiers unlock more modules, the mentor video library, and multilingual audio.'},
   ];
+  readonly faqQuestion = signal('');
+  readonly faqContact = signal('');
+  readonly faqSending = signal(false);
+  readonly faqNotice = signal<string | null>(null);
   readonly hopeUnits = signal<HopeUnit[]>([]);
   readonly dailyMessageScheduler = inject(DailyMessageSchedulerService);
   readonly isLoggedIn = computed(() => this.firebaseService.isLoggedIn());
@@ -309,6 +314,38 @@ export class App {
   tourTab(): Exclude<MainTab, 'faq'> {
     const tab = this.activeTab();
     return tab === 'faq' ? 'daily-lyft' : tab;
+  }
+
+  readField(event: Event): string {
+    const field = event.target;
+    return field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement ? field.value : '';
+  }
+
+  async submitFaqQuestion(event: Event): Promise<void> {
+    event.preventDefault();
+    const question = this.faqQuestion().trim();
+    if (!question || this.faqSending()) {
+      this.faqNotice.set(question ? null : 'Please write a question first.');
+      return;
+    }
+    const contact = this.faqContact().trim();
+    const email = contact.includes('@') ? contact : '';
+    const name = email ? '' : contact;
+    this.faqSending.set(true);
+    this.faqNotice.set(null);
+    try {
+      await this.firebaseService.submitFaqQuestion({question, name, email});
+      this.faqQuestion.set('');
+      this.faqContact.set('');
+      this.faqNotice.set('Thanks. Your question was sent.');
+    } catch {
+      const subject = encodeURIComponent("Question for Lyft'd");
+      const body = encodeURIComponent(`Question:\n${question}\n\nFrom: ${contact || 'Not provided'}`);
+      window.location.href = `mailto:belyftd@gmail.com?subject=${subject}&body=${body}`;
+      this.faqNotice.set('We opened your email app with this question ready to send to belyftd@gmail.com.');
+    } finally {
+      this.faqSending.set(false);
+    }
   }
 
   selectTab(tab: MainTab): void {
@@ -485,7 +522,7 @@ export class App {
         !profile.selectedMentorIds?.length;
       this.showPostAuthOnboarding.set(needsOnboarding);
       const tourCompleted = profile?.tourCompleted === true || localStorage.getItem('tourCompleted') === 'true';
-      this.showFeatureWalkthrough.set(!needsOnboarding && !tourCompleted);
+      this.showFeatureWalkthrough.set(!needsOnboarding && !tourCompleted && !this.hideAppTourPrompt());
     });
 
     // Watch for deep links (e.g. from URL ?courseId=... or simulated push notifications)
@@ -569,7 +606,7 @@ export class App {
     this.showPostAuthOnboarding.set(false);
     const tourCompleted = this.firebaseService.userProfile()?.tourCompleted === true ||
       localStorage.getItem('tourCompleted') === 'true';
-    this.showFeatureWalkthrough.set(!tourCompleted);
+    this.showFeatureWalkthrough.set(!tourCompleted && !this.hideAppTourPrompt());
   }
 
   handleFeatureWalkthroughCompleted(): void {
@@ -579,6 +616,21 @@ export class App {
   replayAppTour(): void {
     this.showProfileModal.set(false);
     this.showFeatureWalkthrough.set(true);
+  }
+
+  onHideTourChange(event: Event): void {
+    const checked = event.target instanceof HTMLInputElement && event.target.checked;
+    this.setHideAppTourPrompt(checked);
+  }
+
+  setHideAppTourPrompt(hide: boolean): void {
+    this.hideAppTourPrompt.set(hide);
+    try {
+      localStorage.setItem('belyftd_hide_app_tour', String(hide));
+    } catch {
+      /* Private browsing can block storage; the choice still applies this session. */
+    }
+    if (hide) this.showFeatureWalkthrough.set(false);
   }
 
   // Filter States
@@ -596,7 +648,8 @@ export class App {
   readonly courseFilter = signal<'all' | 'completed' | 'in-progress'>('all');
 
   // Quick Mood reaction state
-  readonly activeMoodPrompt = signal<{mood: string; advice: string; trackId: string} | null>(null);
+  readonly activeMoodPrompt = signal<{mood: string; advice: string; href: string; action: string} | null>(null);
+  readonly hideAppTourPrompt = signal(typeof localStorage !== 'undefined' && localStorage.getItem('belyftd_hide_app_tour') === 'true');
 
   // Course metrics
   readonly completedCoursesCount = computed(() => {
@@ -797,47 +850,39 @@ export class App {
   // Mood Quick Check-in presets
   readonly moodCheckins = [
     {
-      mood: '⚡ Hyped & Ready',
-      emoji: '⚡',
-      advice: 'You have tremendous momentum right now! Channel this energy into your biggest quest step today.',
+      id: 'happy',
+      label: 'Happy',
+      emoji: '😊',
+      advice: 'Stay with that feeling. A short mentor message can carry it into the rest of your day.',
+      href: '/your-key',
+      action: 'Open today’s message',
     },
     {
-      mood: '😰 Nervous / Doubting',
-      emoji: '😰',
-      advice: 'Pause and take 3 deep breaths. Nervousness is just excitement without breath. You belong here.',
+      id: 'nervous',
+      label: 'Nervous',
+      emoji: '😟',
+      advice: 'Nervous is allowed. Take one slow breath, then open a short lesson and take the next small step.',
+      href: '/life-lessons',
+      action: 'Open a calming lesson',
     },
     {
-      mood: '😴 Low Energy / Tired',
-      emoji: '😴',
-      advice: 'Do not quit on yourself. Rest if you must, but take 1 tiny step before wrapping up.',
+      id: 'overwhelmed',
+      label: 'Overwhelmed',
+      emoji: '😮‍💨',
+      advice: 'You do not have to solve the whole day. Pause here, then listen to one encouraging message.',
+      href: '/your-key',
+      action: 'Hear a short lift',
     },
-    {
-      mood: '🎯 Laser Focused',
-      emoji: '🎯',
-      advice: 'Lock in. Eliminate distractions and conquer your top priority for the next 25 minutes.',
-    },
-    {
-      mood: '🌧️ Overwhelmed',
-      emoji: '🌧️',
-      advice: 'You do not have to solve the entire semester or career today. Just handle the next 10 minutes.',
-    }
   ];
 
   setMoodCheckin(item: typeof this.moodCheckins[0]): void {
     this.activeMoodPrompt.set({
-      mood: item.mood,
+      mood: item.label,
       advice: item.advice,
-      trackId: this.dataService.audioTracks()[0]?.id ?? '',
+      href: item.href,
+      action: item.action,
     });
-    this.themeService.announce(`Mood updated to ${item.mood}`);
-  }
-
-  playMoodTrack(trackId: string): void {
-    const tracks = this.dataService.audioTracks();
-    const track = tracks.find(t => t.id === trackId);
-    if (track) {
-      this.audioPlayer.playTrack(track);
-    }
+    this.themeService.announce(`Mood updated to ${item.label}`);
   }
 
   readonly curriculumMentorAudio = computed(() => {
@@ -868,8 +913,9 @@ export class App {
 
   mentorRecordings(mentorName: string): AudioTrack[] {
     const tier = this.firebaseService.subscriptionTier();
+    const allowed = new Set(productionMentorForLabel(mentorName)?.languages ?? []);
     return this.dataService.availableAudioTracks().filter(track => {
-      if (track.mentorName !== mentorName || this.audioPlayer.unavailableTracks().has(track.id)) return false;
+      if (track.mentorName !== mentorName || (track.language && !allowed.has(track.language)) || this.audioPlayer.unavailableTracks().has(track.id)) return false;
       const moduleId = /^course-content\/([^/]+)\//.exec(track.audioUrl?.trim() ?? '')?.[1];
       // Guests may browse the audited inventory; playback still requires sign-in.
       return !!moduleId && (!tier || canAccessModule(tier, moduleId));
@@ -878,7 +924,7 @@ export class App {
 
   playMentorRecording(track: AudioTrack): void {
     if (!this.requireSignIn()) return;
-    void this.audioPlayer.playTrack(track);
+    void this.audioPlayer.playTrack(withMentorVoice(track));
   }
 
   openMentorChat(mentor: Mentor): void {
