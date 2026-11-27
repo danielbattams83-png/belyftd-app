@@ -82,7 +82,7 @@ img, video, canvas, svg { max-width: 100%; }
 .flex > img { flex-shrink: 0; }
 .page-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 72rem;
   margin-inline: auto;
   padding: 1rem max(1rem, var(--safe-right)) calc(4.5rem + var(--safe-bottom)) max(1rem, var(--safe-left));
 }
@@ -146,10 +146,11 @@ input[type="range"] { min-height: 44px; }
 @media (min-width: 768px) {
   :root { --card-padding: 1.5rem; }
   .responsive-grid { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 1.5rem; }
+  .page-container { padding-right: max(2rem, var(--safe-right)); padding-left: max(2rem, var(--safe-left)); }
 }
 @media (min-width: 1024px) {
   :root { --mobile-nav-space: 0px; }
-  .page-container { max-width: 1280px; padding: 1.5rem max(1.5rem, var(--safe-right)) 2rem max(1.5rem, var(--safe-left)); }
+  .page-container { max-width: 72rem; padding-top: 1.5rem; padding-bottom: 2rem; }
   .app-toast { left: auto; width: min(24rem, calc(100% - 2rem)); }
 }
 

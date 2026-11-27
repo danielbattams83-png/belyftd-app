@@ -26,7 +26,7 @@
 .mentor-grid img { flex-shrink: 0; }
 /* The header stays fluid while account actions wrap on narrow phones. */
 .app-header { display: flex; justify-content: center; padding: calc(.5rem + var(--safe-top)) max(1rem, var(--safe-right)) .5rem max(1rem, var(--safe-left)); }
-.app-header-layout { display: flex; align-items: stretch; justify-content: flex-start; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 1168px; margin: 0 5px 0 0; }
+.app-header-layout { display: flex; align-items: stretch; justify-content: flex-start; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 72rem; margin: 0 auto; }
 .app-header-brand { container-type: inline-size; display: block; flex: 1 1 64px; min-width: 64px; max-width: 140px; }
 .app-header-logo { display: block; width: 140px; height: auto; min-height: 64px; min-width: 0; object-fit: contain; }
 .app-header-logo.logo-on-dark,
@@ -79,7 +79,7 @@
 @media (min-width: 480px) { .header-signin-full { display: inline; } .header-signin-short { display: none; } }
 @media (min-width: 1024px) {
   .app-header { padding: calc(.5rem + var(--safe-top)) var(--safe-right) 0 var(--safe-left); }
-  .app-header-layout { align-items: center; flex-wrap: wrap; gap: .25rem 1rem; max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+  .app-header-layout { align-items: center; flex-wrap: wrap; gap: .25rem 1rem; max-width: 72rem; margin: 0 auto; padding: 0 2rem; }
   .app-header-actions { max-width: none; }
   .app-header-nav { display: flex; justify-content: flex-start; flex-wrap: nowrap; gap: 1rem; margin-top: .25rem; }
   .app-header-nav button { padding: .5rem 0; border-bottom: 3px solid transparent; white-space: nowrap; }
@@ -153,16 +153,21 @@
   color: #f8fafc;
   box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.55);
 }
+.mentor-directory { width: 100%; max-width: 72rem; margin-inline: auto; }
 .mentor-portrait {
   position: relative;
-  aspect-ratio: 9 / 16;
+  aspect-ratio: 3 / 4;
+  max-height: 350px;
+  overflow: hidden;
   background: #0f172a;
 }
 .mentor-portrait img {
+  display: block;
   width: 100%;
   height: 100%;
+  max-height: 350px;
   object-fit: cover;
-  object-position: top center;
+  object-position: center top;
 }
 .mentor-region-badge {
   position: absolute;
@@ -179,16 +184,25 @@
 }
 .mentor-card__body {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem 1rem 1.1rem;
 }
+.mentor-bio {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mentor-card__body app-mentor-recording-picker,
+.mentor-soon { margin-top: auto; width: 100%; }
 .mentor-card__body h3 { margin: 0; font-size: 1.25rem; font-weight: 800; color: #fff; }
 .mentor-role { margin: 0; color: #38bdf8; font-size: 0.875rem; font-weight: 700; }
 .mentor-languages { margin: 0; color: #94a3b8; font-size: 0.8125rem; font-weight: 600; }
 .mentor-bio { margin: 0; color: #cbd5e1; font-size: 0.875rem; line-height: 1.45; }
 .mentor-soon {
-  margin: 0.25rem 0 0;
+  margin: auto 0 0;
   padding: 0.7rem 0.9rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -198,13 +212,10 @@
   font-weight: 700;
   text-align: center;
 }
-@media (min-width: 520px) {
-  .mentor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 768px) {
+  .mentor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
 }
-@media (min-width: 900px) {
-  .mentor-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
   .mentor-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
@@ -213,7 +224,12 @@
 .courses-section-heading { width: 100%; max-width: 1092px; margin-inline: auto; margin-top: 0; padding: 0 1rem; box-sizing: border-box; }
 .courses-section-heading h2 { font-size: 1.35rem; font-weight: 800; letter-spacing: -.025em; margin-bottom: .25rem; }
 .courses-section-heading p { font-size: .875rem; line-height: 1.5; opacity: .65; margin: 0; }
-.courses-page #course-progress-card { margin-top: .5rem; margin-bottom: .25rem; }
+.courses-page #course-progress-card {
+  width: 100%;
+  max-width: 42rem;
+  margin: .5rem auto .25rem;
+  padding: 1rem 1.25rem;
+}
 .course-recordings { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 860px; margin-inline: auto; }
 .recordings-close { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; }
 .recordings-close:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
@@ -253,9 +269,9 @@
   background: rgba(26, 155, 239, 0.12);
   border-color: rgba(143, 208, 250, 0.28);
 }
-.feeling-layout { display: grid; gap: 1rem; align-items: stretch; }
-@media (min-width: 720px) {
-  .feeling-layout { grid-template-columns: minmax(0, 1fr) 220px; }
+.feeling-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; align-items: stretch; }
+@media (min-width: 768px) {
+  .feeling-layout { grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); }
 }
 .feeling-tour {
   display: flex;
@@ -275,14 +291,29 @@
 }
 .feeling-tour:hover { background: rgba(255, 255, 255, 0.12); }
 
-.meaning-glass {
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.78), rgba(255, 247, 237, 0.55) 55%, rgba(238, 242, 255, 0.5));
-  backdrop-filter: blur(12px);
+.meaning-hero,
+.meaning-desktop .meaning-glass {
+  background: linear-gradient(to bottom right, #0B0F19, #17233E) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: #fff;
+  box-shadow: none;
 }
-:root.dark .meaning-glass,
-.dark .meaning-glass {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: linear-gradient(165deg, rgba(30, 36, 43, 0.9), rgba(24, 32, 40, 0.78));
+.meaning-hero h3,
+.meaning-desktop h3,
+.meaning-hero .font-bold,
+.meaning-desktop .font-bold { color: #fff !important; }
+.meaning-hero p,
+.meaning-desktop p { color: #94a3b8 !important; }
+.meaning-quote {
+  background: rgba(15, 23, 42, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  backdrop-filter: blur(8px);
+}
+.meaning-quote p,
+.meaning-quote .font-cursive { color: #fff !important; }
+.meaning-letter {
+  background: rgba(14, 165, 233, 0.16) !important;
+  color: #7dd3fc !important;
 }
 
 .daily-message-frame {
